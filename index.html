@@ -1,11 +1,86 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Greenapple0101</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kubernetes Archive | Greenapple0101</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>안녕하세요. Greenapple0101의 GitHub Pages입니다.</h1>
-  <p>배포 성공!</p>
+  <header>
+    <p class="small-title">Greenapple0101</p>
+    <h1>Kubernetes Archive</h1>
+    <p class="description">
+      쿠버네티스를 공부하면서 정리한 개념, 실습, 명령어, 트러블슈팅 기록을 모아둔 아카이브입니다.
+    </p>
+  </header>
+
+  <main>
+    <div class="post-list">
+      <a class="post-card" href="./kubernetes-network-basic.md">
+        <h2>쿠버네티스 네트워크를 이해하기 전에</h2>
+        <p>IP, NIC, CNI, Pod 네트워크를 이해하기 위한 기초 개념 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-nic.md">
+        <h2>쿠버네티스에서 NIC란?</h2>
+        <p>노드, 파드, 네트워크 인터페이스가 어떻게 연결되는지 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-pod-container.md">
+        <h2>Pod와 Container의 관계</h2>
+        <p>이미지, 컨테이너, 파드가 어떤 관계인지 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-service-ingress.md">
+        <h2>Service와 Ingress</h2>
+        <p>ClusterIP, NodePort, LoadBalancer, Ingress 차이 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-pv-pvc.md">
+        <h2>PV와 PVC</h2>
+        <p>쿠버네티스에서 저장공간을 요청하고 연결하는 방식 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-volume.md">
+        <h2>Volume과 Mount</h2>
+        <p>컨테이너가 데이터를 유지하고 공유하는 방식 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-configmap-secret.md">
+        <h2>ConfigMap과 Secret</h2>
+        <p>설정값과 민감정보를 쿠버네티스에서 관리하는 방식 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-daemonset.md">
+        <h2>Daemon과 DaemonSet</h2>
+        <p>노드마다 파드를 하나씩 띄우는 운영 패턴 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-static-pod.md">
+        <h2>Static Pod란?</h2>
+        <p>kubelet이 직접 관리하는 파드의 개념과 사용 위치 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-fluent-bit.md">
+        <h2>Fluent Bit 로그 수집</h2>
+        <p>사이드카 패턴과 클러스터 레벨 로그 수집 방식 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-helm-values.md">
+        <h2>Helm values.yaml</h2>
+        <p>Helm 차트의 설정값을 분리해서 관리하는 방식 정리</p>
+      </a>
+
+      <a class="post-card" href="./kubernetes-ssl.md">
+        <h2>쿠버네티스와 SSL</h2>
+        <p>Ingress, HTTPS, TLS, 인증서 흐름 정리</p>
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 Greenapple0101 Kubernetes Archive</p>
+  </footer>
 </body>
 </html>
