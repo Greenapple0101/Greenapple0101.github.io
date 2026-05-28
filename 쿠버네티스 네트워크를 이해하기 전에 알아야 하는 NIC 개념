@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kubernetes NIC 정리</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.7;
+      color: #24292f;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 56px 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    header p {
+      font-size: 18px;
+      color: #cbd5e1;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      border-bottom: 1px solid #d0d7de;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+
+    h3 {
+      margin-top: 28px;
+      color: #1f2937;
+    }
+
+    code {
+      background: #f6f8fa;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    pre {
+      background: #f6f8fa;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid #d0d7de;
+    }
+
+    .box {
+      background: #f8fafc;
+      border-left: 4px solid #2563eb;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      border: 1px solid #d0d7de;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f6f8fa;
+    }
+
+    footer {
+      text-align: center;
+      color: #6b7280;
+      padding: 32px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kubernetes NIC 정리</h1>
+    <p>쿠버네티스 네트워크를 이해하기 전에 알아야 하는 NIC 개념</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. NIC란?</h2>
+      <p>
+        NIC는 <strong>Network Interface Card</strong>의 줄임말이다.
+        쉽게 말하면 서버나 노드가 네트워크에 연결되기 위해 사용하는
+        <strong>네트워크 인터페이스</strong>다.
+      </p>
+
+      <div class="box">
+        NIC는 컴퓨터가 네트워크와 통신하기 위한 출입구라고 보면 된다.
+        쿠버네티스에서는 노드, 파드, 서비스, CNI가 모두 이 네트워크 인터페이스 개념과 연결된다.
+      </div>
+
+      <p>
+        우리가 흔히 보는 <code>eth0</code>, <code>ens33</code>,
+        <code>enp0s3</code> 같은 이름들이 리눅스에서의 NIC 이름이다.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. 쿠버네티스에서 NIC가 중요한 이유</h2>
+      <p>
+        쿠버네티스는 여러 노드 위에서 파드를 실행한다.
+        이때 파드끼리 통신하고, 외부에서 서비스에 접근하고,
+        노드 간 트래픽을 주고받으려면 결국 물리적 또는 가상 NIC를 통해 네트워크가 연결되어야 한다.
+      </p>
+
+      <p>
+        즉, 쿠버네티스 네트워크는 추상적으로 보면
+        <strong>Pod IP, Service IP, Ingress, CNI</strong> 같은 개념으로 보이지만,
+        실제 패킷은 노드의 NIC를 타고 이동한다.
+      </p>
+    </section>
+
+    <section>
+      <h2>3. 노드의 NIC와 파드 네트워크</h2>
+      <p>
+        쿠버네티스 노드에는 기본적으로 외부 네트워크와 연결된 NIC가 있다.
+        예를 들어 노드에서 다음 명령어를 실행하면 네트워크 인터페이스를 확인할 수 있다.
+      </p>
+
+      <pre><code>ip addr</code></pre>
+
+      <p>예시로 이런 형태가 나올 수 있다.</p>
+
+      <pre><code>eth0: 192.168.164.4
+cni0: 10.42.0.1
+flannel.1: 10.42.0.0</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th>인터페이스</th>
+            <th>의미</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>eth0</code></td>
+            <td>노드가 외부 네트워크와 통신하는 기본 NIC</td>
+          </tr>
+          <tr>
+            <td><code>cni0</code></td>
+            <td>CNI가 파드 네트워크를 위해 만든 브릿지 인터페이스</td>
+          </tr>
+          <tr>
+            <td><code>flannel.1</code></td>
+            <td>Flannel 같은 CNI 플러그인이 노드 간 파드 통신을 위해 사용하는 인터페이스</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. CNI와 NIC의 관계</h2>
+      <p>
+        쿠버네티스 자체는 파드 네트워크를 직접 구현하지 않는다.
+        대신 <strong>CNI</strong>라는 플러그인에게 파드 네트워크 구성을 맡긴다.
+      </p>
+
+      <p>
+        CNI는 파드가 생성될 때 다음과 같은 일을 한다.
+      </p>
+
+      <ul>
+        <li>파드에 네트워크 인터페이스 생성</li>
+        <li>파드에 IP 할당</li>
+        <li>노드의 네트워크 인터페이스와 연결</li>
+        <li>파드 간 통신이 가능하도록 라우팅 설정</li>
+      </ul>
+
+      <div class="box">
+        정리하면 NIC는 실제 네트워크 출입구이고,
+        CNI는 쿠버네티스 파드들이 그 출입구를 잘 사용할 수 있도록 연결해주는 관리자 역할이다.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. 파드 안에도 NIC가 있을까?</h2>
+      <p>
+        있다. 파드 내부에서도 <code>eth0</code> 같은 네트워크 인터페이스를 볼 수 있다.
+        다만 이것은 물리 NIC가 아니라 리눅스 네트워크 네임스페이스 안에 만들어진
+        <strong>가상 네트워크 인터페이스</strong>다.
+      </p>
+
+      <pre><code>kubectl exec -it &lt;pod-name&gt; -- ip addr</code></pre>
+
+      <p>
+        이 명령어를 실행하면 파드 내부의 <code>eth0</code>와 파드 IP를 확인할 수 있다.
+      </p>
+    </section>
+
+    <section>
+      <h2>6. 왜 파드마다 IP가 다를까?</h2>
+      <p>
+        쿠버네티스에서는 기본적으로 파드마다 고유한 IP를 가진다.
+        CNI는 파드가 생성될 때마다 파드용 네트워크 인터페이스를 만들고,
+        해당 인터페이스에 IP를 할당한다.
+      </p>
+
+      <p>
+        그래서 같은 노드 안의 파드끼리도 서로 다른 IP를 가지고 통신할 수 있고,
+        다른 노드에 있는 파드와도 CNI 라우팅을 통해 통신할 수 있다.
+      </p>
+    </section>
+
+    <section>
+      <h2>7. NIC, CNI, Service의 차이</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>개념</th>
+            <th>역할</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>NIC</td>
+            <td>네트워크에 연결되는 실제 또는 가상의 인터페이스</td>
+          </tr>
+          <tr>
+            <td>CNI</td>
+            <td>파드 네트워크를 구성하는 플러그인</td>
+          </tr>
+          <tr>
+            <td>Pod IP</td>
+            <td>파드가 직접 통신할 때 사용하는 IP</td>
+          </tr>
+          <tr>
+            <td>Service</td>
+            <td>여러 파드 앞에 붙는 고정된 접근 지점</td>
+          </tr>
+          <tr>
+            <td>Ingress</td>
+            <td>외부 HTTP/HTTPS 요청을 서비스로 연결하는 진입점</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>8. 한 줄로 정리</h2>
+      <p>
+        쿠버네티스에서 NIC는 노드와 파드가 네트워크에 연결되기 위한 기본 통로이고,
+        CNI는 이 통로를 이용해서 파드 간 통신이 가능하도록 네트워크를 구성하는 역할을 한다.
+      </p>
+
+      <div class="box">
+        NIC를 이해하면 쿠버네티스의 Pod IP, CNI, Service, Ingress, NodePort 같은 개념이 훨씬 덜 추상적으로 느껴진다.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Greenapple0101.github.io · Kubernetes Network Study
+  </footer>
+</body>
+</html>
