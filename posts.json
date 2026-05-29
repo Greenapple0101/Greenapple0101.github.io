@@ -690,6 +690,16 @@
     "tag_color": "#7c3aed"
   },
   {
+    "slug": "[Kubernetes]-API-접근제어-인증-권한관리는-왜-필요한가",
+    "title": "[Kubernetes] API 접근제어, 인증, 권한관리는 왜 필요한가",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "Thu, 29 Ma",
+    "excerpt": "쿠버네티스를 공부하다 보면 어느 순간부터 단순히 Pod 만들기 , Service 연결하기 , Ingress 붙이기 를 넘어서 이런 질문이 나온다. 아무나 클러스터에 명령을 날릴 수 있으면 어떡하지? 사용자는 어떻게…",
+    "tag_color": "#7c3aed"
+  },
+  {
     "slug": "[Kubernetes]-BUSYBOX",
     "title": "[K8S] BUSYBOX",
     "category": "Kubernetes",
