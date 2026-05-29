@@ -1690,26 +1690,6 @@
     "tag_color": "#db2777"
   },
   {
-    "slug": "[RAG-MLOps]-내가-만든-운영형-RAG-시스템은-무엇을-해결하려고-했나",
-    "title": "[RAG/MLOps] 내가 만든 운영형 RAG 시스템은 무엇을 해결하려고 했나",
-    "category": "RAG-MLOps",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "요즘 생성형 AI 서비스를 만들 때 가장 많이 나오는 구조 중 하나가 RAG다. RAG는 Retrieval-Augmented Generation의 줄임말로, 쉽게 말하면 “LLM이 그냥 자기 기억만으로 답하게 하지…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[RAG]-코퍼스-청킹-임베딩-벡터서치-Recallk까지-한-번에-정리하기",
-    "title": "[RAG] 코퍼스, 청킹, 임베딩, 벡터서치, Recall@k까지 한 번에 정리하기",
-    "category": "RAG",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "RAG를 공부하다 보면 처음부터 낯선 단어가 너무 많이 나온다. 코퍼스, 청킹, 임베딩, 벡터서치, top_k, reranker, Recall@k, nDCG@k 같은 말들이 계속 나오는데, 각각 따로 보면 알 것…",
-    "tag_color": "#64748b"
-  },
-  {
     "slug": "[SECURITY]-RSA는-어떻게-동작하는가",
     "title": "[SECURITY] RSA는 어떻게 동작하는가",
     "category": "SECURITY",
@@ -2330,6 +2310,16 @@
     "tag_color": "#0d9488"
   },
   {
+    "slug": "[Upstage]-내가-만든-운영형-RAG-시스템은-무엇을-해결하려고-했나",
+    "title": "[RAG/MLOps] 내가 만든 운영형 RAG 시스템은 무엇을 해결하려고 했나",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "요즘 생성형 AI 서비스를 만들 때 가장 많이 나오는 구조 중 하나가 RAG다. RAG는 Retrieval-Augmented Generation의 줄임말로, 쉽게 말하면 “LLM이 그냥 자기 기억만으로 답하게 하지…",
+    "tag_color": "#0d9488"
+  },
+  {
     "slug": "[Upstage]-업스테이지는-왜-API를-다-따로-만들었을까",
     "title": "[Upstage] 업스테이지는 왜 API를 다 따로 만들었을까",
     "category": "Upstage",
@@ -2337,6 +2327,16 @@
     "tags": "",
     "date": "",
     "excerpt": "업스테이지는 왜 API를 다 따로 만들었을까? 업스테이지를 이해할 때 중요한 포인트가 있다. 업스테이지는 단순히 “LLM 하나 만든 회사”라기보다는, 문서 기반 AI 서비스를 만들 때 필요한 기능들을 각각 API…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-코퍼스-청킹-임베딩-벡터서치-Recallk까지-한-번에-정리하기",
+    "title": "[RAG] 코퍼스, 청킹, 임베딩, 벡터서치, Recall@k까지 한 번에 정리하기",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "RAG를 공부하다 보면 처음부터 낯선 단어가 너무 많이 나온다. 코퍼스, 청킹, 임베딩, 벡터서치, top_k, reranker, Recall@k, nDCG@k 같은 말들이 계속 나오는데, 각각 따로 보면 알 것…",
     "tag_color": "#0d9488"
   },
   {

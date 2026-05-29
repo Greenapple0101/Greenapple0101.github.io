@@ -169,7 +169,9 @@ def topic_for_entry(category: str, slug: str) -> str:
     prefix = _slug_prefix(slug).lower()
     cat_key = re.sub(r"^\[|\]$", "", category.strip()).lower()
 
-    upstage_keys = frozenset({"upstage", "업스테이지"})
+    upstage_keys = frozenset(
+        {"upstage", "업스테이지", "rag", "rag/mlops", "rag-mlops", "ragmlops"}
+    )
     if cat_key in upstage_keys or prefix in upstage_keys:
         return "upstage"
 
@@ -183,9 +185,7 @@ def topic_for_entry(category: str, slug: str) -> str:
     if cat_key in spring_keys or prefix in spring_keys or cat_key.startswith("spring"):
         return "spring"
 
-    ai_keys = frozenset(
-        {"ai", "ai-infra", "dl", "pytorch", "ml", "rag", "ragmlops", "rag-mlops", "cs"}
-    )
+    ai_keys = frozenset({"ai", "ai-infra", "dl", "pytorch", "ml", "cs"})
     if cat_key in ai_keys or prefix in ai_keys:
         return "ai"
 
