@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">CKA</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[CKA] ConfigMap으로 Nginx TLS 버전 제한하기: TLSv1.3만 허용하는 문제 풀이</h1>
     <div class="post-meta">
       <time datetime="2026-05-18T01:59:19.030Z">2026.05.18</time>
@@ -446,6 +446,11 @@ kubectl rollout status deploy nginx-static -n nginx-static
 </code></pre>
 <p>이 명령어가 실패해야 TLSv1.2 이하가 차단된 것이고, TLSv1.3만 허용되도록 설정이 제대로 반영된 것이다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="HELM-Helm-Chart는-이미지를-직접-가져오는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[HELM] Helm Chart는 이미지를 직접 가져오는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="NGINX-Nginx에서-HTTPS-설정을-한다는-건-무슨-뜻일까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[NGINX] Nginx에서 HTTPS 설정을 한다는 건 무슨 뜻일까?</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

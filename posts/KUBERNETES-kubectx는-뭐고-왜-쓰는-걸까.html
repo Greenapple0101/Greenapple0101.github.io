@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[KUBERNETES] kubectx는 뭐고 왜 쓰는 걸까?</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T04:57:08.513Z">2026.05.13</time>
@@ -222,6 +222,11 @@ kubectl scale
 <h2>정리</h2>
 <p>kubectx는 Kubernetes context를 쉽게 확인하고 전환하기 위한 CLI 도구다. context는 <code>kubectl</code>이 어느 클러스터에 어떤 사용자 정보와 namespace 기준으로 접속할지를 정해둔 설정 묶음이다. 쿠버네티스 클러스터가 하나뿐일 때는 크게 필요성을 못 느낄 수 있지만, k3d, minikube, docker-desktop, 개발 클러스터, 운영 클러스터처럼 여러 환경을 다루기 시작하면 매우 유용해진다. <code>kubectx</code>를 사용하면 context 목록 확인, context 변경, 이전 context 복귀를 짧은 명령어로 처리할 수 있다. 핵심은 <code>kubectl</code> 명령어를 실행하기 전에 현재 context가 어디인지 확인하는 습관이다. 특히 삭제, 배포, 재시작 같은 작업 전에는 반드시 현재 context를 확인해야 한다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-k9s는-뭐고-왜-쓰는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] k9s는 뭐고 왜 쓰는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="KUBERNETES-Helm은-왜-쓰는-걸까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] Helm은 왜 쓰는 걸까?</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

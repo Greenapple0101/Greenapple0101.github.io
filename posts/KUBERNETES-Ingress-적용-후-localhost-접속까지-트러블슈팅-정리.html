@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T05:24:35.460Z">2026.05.13</time>
@@ -354,6 +354,11 @@ Pod
 <h2>정리</h2>
 <p><code>error: the path "nginx-ingress.yaml" does not exist</code>는 Kubernetes 문제가 아니라 현재 디렉토리에 YAML 파일이 없어서 발생한 파일 경로 문제였다. 파일을 현재 위치에 만들고 <code>k apply -f nginx-ingress.yaml</code>을 실행하자 Ingress 리소스는 정상적으로 생성되었다. 이후 브라우저에서 <code>localhost</code> 접속 시 <code>ERR_CONNECTION_REFUSED</code>가 발생했는데, 이는 k3d 클러스터 생성 시 <code>80:80@loadbalancer</code> 포트 매핑이 없어서 로컬 80번 포트가 클러스터의 ingress-nginx까지 연결되지 않았기 때문이다. 기존 <code>hello-cluster</code>가 이미 존재했기 때문에 같은 이름으로 다시 만들 수 없었고, 실습 환경에서는 기존 클러스터를 삭제한 뒤 포트 매핑을 포함해서 다시 생성하는 방식으로 해결할 수 있다. 그다음 나타난 <code>503 Service Temporarily Unavailable</code>은 요청이 ingress-nginx controller까지 도달했다는 뜻이지만, Ingress 뒤쪽의 Service 또는 Pod 연결이 제대로 되지 않았다는 의미다. 따라서 최종적으로는 Ingress의 backend service 이름과 port, 실제 Service 존재 여부, Service의 Endpoints, Pod Running 상태를 확인해야 한다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="KUBERNETES-kubectl로-Ingress-만드는-것과-Helm으로-ingress-nginx-설치하는-것은-뭐가-다를까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] kubectl로 Ingress 만드는 것과 Helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[KUBERNETES] Helm은 왜 쓰는 걸까?</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T05:01:32.267Z">2026.05.13</time>
@@ -345,6 +345,11 @@ kubectl get events
 <h2>정리</h2>
 <p>Helm은 Kubernetes의 패키지 매니저다. Docker에서 이미지를 받아 컨테이너를 실행하듯이, Kubernetes에서는 Helm Chart를 이용해 복잡한 애플리케이션을 쉽게 설치하고 관리할 수 있다. Chart는 Deployment, Service, ConfigMap, Ingress 같은 Kubernetes 리소스 템플릿을 하나로 묶은 패키지이고, Release는 그 Chart를 실제 클러스터에 설치한 결과다. Helm을 사용하면 ingress-nginx, Prometheus, Grafana 같은 복잡한 앱을 명령어 몇 줄로 설치할 수 있고, values.yaml을 통해 환경별 설정도 깔끔하게 분리할 수 있다. 다만 Helm도 결국 Kubernetes 리소스를 생성하는 도구이기 때문에, 문제가 생겼을 때는 kubectl로 Pod 상태, 로그, 이벤트를 확인할 수 있어야 한다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-kubectx는-뭐고-왜-쓰는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] kubectx는 뭐고 왜 쓰는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="KUBERNETES-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

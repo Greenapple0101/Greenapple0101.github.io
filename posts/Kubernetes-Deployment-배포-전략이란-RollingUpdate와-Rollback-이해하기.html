@@ -321,6 +321,11 @@ NewReplicaSet: frontend-685dfcc44
 <h2>19. 정리</h2>
 <p>Kubernetes Deployment의 배포 전략은 애플리케이션을 새 버전으로 안전하게 바꾸는 방식이다. 기본 전략은 RollingUpdate이며, 기존 Pod를 한 번에 모두 죽이지 않고 조금씩 새 Pod로 교체한다. <code>max unavailable</code>은 업데이트 중 사용 불가능해도 되는 Pod 수를 정하고, <code>max surge</code>는 업데이트 중 추가로 만들 수 있는 Pod 수를 정한다. 배포가 잘못되면 <code>kubectl rollout undo</code>로 이전 버전으로 되돌릴 수 있다. CKA에서는 이 개념을 외우는 것보다 <code>describe</code>, <code>set image</code>, <code>rollout status</code>, <code>rollout history</code>, <code>rollout undo</code> 명령어 흐름을 손에 익히는 것이 중요하다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-f.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] -f</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="Kubernetes-Service-종류-3가지-ClusterIP-NodePort-LoadBalancer.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Kubernetes] Service 종류 3가지: ClusterIP, NodePort, LoadBalancer</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

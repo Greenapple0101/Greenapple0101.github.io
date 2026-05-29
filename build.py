@@ -23,15 +23,31 @@ MD = markdown.Markdown(
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 FIELD_RE = re.compile(r'^(\w+):\s*(?:"((?:\\.|[^"\\])*)"|\'((?:\\.|[^\'\\])*)\'|(.+))$', re.MULTILINE)
 
+KUBERNETES_CATEGORY = "Kubernetes"
+
+# Filename/tag prefixes that should appear under one Kubernetes filter.
+KUBERNETES_PREFIXES = frozenset(
+    {
+        "kubernetes",
+        "kuberentes",
+        "k8s",
+        "cka",
+        "ckakubernetes",
+        "k3dkubernetes",
+        "k3d",
+        "helm",
+        "argo",
+        "argocd",
+        "dockerk3d",
+    }
+)
+
 CATEGORY_COLORS = {
     "SPRING": "#16a34a",
     "Spring": "#16a34a",
     "DOCKER": "#0ea5e9",
     "Docker": "#0ea5e9",
     "Kubernetes": "#7c3aed",
-    "K8S": "#7c3aed",
-    "CKA": "#7c3aed",
-    "CKAKubernetes": "#7c3aed",
     "AI": "#db2777",
     "DL": "#db2777",
     "PyTorch": "#db2777",
@@ -71,13 +87,27 @@ def slug_from_filename(path: Path) -> str:
     return path.stem
 
 
+def _slug_prefix(slug: str) -> str:
+    bracket = re.match(r"^\[([^\]]+)\]", slug)
+    if bracket:
+        return bracket.group(1).strip()
+    return slug.split("-")[0].strip()
+
+
+def normalize_category(category: str) -> str:
+    key = re.sub(r"^\[|\]$", "", category.strip()).lower()
+    if key in KUBERNETES_PREFIXES or "kubernetes" in key:
+        return KUBERNETES_CATEGORY
+    return category.strip() or "기타"
+
+
 def category_from_slug(slug: str, tags: str) -> str:
     if tags:
         first = tags.split(",")[0].strip()
         if first:
-            return first
-    prefix = slug.split("-")[0]
-    return prefix if prefix else "기타"
+            return normalize_category(first)
+    prefix = _slug_prefix(slug)
+    return normalize_category(prefix) if prefix else "기타"
 
 
 def category_color(category: str) -> str:
@@ -130,6 +160,7 @@ POST_HTML = """<!DOCTYPE html>
   <article class="post-content">
 {content}
   </article>
+{post_nav}
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>
@@ -171,6 +202,7 @@ INDEX_HTML = """<!DOCTYPE html>
 {cards}
     </div>
     <p class="empty-state" id="empty-state" hidden>검색 결과가 없습니다.</p>
+    <nav class="pagination" id="pagination" aria-label="페이지" hidden></nav>
   </main>
 
   <footer>
@@ -181,7 +213,7 @@ INDEX_HTML = """<!DOCTYPE html>
 </html>
 """
 
-CARD_TEMPLATE = """      <a class="post-card" href="posts/{slug}.html" data-title="{title_lower}" data-tags="{tags_lower}" data-category="{category}">
+CARD_TEMPLATE = """      <a class="post-card" href="posts/{slug}.html" data-title="{title_lower}" data-tags="{tags_lower}" data-category="{category}" data-published="{published}">
         <div class="card-top">
           <span class="tag" style="--tag-color: {tag_color}">{category}</span>
           <time>{date}</time>
@@ -192,7 +224,59 @@ CARD_TEMPLATE = """      <a class="post-card" href="posts/{slug}.html" data-titl
 """
 
 
-def build_post(slug: str, meta: dict[str, str], body: str) -> dict:
+def post_nav_html(prev_entry: dict | None, next_entry: dict | None) -> str:
+  """prev = older post, next = newer post (chronological)."""
+  parts = ['<nav class="post-nav" aria-label="글 이동">']
+
+  if prev_entry:
+    parts.append(
+      f'<a class="post-nav-link prev" href="{html.escape(prev_entry["slug"])}.html">'
+      f'<span class="post-nav-label">이전 글</span>'
+      f'<span class="post-nav-title">{html.escape(prev_entry["title"])}</span></a>'
+    )
+  else:
+    parts.append('<span class="post-nav-link prev disabled" aria-hidden="true"></span>')
+
+  parts.append('<a class="post-nav-home" href="../index.html">목록</a>')
+
+  if next_entry:
+    parts.append(
+      f'<a class="post-nav-link next" href="{html.escape(next_entry["slug"])}.html">'
+      f'<span class="post-nav-label">다음 글</span>'
+      f'<span class="post-nav-title">{html.escape(next_entry["title"])}</span></a>'
+    )
+  else:
+    parts.append('<span class="post-nav-link next disabled" aria-hidden="true"></span>')
+
+  parts.append("</nav>")
+  return "\n  ".join(parts)
+
+
+def collect_entry(slug: str, meta: dict[str, str], body: str) -> dict:
+    title = meta.get("title", slug.replace("-", " "))
+    tags = meta.get("tags", "")
+    category = category_from_slug(slug, tags)
+    published = meta.get("published", "")
+    return {
+        "slug": slug,
+        "title": title,
+        "category": category,
+        "tags": tags,
+        "published": published,
+        "date": format_date(published),
+        "excerpt": excerpt(body),
+        "tag_color": category_color(category),
+    }
+
+
+def build_post(
+    slug: str,
+    meta: dict[str, str],
+    body: str,
+    *,
+    prev_entry: dict | None = None,
+    next_entry: dict | None = None,
+) -> None:
     title = meta.get("title", slug.replace("-", " "))
     tags = meta.get("tags", "")
     category = category_from_slug(slug, tags)
@@ -222,21 +306,11 @@ def build_post(slug: str, meta: dict[str, str], body: str) -> dict:
         date_html=date_html,
         source_html=source_html,
         content=content_html,
+        post_nav=post_nav_html(prev_entry, next_entry),
     )
 
     out_path = POSTS_DIR / f"{slug}.html"
     out_path.write_text(page, encoding="utf-8")
-
-    return {
-        "slug": slug,
-        "title": title,
-        "category": category,
-        "tags": tags,
-        "published": published,
-        "date": format_date(published),
-        "excerpt": excerpt(body),
-        "tag_color": tag_color,
-    }
 
 
 def build_index(entries: list[dict]) -> None:
@@ -253,6 +327,7 @@ def build_index(entries: list[dict]) -> None:
                 category=html.escape(e["category"]),
                 tag_color=e["tag_color"],
                 date=html.escape(e.get("date") or ""),
+                published=html.escape(e.get("published") or ""),
                 excerpt=html.escape(e.get("excerpt") or ""),
             )
         )
@@ -301,13 +376,26 @@ def main() -> None:
     md_files = sync_markdown()
     print(f"  {len(md_files)} files → {POSTS_DIR}")
 
-    entries: list[dict] = []
+    prepared: list[tuple[dict[str, str], str, str]] = []
     for path in md_files:
         text = path.read_text(encoding="utf-8")
         meta, body = parse_frontmatter(text)
         slug = slug_from_filename(path)
-        entry = build_post(slug, meta, body)
+        prepared.append((meta, body, slug))
+
+    prepared.sort(key=lambda item: item[0].get("published") or "", reverse=True)
+
+    entries: list[dict] = []
+    for i, (meta, body, slug) in enumerate(prepared):
+        entry = collect_entry(slug, meta, body)
         entries.append(entry)
+
+    for i, (meta, body, slug) in enumerate(prepared):
+        older = entries[i + 1] if i + 1 < len(entries) else None
+        newer = entries[i - 1] if i > 0 else None
+        prev_nav = {"slug": older["slug"], "title": older["title"]} if older else None
+        next_nav = {"slug": newer["slug"], "title": newer["title"]} if newer else None
+        build_post(slug, meta, body, prev_entry=prev_nav, next_entry=next_nav)
 
     print("Building index...")
     build_index(entries)

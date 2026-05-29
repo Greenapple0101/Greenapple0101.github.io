@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[KUBERNETES] 앱도 없고 Pod도 없는데 나는 뭘 한 걸까?</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T05:41:42.596Z">2026.05.13</time>
@@ -397,6 +397,11 @@ nginx Pod 없음
 <h2>정리</h2>
 <p>이번 실습에서 헷갈렸던 핵심은 “Ingress를 만들었다”와 “앱을 만들었다”를 같은 의미로 생각한 데 있었다. Helm으로 설치한 <code>ingress-nginx</code>는 실제 웹 애플리케이션이 아니라, Ingress 규칙을 읽고 트래픽을 라우팅하는 Controller다. 그리고 <code>kubectl apply -f nginx-ingress.yaml</code>로 만든 Ingress는 앱이 아니라 라우팅 규칙이다. 실제 응답을 하려면 nginx, Spring Boot, FastAPI 같은 애플리케이션이 Pod 안에서 실행되고 있어야 하며, 그 Pod 앞에 Service가 있어야 한다. 즉, Ingress 실습이 정상 동작하려면 <code>Ingress Controller → Ingress → Service → Pod → Application</code> 흐름이 모두 연결되어야 한다. 이번 상태는 Controller와 Ingress 규칙은 만들었지만, 뒤쪽의 Service, Pod, Application이 없어서 503이 발생한 것이다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-왜-Helm으로-설치하고-다시-kubectl로-YAML을-apply-했을까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] 왜 Helm으로 설치하고, 다시 kubectl로 YAML을 apply 했을까?</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="KUBERNETES-Helm으로-ingress-nginx-설치하고-kubectl로-nginx-앱까지-연결하기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] Helm으로 ingress-nginx 설치하고, kubectl로 nginx 앱까지 연결하기</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

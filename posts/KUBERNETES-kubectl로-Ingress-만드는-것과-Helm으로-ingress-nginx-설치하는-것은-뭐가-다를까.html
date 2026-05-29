@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[KUBERNETES] kubectl로 Ingress 만드는 것과 Helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T05:31:36.398Z">2026.05.13</time>
@@ -367,6 +367,11 @@ nginx Service/Pod
 <h2>정리</h2>
 <p><code>kubectl</code>로 Ingress를 생성하는 것과 Helm으로 <code>ingress-nginx</code>를 설치하는 것은 역할이 다르다. <code>kubectl apply -f nginx-ingress.yaml</code>은 <code>localhost</code>로 들어온 요청을 어떤 Service로 보낼지 정의하는 Ingress 규칙을 생성하는 명령어다. 반면 <code>helm install ingress-nginx ingress-nginx/ingress-nginx</code>는 그 Ingress 규칙을 실제로 읽고 트래픽을 처리하는 ingress-nginx controller를 설치하는 명령어다. Ingress는 규칙이고, Ingress Controller는 그 규칙을 실행하는 주체다. 따라서 브라우저 요청이 정상적으로 Pod까지 도달하려면 ingress-nginx controller, Ingress 리소스, Service, Pod가 모두 필요하다. 503 에러가 뜬다면 보통 controller까지는 요청이 도착했지만, Ingress 뒤쪽의 Service 또는 Pod 연결이 잘못된 상태라고 보면 된다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-Ingress-적용-후-localhost-접속까지-트러블슈팅-정리.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="KUBERNETES-왜-Helm으로-설치하고-다시-kubectl로-YAML을-apply-했을까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] 왜 Helm으로 설치하고, 다시 kubectl로 YAML을 apply 했을까?</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>

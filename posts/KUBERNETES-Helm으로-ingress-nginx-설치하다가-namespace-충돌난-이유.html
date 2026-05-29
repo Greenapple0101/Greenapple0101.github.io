@@ -12,7 +12,7 @@
 <body class="post-page">
   <header class="post-header">
     <a class="back-link" href="../index.html">← 글 목록</a>
-    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T05:13:53.560Z">2026.05.13</time>
@@ -282,6 +282,11 @@ ingress-nginx   default     deployed
 <h2>정리</h2>
 <p>Helm으로 <code>ingress-nginx</code>를 설치할 때 <code>--namespace</code> 옵션 없이 먼저 설치하면 release가 <code>default</code> namespace에 생성된다. 이후 같은 release 이름으로 <code>ingress-nginx</code> namespace에 다시 설치하려고 하면, 기존에 만들어진 <code>ClusterRole ingress-nginx</code>와 충돌할 수 있다. <code>ClusterRole</code>은 namespace에 속하지 않는 cluster-scoped resource이기 때문에 클러스터 전체에서 하나만 존재한다. Helm은 리소스에 release 이름과 release namespace 정보를 annotation으로 남기는데, 기존 리소스는 <code>default</code> namespace의 release 소유이고 새 설치는 <code>ingress-nginx</code> namespace의 release가 되려고 하므로 소유권 metadata가 맞지 않아 설치가 실패한다. 이 문제는 기존 release를 그대로 사용하거나, <code>helm uninstall ingress-nginx -n default</code>로 삭제한 뒤 <code>--namespace ingress-nginx --create-namespace</code> 옵션을 붙여 다시 설치하면 해결할 수 있다.</p>
   </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="KUBERNETES-Helm은-왜-쓰는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] Helm은 왜 쓰는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link next" href="KUBERNETES-Ingress-적용-후-localhost-접속까지-트러블슈팅-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리</span></a>
+  </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>
   </footer>
