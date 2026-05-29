@@ -1,123 +1,133 @@
 [
   {
-    "slug": "[AI-Infra]-CUDA는-도대체-뭘까-GPU를-쓰기-위한-연결-다리",
-    "title": "[AI Infra] CUDA는 도대체 뭘까? GPU를 쓰기 위한 연결 다리",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-API-접근제어-인증-권한관리는-왜-필요한가",
+    "title": "[Kubernetes] API 접근제어, 인증, 권한관리는 왜 필요한가",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "딥러닝을 공부하다 보면 이런 코드를 자주 보게 된다. 처음 보면 이런 생각이 든다. GPU를 쓴다는 건 알겠는데, 왜 GPU라고 안 하고 CUDA라고 하지? CUDA는 GPU랑 같은 말인가? 결론부터 말하면 CUD…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스를 공부하다 보면 어느 순간부터 단순히 Pod 만들기 , Service 연결하기 , Ingress 붙이기 를 넘어서 이런 질문이 나온다. 아무나 클러스터에 명령을 날릴 수 있으면 어떡하지? 사용자는 어떻게…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-KServe는-도대체-뭘까-Kubernetes-위에서-모델-서빙을-운영화하는-플랫폼",
-    "title": "[AI Infra] KServe는 도대체 뭘까? Kubernetes 위에서 모델 서빙을 운영화하는 플랫폼",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-Taint-Toleration-Cordon-Drain은-왜-필요할까",
+    "title": "[Kubernetes] Taint & Toleration, Cordon & Drain은 왜 필요할까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "지금까지 정리한 흐름을 보면 이렇게 이어진다. 여기까지는 주로 모델을 어떻게 빠르게 실행하고 서빙할 것인가 에 가까웠다. 그런데 실제 운영에서는 한 단계 더 큰 문제가 생긴다. 이때 등장하는 것이 KServe 다.…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 Pod는 기본적으로 Scheduler가 적절한 Node를 골라 배치한다. Pod 생성 ↓ Scheduler가 Node 선택 ↓ 선택된 Node에서 Pod 실행 그런데 운영하다 보면 이런 상황이 생긴다…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-Latency는-도대체-뭘까-AI-추론에서-응답-시간이-중요한-이유",
-    "title": "[AI Infra] Latency는 도대체 뭘까? AI 추론에서 응답 시간이 중요한 이유",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-nodeSelector란-Pod를-원하는-노드에-배치하는-가장-단순한-방법",
+    "title": "[Kubernetes] nodeSelector란? Pod를 원하는 노드에 배치하는 가장 단순한 방법",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "AI 인프라나 백엔드, 네트워크 공부를 하다 보면 자주 나오는 단어가 있다. 여기서 latency 는 특히 AI 추론 서버를 이해할 때 정말 중요하다. 한 줄로 말하면 이렇다. 한국어로는 보통 지연 시간 이라고 한…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스를 공부하다 보면 이런 말을 자주 듣는다. Pod는 Scheduler가 적절한 Node를 골라서 배치한다. 처음에는 이렇게 이해하면 된다. Pod 생성 요청 ↓ Scheduler가 Node 선택 ↓ 선택된…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-ONNX는-도대체-뭘까-PyTorch-모델을-다른-환경에서-돌리기-위한-표준-포맷",
-    "title": "[AI Infra] ONNX는 도대체 뭘까? PyTorch 모델을 다른 환경에서 돌리기 위한 표준 포맷",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-Ingress-Controller란-Ingress랑-뭐가-다르고-왜-NGINX를-많이-쓸까",
+    "title": "[Kubernetes] Ingress Controller란? Ingress랑 뭐가 다르고 왜 NGINX를 많이 쓸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "PyTorch inference를 공부하다 보면 이런 흐름이 나온다. 그런데 실무에서는 이런 요구가 생긴다. 이때 등장하는 개념이 ONNX 다. --- 1. ONNX 한 줄 정의 ONNX는 Open Neural N…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 외부 트래픽을 다루다 보면 이런 흐름을 자주 본다. 사용자 ↓ Ingress ↓ Service ↓ Pod 처음에는 이렇게 이해한다. Ingress는 외부에서 들어온 HTTP/HTTPS 요청을 클러스터…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-Quantization은-도대체-뭘까-모델을-가볍게-만들어-추론을-빠르게-하는-방법",
-    "title": "[AI Infra] Quantization은 도대체 뭘까? 모델을 가볍게 만들어 추론을 빠르게 하는 방법",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까n",
+    "title": "[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?\\n",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "AI inference, TensorRT, ONNX, GPU 최적화를 공부하다 보면 자주 나오는 단어가 있다. 처음 보면 이런 생각이 든다. 한 줄로 말하면 이렇다. --- 1. Quantization 한 줄 정의…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다. 그리고 기능으로는 보통 이런 것들이 나온다. 처음 보면 여기서 막힌다. “Ingress가 SSL 인증서를 처리한다는 게 뭐지?” “SSL은 HTTPS…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-TensorRT는-도대체-뭘까-NVIDIA-GPU에서-추론을-빠르게-돌리는-엔진n",
-    "title": "[AI Infra] TensorRT는 도대체 뭘까? NVIDIA GPU에서 추론을 빠르게 돌리는 엔진\\n",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까",
+    "title": "[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "PyTorch inference, ONNX, latency, throughput을 공부하다 보면 결국 이 단어가 나온다. 처음 보면 이런 느낌이다. 한 줄로 말하면 이렇다. NVIDIA 공식 문서에서도 Tensor…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다. Ingress는 HTTP/HTTPS를 통해 클러스터 내부 서비스를 외부로 노출한다. 그리고 기능으로는 보통 이런 것들이 나온다. Service에 외부…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-Throughput은-도대체-뭘까-AI-서버가-한-번에-얼마나-처리할-수-있는가",
-    "title": "[AI Infra] Throughput은 도대체 뭘까? AI 서버가 한 번에 얼마나 처리할 수 있는가",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-kube-proxy란-Service-트래픽을-Pod로-보내주는-네트워크-관리자",
+    "title": "[Kubernetes] kube-proxy란? Service 트래픽을 Pod로 보내주는 네트워크 관리자",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "AI 인프라, 백엔드, 네트워크, GPU 추론 서버를 공부하다 보면 throughput 이라는 단어가 자주 나온다. 한국어로는 보통 처리량 이라고 한다. 한 줄로 말하면 이렇다. AI inference 서버 기준으…",
-    "tag_color": "#db2777"
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 Service를 공부하다 보면 이런 말을 자주 듣는다. Service는 Pod 앞에 고정된 IP를 만들어준다. 클라이언트는 Pod IP를 몰라도 Service IP로 접근하면 된다. 처음에는 이렇게…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-Triton-Inference-Server는-도대체-뭘까-모델을-API로-서빙하는-추론-서버",
-    "title": "[AI Infra] Triton Inference Server는 도대체 뭘까? 모델을 API로 서빙하는 추론 서버",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-K8s-API란-쿠버네티스가-움직이는-진짜-입구",
+    "title": "[Kubernetes] K8s API란? 쿠버네티스가 움직이는 진짜 입구",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "지금까지 흐름을 보면 이렇게 이어진다. 여기서 TensorRT 까지는 주로 모델 하나를 NVIDIA GPU에서 빠르게 돌리는 최적화 엔진 에 가깝다. 그런데 실제 서비스에서는 이런 문제가 남는다. 이때 등장하는 것…",
-    "tag_color": "#db2777"
+    "date": "2026.05.28",
+    "excerpt": "쿠버네티스를 쓰다 보면 이런 명령어를 자주 입력한다. kubectl get pod kubectl apply -f deployment.yaml kubectl delete svc nginx kubectl describ…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI-Infra]-vLLM은-도대체-뭘까-LLM-추론을-빠르고-효율적으로-서빙하는-엔진n",
-    "title": "[AI Infra] vLLM은 도대체 뭘까? LLM 추론을 빠르고 효율적으로 서빙하는 엔진\\n",
-    "category": "AI-Infra",
-    "topic": "ai",
+    "slug": "[Kubernetes]-Daemon이란-DaemonSet을-이해하기-전에-알아야-할-기본-개념",
+    "title": "[Kubernetes] Daemon이란? DaemonSet을 이해하기 전에 알아야 할 기본 개념",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "지금까지 흐름을 보면 이렇게 이어진다. 여기서 vLLM 은 특히 LLM 추론 서빙 에 특화된 엔진이다. 한 줄로 말하면 이렇다. vLLM 공식 GitHub에서도 vLLM을 high-throughput and mem…",
-    "tag_color": "#db2777"
+    "date": "2026.05.28",
+    "excerpt": "쿠버네티스에서 DaemonSet 을 공부하다 보면 자연스럽게 이런 질문이 생긴다. Daemon이 뭐야? 왜 이름이 DaemonSet이야? Deployment랑 뭐가 다른데? DaemonSet 을 이해하려면 먼저 D…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI]-Batch는-도대체-뭘까-딥러닝에서-Batch-Size를-쓰는-이유",
-    "title": "[AI] Batch는 도대체 뭘까? 딥러닝에서 Batch Size를 쓰는 이유",
-    "category": "AI",
-    "topic": "ai",
+    "slug": "[Kubernetes]-쿠버네티스에서-NIC는-도대체-뭘까",
+    "title": "[Kubernetes] 쿠버네티스에서 NIC는 도대체 뭘까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "딥러닝을 공부하다 보면 계속 나오는 단어가 있다. 처음에는 그냥 “데이터 묶음” 정도로 보이는데, 실제로는 학습 속도, GPU 메모리, 성능, 추론 처리량과 연결되는 중요한 개념이다. --- 1. Batch 한 줄…",
-    "tag_color": "#db2777"
+    "date": "2026.05.28",
+    "excerpt": "쿠버네티스 네트워크를 공부하다 보면 이런 단어들이 계속 나온다. Pod IP Service IP ClusterIP NodePort CNI Ingress DNS Routing 처음 보면 머리가 복잡해진다. “Pod…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AI]-Training과-Inference는-뭐가-다를까n",
-    "title": "[AI] Training과 Inference는 뭐가 다를까?\\n",
-    "category": "AI",
-    "topic": "ai",
+    "slug": "[Kubernetes]-CoreDNS란-서비스-이름을-IP로-바꿔주는-DNS-서버",
+    "title": "[Kubernetes] CoreDNS란? 서비스 이름을 IP로 바꿔주는 DNS 서버",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "딥러닝을 공부하면 자주 나오는 말이 있다. 한국어로는 보통 이렇게 부른다. 처음에는 둘 다 “모델을 돌리는 것”처럼 보인다. 하지만 실제로는 목적도 다르고, 계산 방식도 다르고, 인프라에서 중요하게 보는 포인트도…",
-    "tag_color": "#db2777"
+    "date": "2026.05.28",
+    "excerpt": "쿠버네티스를 공부하다 보면 이런 주소를 자주 보게 된다. mysql.default.svc.cluster.local 또는 파드 안에서 그냥 이렇게 호출하기도 한다. curl http://mysql 처음 보면 조금 이…",
+    "tag_color": "#7c3aed"
   },
   {
-    "slug": "[AWS]-Lambda-EventBridge-Slack-Webhook으로-이해하는-서버리스-자동화-스택",
-    "title": "[AWS] Lambda + EventBridge + Slack Webhook으로 이해하는 서버리스 자동화 스택",
-    "category": "AWS",
-    "topic": "web",
+    "slug": "[Kubernetes]-LivenessProbe로-Self-Healing-이해하기",
+    "title": "[Kubernetes] LivenessProbe로 Self-Healing 이해하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "이번 글에서는 아래 기술 스택을 하나의 흐름으로 묶어서 정리한다. 이 조합은 한마디로 말하면 “서버 없이, 정해진 시간마다 자동으로 코드를 실행하고, 결과를 Slack이나 SNS로 알리는 구조” 다. 예를 들어 이…",
-    "tag_color": "#64748b"
+    "date": "2026.05.28",
+    "excerpt": "쿠버네티스를 공부하다 보면 자주 나오는 말이 있다. 쿠버네티스는 Self-Healing을 지원한다. 처음 들으면 뭔가 엄청 대단한 기능처럼 느껴진다. “쿠버네티스가 알아서 장애를 고쳐준다고?” “그럼 서버가 죽어도…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Headless-Service는-도대체-왜-쓰는-걸까",
+    "title": "[Kubernetes] Headless Service는 도대체 왜 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.28",
+    "excerpt": "쿠버네티스에서 Service를 배우다 보면 보통 이런 식으로 이해한다. Pod는 계속 죽고 다시 생기니까 IP가 바뀐다. 그래서 Service가 고정된 주소 역할을 해준다. 맞는 말이다. 일반적인 Service는…",
+    "tag_color": "#7c3aed"
   },
   {
     "slug": "[Argo-CD]-Healthy-Synced가-떴다는-건-무슨-뜻일까",
@@ -130,34 +140,194 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[CI-CD]-`FROM-eclipse-temurin21-jre-alpine`-같은-이미지",
-    "title": "[CI/CD]`FROM eclipse-temurin:21-jre-alpine` 같은 이미지",
-    "category": "CI-CD",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "FROM eclipse-temurin:21-jre-alpine 같은 이미지는 종류가 엄청 많아 보이는데, 사실 태그를 쪼개서 보면 별거 아님. 이건 이렇게 읽으면 된다. 즉 한 줄로 말하면: --- 1. eclip…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[CI-CD]-도커-빌드-런-메이븐-빌드-런-순서가-어케-되는지",
-    "title": "[CI/CD] 도커 빌드 런 메이븐 빌드 런 순서가 어케 되는지",
-    "category": "CI-CD",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "1. Maven만 쓸 때 순서 Docker 없이 Spring Boot를 그냥 로컬에서 실행하면 이렇게 간다. 이건 쉽게 말하면: 이 경우 jar 파일을 명시적으로 만들지 않아도 된다. 흐름은 이렇다. 즉 이건 개발…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[CKA]-ConfigMap으로-Nginx-TLS-버전-제한하기-TLSv1.3만-허용하는-문제-풀이",
-    "title": "[CKA] ConfigMap으로 Nginx TLS 버전 제한하기: TLSv1.3만 허용하는 문제 풀이",
+    "slug": "[Kubernetes]-Helm-values.yaml은-왜-쓰는-걸까",
+    "title": "[Kubernetes] Helm values.yaml은 왜 쓰는 걸까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.18",
-    "excerpt": "CKA 문제를 풀다 보면 Kubernetes 리소스만 다루는 것처럼 보이지만, 실제로는 애플리케이션 설정까지 같이 이해해야 하는 문제가 자주 나온다. 이번 문제도 겉으로는 Deployment , Namespace…",
+    "date": "2026.05.27",
+    "excerpt": "Kubernetes를 공부하다 보면 처음에는 YAML 파일을 직접 작성한다. kubectl apply -f deployment.yaml kubectl apply -f service.yaml kubectl apply…",
     "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Ingress란-뭘까-외부에서-Pod에-접속하는-방법-이해하기",
+    "title": "[Kubernetes] Ingress란 뭘까? 외부에서 Pod에 접속하는 방법 이해하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "Kubernetes에서 Pod와 Service를 만들었는데 이런 생각이 든다. 어? Pod는 떠 있는데 브라우저에서는 어떻게 접속하지? Kubernetes 안에 nginx나 apache 같은 웹 서버를 띄워도, 그…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-프로비저닝이란-무엇일까n",
+    "title": "[Kubernetes] 프로비저닝이란 무엇일까?\\n",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다. 처음 들으면 단어부터 어렵다. “프로비저닝이 뭔데?” “그냥 생성이랑 다른 건가?” “PV/PVC랑 무슨 관계지?” 이번 글에서는 프로비저닝…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-프로비저닝이란-무엇일까",
+    "title": "[Kubernetes] 프로비저닝이란 무엇일까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다. 정적 프로비저닝 동적 프로비저닝 StorageClass를 통한 동적 프로비저닝 처음 들으면 단어부터 어렵다. “프로비저닝이 뭔데?” “그냥…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-PV와-PVC란-무엇일까",
+    "title": "[Kubernetes] PV와 PVC란 무엇일까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "Kubernetes에서 Pod는 기본적으로 언제든지 사라질 수 있는 존재 다. Pod가 죽었다가 다시 생성되면 내부 파일도 같이 사라질 수 있다. 예를 들어 MySQL Pod를 띄웠다고 해보자. MySQL Pod…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Network]-HTTP란-무엇일까n",
+    "title": "[Network] HTTP란 무엇일까?\\n",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "웹을 공부하다 보면 HTTP 라는 말을 정말 자주 본다. 처음에는 다 따로따로 보이지만, 사실 전부 HTTP와 관련된 개념이다. HTTP는 한마디로 말하면 브라우저와 서버가 웹에서 데이터를 주고받기 위한 약속 이다…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Network]-HTTP란-무엇일까",
+    "title": "[Network] HTTP란 무엇일까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "웹을 공부하다 보면 HTTP 라는 말을 정말 자주 본다. http://example.com GET /boards POST /login 404 Not Found 500 Internal Server Error 처음에는…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-apache.192.168.164.4.sslip.io에서-Apache랑-sslip.io는-뭘까",
+    "title": "[Kubernetes] apache.192.168.164.4.sslip.io에서 Apache랑 sslip.io는 뭘까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "Kubernetes Ingress 실습을 하다 보면 이런 주소를 만난다. apache.192.168.164.4.sslip.io apache 는 뭔가 서비스 이름 같고, 192.168.164.4 는 IP 주소 같고,…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Fluent-Bit이-뭔데-로그-수집할-때-자꾸-나올까",
+    "title": "[Kubernetes] Fluent Bit이 뭔데 로그 수집할 때 자꾸 나올까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "쿠버네티스에서 애플리케이션을 띄우다 보면 처음에는 이런 것만 신경 쓴다. Pod 잘 떴나? Service 연결됐나? Ingress로 접속되나? 그런데 운영 관점으로 넘어가면 질문이 바뀐다. 에러가 났을 때 로그는…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-로그-수집-패턴-비교-Sidecar-방식-vs-Cluster-level-방식",
+    "title": "[Kubernetes] 로그 수집 패턴 비교: Sidecar 방식 vs Cluster-level 방식",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "쿠버네티스에서 애플리케이션 로그를 수집하는 방식은 크게 두 가지로 볼 수 있다. 1. 파드 사이드카 패턴 기반 로그 수집 2. 클러스터 레벨 패턴 기반 로그 수집 둘 다 “로그를 모은다”는 목적은 같지만, 어디에서…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Pod-Resource-Requests와-Limits-쉽게-이해하기",
+    "title": "[Kubernetes] Pod Resource Requests와 Limits 쉽게 이해하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "쿠버네티스에서 Pod를 만들 때 컨테이너가 사용할 CPU, Memory를 지정할 수 있다. 이때 나오는 개념이 두 개다. 처음 보면 둘 다 “리소스 설정”이라 헷갈리는데, 역할이 다르다. --- 1. Request…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Static-Pod란-kubelet이-직접-관리하는-Pod",
+    "title": "[Kubernetes] Static Pod란? kubelet이 직접 관리하는 Pod",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "쿠버네티스에서 Pod는 보통 kubectl apply 로 만든다. 그러면 일반적인 Pod 생성 흐름은 이렇게 된다. 그런데 Static Pod 는 이 흐름과 조금 다르다. Static Pod는 한 줄로 말하면 이거…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-데몬이-뭐야-DaemonSet은-왜-쓰는-걸까",
+    "title": "[Kubernetes] 데몬이 뭐야? DaemonSet은 왜 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "쿠버네티스 공부하다 보면 DaemonSet 이라는 단어가 나온다. 처음 보면 이름부터 좀 무섭다. 데몬? 악마? 뭐 하는 애임? 근데 어렵게 생각할 필요 없다. 쿠버네티스에서 말하는 데몬은 쉽게 말하면 서버 뒤에서…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-kubectl-config는-도대체-뭐고-CKA에서-언제-쓰는-걸까",
+    "title": "[Kubernetes] kubectl config는 도대체 뭐고, CKA에서 언제 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.27",
+    "excerpt": "CKA 공부하다 보면 이런 명령어가 나온다. 처음 보면 느낌이 이렇다. 근데 이건 생각보다 단순하다. kubectl config 는 kubectl이 어느 쿠버네티스 클러스터에 접속할지 정하는 설정 명령어 다. --…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-YAML-구조는-도대체-어떻게-보는-걸까",
+    "title": "[Kubernetes] YAML 구조는 도대체 어떻게 보는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.22",
+    "excerpt": "Kubernetes 공부를 하다 보면 결국 YAML을 계속 보게 된다. 처음 보면 그냥 이상한 설정 파일처럼 보인다. 근데 계속 보다 보면 Kubernetes YAML은 거의 같은 구조를 반복한다. 이 4개만 먼저…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[CKA]-YAML이-무서우면-apiVersion부터-외우자",
+    "title": "[CKA] YAML이 무서우면 apiVersion부터 외우자",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.22",
+    "excerpt": "CKA를 공부하다 보면 YAML이 너무 많이 나온다. 처음에는 이 구조 자체가 부담스럽다. 특히 이런 생각이 든다. 근데 YAML을 전부 외우려고 하면 금방 지친다. 대신 조금 더 현실적인 방법이 있다. 즉, YA…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-왜-image가-containers-안에-있을까-사이드카까지-한-번에-이해하기",
+    "title": "[Kubernetes] 왜 image가 containers 안에 있을까? 사이드카까지 한 번에 이해하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.22",
+    "excerpt": "Kubernetes YAML을 처음 보면 이런 부분이 자주 헷갈림. 처음 보면 이렇게 생각할 수 있다. 근데 정확히는 이미지가 컨테이너 안에 들어가는 것 이 아니다. 정확한 의미는 이거다. 즉 image: ngin…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-kubectl-create-랑-kubectl-run-은-뭐가-다를까",
+    "title": "[Kubernetes] kubectl create 랑 kubectl run 은 뭐가 다를까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.22",
+    "excerpt": "CKA 공부하다 보면 이런 명령어를 자주 본다. 또 이런 것도 본다. 둘 다 뭔가 “만드는” 명령어처럼 보인다. 그래서 처음에는 헷갈린다. 둘 다 리소스를 생성하는 명령어인데, run 은 주로 Pod를 빠르게 실행…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Linux]-systemctl이-뭐길래-서버에서-계속-나올까",
+    "title": "[Linux] systemctl이 뭐길래 서버에서 계속 나올까?",
+    "category": "Linux",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.22",
+    "excerpt": "리눅스 서버를 만지다 보면 이런 명령어를 자주 보게 된다. 처음 보면 systemctl 이 뭔가 싶다. 쿠버네티스 공부할 때도 나오고, Docker 설치할 때도 나오고, Nginx 설정할 때도 나온다. 결론부터 말…",
+    "tag_color": "#64748b"
   },
   {
     "slug": "[CKA]-HPA-생성-문제-공식문서-보고-YAML로-푸는-법",
@@ -180,23 +350,13 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[CKA]-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리n",
-    "title": "[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\\n",
+    "slug": "[Kubernetes]-ConfigMap이란-설정값을-컨테이너-밖으로-빼내는-방법",
+    "title": "[Kubernetes] ConfigMap이란? 설정값을 컨테이너 밖으로 빼내는 방법",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "KodeKloud에서 Kubernetes Pod 문제를 풀다 보면 처음에는 명령어 자체보다도 “문제에서 뭘 물어보는지”를 해석하는 게 더 헷갈린다. 특히 kubectl get pods , READY , descri…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[CKA]-Kubernetes-핵심-리소스-입문-정리",
-    "title": "[CKA]Kubernetes 핵심 리소스 입문 정리",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.04",
-    "excerpt": "1. Pod Pod 는 쿠버네티스에서 컨테이너가 실제로 실행되는 가장 작은 단위다. 쉽게 말하면, Spring Boot 애플리케이션을 Docker 이미지로 만들었다고 하면, 쿠버네티스는 그 이미지를 바로 실행하지…",
+    "date": "2026.05.20",
+    "excerpt": "Kubernetes를 공부하다 보면 ConfigMap 이라는 리소스가 자주 나온다. 처음에는 이름부터 헷갈린다. 대충 이런 느낌인데, 쉽게 말하면 ConfigMap은 애플리케이션 설정값을 Pod 밖에서 관리하게 해…",
     "tag_color": "#7c3aed"
   },
   {
@@ -210,43 +370,13 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[CKA]-ReplicaSet-이미지-수정과-Pod-재생성-흐름-정리",
-    "title": "[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리",
+    "slug": "[Kubernetes]-유형별-YAML-파일-읽는-법-어디부터-봐야-할까",
+    "title": "[Kubernetes] 유형별 YAML 파일 읽는 법 — 어디부터 봐야 할까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "Kubernetes를 공부하다 보면 ReplicaSet 문제에서 자주 만나는 상황이 있다. 예를 들면 이런 문제다. 처음 보면 헷갈린다. 이번 글에서는 ReplicaSet과 Pod의 관계, 이미지 수정 흐름, 왜…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[CKA]-YAML이-무서우면-apiVersion부터-외우자",
-    "title": "[CKA] YAML이 무서우면 apiVersion부터 외우자",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.22",
-    "excerpt": "CKA를 공부하다 보면 YAML이 너무 많이 나온다. 처음에는 이 구조 자체가 부담스럽다. 특히 이런 생각이 든다. 근데 YAML을 전부 외우려고 하면 금방 지친다. 대신 조금 더 현실적인 방법이 있다. 즉, YA…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[CKA]-etcd-정리-클러스터의-상태를-저장하는-핵심-데이터베이스",
-    "title": "[CKA] etcd 정리: 클러스터의 상태를 저장하는 핵심 데이터베이스",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.04",
-    "excerpt": "Kubernetes를 공부하다 보면 etcd 라는 단어가 자주 나온다. 처음에는 이름부터 낯설다. Pod, Deployment, Service까지는 “애플리케이션을 배포하는 리소스구나” 하고 이해가 되는데, etc…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[CKA]-kubectl-Quick-Reference는-어떻게-활용해야-할까",
-    "title": "[CKA] kubectl Quick Reference는 어떻게 활용해야 할까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "CKA를 준비할 때 공식문서를 본다고 하면 보통 Kubernetes Concepts나 Tasks 문서를 떠올리기 쉽다. 그런데 실제 시험장에서 제일 자주 열게 되는 문서는 의외로 kubectl Quick Refer…",
+    "date": "2026.05.20",
+    "excerpt": "\\쿠버네티스 YAML을 처음 보면 대부분 이런 느낌이 든다. 분명 글자는 읽히는데 구조가 안 보인다. 처음에는 전부 비슷해 보인다. 근데 쿠버네티스 YAML은 유형별로 읽는 순서가 있다. 오늘은 CKA 공부할 때…",
     "tag_color": "#7c3aed"
   },
   {
@@ -260,23 +390,23 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[CKA]-기본-예제-nginx-Deployment-만들고-Service로-접속하기",
-    "title": "CKA 기본 예제: nginx Deployment 만들고 Service로 접속하기",
+    "slug": "[Kubernetes]-`-dry-run=client`-도대체-뭐-하는-옵션일까",
+    "title": "[Kubernetes] `--dry-run=client` 도대체 뭐 하는 옵션일까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.04",
-    "excerpt": "목표 쿠버네티스 클러스터 안에 nginx 웹서버를 띄우고, Service를 통해 접근 가능한지 확인한다. 최종 구조는 다음과 같다. --- 1. Deployment 생성 먼저 nginx 이미지를 사용하는 Deplo…",
+    "date": "2026.05.20",
+    "excerpt": "쿠버네티스를 공부하다 보면 이런 명령어를 자주 보게 된다. 혹은 처음 보면: 왜 실행 안 하고 dry-run을 하지? client는 또 뭐고 server는 뭐지? 왜 yaml 생성할 때 항상 붙어있지? 같은 생각이…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[CKA]-시험-전에-꼭-알아야-하는-Kubernetes-개념사전",
-    "title": "[CKA] 시험 전에 꼭 알아야 하는 Kubernetes 개념사전",
+    "slug": "[CKA]-kubectl-Quick-Reference는-어떻게-활용해야-할까",
+    "title": "[CKA] kubectl Quick Reference는 어떻게 활용해야 할까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.19",
-    "excerpt": "CKA를 준비하다 보면 단어가 너무 많이 나온다. 처음에는 Pod, Deployment, Service 정도만 알아도 될 것 같은데, 조금만 들어가면 ConfigMap, Secret, Ingress, Gateway…",
+    "excerpt": "CKA를 준비할 때 공식문서를 본다고 하면 보통 Kubernetes Concepts나 Tasks 문서를 떠올리기 쉽다. 그런데 실제 시험장에서 제일 자주 열게 되는 문서는 의외로 kubectl Quick Refer…",
     "tag_color": "#7c3aed"
   },
   {
@@ -290,393 +420,23 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[CKA]-쿠버네티스-관리자-시험에서-자주-쓰는-명령어-흐름",
-    "title": "[CKA] 쿠버네티스 관리자 시험에서 자주 쓰는 명령어 흐름",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.04",
-    "excerpt": "CKA는 Certified Kubernetes Administrator의 약자로, 쿠버네티스 클러스터를 운영하고 관리할 수 있는지를 검증하는 실기형 자격증이다. 단순히 개념을 외우는 시험이라기보다는, 실제 터미널…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[CS]-GPU와-CPU는-뭐가-다를까-딥러닝에서-GPU를-쓰는-이유",
-    "title": "[CS] GPU와 CPU는 뭐가 다를까? 딥러닝에서 GPU를 쓰는 이유",
-    "category": "CS",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "딥러닝을 공부하다 보면 거의 무조건 나오는 말이 있다. “학습은 GPU로 돌려야 해.” 처음 들으면 이런 생각이 든다. CPU도 컴퓨터의 두뇌라면서? 그럼 CPU가 더 중요한 거 아닌가? 왜 딥러닝은 GPU를 써야…",
-    "tag_color": "#db2777"
-  },
-  {
-    "slug": "[DATABASE]-Consistency는-왜-어려운가",
-    "title": "[DATABASE] Consistency는 왜 어려운가",
-    "category": "DATABASE",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "분산 시스템을 공부하다 보면 꼭 나오는 단어가 있다. 그리고 같이 나온다. 처음엔 되게 추상적이다. 근데 사실 핵심 질문은 단순하다. “모든 서버가 항상 완전히 같은 데이터를 가질 수 있는가?” 오늘은 그 문제를…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[DATABASE]-DynamoDB는-왜-쓰는가",
-    "title": "[DATABASE] DynamoDB는 왜 쓰는가",
-    "category": "DATABASE",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "AWS를 공부하다 보면 꼭 등장하는 DB가 있다. 그리고 보통 같이 나온다. 처음엔 이런 생각이 든다. 근데 대규모 서비스에서는 관계형 DB만으로 버티기 어려운 상황이 자주 나온다. 오늘은: 왜 DynamoDB 같…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[DATABASE]-Index는-왜-빠른가",
-    "title": "[DATABASE] Index는 왜 빠른가",
-    "category": "DATABASE",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "DB를 공부하다 보면 꼭 듣는 말이 있다. 그리고 보통 같이 나온다. 근데 처음엔 의문이 든다. 왜 인덱스를 쓰면 빨라질까? 오늘은 그 원리를 이해해보자. --- 1. 인덱스 Index 란? 인덱스는 한마디로: 데…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[DATABASE]-Replication과-Read-Replica는-무엇인가n",
-    "title": "[DATABASE] Replication과 Read Replica는 무엇인가\\n",
-    "category": "DATABASE",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "서비스를 운영하다 보면 어느 순간 문제가 생긴다. 처음엔 서버 문제 같지만, 실제로는 DB가 병목인 경우가 많다. 특히: 조회 요청 폭증 사용자 증가 트래픽 증가 상황에서 많이 터진다. 이때 자주 등장하는 개념이…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[DB]-DBeaver로-PostgreSQL-접속하고-테이블-만들어보기n",
-    "title": "[DB] DBeaver로 PostgreSQL 접속하고 테이블 만들어보기\\n",
-    "category": "DB",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/add3e436-1ff5-49fd-95fb-1512a69da137/image.png 처음 데이터베이스를 공부할 때 제일 막히는…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[DB]-DBeaver에서-`No-active-connection`이-뜨는-이유",
-    "title": "[DB] DBeaver에서 `No active connection`이 뜨는 이유",
-    "category": "DB",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/36fb77a2-32f1-4acc-8b56-e8242c6656d2/image.png Docker Compose로 Postgre…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[DB]-PostgreSQL에서-스키마가-`hello`랑-`public`-두-개-보이는-이유",
-    "title": "[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유",
-    "category": "DB",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/01404878-9a94-45ac-a55d-cd34602097bc/image.png ! https://velog.velcdn.…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[DB]-터미널에서는-테이블이-보이는데-DBeaver에서는-`No-items`가-뜨는-이유",
-    "title": "[DB] 터미널에서는 테이블이 보이는데 DBeaver에서는 `No items`가 뜨는 이유",
-    "category": "DB",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/e66b1eb5-0740-430d-8719-e6509f57e637/image.png Docker로 PostgreSQL을 띄우고…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[DOCKER-K3D]-포트-매핑에서-앞쪽-포트와-뒤쪽-포트가-헷갈릴-때",
-    "title": "[DOCKER/K3D] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때",
+    "slug": "[Kubernetes]-cAdvisor는-뭐고-Metrics-ServerHPA랑-무슨-관계일까",
+    "title": "[KUBERNETES] cAdvisor는 뭐고, Metrics Server/HPA랑 무슨 관계일까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.19",
-    "excerpt": "Docker나 k3d를 쓰다 보면 이런 문법을 자주 본다. 또는 k3d에서는 이런 식으로 쓴다. 처음 보면 제일 헷갈리는 부분은 이거다. 포트가 두 개 나오는데, 앞쪽 포트가 뭔지, 뒤쪽 포트가 뭔지 잘 안 와닿는…",
+    "excerpt": "Kubernetes에서 리소스 모니터링을 공부하다 보면 cAdvisor , Metrics Server , kubectl top , HPA 같은 단어가 같이 나온다. 처음 보면 다 비슷하게 “CPU랑 Memory 보…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Docker]-Docker-Compose-실전-구조",
-    "title": "[DOCKER]Docker Compose 실전 구조",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "DOCKER docker-compose.yml은 단순 실행 파일이 아니다 Docker를 처음 배울 때는 보통 docker run 명령어로 컨테이너를 실행한다. 이렇게 하면 PostgreSQL 컨테이너 하나를 띄울…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Docker-Compose-실행-순서와-Health-Check",
-    "title": "[DOCKER] Docker Compose 실행 순서와 Health Check",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "DOCKER COMPOSE DB가 먼저 떠야 하는 이유 Docker Compose로 애플리케이션과 DB를 함께 실행할 때 자주 나오는 구조가 있다. 또는 이 구조에서 애플리케이션은 혼자 동작하지 않는다. 대부분의…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Docker-Compose로-PostgreSQL-데이터-유지하기-volume은-왜-필요할까",
-    "title": "[DOCKER] Docker Compose로 PostgreSQL 데이터 유지하기: volume은 왜 필요할까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Docker로 PostgreSQL을 띄우면 처음에는 굉장히 편하다. docker compose up 한 번이면 DB 컨테이너가 실행되고, 포트만 연결하면 DBeaver 같은 DB 클라이언트에서도 바로 접속할 수 있…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Docker-Volume은-왜-중요한가",
-    "title": "[DOCKER] Docker Volume은 왜 중요한가?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Docker를 쓰다 보면 처음에는 이런 식으로 생각하기 쉽다. “컨테이너 안에 PostgreSQL이 떠 있으니까 데이터도 컨테이너 안에 있겠지?” 맞다. 그런데 문제는 컨테이너가 영구적인 존재가 아니라는 점이다.…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Docker-네트워크와-컨테이너-통신",
-    "title": "[Docker] Docker 네트워크와 컨테이너 통신",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "아래 4편은 그대로 벨로그에 나눠 올리면 된다. 오늘 메모 흐름상 localhost → 같은 네트워크 → host.docker.internal → 외부 DB 접근 방식 순서가 제일 자연스럽다. 수업 메모에서도 컨테…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Docker-이미지와-커스텀-빌드",
-    "title": "[Docker] Docker 이미지와 커스텀 빌드",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "DOCKER IMAGE Dockerfile로 커스텀 이미지를 만드는 이유 Docker를 쓰다 보면 처음에는 공식 이미지를 그대로 사용한다. 예를 들어 PostgreSQL을 띄울 때는 이렇게 쓴다. Nginx를 띄울…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Dockerfile-빌드-방식-2가지-jar만-복사할까-컨테이너-안에서-빌드할까",
-    "title": "[DOCKER] Dockerfile 빌드 방식 2가지: jar만 복사할까, 컨테이너 안에서 빌드할까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "Spring Boot 애플리케이션을 Docker 이미지로 만들 때 처음 헷갈리는 지점이 있다. “jar 파일을 먼저 만들고 Docker 이미지에 넣어야 하나?” “아니면 Dockerfile 안에서 Maven 빌드까…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Maven-빌드-`.m2`-캐시-Dockerfile-방식-비교-정리",
-    "title": "[DOCKER] Maven 빌드, `.m2` 캐시, Dockerfile 방식 비교 정리",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.08",
-    "excerpt": "스프링부트 프로젝트를 Docker로 올리다 보면 단순히 docker run 만 문제가 아니다. 실제로는 그 전에: 이라는 흐름을 이해해야 한다. 이번에는 Maven 빌드, .m2 저장소, Dockerfile 두 가…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-Spring-Boot-게시판-프로젝트를-Docker로-배포하고-Docker-Hub에-올리기",
-    "title": "[Docker] Spring Boot 게시판 프로젝트를 Docker로 배포하고 Docker Hub에 올리기",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.08",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/d710c678-850d-4cb1-bf2d-8641f001537d/image.png 이번에는 로컬에서 실행하던 게시판 프로젝트…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-`80808080`-도대체-무슨-뜻일까",
-    "title": "[DOCKER] `8080:8080` 도대체 무슨 뜻일까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "Docker를 처음 배우면 가장 많이 보는 명령어 중 하나가 이것이다. 근데 처음 보면 솔직히 헷갈린다. 오늘은 이 개념을 진짜 직관적으로 이해해보자. --- Docker 컨테이너는 “별도의 컴퓨터”처럼 동작한다…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-docker-run-옵션-정리-d-p-f-a는-무슨-뜻일까",
-    "title": "[DOCKER] docker run 옵션 정리: -d, -p, -f, -a는 무슨 뜻일까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "Docker 명령어를 보다 보면 이런 옵션들이 자주 나온다. 또 로그를 볼 때는 이런 명령어도 나온다. 컨테이너에 붙을 때는 이런 것도 나온다. 처음 보면 -d , -p , -f , -a 같은 옵션들이 다 비슷해…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-docker-run-하기-전에-mvn-spring-bootrun도-해야-할까",
-    "title": "[DOCKER] docker run 하기 전에 mvn spring-boot:run도 해야 할까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "Spring Boot 애플리케이션을 Docker로 실행하다 보면 처음에 이런 생각이 든다. 나도 이 부분이 처음에는 헷갈렸다. 왜냐하면 둘 다 결국 localhost:8080 으로 접속하기 때문이다. 이렇게 실행해…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-서버에서-쓰는-Docker와-Docker-Desktop은-뭐가-다를까",
-    "title": "[Docker] 서버에서 쓰는 Docker와 Docker Desktop은 뭐가 다를까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "Docker를 처음 설치하려고 하면 가장 헷갈리는 지점이 있다. 분명 Docker를 쓰려는 건 똑같은데, 어떤 글에서는 Docker Desktop 을 설치하라고 하고, 어떤 글에서는 서버에 docker engine…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-왜-멀티-스테이지-빌드를-쓰고-왜-JRE만-남길까",
-    "title": "[DOCKER] 왜 멀티 스테이지 빌드를 쓰고, 왜 JRE만 남길까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.08",
-    "excerpt": "도커로 스프링부트를 배포하다 보면 처음엔 이런 생각이 든다. 그런데 실제 운영 환경에서는: 이미지 용량 빌드 속도 OS 차이 캐싱 CI/CD 환경 같은 문제들이 생긴다. 오늘은: Dockerfile 구조 JDK v…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-윈도우에서-Docker-쓰려면-WSL이-꼭-필요할까",
-    "title": "[Docker] 윈도우에서 Docker 쓰려면 WSL이 꼭 필요할까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "윈도우에서 Docker Desktop을 설치하다 보면 WSL이라는 말을 자주 보게 된다. Docker를 설치하려는 건데 갑자기 WSL, Ubuntu, Linux 같은 단어가 같이 나오니까 처음에는 헷갈린다. 나도…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-이미지를-jdk로-할건지-jre로-할건지",
-    "title": "[Docker] 이미지를 jdk로 할건지 jre로 할건지",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "맞아. 운영 실행용 이미지는 JDK보다 JRE가 더 적절한 경우가 많다. 내가 예시에서 eclipse-temurin:17-jdk 를 쓴 건 “일단 무조건 실행되는 안전한 예시”에 가깝고, 실제 운영 이미지 최적화…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-컨테이너-안에서-vi로-수정하면-왜-위험할까",
-    "title": "[DOCKER] 컨테이너 안에서 vi로 수정하면 왜 위험할까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Docker를 처음 쓰다 보면 이런 생각을 하게 된다. “컨테이너 안에 들어가서 설정 파일을 직접 고치면 되는 거 아닌가?” 예를 들어 Nginx 컨테이너가 떠 있고, 그 안에 nginx.conf 나 server.…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-컨테이너는-왜-설정이-날아갈까",
-    "title": "[DOCKER] 컨테이너는 왜 설정이 날아갈까?",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Docker를 쓰다 보면 이런 상황을 자주 만난다. Nginx 컨테이너 안에 들어간다. 설정 파일을 수정한다. 처음에는 잘 되는 것처럼 보인다. 그런데 컨테이너를 지웠다가 다시 만들면? 수정한 설정이 사라진다. 이…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[Docker]-컨테이너에서-localhost가-안-먹히는-이유-host.docker.internal과-Profile-분리",
-    "title": "[DOCKER] 컨테이너에서 localhost가 안 먹히는 이유: host.docker.internal과 Profile 분리",
-    "category": "Docker",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.08",
-    "excerpt": "이번에 겪은 문제는 단순히 DB URL 하나가 틀린 문제가 아니었다. 핵심은 이거였다. 이 셋은 같은 것처럼 보여도 네트워크 기준에서는 완전히 다르다. --- 1. 문제 상황 처음에는 Spring Boot API가…",
-    "tag_color": "#0ea5e9"
-  },
-  {
-    "slug": "[HA]-Auto-Scaling은-왜-필요할까",
-    "title": "[HA] Auto Scaling은 왜 필요할까?",
-    "category": "HA",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "서비스를 운영하다 보면 가장 무서운 순간 중 하나는: 이다. 예를 들어: 쇼핑몰 할인 이벤트 콘서트 티켓팅 게임 업데이트 유명 커뮤니티 유입 바이럴 영상 같은 상황이 발생하면 순간적으로 엄청난 요청이 몰린다. 문제…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[HA]-Failover란-무엇인가",
-    "title": "[HA] Failover란 무엇인가?",
-    "category": "HA",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "서비스를 운영하다 보면 언젠가는 서버가 죽는다. 이건 거의 피할 수 없는 문제다. 예를 들어: DB 프로세스 종료 서버 다운 네트워크 장애 클라우드 장애 디스크 손상 같은 상황은 실제 운영 환경에서 계속 발생한다.…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[HA]-High-Availability란-무엇인가",
-    "title": "[HA] High Availability란 무엇인가?",
-    "category": "HA",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "서비스를 운영할 때 가장 무서운 상황 중 하나는: 이다. 예를 들어: 쇼핑몰 서버 다운 결제 시스템 장애 게임 서버 장애 로그인 불가 DB 장애 같은 상황이 발생하면 사용자들은 바로 서비스를 떠나기 시작한다. 특히…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[HA]-Read-Scaling은-왜-필요할까",
-    "title": "[HA] Read Scaling은 왜 필요할까?",
-    "category": "HA",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "서비스를 운영하다 보면 대부분의 시스템은 시간이 갈수록 “읽기 Read ” 요청이 폭발적으로 증가한다. 예를 들어: 게시판 글 조회 쇼핑몰 상품 조회 유튜브 영상 목록 조회 SNS 피드 조회 같은 작업들은 대부분…",
-    "tag_color": "#0891b2"
-  },
-  {
-    "slug": "[HELM]-Helm-Chart는-도대체-뭘까",
-    "title": "[HELM] Helm Chart는 도대체 뭘까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "쿠버네티스를 쓰다 보면 이런 명령어를 자주 보게 된다. 처음 보면 헷갈린다. “나는 Ingress Controller를 설치하려고 했는데, 왜 Helm이라는 걸 쓰지?” “Helm Chart는 또 뭐고, value…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[HELM]-Helm-Chart는-이미지를-직접-가져오는-걸까",
-    "title": "[HELM] Helm Chart는 이미지를 직접 가져오는 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "Helm을 처음 배우다 보면 이런 생각이 든다. “이 명령어를 치면 Helm이 Docker 이미지를 가져오는 건가?” 특히 helm install 을 실행하면 Pod가 자동으로 뜨고, Docker Hub에서 이미지…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[K3D-KUBERNETES]-LoadBalancer-Service를-쓰려면-왜-클러스터-생성-때-포트-매핑을-해야-할까",
-    "title": "[K3D/KUBERNETES] LoadBalancer Service를 쓰려면 왜 클러스터 생성 때 포트 매핑을 해야 할까?",
+    "slug": "[CKA]-시험-전에-꼭-알아야-하는-Kubernetes-개념사전",
+    "title": "[CKA] 시험 전에 꼭 알아야 하는 Kubernetes 개념사전",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.19",
-    "excerpt": "Kubernetes에서 Service 타입 중 LoadBalancer 를 만들면 외부에서 바로 접속할 수 있을 것처럼 느껴진다. 예를 들어 이런 Service YAML이 있다고 하자. 적용하면: Service는 생…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[K3D-KUBERNETES]-NodePort인데-왜-Node-IP로-접속이-안-될까",
-    "title": "[K3D/KUBERNETES] NodePort인데 왜 Node IP로 접속이 안 될까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "Kubernetes에서 Service 타입 중 NodePort 를 사용하면 외부에서 다음과 같은 형식으로 접근할 수 있다고 배운다. 예를 들어 Service가 이렇게 떠 있다고 하자. 여기서 중요한 부분은 이것이다…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[K3D-KUBERNETES]-k3d-클러스터-두-개를-같은-네트워크로-묶으면-NodePort-접근이-될까",
-    "title": "[K3D/KUBERNETES] k3d 클러스터 두 개를 같은 네트워크로 묶으면 NodePort 접근이 될까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "Kubernetes에서 NodePort 를 배우면 보통 이렇게 접근한다고 배운다. 예를 들어 Service가 이렇게 떠 있다고 하자. 여기서 30001 이 NodePort다. 일반적인 VM이나 AWS 환경이라면 외…",
+    "excerpt": "CKA를 준비하다 보면 단어가 너무 많이 나온다. 처음에는 Pod, Deployment, Service 정도만 알아도 될 것 같은데, 조금만 들어가면 ConfigMap, Secret, Ingress, Gateway…",
     "tag_color": "#7c3aed"
   },
   {
@@ -687,296 +447,6 @@
     "tags": "",
     "date": "2026.05.19",
     "excerpt": "Kubernetes Service를 실습하다 보면 접속 주소가 계속 헷갈린다. 어떤 글에서는 이렇게 접속하라고 한다. 그런데 k3d에서는 이렇게 접속하라고 한다. 또 LoadBalancer Service를 만들면…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-API-접근제어-인증-권한관리는-왜-필요한가",
-    "title": "[Kubernetes] API 접근제어, 인증, 권한관리는 왜 필요한가",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 29 Ma",
-    "excerpt": "쿠버네티스를 공부하다 보면 어느 순간부터 단순히 Pod 만들기 , Service 연결하기 , Ingress 붙이기 를 넘어서 이런 질문이 나온다. 아무나 클러스터에 명령을 날릴 수 있으면 어떡하지? 사용자는 어떻게…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-BUSYBOX",
-    "title": "[K8S] BUSYBOX",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "busybox 는 쉽게 말하면 아주 작은 리눅스 도구 상자 이미지 쿠버네티스 실습에서 kubectl describe pods 했을 때 busybox 가 보이는 이유는 보통 그 Pod가 busybox 이미지를 기반으…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-ClusterIP-Service는-정말-로드밸런싱을-할까",
-    "title": "[KUBERNETES] ClusterIP Service는 정말 로드밸런싱을 할까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/22861be3-31bf-4d24-adda-a7942ea01eb0/image.png Kubernetes에서 Service를 만…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-ConfigMap이란-설정값을-컨테이너-밖으로-빼내는-방법",
-    "title": "[Kubernetes] ConfigMap이란? 설정값을 컨테이너 밖으로 빼내는 방법",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.20",
-    "excerpt": "Kubernetes를 공부하다 보면 ConfigMap 이라는 리소스가 자주 나온다. 처음에는 이름부터 헷갈린다. 대충 이런 느낌인데, 쉽게 말하면 ConfigMap은 애플리케이션 설정값을 Pod 밖에서 관리하게 해…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-CoreDNS란-서비스-이름을-IP로-바꿔주는-DNS-서버",
-    "title": "[Kubernetes] CoreDNS란? 서비스 이름을 IP로 바꿔주는 DNS 서버",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 28 Ma",
-    "excerpt": "쿠버네티스를 공부하다 보면 이런 주소를 자주 보게 된다. mysql.default.svc.cluster.local 또는 파드 안에서 그냥 이렇게 호출하기도 한다. curl http://mysql 처음 보면 조금 이…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Daemon이란-DaemonSet을-이해하기-전에-알아야-할-기본-개념",
-    "title": "[Kubernetes] Daemon이란? DaemonSet을 이해하기 전에 알아야 할 기본 개념",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 28 Ma",
-    "excerpt": "쿠버네티스에서 DaemonSet 을 공부하다 보면 자연스럽게 이런 질문이 생긴다. Daemon이 뭐야? 왜 이름이 DaemonSet이야? Deployment랑 뭐가 다른데? DaemonSet 을 이해하려면 먼저 D…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Deployment-YAML-처음부터-다-외워야-할까",
-    "title": "[Kubernetes] Deployment YAML, 처음부터 다 외워야 할까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "쿠버네티스를 공부하다 보면 이런 문제를 자주 만난다. 처음 보면 이런 생각이 든다. 이 YAML을 실전에서 다 외워서 쓰나? 결론부터 말하면 다 외우는 게 아니다. 실무에서도 처음부터 YAML을 손으로 전부 치기보…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Deployment-배포-전략이란-RollingUpdate와-Rollback-이해하기",
-    "title": "[Kubernetes] Deployment 배포 전략이란? RollingUpdate와 Rollback 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Kubernetes에서 애플리케이션을 운영하다 보면 단순히 Pod를 한 번 실행하는 것보다 더 중요한 문제가 생긴다. 바로 “새 버전으로 어떻게 안전하게 바꿀 것인가?”이다. 예를 들어 현재 kodekloud/we…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Endpoint는-Service가-실제로-바라보는-Pod-목록이다",
-    "title": "[KUBERNETES] Endpoint는 Service가 실제로 바라보는 Pod 목록이다",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "Kubernetes에서 Service를 만들면 우리는 보통 Service IP로 접근한다. 예를 들어 nginx-svc 라는 Service가 있고, ClusterIP가 10.43.144.200 이라고 해보자. 그러…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Fluent-Bit이-뭔데-로그-수집할-때-자꾸-나올까",
-    "title": "[Kubernetes] Fluent Bit이 뭔데 로그 수집할 때 자꾸 나올까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "쿠버네티스에서 애플리케이션을 띄우다 보면 처음에는 이런 것만 신경 쓴다. Pod 잘 떴나? Service 연결됐나? Ingress로 접속되나? 그런데 운영 관점으로 넘어가면 질문이 바뀐다. 에러가 났을 때 로그는…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Headless-Service는-도대체-왜-쓰는-걸까",
-    "title": "[Kubernetes] Headless Service는 도대체 왜 쓰는 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 28 Ma",
-    "excerpt": "쿠버네티스에서 Service를 배우다 보면 보통 이런 식으로 이해한다. Pod는 계속 죽고 다시 생기니까 IP가 바뀐다. 그래서 Service가 고정된 주소 역할을 해준다. 맞는 말이다. 일반적인 Service는…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Helm-values.yaml은-왜-쓰는-걸까",
-    "title": "[Kubernetes] Helm values.yaml은 왜 쓰는 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "Kubernetes를 공부하다 보면 처음에는 YAML 파일을 직접 작성한다. kubectl apply -f deployment.yaml kubectl apply -f service.yaml kubectl apply…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Helm과-Kubernetes-운영",
-    "title": "[Kubernetes] Helm과 Kubernetes 운영",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Kubernetes를 공부하다 보면 처음에는 kubectl 로 직접 리소스를 만든다. 이 단계에서는 괜찮다. Pod 하나 만들고, Service 하나 만들고, Ingress 하나 만드는 정도는 직접 해도 된다. 그…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Helm으로-ingress-nginx-설치하고-kubectl로-nginx-앱까지-연결하기",
-    "title": "[KUBERNETES] Helm으로 ingress-nginx 설치하고, kubectl로 nginx 앱까지 연결하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Kubernetes에서 Ingress를 처음 실습하면 머리가 복잡해진다. Helm도 나오고, kubectl도 나오고, ingress-nginx도 나오고, nginx-ingress도 나오고, nginx Service…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유n",
-    "title": "[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\\n",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/94669a90-5342-4d8f-af2f-2a7c43060275/image.png 쿠버네티스에서 ingress-nginx 를…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Helm으로-설치한-ingress-nginx에도-Service가-있는데-왜-nginx-Service를-또-만들까",
-    "title": "[Kubernetes] Helm으로 설치한 ingress-nginx에도 Service가 있는데, 왜 nginx Service를 또 만들까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Kubernetes에서 Ingress를 실습하다 보면 처음에 많이 헷갈리는 부분이 있다. 이렇게 Helm으로 ingress-nginx 를 설치했는데, 이후에 또 이런 명령어를 친다. 처음 보면 이런 생각이 든다.…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Helm은-왜-쓰는-걸까",
-    "title": "[KUBERNETES] Helm은 왜 쓰는 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "쿠버네티스를 공부하다 보면 처음에는 Pod , Deployment , Service 같은 YAML을 직접 작성하게 된다. 예를 들어 애플리케이션 하나를 배포하려면 보통 이런 리소스들이 필요하다. 처음에는 하나씩 작…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress-Controller란-Ingress랑-뭐가-다르고-왜-NGINX를-많이-쓸까",
-    "title": "[Kubernetes] Ingress Controller란? Ingress랑 뭐가 다르고 왜 NGINX를 많이 쓸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Fri, 29 Ma",
-    "excerpt": "쿠버네티스에서 외부 트래픽을 다루다 보면 이런 흐름을 자주 본다. 사용자 ↓ Ingress ↓ Service ↓ Pod 처음에는 이렇게 이해한다. Ingress는 외부에서 들어온 HTTP/HTTPS 요청을 클러스터…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress-적용-후-localhost-접속까지-트러블슈팅-정리",
-    "title": "[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/351a7e1a-1db7-476f-a47f-d36542437280/image.png ! https://velog.velcdn.…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까",
-    "title": "[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Fri, 29 Ma",
-    "excerpt": "쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다. Ingress는 HTTP/HTTPS를 통해 클러스터 내부 서비스를 외부로 노출한다. 그리고 기능으로는 보통 이런 것들이 나온다. Service에 외부…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까n",
-    "title": "[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?\\n",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.29",
-    "excerpt": "쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다. 그리고 기능으로는 보통 이런 것들이 나온다. 처음 보면 여기서 막힌다. “Ingress가 SSL 인증서를 처리한다는 게 뭐지?” “SSL은 HTTPS…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress란-뭘까-외부에서-Pod에-접속하는-방법-이해하기",
-    "title": "[Kubernetes] Ingress란 뭘까? 외부에서 Pod에 접속하는 방법 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "Kubernetes에서 Pod와 Service를 만들었는데 이런 생각이 든다. 어? Pod는 떠 있는데 브라우저에서는 어떻게 접속하지? Kubernetes 안에 nginx나 apache 같은 웹 서버를 띄워도, 그…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress에서-Gateway-API로-마이그레이션할-때-나오는-단어-정리하기",
-    "title": "[KUBERNETES] Ingress에서 Gateway API로 마이그레이션할 때 나오는 단어 정리하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.18",
-    "excerpt": "Kubernetes에서 외부 사용자가 애플리케이션에 접근하게 만들 때 자주 나오는 개념이 있다. 바로 Ingress , Gateway API , Gateway , HTTPRoute , TLS , Service ,…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Ingress와-Ingress-Controller는-뭐가-다를까",
-    "title": "[KUBERNETES] Ingress와 Ingress Controller는 뭐가 다를까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "쿠버네티스에서 외부 요청을 서비스로 연결할 때 Service 만 쓰는 게 아니라 Ingress 라는 것도 자주 등장한다. 처음 보면 이름이 비슷해서 헷갈린다. 둘 다 외부 요청을 내부 서비스로 보내는 것 같고, 둘…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-K3d-Pod-재생성-Event로-이해하는-쿠버네티스-기초",
-    "title": "[KUBERNETES] K3d, Pod 재생성, Event로 이해하는 쿠버네티스 기초",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "쿠버네티스를 처음 만지면 가장 먼저 드는 생각은 이것이다. “분명 내가 뭔가를 지웠는데 왜 다시 생기지?” “Pod가 죽었는데 왜 또 만들어지지?” “에러가 났는데 어디부터 봐야 하지?” “K3d는 또 뭐고, K3…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-K8s-API란-쿠버네티스가-움직이는-진짜-입구",
-    "title": "[Kubernetes] K8s API란? 쿠버네티스가 움직이는 진짜 입구",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 28 Ma",
-    "excerpt": "쿠버네티스를 쓰다 보면 이런 명령어를 자주 입력한다. kubectl get pod kubectl apply -f deployment.yaml kubectl delete svc nginx kubectl describ…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Kubernetes-Namespace와-Ingress",
-    "title": "[Kubernetes] Kubernetes Namespace와 Ingress",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Kubernetes를 처음 만지면 Pod, Deployment, Service까지는 어느 정도 감이 온다. 그런데 조금만 더 들어가면 바로 헷갈리는 개념이 나온다. 특히 ingress-nginx 와 ingress-…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-LivenessProbe로-Self-Healing-이해하기",
-    "title": "[Kubernetes] LivenessProbe로 Self-Healing 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 28 Ma",
-    "excerpt": "쿠버네티스를 공부하다 보면 자주 나오는 말이 있다. 쿠버네티스는 Self-Healing을 지원한다. 처음 들으면 뭔가 엄청 대단한 기능처럼 느껴진다. “쿠버네티스가 알아서 장애를 고쳐준다고?” “그럼 서버가 죽어도…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-LoadBalancer랑-NodePort는-뭐가-다를까-사실-비슷해-보이는-게-맞다",
-    "title": "[KUBERNETES] LoadBalancer랑 NodePort는 뭐가 다를까? 사실 비슷해 보이는 게 맞다",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "Kubernetes Service를 공부하다 보면 ClusterIP , NodePort , LoadBalancer 가 나온다. 처음에는 셋이 완전히 다른 방식처럼 느껴지는데, 실습을 해보면 이런 생각이 든다. 결론…",
     "tag_color": "#7c3aed"
   },
   {
@@ -1000,203 +470,93 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-PV와-PVC란-무엇일까",
-    "title": "[Kubernetes] PV와 PVC란 무엇일까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "Kubernetes에서 Pod는 기본적으로 언제든지 사라질 수 있는 존재 다. Pod가 죽었다가 다시 생성되면 내부 파일도 같이 사라질 수 있다. 예를 들어 MySQL Pod를 띄웠다고 해보자. MySQL Pod…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Pod-ReplicaSet-Deployment-Rollout-흐름-한-번에-이해하기",
-    "title": "[KUBERNETES] Pod, ReplicaSet, Deployment, Rollout 흐름 한 번에 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.18",
-    "excerpt": "쿠버네티스를 처음 보면 pod.yaml , deploy.yaml , service.yaml 같은 YAML 파일을 계속 만나게 된다. 처음에는 이 파일들이 전부 다르게 생긴 것처럼 보이지만, 계속 보다 보면 구조가…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Pod-Resource-Requests와-Limits-쉽게-이해하기",
-    "title": "[Kubernetes] Pod Resource Requests와 Limits 쉽게 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.27",
-    "excerpt": "쿠버네티스에서 Pod를 만들 때 컨테이너가 사용할 CPU, Memory를 지정할 수 있다. 이때 나오는 개념이 두 개다. 처음 보면 둘 다 “리소스 설정”이라 헷갈리는데, 역할이 다르다. --- 1. Request…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-ReplicaSet-YAML에서-selector와-template-label은-왜-같아야-할까",
-    "title": "[Kubernetes] ReplicaSet YAML에서 selector와 template label은 왜 같아야 할까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Kubernetes에서 ReplicaSet 을 만들다 보면 이런 YAML을 자주 만나게 된다. 겉으로 보면 큰 문제 없어 보인다. ReplicaSet 을 만들고, replicas: 2 니까 Pod를 2개 만들고,…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-ReplicaSet-생성-중-no-matches-for-kind-ReplicaSet-in-version-v1-에러-해결-공식-Docs-보는-법",
-    "title": "[Kubernetes] ReplicaSet 생성 중 no matches for kind \\\"ReplicaSet\\\" in version \\\"v1\\\" 에러 해결 + 공식 Docs 보는 법",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "쿠버네티스 실습을 하다 보면 가장 많이 마주치는 것 중 하나가 YAML 오류다. 특히 CKA/KodeKloud에서는 일부러 틀린 YAML 파일을 주고 수정하게 만드는 문제가 굉장히 자주 나온다. 이번에는 Repli…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Service-ClusterIP-NodePort-LoadBalancer는-뭐가-다를까",
-    "title": "[Kubernetes] Service, ClusterIP, NodePort, LoadBalancer는 뭐가 다를까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "쿠버네티스를 처음 공부하면 Pod , Service , ClusterIP , NodePort , LoadBalancer 같은 단어가 계속 나온다. 처음에는 전부 네트워크 관련 용어처럼 보여서 헷갈리는데, 핵심은 하…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Service-종류-3가지-ClusterIP-NodePort-LoadBalancer",
-    "title": "[Kubernetes] Service 종류 3가지: ClusterIP, NodePort, LoadBalancer",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "쿠버네티스에서 Pod는 계속 생성되고 삭제될 수 있다. 문제는 Pod가 새로 만들어질 때마다 IP가 바뀔 수 있다는 점이다. 그래서 클라이언트가 Pod IP를 직접 바라보게 만들면 안정적이지 않다. 이런 상황에서…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Service는-왜-필요할까-ClusterIP-NodePort-LoadBalancer-한-번에-이해하기",
-    "title": "[KUBERNETES] Service는 왜 필요할까? ClusterIP, NodePort, LoadBalancer 한 번에 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.18",
-    "excerpt": "쿠버네티스에서 Pod를 띄우는 것까지는 비교적 이해가 쉽다. nginx 이미지를 이용해서 Pod를 만들면 nginx 서버가 뜨고, Deployment를 만들면 여러 개의 Pod가 생성된다. 그런데 여기서 바로 문제…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Static-Pod란-kubelet이-직접-관리하는-Pod",
-    "title": "[Kubernetes] Static Pod란? kubelet이 직접 관리하는 Pod",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.27",
-    "excerpt": "쿠버네티스에서 Pod는 보통 kubectl apply 로 만든다. 그러면 일반적인 Pod 생성 흐름은 이렇게 된다. 그런데 Static Pod 는 이 흐름과 조금 다르다. Static Pod는 한 줄로 말하면 이거…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-Taint-Toleration-Cordon-Drain은-왜-필요할까",
-    "title": "[Kubernetes] Taint & Toleration, Cordon & Drain은 왜 필요할까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Fri, 29 Ma",
-    "excerpt": "쿠버네티스에서 Pod는 기본적으로 Scheduler가 적절한 Node를 골라 배치한다. Pod 생성 ↓ Scheduler가 Node 선택 ↓ 선택된 Node에서 Pod 실행 그런데 운영하다 보면 이런 상황이 생긴다…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-YAML-구조는-도대체-어떻게-보는-걸까",
-    "title": "[Kubernetes] YAML 구조는 도대체 어떻게 보는 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.22",
-    "excerpt": "Kubernetes 공부를 하다 보면 결국 YAML을 계속 보게 된다. 처음 보면 그냥 이상한 설정 파일처럼 보인다. 근데 계속 보다 보면 Kubernetes YAML은 거의 같은 구조를 반복한다. 이 4개만 먼저…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-`-dry-run=client`-도대체-뭐-하는-옵션일까",
-    "title": "[Kubernetes] `--dry-run=client` 도대체 뭐 하는 옵션일까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.20",
-    "excerpt": "쿠버네티스를 공부하다 보면 이런 명령어를 자주 보게 된다. 혹은 처음 보면: 왜 실행 안 하고 dry-run을 하지? client는 또 뭐고 server는 뭐지? 왜 yaml 생성할 때 항상 붙어있지? 같은 생각이…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-apache.192.168.164.4.sslip.io에서-Apache랑-sslip.io는-뭘까",
-    "title": "[Kubernetes] apache.192.168.164.4.sslip.io에서 Apache랑 sslip.io는 뭘까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "Kubernetes Ingress 실습을 하다 보면 이런 주소를 만난다. apache.192.168.164.4.sslip.io apache 는 뭔가 서비스 이름 같고, 192.168.164.4 는 IP 주소 같고,…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-cAdvisor는-뭐고-Metrics-ServerHPA랑-무슨-관계일까",
-    "title": "[KUBERNETES] cAdvisor는 뭐고, Metrics Server/HPA랑 무슨 관계일까?",
+    "slug": "[Kubernetes]-LoadBalancer랑-NodePort는-뭐가-다를까-사실-비슷해-보이는-게-맞다",
+    "title": "[KUBERNETES] LoadBalancer랑 NodePort는 뭐가 다를까? 사실 비슷해 보이는 게 맞다",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.19",
-    "excerpt": "Kubernetes에서 리소스 모니터링을 공부하다 보면 cAdvisor , Metrics Server , kubectl top , HPA 같은 단어가 같이 나온다. 처음 보면 다 비슷하게 “CPU랑 Memory 보…",
+    "excerpt": "Kubernetes Service를 공부하다 보면 ClusterIP , NodePort , LoadBalancer 가 나온다. 처음에는 셋이 완전히 다른 방식처럼 느껴지는데, 실습을 해보면 이런 생각이 든다. 결론…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-f",
-    "title": "[KUBERNETES] -f",
+    "slug": "[K3D-KUBERNETES]-LoadBalancer-Service를-쓰려면-왜-클러스터-생성-때-포트-매핑을-해야-할까",
+    "title": "[K3D/KUBERNETES] LoadBalancer Service를 쓰려면 왜 클러스터 생성 때 포트 매핑을 해야 할까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "지금 오류 원인은 명령어에서 -f 를 잘못 쓴 것 이야. 지금 친 명령어 이렇게 치면 Kubernetes는 rs 를 리소스 종류 로 해석하는 게 아니라, -f 옵션 뒤에 온 값이라서 파일 경로 로 해석함. 즉 Ku…",
+    "date": "2026.05.19",
+    "excerpt": "Kubernetes에서 Service 타입 중 LoadBalancer 를 만들면 외부에서 바로 접속할 수 있을 것처럼 느껴진다. 예를 들어 이런 Service YAML이 있다고 하자. 적용하면: Service는 생…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-k9s는-뭐고-왜-쓰는-걸까",
-    "title": "[KUBERNETES] k9s는 뭐고 왜 쓰는 걸까?",
+    "slug": "[K3D-KUBERNETES]-k3d-클러스터-두-개를-같은-네트워크로-묶으면-NodePort-접근이-될까",
+    "title": "[K3D/KUBERNETES] k3d 클러스터 두 개를 같은 네트워크로 묶으면 NodePort 접근이 될까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/f5cf6d4a-7f1c-43a7-94db-d043b807e023/image.png 쿠버네티스를 처음 공부하면 보통 kubec…",
+    "date": "2026.05.19",
+    "excerpt": "Kubernetes에서 NodePort 를 배우면 보통 이렇게 접근한다고 배운다. 예를 들어 Service가 이렇게 떠 있다고 하자. 여기서 30001 이 NodePort다. 일반적인 VM이나 AWS 환경이라면 외…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-kube-proxy란-Service-트래픽을-Pod로-보내주는-네트워크-관리자",
-    "title": "[Kubernetes] kube-proxy란? Service 트래픽을 Pod로 보내주는 네트워크 관리자",
+    "slug": "[DOCKER-K3D]-포트-매핑에서-앞쪽-포트와-뒤쪽-포트가-헷갈릴-때",
+    "title": "[DOCKER/K3D] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "Fri, 29 Ma",
-    "excerpt": "쿠버네티스에서 Service를 공부하다 보면 이런 말을 자주 듣는다. Service는 Pod 앞에 고정된 IP를 만들어준다. 클라이언트는 Pod IP를 몰라도 Service IP로 접근하면 된다. 처음에는 이렇게…",
+    "date": "2026.05.19",
+    "excerpt": "Docker나 k3d를 쓰다 보면 이런 문법을 자주 본다. 또는 k3d에서는 이런 식으로 쓴다. 처음 보면 제일 헷갈리는 부분은 이거다. 포트가 두 개 나오는데, 앞쪽 포트가 뭔지, 뒤쪽 포트가 뭔지 잘 안 와닿는…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-kubectl-config는-도대체-뭐고-CKA에서-언제-쓰는-걸까",
-    "title": "[Kubernetes] kubectl config는 도대체 뭐고, CKA에서 언제 쓰는 걸까?",
+    "slug": "[K3D-KUBERNETES]-NodePort인데-왜-Node-IP로-접속이-안-될까",
+    "title": "[K3D/KUBERNETES] NodePort인데 왜 Node IP로 접속이 안 될까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.27",
-    "excerpt": "CKA 공부하다 보면 이런 명령어가 나온다. 처음 보면 느낌이 이렇다. 근데 이건 생각보다 단순하다. kubectl config 는 kubectl이 어느 쿠버네티스 클러스터에 접속할지 정하는 설정 명령어 다. --…",
+    "date": "2026.05.19",
+    "excerpt": "Kubernetes에서 Service 타입 중 NodePort 를 사용하면 외부에서 다음과 같은 형식으로 접근할 수 있다고 배운다. 예를 들어 Service가 이렇게 떠 있다고 하자. 여기서 중요한 부분은 이것이다…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-kubectl-create-랑-kubectl-run-은-뭐가-다를까",
-    "title": "[Kubernetes] kubectl create 랑 kubectl run 은 뭐가 다를까?",
+    "slug": "[Kubernetes]-Endpoint는-Service가-실제로-바라보는-Pod-목록이다",
+    "title": "[KUBERNETES] Endpoint는 Service가 실제로 바라보는 Pod 목록이다",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.22",
-    "excerpt": "CKA 공부하다 보면 이런 명령어를 자주 본다. 또 이런 것도 본다. 둘 다 뭔가 “만드는” 명령어처럼 보인다. 그래서 처음에는 헷갈린다. 둘 다 리소스를 생성하는 명령어인데, run 은 주로 Pod를 빠르게 실행…",
+    "date": "2026.05.19",
+    "excerpt": "Kubernetes에서 Service를 만들면 우리는 보통 Service IP로 접근한다. 예를 들어 nginx-svc 라는 Service가 있고, ClusterIP가 10.43.144.200 이라고 해보자. 그러…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-kubectl-describe-nodes는-어디부터-봐야-할까",
-    "title": "[Kubernetes] kubectl describe nodes는 어디부터 봐야 할까?",
+    "slug": "[LINUX]-bash와-sh의-근본적인-차이",
+    "title": "[LINUX] bash와 sh의 근본적인 차이",
+    "category": "LINUX",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.19",
+    "excerpt": "리눅스나 컨테이너 안에서 명령어를 치다 보면 bash 와 sh 를 자주 만나게 된다. 예를 들어 Kubernetes에서 curl 테스트용 Pod를 띄울 때 이렇게 실행했다. 여기서 마지막에 붙은 sh 는 컨테이너…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[LINUX]-bash랑-sh는-뭐가-다를까-Kubernetes-curl-test에서-for문이-안-돈-이유",
+    "title": "[LINUX] bash랑 sh는 뭐가 다를까? Kubernetes curl-test에서 for문이 안 돈 이유",
+    "category": "LINUX",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.19",
+    "excerpt": "Kubernetes에서 ClusterIP Service가 로드밸런싱을 하는지 확인하려고 curl-test Pod를 띄웠다. 그리고 Service IP로 1000번 요청을 보내려고 아래처럼 입력했다. 그런데 결과가…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[Kubernetes]-ClusterIP-Service는-정말-로드밸런싱을-할까",
+    "title": "[KUBERNETES] ClusterIP Service는 정말 로드밸런싱을 할까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "쿠버네티스를 공부하다 보면 kubectl describe nodes 명령어를 자주 보게 된다. 처음 이 명령어를 치면 출력이 너무 길다. 노드 이름, 라벨, 어노테이션, IP, 자원, 파드 목록, 이벤트까지 한 번…",
+    "date": "2026.05.19",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/22861be3-31bf-4d24-adda-a7942ea01eb0/image.png Kubernetes에서 Service를 만…",
     "tag_color": "#7c3aed"
   },
   {
@@ -1210,224 +570,34 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-kubectl로-Ingress-만드는-것과-Helm으로-ingress-nginx-설치하는-것은-뭐가-다를까",
-    "title": "[KUBERNETES] kubectl로 Ingress 만드는 것과 Helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?",
+    "slug": "[Kubernetes]-Service는-왜-필요할까-ClusterIP-NodePort-LoadBalancer-한-번에-이해하기",
+    "title": "[KUBERNETES] Service는 왜 필요할까? ClusterIP, NodePort, LoadBalancer 한 번에 이해하기",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Kubernetes에서 Ingress를 공부하다 보면 헷갈리는 지점이 있다. 이 명령어도 Ingress를 만드는 것 같고, 이 명령어도 Ingress 관련 무언가를 설치하는 것 같다. 둘 다 Ingress와 관련되…",
+    "date": "2026.05.18",
+    "excerpt": "쿠버네티스에서 Pod를 띄우는 것까지는 비교적 이해가 쉽다. nginx 이미지를 이용해서 Pod를 만들면 nginx 서버가 뜨고, Deployment를 만들면 여러 개의 Pod가 생성된다. 그런데 여기서 바로 문제…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-kubectx는-뭐고-왜-쓰는-걸까",
-    "title": "[KUBERNETES] kubectx는 뭐고 왜 쓰는 걸까?",
+    "slug": "[Kubernetes]-Pod-ReplicaSet-Deployment-Rollout-흐름-한-번에-이해하기",
+    "title": "[KUBERNETES] Pod, ReplicaSet, Deployment, Rollout 흐름 한 번에 이해하기",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/a4d41c3c-c7da-4398-b818-fc2a43ffafec/image.png 쿠버네티스를 쓰다 보면 kubectl 명령…",
+    "date": "2026.05.18",
+    "excerpt": "쿠버네티스를 처음 보면 pod.yaml , deploy.yaml , service.yaml 같은 YAML 파일을 계속 만나게 된다. 처음에는 이 파일들이 전부 다르게 생긴 것처럼 보이지만, 계속 보다 보면 구조가…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Kubernetes]-nodeSelector란-Pod를-원하는-노드에-배치하는-가장-단순한-방법",
-    "title": "[Kubernetes] nodeSelector란? Pod를 원하는 노드에 배치하는 가장 단순한 방법",
+    "slug": "[Kubernetes]-Ingress에서-Gateway-API로-마이그레이션할-때-나오는-단어-정리하기",
+    "title": "[KUBERNETES] Ingress에서 Gateway API로 마이그레이션할 때 나오는 단어 정리하기",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "Fri, 29 Ma",
-    "excerpt": "쿠버네티스를 공부하다 보면 이런 말을 자주 듣는다. Pod는 Scheduler가 적절한 Node를 골라서 배치한다. 처음에는 이렇게 이해하면 된다. Pod 생성 요청 ↓ Scheduler가 Node 선택 ↓ 선택된…",
+    "date": "2026.05.18",
+    "excerpt": "Kubernetes에서 외부 사용자가 애플리케이션에 접근하게 만들 때 자주 나오는 개념이 있다. 바로 Ingress , Gateway API , Gateway , HTTPRoute , TLS , Service ,…",
     "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-데몬이-뭐야-DaemonSet은-왜-쓰는-걸까",
-    "title": "[Kubernetes] 데몬이 뭐야? DaemonSet은 왜 쓰는 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.27",
-    "excerpt": "쿠버네티스 공부하다 보면 DaemonSet 이라는 단어가 나온다. 처음 보면 이름부터 좀 무섭다. 데몬? 악마? 뭐 하는 애임? 근데 어렵게 생각할 필요 없다. 쿠버네티스에서 말하는 데몬은 쉽게 말하면 서버 뒤에서…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-로그-수집-패턴-비교-Sidecar-방식-vs-Cluster-level-방식",
-    "title": "[Kubernetes] 로그 수집 패턴 비교: Sidecar 방식 vs Cluster-level 방식",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "쿠버네티스에서 애플리케이션 로그를 수집하는 방식은 크게 두 가지로 볼 수 있다. 1. 파드 사이드카 패턴 기반 로그 수집 2. 클러스터 레벨 패턴 기반 로그 수집 둘 다 “로그를 모은다”는 목적은 같지만, 어디에서…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-로컬에서-k3d-클러스터-만들고-LoadBalancer-포트-열기",
-    "title": "[Kubernetes] 로컬에서 k3d 클러스터 만들고 LoadBalancer 포트 열기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/d4c39157-4ed9-4955-846f-baccb49175ea/image.png 이번에는 로컬 환경에서 k3d 를 사용해…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-앱도-없고-Pod도-없는데-나는-뭘-한-걸까",
-    "title": "[KUBERNETES] 앱도 없고 Pod도 없는데 나는 뭘 한 걸까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Ingress 실습을 하다 보면 이런 순간이 온다. 처음에는 헷갈린다. “나는 뭘 만든 거지?” “앱도 없고 Pod도 없는데 왜 Ingress를 만든 거지?” “Service에는 앱이 들어가는 건가?” “Helm으…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-왜-Helm으로-설치하고-다시-kubectl로-YAML을-apply-했을까",
-    "title": "[KUBERNETES] 왜 Helm으로 설치하고, 다시 kubectl로 YAML을 apply 했을까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Helm = 큰 시스템 설치 kubectl apply = 내 규칙 추가 1. Helm으로 ingress-nginx 설치 → 요청을 받아서 처리할 관리자 설치 2. nginx Deployment 만들기 → 실제 응답…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-왜-image가-containers-안에-있을까-사이드카까지-한-번에-이해하기",
-    "title": "[Kubernetes] 왜 image가 containers 안에 있을까? 사이드카까지 한 번에 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.22",
-    "excerpt": "Kubernetes YAML을 처음 보면 이런 부분이 자주 헷갈림. 처음 보면 이렇게 생각할 수 있다. 근데 정확히는 이미지가 컨테이너 안에 들어가는 것 이 아니다. 정확한 의미는 이거다. 즉 image: ngin…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-원격-클러스터와-인프라-운영-관점",
-    "title": "[Kubernetes] 원격 클러스터와 인프라 운영 관점",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "Kubernetes를 처음 배울 때는 보통 서버에 직접 SSH로 들어가서 명령어를 치는 방식이 익숙하다. 그런데 실무 관점으로 가면 조금 다른 생각을 해야 한다. 이 질문이 바로 Kubernetes 운영, kube…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-유형별-YAML-파일-읽는-법-어디부터-봐야-할까",
-    "title": "[Kubernetes] 유형별 YAML 파일 읽는 법 — 어디부터 봐야 할까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.20",
-    "excerpt": "\\쿠버네티스 YAML을 처음 보면 대부분 이런 느낌이 든다. 분명 글자는 읽히는데 구조가 안 보인다. 처음에는 전부 비슷해 보인다. 근데 쿠버네티스 YAML은 유형별로 읽는 순서가 있다. 오늘은 CKA 공부할 때…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-일부러-잘못된-이미지로-Pod-만들기-redis123-실습-이해하기",
-    "title": "[Kubernetes] 일부러 잘못된 이미지로 Pod 만들기: redis123 실습 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "쿠버네티스 실습을 하다 보면 이런 문제가 나온다. 처음 보면 조금 이상하다. redis 이미지를 쓰면 될 것 같은데, 문제에서는 굳이 redis123 이라는 잘못된 이미지를 쓰라고 한다. 여기서 중요한 포인트는 이…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-쿠버네티스를-이해하기-전에-알아야-할-것들-온프레미스-VM-컨테이너-Docker-그리고-K8s",
-    "title": "[KUBERNETES] 쿠버네티스를 이해하기 전에 알아야 할 것들: 온프레미스, VM, 컨테이너, Docker, 그리고 K8s",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "쿠버네티스를 처음 공부할 때 바로 Pod, Service, Deployment부터 들어가면 헷갈리기 쉽다. 쿠버네티스는 갑자기 튀어나온 기술이 아니라, 서버를 운영하는 방식이 변화하면서 자연스럽게 등장한 기술이기…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-쿠버네티스에서-NIC는-도대체-뭘까",
-    "title": "[Kubernetes] 쿠버네티스에서 NIC는 도대체 뭘까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Thu, 28 Ma",
-    "excerpt": "쿠버네티스 네트워크를 공부하다 보면 이런 단어들이 계속 나온다. Pod IP Service IP ClusterIP NodePort CNI Ingress DNS Routing 처음 보면 머리가 복잡해진다. “Pod…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-프로비저닝이란-무엇일까",
-    "title": "[Kubernetes] 프로비저닝이란 무엇일까?",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다. 정적 프로비저닝 동적 프로비저닝 StorageClass를 통한 동적 프로비저닝 처음 들으면 단어부터 어렵다. “프로비저닝이 뭔데?” “그냥…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Kubernetes]-프로비저닝이란-무엇일까n",
-    "title": "[Kubernetes] 프로비저닝이란 무엇일까?\\n",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.27",
-    "excerpt": "Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다. 처음 들으면 단어부터 어렵다. “프로비저닝이 뭔데?” “그냥 생성이랑 다른 건가?” “PV/PVC랑 무슨 관계지?” 이번 글에서는 프로비저닝…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[LINUX]-bash랑-sh는-뭐가-다를까-Kubernetes-curl-test에서-for문이-안-돈-이유",
-    "title": "[LINUX] bash랑 sh는 뭐가 다를까? Kubernetes curl-test에서 for문이 안 돈 이유",
-    "category": "LINUX",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "Kubernetes에서 ClusterIP Service가 로드밸런싱을 하는지 확인하려고 curl-test Pod를 띄웠다. 그리고 Service IP로 1000번 요청을 보내려고 아래처럼 입력했다. 그런데 결과가…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[LINUX]-bash와-sh의-근본적인-차이",
-    "title": "[LINUX] bash와 sh의 근본적인 차이",
-    "category": "LINUX",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.19",
-    "excerpt": "리눅스나 컨테이너 안에서 명령어를 치다 보면 bash 와 sh 를 자주 만나게 된다. 예를 들어 Kubernetes에서 curl 테스트용 Pod를 띄울 때 이렇게 실행했다. 여기서 마지막에 붙은 sh 는 컨테이너…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[LINUX]-시스템-운영과-네트워크-트러블슈팅-기본-역량",
-    "title": "[LINUX] 시스템 운영과 네트워크 트러블슈팅 기본 역량",
-    "category": "LINUX",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "1. 왜 Linux와 Network를 같이 봐야 할까? 서버를 운영하다 보면 문제는 보통 한 군데에서만 터지지 않는다. 예를 들어 웹 서버가 안 열린다고 해보자. 했는데 응답이 안 온다. 이때 원인은 여러 가지일…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[LeetCode]-Valid-Palindrome-투포인터로-메모리-줄이기",
-    "title": "[LeetCode] Valid Palindrome — 투포인터로 메모리 줄이기",
-    "category": "LeetCode",
-    "topic": "algorithm",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "처음에는 문자열에서 알파벳과 숫자만 뽑아서 리스트에 저장한 뒤 비교할 수 있다. 이 풀이는 직관적이다. 하지만 arr 라는 새 리스트를 만들기 때문에 메모리를 추가로 사용한다. 그래서 메모리를 줄이려면 투포인터 를…",
-    "tag_color": "#ca8a04"
-  },
-  {
-    "slug": "[Linux]-systemctl이-뭐길래-서버에서-계속-나올까",
-    "title": "[Linux] systemctl이 뭐길래 서버에서 계속 나올까?",
-    "category": "Linux",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.22",
-    "excerpt": "리눅스 서버를 만지다 보면 이런 명령어를 자주 보게 된다. 처음 보면 systemctl 이 뭔가 싶다. 쿠버네티스 공부할 때도 나오고, Docker 설치할 때도 나오고, Nginx 설정할 때도 나온다. 결론부터 말…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[ML]-산업재해-심각도-예측-프로젝트에-쓰인-기술-개념-정리",
-    "title": "[ML] 산업재해 심각도 예측 프로젝트에 쓰인 기술 개념 정리",
-    "category": "ML",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "산업재해 심각도 예측 프로젝트에는 단순히 “모델 하나 돌려보기” 수준이 아니라, 데이터 분석부터 전처리, 머신러닝 baseline 실험, 딥러닝 모델링, 클래스 불균형 처리, 평가 지표 재설계, 해석 가능성 확보,…",
-    "tag_color": "#64748b"
   },
   {
     "slug": "[NGINX]-Nginx에서-HTTPS-설정을-한다는-건-무슨-뜻일까",
@@ -1440,703 +610,53 @@
     "tag_color": "#64748b"
   },
   {
-    "slug": "[Network]-HTTP란-무엇일까",
-    "title": "[Network] HTTP란 무엇일까?",
+    "slug": "[CKA]-ConfigMap으로-Nginx-TLS-버전-제한하기-TLSv1.3만-허용하는-문제-풀이",
+    "title": "[CKA] ConfigMap으로 Nginx TLS 버전 제한하기: TLSv1.3만 허용하는 문제 풀이",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "Wed, 27 Ma",
-    "excerpt": "웹을 공부하다 보면 HTTP 라는 말을 정말 자주 본다. http://example.com GET /boards POST /login 404 Not Found 500 Internal Server Error 처음에는…",
+    "date": "2026.05.18",
+    "excerpt": "CKA 문제를 풀다 보면 Kubernetes 리소스만 다루는 것처럼 보이지만, 실제로는 애플리케이션 설정까지 같이 이해해야 하는 문제가 자주 나온다. 이번 문제도 겉으로는 Deployment , Namespace…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Network]-HTTP란-무엇일까n",
-    "title": "[Network] HTTP란 무엇일까?\\n",
+    "slug": "[HELM]-Helm-Chart는-이미지를-직접-가져오는-걸까",
+    "title": "[HELM] Helm Chart는 이미지를 직접 가져오는 걸까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.27",
-    "excerpt": "웹을 공부하다 보면 HTTP 라는 말을 정말 자주 본다. 처음에는 다 따로따로 보이지만, 사실 전부 HTTP와 관련된 개념이다. HTTP는 한마디로 말하면 브라우저와 서버가 웹에서 데이터를 주고받기 위한 약속 이다…",
+    "date": "2026.05.17",
+    "excerpt": "Helm을 처음 배우다 보면 이런 생각이 든다. “이 명령어를 치면 Helm이 Docker 이미지를 가져오는 건가?” 특히 helm install 을 실행하면 Pod가 자동으로 뜨고, Docker Hub에서 이미지…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Network]-SSH는-어떻게-동작하는가",
-    "title": "[NETWORK] SSH는 어떻게 동작하는가",
+    "slug": "[HELM]-Helm-Chart는-도대체-뭘까",
+    "title": "[HELM] Helm Chart는 도대체 뭘까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "개발이나 DevOps를 하다 보면 정말 많이 보게 되는 명령어가 있다. 그리고 같이 등장하는 것들: 처음엔: 싶다. 근데 SSH는: 공개키 암호화 인증 암호화 통신 개념이 다 들어간 꽤 중요한 기술이다. 오늘은 S…",
+    "date": "2026.05.17",
+    "excerpt": "쿠버네티스를 쓰다 보면 이런 명령어를 자주 보게 된다. 처음 보면 헷갈린다. “나는 Ingress Controller를 설치하려고 했는데, 왜 Helm이라는 걸 쓰지?” “Helm Chart는 또 뭐고, value…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Network]-Subnet과-CIDR",
-    "title": "[NETWORK] Subnet과 CIDR",
+    "slug": "[Kubernetes]-Ingress와-Ingress-Controller는-뭐가-다를까",
+    "title": "[KUBERNETES] Ingress와 Ingress Controller는 뭐가 다를까?",
     "category": "Kubernetes",
     "topic": "docker-k8s",
     "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "네트워크를 공부하다 보면 꼭 나오는 게 있다. Subnet CIDR /24 Subnet Mask VPC 처음 보면 다 비슷하게 생겨서 헷갈린다. 근데 사실 이건 전부: “IP 주소를 어떻게 나눠서 관리할 것인가”…",
+    "date": "2026.05.17",
+    "excerpt": "쿠버네티스에서 외부 요청을 서비스로 연결할 때 Service 만 쓰는 게 아니라 Ingress 라는 것도 자주 등장한다. 처음 보면 이름이 비슷해서 헷갈린다. 둘 다 외부 요청을 내부 서비스로 보내는 것 같고, 둘…",
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Network]-TLSHTTPS는-왜-안전한가",
-    "title": "[NETWORK] TLS/HTTPS는 왜 안전한가",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "우리는 매일: 같은 사이트에 접속한다. 근데 왜: 고 하는 걸까? 오늘은: TLS HTTPS 인증서 공개키 Handshake 흐름을 한 번에 이해해보자. --- 1. HTTP는 왜 위험한가? 원래 웹은: 를 사용했…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Network]-VPN은-왜-쓰는가n",
-    "title": "[NETWORK] VPN은 왜 쓰는가\\n",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "회사 네트워크 공부를 하다 보면 꼭 나오는 게 있다. 그리고 같이 따라오는 단어들: 터널링 암호화 IPsec Remote Access VPN Site-to-Site VPN 처음엔 되게 어려워 보이는데, 사실 핵심은…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Pytorch]-KNN-직접-구현하면서-이해하기-거리-계산부터-Cross-Validation까지",
-    "title": "[Pytorch] KNN 직접 구현하면서 이해하기: 거리 계산부터 Cross Validation까지",
-    "category": "Pytorch",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "PyTorch로 K-Nearest Neighbor, KNN 분류기 를 직접 구현해보았다. KNN은 머신러닝 알고리즘 중에서도 구조가 꽤 단순한 편이다. 학습 단계에서 모델이 가중치를 업데이트하지 않는다. 대신 학습…",
-    "tag_color": "#db2777"
-  },
-  {
-    "slug": "[Pytorch]-Linear-Classifier와-Two-Layer-Neural-Network-직접-구현하기",
-    "title": "[PyTorch] Linear Classifier와 Two Layer Neural Network 직접 구현하기",
-    "category": "Pytorch",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "이번에는 PyTorch로 선형 분류기 Linear Classifier 와 2층 신경망 Two Layer Neural Network 을 직접 구현해보았다. 이전 KNN은 학습 데이터를 그대로 기억하고, 테스트 데이터…",
-    "tag_color": "#db2777"
-  },
-  {
-    "slug": "[Pytorch]-딥러닝-레이어-직접-구현하기-Fully-Connected-Network부터-CNN까지n",
-    "title": "[PyTorch] 딥러닝 레이어 직접 구현하기: Fully Connected Network부터 CNN까지\\n",
-    "category": "Pytorch",
-    "topic": "ai",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "이번에는 PyTorch를 이용해서 딥러닝 모델의 핵심 구성요소를 직접 구현해보았다. 보통 PyTorch로 모델을 만들 때는 torch.nn.Linear , torch.nn.ReLU , torch.nn.Conv2d…",
-    "tag_color": "#db2777"
-  },
-  {
-    "slug": "[SECURITY]-RSA는-어떻게-동작하는가",
-    "title": "[SECURITY] RSA는 어떻게 동작하는가",
-    "category": "SECURITY",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "보안 공부를 하다 보면 꼭 등장하는 이름이 있다. 그리고 보통 같이 나온다. 처음엔 되게 어려워 보인다. 근데 핵심은 단순하다. “공개해도 되는 키와, 절대 공개하면 안 되는 키를 분리하자” 오늘은 RSA를 흐름…",
-    "tag_color": "#dc2626"
-  },
-  {
-    "slug": "[SECURITY]-대칭키와-공개키-비대칭키-는-무엇인가",
-    "title": "[SECURITY] 대칭키와 공개키(비대칭키)는 무엇인가",
-    "category": "SECURITY",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "보안 공부를 시작하면 반드시 나오는 게 있다. 근데 대부분 여기서 헷갈린다. 왜냐면 용어가 너무 많고, 전부 암호화 이야기 같기 때문이다. 근데 사실 핵심은 단순하다. “데이터를 어떻게 안전하게 주고받을 것인가?”…",
-    "tag_color": "#dc2626"
-  },
-  {
-    "slug": "[Spring]-.gradlew-bootRun-이건-도대체-뭐지",
-    "title": "[SPRING] ./gradlew bootRun 이건 도대체 뭐지?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.28",
-    "excerpt": "스프링 프로젝트를 처음 실행할 때 자주 보게 되는 명령어가 있다 처음 보면 이게 뭔지 감이 잘 안 온다. 그냥 “서버 실행하는 명령어인가?” 정도로 넘어가기 쉬운데, 이 안에는 중요한 개념이 몇 개 들어 있다. -…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-404-Whitelabel-Error-Page-해결-경로-중복-문제",
-    "title": "[SPRING] 404 Whitelabel Error Page 해결 (경로 중복 문제)",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/1fb0a7f2-2ae2-45e5-b49e-2a5bbd339526/image.png ! https://velog.velcdn.…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Bean은-도대체-뭘까",
-    "title": "[SPRING] Bean은 도대체 뭘까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.04.28",
-    "excerpt": "스프링을 공부하다 보면 이런 코드가 계속 보인다. 그리고 이런 말을 듣는다. “이건 Bean으로 등록된다” 처음 들으면 바로 막힌다. “Bean이 뭐야?” --- Bean은 스프링이 관리하는 객체다 가장 핵심부터…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-CORS를-Config로-제어하는-방법",
-    "title": "[SPRING] CORS를 Config로 제어하는 방법",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "프론트엔드와 백엔드를 따로 실행하면 CORS 문제가 자주 발생한다. 예를 들어 지금 구조는 이렇게 나뉘어 있다. 둘 다 localhost 이지만 포트가 다르다. 브라우저 입장에서는 서로 다른 출처라고 판단한다. 그…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Controller랑-Service는-왜-나눌까",
-    "title": "[SPRING] Controller랑 Service는 왜 나눌까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.04.28",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/bedc6599-0cf9-4e47-a522-71e8e327c007/image.png 스프링을 처음 시작하면 가장 헷갈리는 구조…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-DB-없이-JSON-파일로-데이터-불러오기-ObjectMapper-사용",
-    "title": "[SPRING] DB 없이 JSON 파일로 데이터 불러오기 (ObjectMapper 사용)",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "DB를 붙이기 전에 CRUD 흐름을 빠르게 만들고 싶다면 Spring에서 JSON 파일을 “임시 DB처럼” 사용하는 방법이 있다. 이번 글에서는 boards.json 파일을 읽어서 List로 변환하는 과정 을 정리…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-DTO는-왜-쓰고-Profile은-왜-나눌까",
-    "title": "[SPRING] DTO는 왜 쓰고, Profile은 왜 나눌까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.08",
-    "excerpt": "SPRING BOOT DTO는 왜 쓰고, Profile은 왜 나눌까? 스프링부트를 공부하다 보면 자주 듣는 말이 있다. 처음엔 그냥 규칙처럼 보이는데, 실제로는 전부 유지보수와 배포를 위한 구조다. 오늘은: 엔티티…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-DTO란-무엇인가",
-    "title": "[Spring] DTO란 무엇인가",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "DTO는 Data Transfer Object 의 줄임말이다. 이름 그대로 데이터를 전달하기 위한 객체 다. --- 1. 왜 DTO를 쓰냐 보통 처음에는 이렇게 하고 싶어진다. 겉으로는 편하다. 하지만 문제가 있다…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-FE에서-쓴-게시글이-진짜-PostgreSQL-DB에-저장됐는지-확인하는-법",
-    "title": "[Spring Boot + Docker] FE에서 쓴 게시글이 진짜 PostgreSQL DB에 저장됐는지 확인하는 법",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/05648411-fc81-440e-947d-aea5bfc7e904/image.png 게시판 프로젝트를 다음 구조로 분리했다.…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-GET-다음-단계-POST-API-추가해서-데이터-생성하기",
-    "title": "[SPRING] GET 다음 단계, POST API 추가해서 데이터 생성하기",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "Spring Boot로 게시판 API를 만들고 있다. 처음에는 가장 단순한 조회 기능부터 만들었다. 게시글 목록을 반환하는 GET /boards API다. ! https://velog.velcdn.com/image…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-GetMapping은-도대체-뭘까",
-    "title": "[SPRING] @GetMapping은 도대체 뭘까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.28",
-    "excerpt": "코드를 보면 이런 게 있다. 처음 보면 이렇게 생각 든다. “이건 또 뭐야… 왜 괄호 안에 /boards가 있어?” --- @GetMapping은 요청 주소를 연결해주는 역할이다 핵심은 이거다. @GetMappin…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Gradle-프로젝트를-Maven-프로젝트로-바꾸려면-어떻게-해야-할까",
-    "title": "[SPRING] Gradle 프로젝트를 Maven 프로젝트로 바꾸려면 어떻게 해야 할까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.03",
-    "excerpt": "현재 프로젝트를 Gradle이 아니라 Maven으로 관리하기로 했다. 따라서 build.gradle 에 의존성을 추가하는 방식이 아니라, 프로젝트 루트의 pom.xml 을 기준으로 의존성을 관리해야 했다. Grad…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-JPA-Entity를-Controller까지-넘기면-왜-위험할까",
-    "title": "[SPRING] JPA Entity를 Controller까지 넘기면 왜 위험할까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "Spring Boot로 게시판을 만들다 보면 처음에는 이런 식으로 코드를 짜게 된다. 또는 수정 API를 만들 때 이렇게 짤 수도 있다. 처음 보면 별문제 없어 보인다. Board 객체를 받아서 Board 객체를…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-JPA-Repository는-왜-텅-비어-있는데-동작할까",
-    "title": "[Spring/JPA] Repository는 왜 텅 비어 있는데 동작할까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "Spring Boot에서 JPA를 쓰다 보면 이런 코드를 자주 보게 된다. 처음 보면 이상하다. 안에 아무 코드도 없다. save 도 없고, findAll 도 없고, findById 도 없고, delete 도 없다…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-JPA-getter-setter-new-어디서-써야-하고-어떻게-나눌까",
-    "title": "[Spring/JPA] getter, setter, new… 어디서 써야 하고 어떻게 나눌까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "Spring + JPA를 처음 적용하면 이런 고민이 생긴다. setter는 쓰면 안 된다는데 어디서 쓰는 거지? new는 왜 쓰라는 거지? 서비스랑 도메인은 뭐가 다른 거지? 이걸 한 번에 정리해보면 “역할 분리”…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-JPA-setter-vs-new-뭐가-다른-거고-왜-같이-쓰는-걸까",
-    "title": "[SPRING] [JPA] setter vs new, 뭐가 다른 거고 왜 같이 쓰는 걸까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "개발하다 보면 이런 말을 듣는다. setter 막 쓰지 말고 new로 객체 만들어서 관리해라 처음 들으면 헷갈린다. setter랑 new가 서로 반대 개념 같기도 하고, 뭐가 문제인지 감이 안 온다. 결론부터 말하…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-JPA로-바꿨더니-setter를-못-찾는다고-터졌다",
-    "title": "[Spring] JPA로 바꿨더니 setter를 못 찾는다고 터졌다",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "Docker로 PostgreSQL을 띄우고, 기존 board_api를 JPA 기반으로 바꾸는 중에 컴파일 에러가 발생했다. 에러 메시지는 대략 이런 형태였다. 처음에는 PostgreSQL 연결 문제인 줄 알았다.…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-JPA와-Hibernate",
-    "title": "[SPRING] JPA와 Hibernate?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.05.03",
-    "excerpt": "Spring Boot로 게시판 API를 만들다 보면 처음에는 데이터를 List 에 저장하게 된다. 이 방식은 이해하기 쉽다. 게시글을 만들면 리스트에 넣고, 조회하면 리스트에서 찾고, 수정하면 리스트 안의 객체 값…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Lombok-롬복-이란",
-    "title": "[SPRING] Lombok(롬복)이란?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "Spring이나 Java 프로젝트를 하다 보면 이런 코드를 자주 보게 된다. 이런 것들이 바로 Lombok 롬복 이다. --- 1. Lombok이란? 반복적인 코드를 자동으로 생성해주는 라이브러리 자바는 기본적으로…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-PUT과-DELETE-게시글-수정과-삭제",
-    "title": "[SPRING] PUT과 DELETE — 게시글 수정과 삭제",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "게시판 API를 만들면서 GET, POST까지는 자연스럽게 이해가 됐는데 그 다음 단계에서 등장하는 게 바로 PUT과 DELETE 다. 이번 글에서는 \"게시글 수정\"과 \"게시글 삭제\"를 기준으로 PUT과 DELET…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Postman-사용법",
-    "title": "[SPRING] Postman 사용법",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/39c39da8-bf3b-4bfb-8724-953f515cce97/image.png 일단 포스트맨을 앱으로 깐다 ! https…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Postman이-코드를-바꾸는-걸까",
-    "title": "[SPRING] Postman이 코드를 바꾸는 걸까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/80e2a306-f8db-452d-b3a4-4c61bf89947c/image.png json 포스트맨에서 고치고 ! https…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-RequiredArgsConstructor란-Lombok-없이-쓰면-어떻게-될까",
-    "title": "[SPRING] @RequiredArgsConstructor란? (Lombok 없이 쓰면 어떻게 될까)",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "Spring 코드를 보다 보면 이런 어노테이션을 자주 보게 된다. 처음 보면 “이게 뭐지?” 싶지만, 사실은 생성자를 대신 만들어주는 도구 다. --- 1. @RequiredArgsConstructor의 역할 이…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-RestController는-도대체-뭘까",
-    "title": "[SPRING] @RestController는 도대체 뭘까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.28",
-    "excerpt": "스프링을 하다 보면 이런 코드가 나온다. 그리고 이런 말을 듣는다. “이건 컨트롤러야” 바로 막힌다. “컨트롤러가 뭐야?” --- 컨트롤러는 요청을 받는 입구다 핵심부터 말하면 이거다. @RestController…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-ServiceImpl은-왜-따로-만들까",
-    "title": "[SPRING] ServiceImpl은 왜 따로 만들까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "Spring 프로젝트를 하다 보면 이런 말을 듣게 된다. “Service에는 껍데기만 두고, 실제 비즈니스 로직은 Impl에서 구현합니다.” 처음에는 굳이 왜 나누는지 이해가 잘 안 됐다. 그냥 BoardServi…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Spring-AI는-어떻게-Spring-Boot에-붙는-걸까",
-    "title": "[SPRING] Spring AI는 어떻게 Spring Boot에 붙는 걸까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "Spring AI를 처음 보면 뭔가 거창해 보인다. AI 모델을 직접 서버에 올리고, 학습시키고, GPU를 붙이고, 복잡한 인프라를 구성해야 할 것 같지만 꼭 그런 건 아니다. Spring AI의 핵심은 생각보다…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Spring-Boot-REST-API-게시판에-Thymeleaf-화면-붙이기",
-    "title": "[Spring] Spring Boot REST API 게시판에 Thymeleaf 화면 붙이기",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.03",
-    "excerpt": "처음에는 Spring Boot로 게시판 REST API를 만들고, 프론트엔드는 React로 따로 구성하는 방식으로 생각하고 있었다. 구조는 단순했다. React 화면에서 Spring Boot API를 호출하고, S…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Spring-Boot에서-H2-DB-설정은-왜-하는-걸까",
-    "title": "[SPRING] Spring Boot에서 H2 DB 설정은 왜 하는 걸까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.05.03",
-    "excerpt": "SPRING Spring Boot에서 H2 DB 설정은 왜 하는 걸까? Spring Boot로 게시판 API를 만들다 보면 application.properties 에 이런 설정을 넣게 된다. 처음 보면 단순히 복…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Spring-Boot에서-어노테이션은-왜-변수-앞에도-붙을까",
-    "title": "[SPRING] Spring Boot에서 어노테이션은 왜 변수 앞에도 붙을까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.05.04",
-    "excerpt": "Spring Boot로 게시판 API를 만들다 보면 처음에는 어노테이션이 낯설게 느껴진다. 클래스 위에 붙는 것도 있고, 메서드 위에 붙는 것도 있고, 심지어 변수처럼 보이는 곳 앞에도 붙는다. 예를 들어 이런 코…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-String-객체로-바꾸기",
-    "title": "[SPRING] String → 객체로 바꾸기",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "지금까지 게시판 API는 String 으로만 데이터를 관리하고 있었다. 이 방식은 간단하지만 한계가 명확하다. 실제 서비스에서는 게시글 하나가 단순 문자열이 아니라 여러 정보를 가진다. 그래서 String 이 아니…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Thymeleaf는-Bootstrap-같은-게-아니다-Spring-Boot에서-화면을-만드는-방법",
-    "title": "[Spring] Thymeleaf는 Bootstrap 같은 게 아니다 — Spring Boot에서 화면을 만드는 방법",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.05.03",
-    "excerpt": "Spring Boot로 게시판 API를 만들다가 “프론트엔드를 Spring Boot에서 하라”, “HTML은 Thymeleaf로 하라”는 말을 들었다. 처음에는 Thymeleaf가 Bootstrap 같은 디자인 프…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-Whitelabel-404-URL-매핑-불일치-때문에-boards가-안-뜬-문제",
-    "title": "[Spring Boot] Whitelabel 404: URL 매핑 불일치 때문에 /boards가 안 뜬 문제",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "Spring Boot로 board_fe 를 만들고 Thymeleaf 템플릿까지 채웠는데, 브라우저에서 /boards 에 접속하자 Whitelabel Error Page가 떴다. 에러 화면은 이런 내용이었다. 처음에…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-board_api-정리부터-board_fe-Thymeleaf-화면-서버-구성까지",
-    "title": "[Spring] board_api 정리부터 board_fe Thymeleaf 화면 서버 구성까지",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.06",
-    "excerpt": "이번 작업의 목표는 단순히 게시판 CRUD를 만드는 것이 아니었다. 기존에 하나의 Spring Boot 프로젝트 안에서 화면과 API가 섞여 있던 구조를 정리하고, 역할을 분리하는 것이 핵심이었다. 최종 목표는 다…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-boards.json을-만들었는데-왜-게시글이-안-나올까",
-    "title": "[SPRING] boards.json을 만들었는데 왜 게시글이 안 나올까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "게시판 CRUD API를 만들면서 처음에는 데이터를 메모리에 저장했다. BoardService 안에 List<Board 를 만들고, 게시글을 생성하면 그 리스트에 추가하는 방식이었다. 이 방식은 구현이 단순해서 처…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-final-생성자-주입-RequiredArgsConstructor-이해하기",
-    "title": "[SPRING] final, 생성자 주입, @RequiredArgsConstructor 이해하기",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "Spring에서 Controller를 만들다 보면 아래와 같은 코드를 보게 된다. 처음 보면 단순한 생성자처럼 보이지만, 사실 이 코드는 의존성 주입 Dependency Injection 의 핵심 구조다. ---…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-getter-setter-도대체-뭐야-처음-보는-사람-기준",
-    "title": "[SPRING] getter, setter 도대체 뭐야? (처음 보는 사람 기준)",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "Spring 공부하다 보면 갑자기 이런 코드가 나온다. 그리고 밑에 이상한 함수 두 개가 붙는다. 이게 바로 getter, setter 다. --- 1. 왜 이런 걸 만드는 걸까? Java에서는 보통 변수 앞에 p…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-h2-console-접속-시-Whitelabel-404가-발생한-이유는",
-    "title": "[SPRING] /h2-console 접속 시 Whitelabel 404가 발생한 이유는?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.03",
-    "excerpt": "Spring Boot 게시판 CRUD API를 만들면서 H2 인메모리 DB를 연결하려고 했다. application.properties 에는 H2 설정을 추가했고, 브라우저에서 http://localhost:808…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-target-밑에-classes랑-jar-파일은-각각-어떻게-만들어질까",
-    "title": "[SPRING] target 밑에 classes랑 jar 파일은 각각 어떻게 만들어질까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "스프링 프로젝트를 Maven으로 빌드하다 보면 target 폴더 밑에 여러 파일이 생긴다. 처음 보면 조금 어지럽다. 특히 눈에 띄는 게 있다. 여기서 핵심은 두 개다. 그리고 둘 다 빌드 결과물이긴 한데, 역할이…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-this로-Service랑-Controller를-연결한다는-게-무슨-뜻일까",
-    "title": "[SPRING] this로 Service랑 Controller를 연결한다는 게 무슨 뜻일까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.28",
-    "excerpt": "스프링을 공부하다 보면 이런 코드를 보게 된다. 처음 보면 여기서 막힌다. “this가 뭐지?” --- this는 “지금 이 객체 자신”이다 핵심은 이거 하나다. this = 지금 생성된 객체 자기 자신 --- 변…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-게시글-작성-실패-원인-API-요청-자체가-안-나가는-경우",
-    "title": "[SPRING] 게시글 작성 실패 원인: API 요청 자체가 안 나가는 경우",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/d5412c4e-51a1-418d-8d76-c5786d01f1c0/image.png 게시글 작성 버튼을 눌렀는데 실패 aler…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-게시글-작성-실패-원인-CORS-차단",
-    "title": "[SPRING] 게시글 작성 실패 원인: CORS 차단",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/0fcf5a63-c1f9-41fc-a2c2-3e6d53ae107f/image.png 게시글 작성 버튼을 눌렀을 때 프론트에서는…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-게시글-작성-실패-프론트와-백엔드-연결-트러블슈팅",
-    "title": "[SPRING] 게시글 작성 실패: 프론트와 백엔드 연결 트러블슈팅",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/9b7de7eb-bdf0-4112-8e74-ceff56cb0b26/image.png 게시글 작성 버튼을 눌렀는데 브라우저 al…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-기본-생성자-생성자-GetterSetter-그리고-도메인-클래스란",
-    "title": "[SPRING] 기본 생성자, 생성자, Getter/Setter, 그리고 도메인 클래스란?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.30",
-    "excerpt": "Spring으로 게시판 API를 만들다 보면 아래처럼 생긴 클래스를 만나게 된다. 처음 보면 그냥 코드 덩어리처럼 보이지만, 사실 역할이 명확하게 나뉘어 있다. --- 1. 생성자란? 생성자는 객체를 만들 때 값을…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-로그-읽는-법과-포트-충돌-해결",
-    "title": "[SPRING] 로그 읽는 법과 포트 충돌 해결",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.28",
-    "excerpt": "스프링 실행이 실패하면 마지막에 보통 이렇게 나온다. 근데 이건 결과 일 뿐이다. 진짜 원인은 항상 그 위에 있다. --- 1. 로그에서 제일 먼저 볼 곳 아래 문구를 찾으면 된다. 그 아래에 보통 원인이 나온다.…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-브라우저-FE-API-DB-흐름으로-이해하는-서버-구조",
-    "title": "[Spring] 브라우저 → FE → API → DB 흐름으로 이해하는 서버 구조",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "이번에 정리할 핵심은 이것이다. 즉, 사용자가 브라우저에서 접속하는 서버와 실제 데이터를 처리하는 서버가 분리되어 있다. 처음에는 이 구조가 복잡해 보일 수 있다. 그냥 하나의 Spring Boot 프로젝트에서 화…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-생성자-에러로-서버-안-뜰-때-Board-수정-후-터진-컴파일-에러-해결",
-    "title": "[SPRING] 생성자 에러로 서버 안 뜰 때 — Board 수정 후 터진 컴파일 에러 해결",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "게시판을 만들다가 서버가 갑자기 안 뜨는 상황이 생겼다. 로그를 보면 이런 메시지가 나온다. --- 1. 문제 상황 에러가 난 코드: 이 코드는 Long, String 형태의 생성자를 찾는다. 하지만 Board 클…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-왜-갑자기-코드가-이렇게-바뀌었을까-JSON-때문에-생긴-변화",
-    "title": "[SPRING] 왜 갑자기 코드가 이렇게 바뀌었을까? — JSON 때문에 생긴 변화",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "이번에 게시판 코드를 바꾸면서 가장 큰 이유는 하나다. 처음에는 단순하게 title 하나만 다루는 코드였는데, 프론트와 연결하면서 상황이 완전히 달라졌다. --- 1. 문제 상황 프론트에서 보내는 데이터는 이렇게…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-웹서버랑-웹앱서버-차이",
-    "title": "[SPRING] 웹서버랑 웹앱서버 차이",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.14",
-    "excerpt": "웹서버랑 웹앱서버 차이는 한 줄로 이렇게 잡으면 돼. 1. 웹서버란? 웹서버는 클라이언트의 HTTP 요청을 받는 서버다. 대표적으로: 가 있다. 웹서버는 주로 이런 일을 한다. 예를 들어 브라우저가 이런 요청을 보…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-컴파일이랑-빌드는-뭐가-다를까",
-    "title": "[SPRING] 컴파일이랑 빌드는 뭐가 다를까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "스프링 공부하다 보면 이런 말이 계속 나온다. 근데 보다 보면 헷갈린다. 컴파일? 빌드? 패키징? 실행? 다 비슷해 보인다. 하지만 실제로는: 컴파일은 빌드의 \"한 과정\" 이다. 즉: 관계라고 보면 된다. ---…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-클래스는-도대체-뭘까",
-    "title": "[SPRING] 클래스는 도대체 뭘까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "Spring",
-    "date": "2026.04.28",
-    "excerpt": "스프링을 공부하다 보면 이런 코드를 자주 보게 된다. 처음 보면 이런 생각이 든다. “클래스가 뭔데 자꾸 나오는 거지?” 클래스는 기능을 담아두는 상자다 클래스를 아주 쉽게 말하면 기능들을 담아두는 상자 다. 예를…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-톰캣-Tomcat-은-도대체-뭘-하는-걸까",
-    "title": "[SPRING] 톰캣(Tomcat)은 도대체 뭘 하는 걸까?",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "스프링 공부하다 보면 계속 이런 말을 듣는다. 내장 톰캣 톰캣 서버 WAS 톰캣 띄운다 8080 포트 근데 처음엔 진짜 헷갈린다. 오늘 이걸 한 번 정리해보자. --- 한 줄 정의 톰캣 Tomcat 이다. ---…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-프론트도-백엔드처럼-Controller-Service-구조로-맞춰야-하는-이유",
-    "title": "[Spring] 프론트도 백엔드처럼 Controller-Service 구조로 맞춰야 하는 이유",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.05.07",
-    "excerpt": "이번에 지적받은 핵심은 단순히 “코드 스타일이 별로다”가 아니었다. 구조 자체가 백엔드와 맞지 않았다는 점이었다. 처음에는 board_fe 를 단순히 화면을 띄우는 프로젝트처럼 생각했다. 그래서 Controller…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Spring]-프론트와-백엔드-연결할-때-API_BASE_URL-기준-제대로-잡기",
-    "title": "[SPRING] 프론트와 백엔드 연결할 때 API_BASE_URL 기준 제대로 잡기",
-    "category": "Spring",
-    "topic": "spring",
-    "tags": "",
-    "date": "2026.04.29",
-    "excerpt": "Spring Boot로 API를 만들고 프론트에서 연결할 때 가장 많이 헷갈리는 부분이 바로 API_BASE_URL 설정 이다. 처음에는 단순해 보이는데, 경로가 조금만 바뀌어도 404가 나면서 막히기 쉽다. 이번…",
-    "tag_color": "#16a34a"
-  },
-  {
-    "slug": "[Upstage]-3-Tier-구조란-무엇일까",
-    "title": "[INFRA] 3-Tier 구조란 무엇일까?",
+    "slug": "[Upstage]-Reverse-Proxy는-왜-쓰는-걸까",
+    "title": "[NGINX] Reverse Proxy는 왜 쓰는 걸까?",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
     "date": "2026.05.17",
-    "excerpt": "서비스 구조를 설명할 때 자주 나오는 말 중 하나가 3-Tier Architecture , 즉 3계층 구조 다. 처음 들으면 어려워 보이지만, 사실 핵심은 단순하다. 보통 다음 세 계층으로 나눈다. 웹 서비스 기준…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-AI-API-모니터링은-어떻게-해야-할까",
-    "title": "[Upstage] AI API 모니터링은 어떻게 해야 할까",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "",
-    "excerpt": "AI API 모니터링은 어떻게 해야 할까? AI DevOps 관점에서 중요한 질문이 있다. 아니다. API를 붙이는 것보다 더 중요한 건 운영 중에 이 API들이 잘 돌고 있는지 보는 것 이다. 서비스는 로컬에서…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-API는-대체-어떻게-생겼을까",
-    "title": "[Upstage] API는 대체 어떻게 생겼을까",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "",
-    "excerpt": "맞아. API 문서 는 “이 API를 어떻게 호출해야 하는지 적어둔 사용 설명서”야. 코드로 비유하면, API 자체가 자판기라면 API 문서는 이런 안내문임. 개발식으로 바꾸면 API 문서에는 보통 이게 적혀 있어…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유",
-    "title": "[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "Docker로 애플리케이션을 배포하다 보면 이상한 상황을 만날 때가 있다. 분명히 코드를 고쳤다. Dockerfile도 수정했다. docker-compose.yml도 확인했다. 그런데 계속 같은 빌드 실패가 반복된…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-Docker도-Jenkins도-없이-scp로-EC2에-직접-배포했던-이야기",
-    "title": "[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "1. scp 배포란? scp 는 Secure Copy의 줄임말이다. SSH를 기반으로 로컬 파일을 원격 서버에 안전하게 복사하는 명령어다. 쉽게 말하면 내 노트북에서 만든 파일을 EC2 서버로 보내는 방식이다. 이…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-EC2에서-Docker-빌드할-때-JAR-파일이-없어서-COPY가-실패한-문제",
-    "title": "[DOCKER] EC2에서 Docker 빌드할 때 JAR 파일이 없어서 COPY가 실패한 문제",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "Spring Boot 애플리케이션을 EC2 서버에 배포하다 보면, 로컬에서는 잘 되던 Docker 빌드가 서버에서는 갑자기 실패하는 경우가 있다. 그중 대표적인 문제가 바로 JAR 파일 누락으로 인한 COPY 실패…",
+    "excerpt": "서버를 배포하다 보면 Nginx라는 말을 자주 듣게 된다. 특히 이런 구조를 많이 본다. 처음에는 이런 생각이 든다. “그냥 사용자가 백엔드 서버로 바로 접속하면 되는 거 아닌가?” 예를 들어 백엔드가 8080번…",
     "tag_color": "#0d9488"
   },
   {
@@ -2150,16 +670,6 @@
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-Helm으로-ingress-nginx를-설치하면-어디까지-설치되는-걸까",
-    "title": "[Kubernetes] Helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "2026.05.13",
-    "excerpt": "Ingress를 처음 실습할 때 가장 헷갈렸던 부분이 있다. 이 명령어를 치면 뭔가 Ingress 관련 설정이 다 끝난 것처럼 느껴진다. 그래서 이후에 다시 이런 명령어를 치면 헷갈린다. 처음에는 이런 생각이 든다…",
-    "tag_color": "#0d9488"
-  },
-  {
     "slug": "[Upstage]-JMeter로-API-부하-테스트를-해봤다는-건-무슨-뜻일까",
     "title": "[JMETER] JMeter로 API 부하 테스트를 해봤다는 건 무슨 뜻일까?",
     "category": "Upstage",
@@ -2170,33 +680,53 @@
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-Reverse-Proxy는-왜-쓰는-걸까",
-    "title": "[NGINX] Reverse Proxy는 왜 쓰는 걸까?",
+    "slug": "[Kubernetes]-쿠버네티스를-이해하기-전에-알아야-할-것들-온프레미스-VM-컨테이너-Docker-그리고-K8s",
+    "title": "[KUBERNETES] 쿠버네티스를 이해하기 전에 알아야 할 것들: 온프레미스, VM, 컨테이너, Docker, 그리고 K8s",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "쿠버네티스를 처음 공부할 때 바로 Pod, Service, Deployment부터 들어가면 헷갈리기 쉽다. 쿠버네티스는 갑자기 튀어나온 기술이 아니라, 서버를 운영하는 방식이 변화하면서 자연스럽게 등장한 기술이기…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Upstage]-노드-토큰-복붙에서-CLI-조인-그리고-자동화까지",
+    "title": "[KUBERNETES] 노드 토큰 복붙에서 CLI 조인, 그리고 자동화까지",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
     "date": "2026.05.17",
-    "excerpt": "서버를 배포하다 보면 Nginx라는 말을 자주 듣게 된다. 특히 이런 구조를 많이 본다. 처음에는 이런 생각이 든다. “그냥 사용자가 백엔드 서버로 바로 접속하면 되는 거 아닌가?” 예를 들어 백엔드가 8080번…",
+    "excerpt": "쿠버네티스 클러스터를 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드를 마스터 노드에 어떻게 조인시키는가 였다. 처음에는 단순히 “워커 노드를 붙인다” 정도로만 생각했는데, 실제로 해보니 그 안에는 꽤 중요한…",
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-Solar-LLM-API-문서는-어떻게-생겼을까",
-    "title": "[Upstage] Solar LLM API 문서는 어떻게 생겼을까",
+    "slug": "[Upstage]-k3s-워커-노드는-어떻게-마스터-노드에-조인될까-node-token으로-이해하는-노드-조인",
+    "title": "[KUBERNETES] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
-    "date": "",
-    "excerpt": "맞아. 순서는 거의 이렇게 보면 돼. 근데 엄밀히 말하면 임베딩 = 벡터화 에 가까워. 그래서 더 정확히 쓰면 이거야. --- 1. 청킹이 뭐냐 청킹은 긴 문서를 작은 조각으로 자르는 거야. 예를 들어 PDF 하나…",
+    "date": "2026.05.17",
+    "excerpt": "쿠버네티스를 처음 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드 조인 이었다. 처음에는 워커 노드를 클러스터에 붙이기 위해 여러 설정 파일을 직접 복사하고 수정해야 하는 줄 알았다. 그런데 k3s에서는 핵심이…",
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-Solar-LLM은-대체-뭐고-어디에-쓰는-걸까",
-    "title": "[Upstage] Solar LLM은 대체 뭐고 어디에 쓰는 걸까",
+    "slug": "[Upstage]-3-Tier-구조란-무엇일까",
+    "title": "[INFRA] 3-Tier 구조란 무엇일까?",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
-    "date": "",
-    "excerpt": "Solar LLM은 대체 뭐고, 어디에 쓰는 걸까? Upstage를 이해하려면 Solar LLM 을 알아야 한다. Upstage는 OCR, Document Parse, Embedding, Information Ex…",
+    "date": "2026.05.17",
+    "excerpt": "서비스 구조를 설명할 때 자주 나오는 말 중 하나가 3-Tier Architecture , 즉 3계층 구조 다. 처음 들으면 어려워 보이지만, 사실 핵심은 단순하다. 보통 다음 세 계층으로 나눈다. 웹 서비스 기준…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이",
+    "title": "[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다. 또는 이런 그림을 본다. 그런데 이 설명만 보면 감이 잘 안 온다. “그래서 실제로 뭐가 다른데?”라는 생각이 든다. 나도 UTM으로 리눅스…",
     "tag_color": "#0d9488"
   },
   {
@@ -2207,6 +737,16 @@
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "서비스를 배포하다 보면 로컬에서는 잘 되던 API 요청이 운영 서버에서는 실패하는 경우가 있다. 처음에는 백엔드 문제처럼 보인다. API 서버가 죽었는지, 포트가 막혔는지, CORS 문제인지부터 의심하게 된다. 그…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-프론트·백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유",
+    "title": "[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "나는 당시 기억을 기준으로 이렇게 답했다. 그런데 바로 이어서 이런 질문이 들어왔다. 처음에는 이 질문이 조금 당황스러웠다. 프론트랑 백엔드 컨테이너를 띄웠다고 말했는데 왜 갑자기 Nginx를 물어보는지 바로 연결…",
     "tag_color": "#0d9488"
   },
   {
@@ -2230,43 +770,23 @@
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-k3s-워커-노드는-어떻게-마스터-노드에-조인될까-node-token으로-이해하는-노드-조인",
-    "title": "[KUBERNETES] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인",
+    "slug": "[Upstage]-Docker도-Jenkins도-없이-scp로-EC2에-직접-배포했던-이야기",
+    "title": "[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
     "date": "2026.05.17",
-    "excerpt": "쿠버네티스를 처음 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드 조인 이었다. 처음에는 워커 노드를 클러스터에 붙이기 위해 여러 설정 파일을 직접 복사하고 수정해야 하는 줄 알았다. 그런데 k3s에서는 핵심이…",
+    "excerpt": "1. scp 배포란? scp 는 Secure Copy의 줄임말이다. SSH를 기반으로 로컬 파일을 원격 서버에 안전하게 복사하는 명령어다. 쉽게 말하면 내 노트북에서 만든 파일을 EC2 서버로 보내는 방식이다. 이…",
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-latency-error-rate-timeout-retry-token-usage-p95는-다-뭐야",
-    "title": "[Upstage] latency error rate timeout retry token usage p95는 다 뭐야",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "",
-    "excerpt": "latency, error rate, timeout, retry, token usage, p95는 다 뭐야? API나 DevOps 공부를 하다 보면 이런 말을 자주 본다. 처음 보면 다 따로 노는 단어처럼 보인다.…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-내가-만든-운영형-RAG-시스템은-무엇을-해결하려고-했나",
-    "title": "[RAG/MLOps] 내가 만든 운영형 RAG 시스템은 무엇을 해결하려고 했나",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "요즘 생성형 AI 서비스를 만들 때 가장 많이 나오는 구조 중 하나가 RAG다. RAG는 Retrieval-Augmented Generation의 줄임말로, 쉽게 말하면 “LLM이 그냥 자기 기억만으로 답하게 하지…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-노드-토큰-복붙에서-CLI-조인-그리고-자동화까지",
-    "title": "[KUBERNETES] 노드 토큰 복붙에서 CLI 조인, 그리고 자동화까지",
+    "slug": "[Upstage]-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유",
+    "title": "[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
     "date": "2026.05.17",
-    "excerpt": "쿠버네티스 클러스터를 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드를 마스터 노드에 어떻게 조인시키는가 였다. 처음에는 단순히 “워커 노드를 붙인다” 정도로만 생각했는데, 실제로 해보니 그 안에는 꽤 중요한…",
+    "excerpt": "Docker로 애플리케이션을 배포하다 보면 이상한 상황을 만날 때가 있다. 분명히 코드를 고쳤다. Dockerfile도 수정했다. docker-compose.yml도 확인했다. 그런데 계속 같은 빌드 실패가 반복된…",
     "tag_color": "#0d9488"
   },
   {
@@ -2280,6 +800,16 @@
     "tag_color": "#0d9488"
   },
   {
+    "slug": "[Docker]-이미지를-jdk로-할건지-jre로-할건지",
+    "title": "[Docker] 이미지를 jdk로 할건지 jre로 할건지",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "맞아. 운영 실행용 이미지는 JDK보다 JRE가 더 적절한 경우가 많다. 내가 예시에서 eclipse-temurin:17-jdk 를 쓴 건 “일단 무조건 실행되는 안전한 예시”에 가깝고, 실제 운영 이미지 최적화…",
+    "tag_color": "#0ea5e9"
+  },
+  {
     "slug": "[Upstage]-단일스테이지로-쓰려면",
     "title": "[Docker] 단일스테이지로 쓰려면?",
     "category": "Upstage",
@@ -2290,23 +820,373 @@
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-업스테이지는-왜-API를-다-따로-만들었을까",
-    "title": "[Upstage] 업스테이지는 왜 API를 다 따로 만들었을까",
-    "category": "Upstage",
-    "topic": "upstage",
-    "tags": "",
-    "date": "",
-    "excerpt": "업스테이지는 왜 API를 다 따로 만들었을까? 업스테이지를 이해할 때 중요한 포인트가 있다. 업스테이지는 단순히 “LLM 하나 만든 회사”라기보다는, 문서 기반 AI 서비스를 만들 때 필요한 기능들을 각각 API…",
-    "tag_color": "#0d9488"
-  },
-  {
-    "slug": "[Upstage]-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이",
-    "title": "[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이",
+    "slug": "[Upstage]-EC2에서-Docker-빌드할-때-JAR-파일이-없어서-COPY가-실패한-문제",
+    "title": "[DOCKER] EC2에서 Docker 빌드할 때 JAR 파일이 없어서 COPY가 실패한 문제",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
     "date": "2026.05.17",
-    "excerpt": "컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다. 또는 이런 그림을 본다. 그런데 이 설명만 보면 감이 잘 안 온다. “그래서 실제로 뭐가 다른데?”라는 생각이 든다. 나도 UTM으로 리눅스…",
+    "excerpt": "Spring Boot 애플리케이션을 EC2 서버에 배포하다 보면, 로컬에서는 잘 되던 Docker 빌드가 서버에서는 갑자기 실패하는 경우가 있다. 그중 대표적인 문제가 바로 JAR 파일 누락으로 인한 COPY 실패…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Kubernetes]-원격-클러스터와-인프라-운영-관점",
+    "title": "[Kubernetes] 원격 클러스터와 인프라 운영 관점",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Kubernetes를 처음 배울 때는 보통 서버에 직접 SSH로 들어가서 명령어를 치는 방식이 익숙하다. 그런데 실무 관점으로 가면 조금 다른 생각을 해야 한다. 이 질문이 바로 Kubernetes 운영, kube…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Helm과-Kubernetes-운영",
+    "title": "[Kubernetes] Helm과 Kubernetes 운영",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Kubernetes를 공부하다 보면 처음에는 kubectl 로 직접 리소스를 만든다. 이 단계에서는 괜찮다. Pod 하나 만들고, Service 하나 만들고, Ingress 하나 만드는 정도는 직접 해도 된다. 그…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Kubernetes-Namespace와-Ingress",
+    "title": "[Kubernetes] Kubernetes Namespace와 Ingress",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Kubernetes를 처음 만지면 Pod, Deployment, Service까지는 어느 정도 감이 온다. 그런데 조금만 더 들어가면 바로 헷갈리는 개념이 나온다. 특히 ingress-nginx 와 ingress-…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-K3d-Pod-재생성-Event로-이해하는-쿠버네티스-기초",
+    "title": "[KUBERNETES] K3d, Pod 재생성, Event로 이해하는 쿠버네티스 기초",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "쿠버네티스를 처음 만지면 가장 먼저 드는 생각은 이것이다. “분명 내가 뭔가를 지웠는데 왜 다시 생기지?” “Pod가 죽었는데 왜 또 만들어지지?” “에러가 났는데 어디부터 봐야 하지?” “K3d는 또 뭐고, K3…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Docker]-Docker-Compose-실행-순서와-Health-Check",
+    "title": "[DOCKER] Docker Compose 실행 순서와 Health Check",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "DOCKER COMPOSE DB가 먼저 떠야 하는 이유 Docker Compose로 애플리케이션과 DB를 함께 실행할 때 자주 나오는 구조가 있다. 또는 이 구조에서 애플리케이션은 혼자 동작하지 않는다. 대부분의…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-Docker-이미지와-커스텀-빌드",
+    "title": "[Docker] Docker 이미지와 커스텀 빌드",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "DOCKER IMAGE Dockerfile로 커스텀 이미지를 만드는 이유 Docker를 쓰다 보면 처음에는 공식 이미지를 그대로 사용한다. 예를 들어 PostgreSQL을 띄울 때는 이렇게 쓴다. Nginx를 띄울…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-Docker-네트워크와-컨테이너-통신",
+    "title": "[Docker] Docker 네트워크와 컨테이너 통신",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "아래 4편은 그대로 벨로그에 나눠 올리면 된다. 오늘 메모 흐름상 localhost → 같은 네트워크 → host.docker.internal → 외부 DB 접근 방식 순서가 제일 자연스럽다. 수업 메모에서도 컨테…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-Docker-Compose-실전-구조",
+    "title": "[DOCKER]Docker Compose 실전 구조",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "DOCKER docker-compose.yml은 단순 실행 파일이 아니다 Docker를 처음 배울 때는 보통 docker run 명령어로 컨테이너를 실행한다. 이렇게 하면 PostgreSQL 컨테이너 하나를 띄울…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-컨테이너-안에서-vi로-수정하면-왜-위험할까",
+    "title": "[DOCKER] 컨테이너 안에서 vi로 수정하면 왜 위험할까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Docker를 처음 쓰다 보면 이런 생각을 하게 된다. “컨테이너 안에 들어가서 설정 파일을 직접 고치면 되는 거 아닌가?” 예를 들어 Nginx 컨테이너가 떠 있고, 그 안에 nginx.conf 나 server.…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-Docker-Volume은-왜-중요한가",
+    "title": "[DOCKER] Docker Volume은 왜 중요한가?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Docker를 쓰다 보면 처음에는 이런 식으로 생각하기 쉽다. “컨테이너 안에 PostgreSQL이 떠 있으니까 데이터도 컨테이너 안에 있겠지?” 맞다. 그런데 문제는 컨테이너가 영구적인 존재가 아니라는 점이다.…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-컨테이너는-왜-설정이-날아갈까",
+    "title": "[DOCKER] 컨테이너는 왜 설정이 날아갈까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Docker를 쓰다 보면 이런 상황을 자주 만난다. Nginx 컨테이너 안에 들어간다. 설정 파일을 수정한다. 처음에는 잘 되는 것처럼 보인다. 그런데 컨테이너를 지웠다가 다시 만들면? 수정한 설정이 사라진다. 이…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Spring]-웹서버랑-웹앱서버-차이",
+    "title": "[SPRING] 웹서버랑 웹앱서버 차이",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "웹서버랑 웹앱서버 차이는 한 줄로 이렇게 잡으면 돼. 1. 웹서버란? 웹서버는 클라이언트의 HTTP 요청을 받는 서버다. 대표적으로: 가 있다. 웹서버는 주로 이런 일을 한다. 예를 들어 브라우저가 이런 요청을 보…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Kubernetes]-Service-종류-3가지-ClusterIP-NodePort-LoadBalancer",
+    "title": "[Kubernetes] Service 종류 3가지: ClusterIP, NodePort, LoadBalancer",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "쿠버네티스에서 Pod는 계속 생성되고 삭제될 수 있다. 문제는 Pod가 새로 만들어질 때마다 IP가 바뀔 수 있다는 점이다. 그래서 클라이언트가 Pod IP를 직접 바라보게 만들면 안정적이지 않다. 이런 상황에서…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Deployment-배포-전략이란-RollingUpdate와-Rollback-이해하기",
+    "title": "[Kubernetes] Deployment 배포 전략이란? RollingUpdate와 Rollback 이해하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.14",
+    "excerpt": "Kubernetes에서 애플리케이션을 운영하다 보면 단순히 Pod를 한 번 실행하는 것보다 더 중요한 문제가 생긴다. 바로 “새 버전으로 어떻게 안전하게 바꿀 것인가?”이다. 예를 들어 현재 kodekloud/we…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-f",
+    "title": "[KUBERNETES] -f",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "지금 오류 원인은 명령어에서 -f 를 잘못 쓴 것 이야. 지금 친 명령어 이렇게 치면 Kubernetes는 rs 를 리소스 종류 로 해석하는 게 아니라, -f 옵션 뒤에 온 값이라서 파일 경로 로 해석함. 즉 Ku…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-ReplicaSet-YAML에서-selector와-template-label은-왜-같아야-할까",
+    "title": "[Kubernetes] ReplicaSet YAML에서 selector와 template label은 왜 같아야 할까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Kubernetes에서 ReplicaSet 을 만들다 보면 이런 YAML을 자주 만나게 된다. 겉으로 보면 큰 문제 없어 보인다. ReplicaSet 을 만들고, replicas: 2 니까 Pod를 2개 만들고,…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Upstage]-Helm으로-ingress-nginx를-설치하면-어디까지-설치되는-걸까",
+    "title": "[Kubernetes] Helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Ingress를 처음 실습할 때 가장 헷갈렸던 부분이 있다. 이 명령어를 치면 뭔가 Ingress 관련 설정이 다 끝난 것처럼 느껴진다. 그래서 이후에 다시 이런 명령어를 치면 헷갈린다. 처음에는 이런 생각이 든다…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Kubernetes]-Helm으로-설치한-ingress-nginx에도-Service가-있는데-왜-nginx-Service를-또-만들까",
+    "title": "[Kubernetes] Helm으로 설치한 ingress-nginx에도 Service가 있는데, 왜 nginx Service를 또 만들까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Kubernetes에서 Ingress를 실습하다 보면 처음에 많이 헷갈리는 부분이 있다. 이렇게 Helm으로 ingress-nginx 를 설치했는데, 이후에 또 이런 명령어를 친다. 처음 보면 이런 생각이 든다.…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Helm으로-ingress-nginx-설치하고-kubectl로-nginx-앱까지-연결하기",
+    "title": "[KUBERNETES] Helm으로 ingress-nginx 설치하고, kubectl로 nginx 앱까지 연결하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Kubernetes에서 Ingress를 처음 실습하면 머리가 복잡해진다. Helm도 나오고, kubectl도 나오고, ingress-nginx도 나오고, nginx-ingress도 나오고, nginx Service…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-앱도-없고-Pod도-없는데-나는-뭘-한-걸까",
+    "title": "[KUBERNETES] 앱도 없고 Pod도 없는데 나는 뭘 한 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Ingress 실습을 하다 보면 이런 순간이 온다. 처음에는 헷갈린다. “나는 뭘 만든 거지?” “앱도 없고 Pod도 없는데 왜 Ingress를 만든 거지?” “Service에는 앱이 들어가는 건가?” “Helm으…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-왜-Helm으로-설치하고-다시-kubectl로-YAML을-apply-했을까",
+    "title": "[KUBERNETES] 왜 Helm으로 설치하고, 다시 kubectl로 YAML을 apply 했을까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Helm = 큰 시스템 설치 kubectl apply = 내 규칙 추가 1. Helm으로 ingress-nginx 설치 → 요청을 받아서 처리할 관리자 설치 2. nginx Deployment 만들기 → 실제 응답…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-kubectl로-Ingress-만드는-것과-Helm으로-ingress-nginx-설치하는-것은-뭐가-다를까",
+    "title": "[KUBERNETES] kubectl로 Ingress 만드는 것과 Helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Kubernetes에서 Ingress를 공부하다 보면 헷갈리는 지점이 있다. 이 명령어도 Ingress를 만드는 것 같고, 이 명령어도 Ingress 관련 무언가를 설치하는 것 같다. 둘 다 Ingress와 관련되…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Ingress-적용-후-localhost-접속까지-트러블슈팅-정리",
+    "title": "[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/351a7e1a-1db7-476f-a47f-d36542437280/image.png ! https://velog.velcdn.…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유n",
+    "title": "[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\\n",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/94669a90-5342-4d8f-af2f-2a7c43060275/image.png 쿠버네티스에서 ingress-nginx 를…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Helm은-왜-쓰는-걸까",
+    "title": "[KUBERNETES] Helm은 왜 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "쿠버네티스를 공부하다 보면 처음에는 Pod , Deployment , Service 같은 YAML을 직접 작성하게 된다. 예를 들어 애플리케이션 하나를 배포하려면 보통 이런 리소스들이 필요하다. 처음에는 하나씩 작…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-kubectx는-뭐고-왜-쓰는-걸까",
+    "title": "[KUBERNETES] kubectx는 뭐고 왜 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/a4d41c3c-c7da-4398-b818-fc2a43ffafec/image.png 쿠버네티스를 쓰다 보면 kubectl 명령…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-k9s는-뭐고-왜-쓰는-걸까",
+    "title": "[KUBERNETES] k9s는 뭐고 왜 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/f5cf6d4a-7f1c-43a7-94db-d043b807e023/image.png 쿠버네티스를 처음 공부하면 보통 kubec…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[DB]-PostgreSQL에서-스키마가-`hello`랑-`public`-두-개-보이는-이유",
+    "title": "[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유",
+    "category": "DB",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/01404878-9a94-45ac-a55d-cd34602097bc/image.png ! https://velog.velcdn.…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[DB]-터미널에서는-테이블이-보이는데-DBeaver에서는-`No-items`가-뜨는-이유",
+    "title": "[DB] 터미널에서는 테이블이 보이는데 DBeaver에서는 `No items`가 뜨는 이유",
+    "category": "DB",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/e66b1eb5-0740-430d-8719-e6509f57e637/image.png Docker로 PostgreSQL을 띄우고…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[DB]-DBeaver에서-`No-active-connection`이-뜨는-이유",
+    "title": "[DB] DBeaver에서 `No active connection`이 뜨는 이유",
+    "category": "DB",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/36fb77a2-32f1-4acc-8b56-e8242c6656d2/image.png Docker Compose로 Postgre…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[DB]-DBeaver로-PostgreSQL-접속하고-테이블-만들어보기n",
+    "title": "[DB] DBeaver로 PostgreSQL 접속하고 테이블 만들어보기\\n",
+    "category": "DB",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/add3e436-1ff5-49fd-95fb-1512a69da137/image.png 처음 데이터베이스를 공부할 때 제일 막히는…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[Docker]-Docker-Compose로-PostgreSQL-데이터-유지하기-volume은-왜-필요할까",
+    "title": "[DOCKER] Docker Compose로 PostgreSQL 데이터 유지하기: volume은 왜 필요할까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.13",
+    "excerpt": "Docker로 PostgreSQL을 띄우면 처음에는 굉장히 편하다. docker compose up 한 번이면 DB 컨테이너가 실행되고, 포트만 연결하면 DBeaver 같은 DB 클라이언트에서도 바로 접속할 수 있…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[AWS]-Lambda-EventBridge-Slack-Webhook으로-이해하는-서버리스-자동화-스택",
+    "title": "[AWS] Lambda + EventBridge + Slack Webhook으로 이해하는 서버리스 자동화 스택",
+    "category": "AWS",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "이번 글에서는 아래 기술 스택을 하나의 흐름으로 묶어서 정리한다. 이 조합은 한마디로 말하면 “서버 없이, 정해진 시간마다 자동으로 코드를 실행하고, 결과를 Slack이나 SNS로 알리는 구조” 다. 예를 들어 이…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[Spring]-Spring-AI는-어떻게-Spring-Boot에-붙는-걸까",
+    "title": "[SPRING] Spring AI는 어떻게 Spring Boot에 붙는 걸까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "Spring AI를 처음 보면 뭔가 거창해 보인다. AI 모델을 직접 서버에 올리고, 학습시키고, GPU를 붙이고, 복잡한 인프라를 구성해야 할 것 같지만 꼭 그런 건 아니다. Spring AI의 핵심은 생각보다…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[ML]-산업재해-심각도-예측-프로젝트에-쓰인-기술-개념-정리",
+    "title": "[ML] 산업재해 심각도 예측 프로젝트에 쓰인 기술 개념 정리",
+    "category": "ML",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "산업재해 심각도 예측 프로젝트에는 단순히 “모델 하나 돌려보기” 수준이 아니라, 데이터 분석부터 전처리, 머신러닝 baseline 실험, 딥러닝 모델링, 클래스 불균형 처리, 평가 지표 재설계, 해석 가능성 확보,…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[Upstage]-내가-만든-운영형-RAG-시스템은-무엇을-해결하려고-했나",
+    "title": "[RAG/MLOps] 내가 만든 운영형 RAG 시스템은 무엇을 해결하려고 했나",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "요즘 생성형 AI 서비스를 만들 때 가장 많이 나오는 구조 중 하나가 RAG다. RAG는 Retrieval-Augmented Generation의 줄임말로, 쉽게 말하면 “LLM이 그냥 자기 기억만으로 답하게 하지…",
     "tag_color": "#0d9488"
   },
   {
@@ -2320,14 +1200,14 @@
     "tag_color": "#0d9488"
   },
   {
-    "slug": "[Upstage]-프론트·백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유",
-    "title": "[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유",
-    "category": "Upstage",
-    "topic": "upstage",
+    "slug": "[WEB]-브라우저는-도대체-뭘까",
+    "title": "[WEB] 브라우저는 도대체 뭘까?",
+    "category": "WEB",
+    "topic": "web",
     "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "나는 당시 기억을 기준으로 이렇게 답했다. 그런데 바로 이어서 이런 질문이 들어왔다. 처음에는 이 질문이 조금 당황스러웠다. 프론트랑 백엔드 컨테이너를 띄웠다고 말했는데 왜 갑자기 Nginx를 물어보는지 바로 연결…",
-    "tag_color": "#0d9488"
+    "date": "2026.05.12",
+    "excerpt": "웹 개발을 처음 공부하면 이런 말을 자주 듣는다. 처음 들으면 헷갈린다. “브라우저가 그냥 인터넷 창 아닌가?” 싶은데, 사실 브라우저는 단순한 창이 아니다. 브라우저는 웹 애플리케이션을 실행해주는 프로그램이다.…",
+    "tag_color": "#64748b"
   },
   {
     "slug": "[WEB]-HTTP-XMLJSON-웹-보안-OAuth까지-한-번에-정리하기",
@@ -2338,6 +1218,256 @@
     "date": "2026.05.12",
     "excerpt": "웹 기술을 깊게 이해한다는 것은 단순히 “API를 호출할 줄 안다”는 뜻이 아니다. 실무에서는 이런 질문에 답할 수 있어야 한다. 이 글에서는 웹 백엔드, 클라우드, DevOps, MLOps 실무에서 자주 마주치는…",
     "tag_color": "#64748b"
+  },
+  {
+    "slug": "[LINUX]-시스템-운영과-네트워크-트러블슈팅-기본-역량",
+    "title": "[LINUX] 시스템 운영과 네트워크 트러블슈팅 기본 역량",
+    "category": "LINUX",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "1. 왜 Linux와 Network를 같이 봐야 할까? 서버를 운영하다 보면 문제는 보통 한 군데에서만 터지지 않는다. 예를 들어 웹 서버가 안 열린다고 해보자. 했는데 응답이 안 온다. 이때 원인은 여러 가지일…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[Kubernetes]-일부러-잘못된-이미지로-Pod-만들기-redis123-실습-이해하기",
+    "title": "[Kubernetes] 일부러 잘못된 이미지로 Pod 만들기: redis123 실습 이해하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "쿠버네티스 실습을 하다 보면 이런 문제가 나온다. 처음 보면 조금 이상하다. redis 이미지를 쓰면 될 것 같은데, 문제에서는 굳이 redis123 이라는 잘못된 이미지를 쓰라고 한다. 여기서 중요한 포인트는 이…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-BUSYBOX",
+    "title": "[K8S] BUSYBOX",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "busybox 는 쉽게 말하면 아주 작은 리눅스 도구 상자 이미지 쿠버네티스 실습에서 kubectl describe pods 했을 때 busybox 가 보이는 이유는 보통 그 Pod가 busybox 이미지를 기반으…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-kubectl-describe-nodes는-어디부터-봐야-할까",
+    "title": "[Kubernetes] kubectl describe nodes는 어디부터 봐야 할까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "쿠버네티스를 공부하다 보면 kubectl describe nodes 명령어를 자주 보게 된다. 처음 이 명령어를 치면 출력이 너무 길다. 노드 이름, 라벨, 어노테이션, IP, 자원, 파드 목록, 이벤트까지 한 번…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Spring]-target-밑에-classes랑-jar-파일은-각각-어떻게-만들어질까",
+    "title": "[SPRING] target 밑에 classes랑 jar 파일은 각각 어떻게 만들어질까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "스프링 프로젝트를 Maven으로 빌드하다 보면 target 폴더 밑에 여러 파일이 생긴다. 처음 보면 조금 어지럽다. 특히 눈에 띄는 게 있다. 여기서 핵심은 두 개다. 그리고 둘 다 빌드 결과물이긴 한데, 역할이…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Docker]-docker-run-하기-전에-mvn-spring-bootrun도-해야-할까",
+    "title": "[DOCKER] docker run 하기 전에 mvn spring-boot:run도 해야 할까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "Spring Boot 애플리케이션을 Docker로 실행하다 보면 처음에 이런 생각이 든다. 나도 이 부분이 처음에는 헷갈렸다. 왜냐하면 둘 다 결국 localhost:8080 으로 접속하기 때문이다. 이렇게 실행해…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-docker-run-옵션-정리-d-p-f-a는-무슨-뜻일까",
+    "title": "[DOCKER] docker run 옵션 정리: -d, -p, -f, -a는 무슨 뜻일까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "Docker 명령어를 보다 보면 이런 옵션들이 자주 나온다. 또 로그를 볼 때는 이런 명령어도 나온다. 컨테이너에 붙을 때는 이런 것도 나온다. 처음 보면 -d , -p , -f , -a 같은 옵션들이 다 비슷해…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[CI-CD]-`FROM-eclipse-temurin21-jre-alpine`-같은-이미지",
+    "title": "[CI/CD]`FROM eclipse-temurin:21-jre-alpine` 같은 이미지",
+    "category": "CI-CD",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "FROM eclipse-temurin:21-jre-alpine 같은 이미지는 종류가 엄청 많아 보이는데, 사실 태그를 쪼개서 보면 별거 아님. 이건 이렇게 읽으면 된다. 즉 한 줄로 말하면: --- 1. eclip…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[CI-CD]-도커-빌드-런-메이븐-빌드-런-순서가-어케-되는지",
+    "title": "[CI/CD] 도커 빌드 런 메이븐 빌드 런 순서가 어케 되는지",
+    "category": "CI-CD",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "1. Maven만 쓸 때 순서 Docker 없이 Spring Boot를 그냥 로컬에서 실행하면 이렇게 간다. 이건 쉽게 말하면: 이 경우 jar 파일을 명시적으로 만들지 않아도 된다. 흐름은 이렇다. 즉 이건 개발…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[Docker]-Dockerfile-빌드-방식-2가지-jar만-복사할까-컨테이너-안에서-빌드할까",
+    "title": "[DOCKER] Dockerfile 빌드 방식 2가지: jar만 복사할까, 컨테이너 안에서 빌드할까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "Spring Boot 애플리케이션을 Docker 이미지로 만들 때 처음 헷갈리는 지점이 있다. “jar 파일을 먼저 만들고 Docker 이미지에 넣어야 하나?” “아니면 Dockerfile 안에서 Maven 빌드까…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[알고리즘]-실무에서는-런타임과-메모리-중-뭐가-더-중요할까-투포인터는-어디에-강하",
+    "title": "[알고리즘] 실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 투포인터는 어디에 강할까? ",
+    "category": "알고리즘",
+    "topic": "algorithm",
+    "tags": "",
+    "date": "2026.05.12",
+    "excerpt": "실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 알고리즘 문제를 풀다 보면 자주 보게 되는 것: 리트코드에서는 퍼센트까지 보여준다. 그러다 보면 자연스럽게 이런 생각이 든다. “실무에서는 런타임이 더 중요할까?”…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[HA]-Auto-Scaling은-왜-필요할까",
+    "title": "[HA] Auto Scaling은 왜 필요할까?",
+    "category": "HA",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "서비스를 운영하다 보면 가장 무서운 순간 중 하나는: 이다. 예를 들어: 쇼핑몰 할인 이벤트 콘서트 티켓팅 게임 업데이트 유명 커뮤니티 유입 바이럴 영상 같은 상황이 발생하면 순간적으로 엄청난 요청이 몰린다. 문제…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[HA]-High-Availability란-무엇인가",
+    "title": "[HA] High Availability란 무엇인가?",
+    "category": "HA",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "서비스를 운영할 때 가장 무서운 상황 중 하나는: 이다. 예를 들어: 쇼핑몰 서버 다운 결제 시스템 장애 게임 서버 장애 로그인 불가 DB 장애 같은 상황이 발생하면 사용자들은 바로 서비스를 떠나기 시작한다. 특히…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[HA]-Failover란-무엇인가",
+    "title": "[HA] Failover란 무엇인가?",
+    "category": "HA",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "서비스를 운영하다 보면 언젠가는 서버가 죽는다. 이건 거의 피할 수 없는 문제다. 예를 들어: DB 프로세스 종료 서버 다운 네트워크 장애 클라우드 장애 디스크 손상 같은 상황은 실제 운영 환경에서 계속 발생한다.…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[HA]-Read-Scaling은-왜-필요할까",
+    "title": "[HA] Read Scaling은 왜 필요할까?",
+    "category": "HA",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "서비스를 운영하다 보면 대부분의 시스템은 시간이 갈수록 “읽기 Read ” 요청이 폭발적으로 증가한다. 예를 들어: 게시판 글 조회 쇼핑몰 상품 조회 유튜브 영상 목록 조회 SNS 피드 조회 같은 작업들은 대부분…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[DATABASE]-DynamoDB는-왜-쓰는가",
+    "title": "[DATABASE] DynamoDB는 왜 쓰는가",
+    "category": "DATABASE",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "AWS를 공부하다 보면 꼭 등장하는 DB가 있다. 그리고 보통 같이 나온다. 처음엔 이런 생각이 든다. 근데 대규모 서비스에서는 관계형 DB만으로 버티기 어려운 상황이 자주 나온다. 오늘은: 왜 DynamoDB 같…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[DATABASE]-Consistency는-왜-어려운가",
+    "title": "[DATABASE] Consistency는 왜 어려운가",
+    "category": "DATABASE",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "분산 시스템을 공부하다 보면 꼭 나오는 단어가 있다. 그리고 같이 나온다. 처음엔 되게 추상적이다. 근데 사실 핵심 질문은 단순하다. “모든 서버가 항상 완전히 같은 데이터를 가질 수 있는가?” 오늘은 그 문제를…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[DATABASE]-Replication과-Read-Replica는-무엇인가n",
+    "title": "[DATABASE] Replication과 Read Replica는 무엇인가\\n",
+    "category": "DATABASE",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "서비스를 운영하다 보면 어느 순간 문제가 생긴다. 처음엔 서버 문제 같지만, 실제로는 DB가 병목인 경우가 많다. 특히: 조회 요청 폭증 사용자 증가 트래픽 증가 상황에서 많이 터진다. 이때 자주 등장하는 개념이…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[DATABASE]-Index는-왜-빠른가",
+    "title": "[DATABASE] Index는 왜 빠른가",
+    "category": "DATABASE",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "DB를 공부하다 보면 꼭 듣는 말이 있다. 그리고 보통 같이 나온다. 근데 처음엔 의문이 든다. 왜 인덱스를 쓰면 빨라질까? 오늘은 그 원리를 이해해보자. --- 1. 인덱스 Index 란? 인덱스는 한마디로: 데…",
+    "tag_color": "#0891b2"
+  },
+  {
+    "slug": "[Network]-SSH는-어떻게-동작하는가",
+    "title": "[NETWORK] SSH는 어떻게 동작하는가",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "개발이나 DevOps를 하다 보면 정말 많이 보게 되는 명령어가 있다. 그리고 같이 등장하는 것들: 처음엔: 싶다. 근데 SSH는: 공개키 암호화 인증 암호화 통신 개념이 다 들어간 꽤 중요한 기술이다. 오늘은 S…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Network]-TLSHTTPS는-왜-안전한가",
+    "title": "[NETWORK] TLS/HTTPS는 왜 안전한가",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "우리는 매일: 같은 사이트에 접속한다. 근데 왜: 고 하는 걸까? 오늘은: TLS HTTPS 인증서 공개키 Handshake 흐름을 한 번에 이해해보자. --- 1. HTTP는 왜 위험한가? 원래 웹은: 를 사용했…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[SECURITY]-RSA는-어떻게-동작하는가",
+    "title": "[SECURITY] RSA는 어떻게 동작하는가",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "보안 공부를 하다 보면 꼭 등장하는 이름이 있다. 그리고 보통 같이 나온다. 처음엔 되게 어려워 보인다. 근데 핵심은 단순하다. “공개해도 되는 키와, 절대 공개하면 안 되는 키를 분리하자” 오늘은 RSA를 흐름…",
+    "tag_color": "#dc2626"
+  },
+  {
+    "slug": "[SECURITY]-대칭키와-공개키-비대칭키-는-무엇인가",
+    "title": "[SECURITY] 대칭키와 공개키(비대칭키)는 무엇인가",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "보안 공부를 시작하면 반드시 나오는 게 있다. 근데 대부분 여기서 헷갈린다. 왜냐면 용어가 너무 많고, 전부 암호화 이야기 같기 때문이다. 근데 사실 핵심은 단순하다. “데이터를 어떻게 안전하게 주고받을 것인가?”…",
+    "tag_color": "#dc2626"
+  },
+  {
+    "slug": "[Network]-VPN은-왜-쓰는가n",
+    "title": "[NETWORK] VPN은 왜 쓰는가\\n",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "회사 네트워크 공부를 하다 보면 꼭 나오는 게 있다. 그리고 같이 따라오는 단어들: 터널링 암호화 IPsec Remote Access VPN Site-to-Site VPN 처음엔 되게 어려워 보이는데, 사실 핵심은…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Network]-Subnet과-CIDR",
+    "title": "[NETWORK] Subnet과 CIDR",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "네트워크를 공부하다 보면 꼭 나오는 게 있다. Subnet CIDR /24 Subnet Mask VPC 처음 보면 다 비슷하게 생겨서 헷갈린다. 근데 사실 이건 전부: “IP 주소를 어떻게 나눠서 관리할 것인가”…",
+    "tag_color": "#7c3aed"
   },
   {
     "slug": "[WEB]-RIP-OSPF-BGP-차이-완벽-이해-IGPEGP부터-거리벡터까지",
@@ -2360,24 +1490,64 @@
     "tag_color": "#64748b"
   },
   {
-    "slug": "[WEB]-브라우저는-도대체-뭘까",
-    "title": "[WEB] 브라우저는 도대체 뭘까?",
-    "category": "WEB",
+    "slug": "[Spring]-톰캣-Tomcat-은-도대체-뭘-하는-걸까",
+    "title": "[SPRING] 톰캣(Tomcat)은 도대체 뭘 하는 걸까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "스프링 공부하다 보면 계속 이런 말을 듣는다. 내장 톰캣 톰캣 서버 WAS 톰캣 띄운다 8080 포트 근데 처음엔 진짜 헷갈린다. 오늘 이걸 한 번 정리해보자. --- 한 줄 정의 톰캣 Tomcat 이다. ---…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-컴파일이랑-빌드는-뭐가-다를까",
+    "title": "[SPRING] 컴파일이랑 빌드는 뭐가 다를까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "스프링 공부하다 보면 이런 말이 계속 나온다. 근데 보다 보면 헷갈린다. 컴파일? 빌드? 패키징? 실행? 다 비슷해 보인다. 하지만 실제로는: 컴파일은 빌드의 \"한 과정\" 이다. 즉: 관계라고 보면 된다. ---…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "hello-world-프로젝트-전체-문법-설명서",
+    "title": "hello-world 프로젝트 전체 문법 설명서",
+    "category": "hello",
     "topic": "web",
     "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "웹 개발을 처음 공부하면 이런 말을 자주 듣는다. 처음 들으면 헷갈린다. “브라우저가 그냥 인터넷 창 아닌가?” 싶은데, 사실 브라우저는 단순한 창이 아니다. 브라우저는 웹 애플리케이션을 실행해주는 프로그램이다.…",
+    "date": "2026.05.11",
+    "excerpt": "이 문서는 복습 겸 프로젝트의 핵심 파일인 HelloController , HelloService , application.properties , pom.xml 을 중심으로 문법 + 동작 원리 + 실무 관점 을 한…",
     "tag_color": "#64748b"
   },
   {
-    "slug": "[알고리즘]-실무에서는-런타임과-메모리-중-뭐가-더-중요할까-투포인터는-어디에-강하",
-    "title": "[알고리즘] 실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 투포인터는 어디에 강할까? ",
-    "category": "알고리즘",
+    "slug": "[Docker]-`80808080`-도대체-무슨-뜻일까",
+    "title": "[DOCKER] `8080:8080` 도대체 무슨 뜻일까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "Docker를 처음 배우면 가장 많이 보는 명령어 중 하나가 이것이다. 근데 처음 보면 솔직히 헷갈린다. 오늘은 이 개념을 진짜 직관적으로 이해해보자. --- Docker 컨테이너는 “별도의 컴퓨터”처럼 동작한다…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Kubernetes]-Deployment-YAML-처음부터-다-외워야-할까",
+    "title": "[Kubernetes] Deployment YAML, 처음부터 다 외워야 할까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "쿠버네티스를 공부하다 보면 이런 문제를 자주 만난다. 처음 보면 이런 생각이 든다. 이 YAML을 실전에서 다 외워서 쓰나? 결론부터 말하면 다 외우는 게 아니다. 실무에서도 처음부터 YAML을 손으로 전부 치기보…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[LeetCode]-Valid-Palindrome-투포인터로-메모리-줄이기",
+    "title": "[LeetCode] Valid Palindrome — 투포인터로 메모리 줄이기",
+    "category": "LeetCode",
     "topic": "algorithm",
     "tags": "",
-    "date": "2026.05.12",
-    "excerpt": "실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 알고리즘 문제를 풀다 보면 자주 보게 되는 것: 리트코드에서는 퍼센트까지 보여준다. 그러다 보면 자연스럽게 이런 생각이 든다. “실무에서는 런타임이 더 중요할까?”…",
-    "tag_color": "#64748b"
+    "date": "2026.05.11",
+    "excerpt": "처음에는 문자열에서 알파벳과 숫자만 뽑아서 리스트에 저장한 뒤 비교할 수 있다. 이 풀이는 직관적이다. 하지만 arr 라는 새 리스트를 만들기 때문에 메모리를 추가로 사용한다. 그래서 메모리를 줄이려면 투포인터 를…",
+    "tag_color": "#ca8a04"
   },
   {
     "slug": "[알고리즘]-버킷-소트-Bucket-Sort-란-O-n-정렬이-가능한-이유",
@@ -2390,13 +1560,843 @@
     "tag_color": "#ca8a04"
   },
   {
-    "slug": "hello-world-프로젝트-전체-문법-설명서",
-    "title": "hello-world 프로젝트 전체 문법 설명서",
-    "category": "hello",
-    "topic": "web",
+    "slug": "[Kubernetes]-ReplicaSet-생성-중-no-matches-for-kind-ReplicaSet-in-version-v1-에러-해결-공식-Docs-보는-법",
+    "title": "[Kubernetes] ReplicaSet 생성 중 no matches for kind \\\"ReplicaSet\\\" in version \\\"v1\\\" 에러 해결 + 공식 Docs 보는 법",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.11",
-    "excerpt": "이 문서는 복습 겸 프로젝트의 핵심 파일인 HelloController , HelloService , application.properties , pom.xml 을 중심으로 문법 + 동작 원리 + 실무 관점 을 한…",
-    "tag_color": "#64748b"
+    "excerpt": "쿠버네티스 실습을 하다 보면 가장 많이 마주치는 것 중 하나가 YAML 오류다. 특히 CKA/KodeKloud에서는 일부러 틀린 YAML 파일을 주고 수정하게 만드는 문제가 굉장히 자주 나온다. 이번에는 Repli…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Docker]-컨테이너에서-localhost가-안-먹히는-이유-host.docker.internal과-Profile-분리",
+    "title": "[DOCKER] 컨테이너에서 localhost가 안 먹히는 이유: host.docker.internal과 Profile 분리",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.08",
+    "excerpt": "이번에 겪은 문제는 단순히 DB URL 하나가 틀린 문제가 아니었다. 핵심은 이거였다. 이 셋은 같은 것처럼 보여도 네트워크 기준에서는 완전히 다르다. --- 1. 문제 상황 처음에는 Spring Boot API가…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-Maven-빌드-`.m2`-캐시-Dockerfile-방식-비교-정리",
+    "title": "[DOCKER] Maven 빌드, `.m2` 캐시, Dockerfile 방식 비교 정리",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.08",
+    "excerpt": "스프링부트 프로젝트를 Docker로 올리다 보면 단순히 docker run 만 문제가 아니다. 실제로는 그 전에: 이라는 흐름을 이해해야 한다. 이번에는 Maven 빌드, .m2 저장소, Dockerfile 두 가…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-왜-멀티-스테이지-빌드를-쓰고-왜-JRE만-남길까",
+    "title": "[DOCKER] 왜 멀티 스테이지 빌드를 쓰고, 왜 JRE만 남길까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.08",
+    "excerpt": "도커로 스프링부트를 배포하다 보면 처음엔 이런 생각이 든다. 그런데 실제 운영 환경에서는: 이미지 용량 빌드 속도 OS 차이 캐싱 CI/CD 환경 같은 문제들이 생긴다. 오늘은: Dockerfile 구조 JDK v…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Spring]-DTO는-왜-쓰고-Profile은-왜-나눌까",
+    "title": "[SPRING] DTO는 왜 쓰고, Profile은 왜 나눌까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.08",
+    "excerpt": "SPRING BOOT DTO는 왜 쓰고, Profile은 왜 나눌까? 스프링부트를 공부하다 보면 자주 듣는 말이 있다. 처음엔 그냥 규칙처럼 보이는데, 실제로는 전부 유지보수와 배포를 위한 구조다. 오늘은: 엔티티…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Docker]-Spring-Boot-게시판-프로젝트를-Docker로-배포하고-Docker-Hub에-올리기",
+    "title": "[Docker] Spring Boot 게시판 프로젝트를 Docker로 배포하고 Docker Hub에 올리기",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.08",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/d710c678-850d-4cb1-bf2d-8641f001537d/image.png 이번에는 로컬에서 실행하던 게시판 프로젝트…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[AI-Infra]-KServe는-도대체-뭘까-Kubernetes-위에서-모델-서빙을-운영화하는-플랫폼",
+    "title": "[AI Infra] KServe는 도대체 뭘까? Kubernetes 위에서 모델 서빙을 운영화하는 플랫폼",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "지금까지 정리한 흐름을 보면 이렇게 이어진다. 여기까지는 주로 모델을 어떻게 빠르게 실행하고 서빙할 것인가 에 가까웠다. 그런데 실제 운영에서는 한 단계 더 큰 문제가 생긴다. 이때 등장하는 것이 KServe 다.…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-vLLM은-도대체-뭘까-LLM-추론을-빠르고-효율적으로-서빙하는-엔진n",
+    "title": "[AI Infra] vLLM은 도대체 뭘까? LLM 추론을 빠르고 효율적으로 서빙하는 엔진\\n",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "지금까지 흐름을 보면 이렇게 이어진다. 여기서 vLLM 은 특히 LLM 추론 서빙 에 특화된 엔진이다. 한 줄로 말하면 이렇다. vLLM 공식 GitHub에서도 vLLM을 high-throughput and mem…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[Spring]-브라우저-FE-API-DB-흐름으로-이해하는-서버-구조",
+    "title": "[Spring] 브라우저 → FE → API → DB 흐름으로 이해하는 서버 구조",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "이번에 정리할 핵심은 이것이다. 즉, 사용자가 브라우저에서 접속하는 서버와 실제 데이터를 처리하는 서버가 분리되어 있다. 처음에는 이 구조가 복잡해 보일 수 있다. 그냥 하나의 Spring Boot 프로젝트에서 화…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-프론트도-백엔드처럼-Controller-Service-구조로-맞춰야-하는-이유",
+    "title": "[Spring] 프론트도 백엔드처럼 Controller-Service 구조로 맞춰야 하는 이유",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "이번에 지적받은 핵심은 단순히 “코드 스타일이 별로다”가 아니었다. 구조 자체가 백엔드와 맞지 않았다는 점이었다. 처음에는 board_fe 를 단순히 화면을 띄우는 프로젝트처럼 생각했다. 그래서 Controller…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-JPA-Repository는-왜-텅-비어-있는데-동작할까",
+    "title": "[Spring/JPA] Repository는 왜 텅 비어 있는데 동작할까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "Spring Boot에서 JPA를 쓰다 보면 이런 코드를 자주 보게 된다. 처음 보면 이상하다. 안에 아무 코드도 없다. save 도 없고, findAll 도 없고, findById 도 없고, delete 도 없다…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-JPA-Entity를-Controller까지-넘기면-왜-위험할까",
+    "title": "[SPRING] JPA Entity를 Controller까지 넘기면 왜 위험할까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "Spring Boot로 게시판을 만들다 보면 처음에는 이런 식으로 코드를 짜게 된다. 또는 수정 API를 만들 때 이렇게 짤 수도 있다. 처음 보면 별문제 없어 보인다. Board 객체를 받아서 Board 객체를…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[AI-Infra]-Triton-Inference-Server는-도대체-뭘까-모델을-API로-서빙하는-추론-서버",
+    "title": "[AI Infra] Triton Inference Server는 도대체 뭘까? 모델을 API로 서빙하는 추론 서버",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "지금까지 흐름을 보면 이렇게 이어진다. 여기서 TensorRT 까지는 주로 모델 하나를 NVIDIA GPU에서 빠르게 돌리는 최적화 엔진 에 가깝다. 그런데 실제 서비스에서는 이런 문제가 남는다. 이때 등장하는 것…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-Quantization은-도대체-뭘까-모델을-가볍게-만들어-추론을-빠르게-하는-방법",
+    "title": "[AI Infra] Quantization은 도대체 뭘까? 모델을 가볍게 만들어 추론을 빠르게 하는 방법",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "AI inference, TensorRT, ONNX, GPU 최적화를 공부하다 보면 자주 나오는 단어가 있다. 처음 보면 이런 생각이 든다. 한 줄로 말하면 이렇다. --- 1. Quantization 한 줄 정의…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-TensorRT는-도대체-뭘까-NVIDIA-GPU에서-추론을-빠르게-돌리는-엔진n",
+    "title": "[AI Infra] TensorRT는 도대체 뭘까? NVIDIA GPU에서 추론을 빠르게 돌리는 엔진\\n",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "PyTorch inference, ONNX, latency, throughput을 공부하다 보면 결국 이 단어가 나온다. 처음 보면 이런 느낌이다. 한 줄로 말하면 이렇다. NVIDIA 공식 문서에서도 Tensor…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-ONNX는-도대체-뭘까-PyTorch-모델을-다른-환경에서-돌리기-위한-표준-포맷",
+    "title": "[AI Infra] ONNX는 도대체 뭘까? PyTorch 모델을 다른 환경에서 돌리기 위한 표준 포맷",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "PyTorch inference를 공부하다 보면 이런 흐름이 나온다. 그런데 실무에서는 이런 요구가 생긴다. 이때 등장하는 개념이 ONNX 다. --- 1. ONNX 한 줄 정의 ONNX는 Open Neural N…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-Throughput은-도대체-뭘까-AI-서버가-한-번에-얼마나-처리할-수-있는가",
+    "title": "[AI Infra] Throughput은 도대체 뭘까? AI 서버가 한 번에 얼마나 처리할 수 있는가",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "AI 인프라, 백엔드, 네트워크, GPU 추론 서버를 공부하다 보면 throughput 이라는 단어가 자주 나온다. 한국어로는 보통 처리량 이라고 한다. 한 줄로 말하면 이렇다. AI inference 서버 기준으…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-Latency는-도대체-뭘까-AI-추론에서-응답-시간이-중요한-이유",
+    "title": "[AI Infra] Latency는 도대체 뭘까? AI 추론에서 응답 시간이 중요한 이유",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "AI 인프라나 백엔드, 네트워크 공부를 하다 보면 자주 나오는 단어가 있다. 여기서 latency 는 특히 AI 추론 서버를 이해할 때 정말 중요하다. 한 줄로 말하면 이렇다. 한국어로는 보통 지연 시간 이라고 한…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI]-Batch는-도대체-뭘까-딥러닝에서-Batch-Size를-쓰는-이유",
+    "title": "[AI] Batch는 도대체 뭘까? 딥러닝에서 Batch Size를 쓰는 이유",
+    "category": "AI",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "딥러닝을 공부하다 보면 계속 나오는 단어가 있다. 처음에는 그냥 “데이터 묶음” 정도로 보이는데, 실제로는 학습 속도, GPU 메모리, 성능, 추론 처리량과 연결되는 중요한 개념이다. --- 1. Batch 한 줄…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI]-Training과-Inference는-뭐가-다를까n",
+    "title": "[AI] Training과 Inference는 뭐가 다를까?\\n",
+    "category": "AI",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "딥러닝을 공부하면 자주 나오는 말이 있다. 한국어로는 보통 이렇게 부른다. 처음에는 둘 다 “모델을 돌리는 것”처럼 보인다. 하지만 실제로는 목적도 다르고, 계산 방식도 다르고, 인프라에서 중요하게 보는 포인트도…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[AI-Infra]-CUDA는-도대체-뭘까-GPU를-쓰기-위한-연결-다리",
+    "title": "[AI Infra] CUDA는 도대체 뭘까? GPU를 쓰기 위한 연결 다리",
+    "category": "AI-Infra",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "딥러닝을 공부하다 보면 이런 코드를 자주 보게 된다. 처음 보면 이런 생각이 든다. GPU를 쓴다는 건 알겠는데, 왜 GPU라고 안 하고 CUDA라고 하지? CUDA는 GPU랑 같은 말인가? 결론부터 말하면 CUD…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[CS]-GPU와-CPU는-뭐가-다를까-딥러닝에서-GPU를-쓰는-이유",
+    "title": "[CS] GPU와 CPU는 뭐가 다를까? 딥러닝에서 GPU를 쓰는 이유",
+    "category": "CS",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "딥러닝을 공부하다 보면 거의 무조건 나오는 말이 있다. “학습은 GPU로 돌려야 해.” 처음 들으면 이런 생각이 든다. CPU도 컴퓨터의 두뇌라면서? 그럼 CPU가 더 중요한 거 아닌가? 왜 딥러닝은 GPU를 써야…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[Pytorch]-딥러닝-레이어-직접-구현하기-Fully-Connected-Network부터-CNN까지n",
+    "title": "[PyTorch] 딥러닝 레이어 직접 구현하기: Fully Connected Network부터 CNN까지\\n",
+    "category": "Pytorch",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "이번에는 PyTorch를 이용해서 딥러닝 모델의 핵심 구성요소를 직접 구현해보았다. 보통 PyTorch로 모델을 만들 때는 torch.nn.Linear , torch.nn.ReLU , torch.nn.Conv2d…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[Pytorch]-Linear-Classifier와-Two-Layer-Neural-Network-직접-구현하기",
+    "title": "[PyTorch] Linear Classifier와 Two Layer Neural Network 직접 구현하기",
+    "category": "Pytorch",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "이번에는 PyTorch로 선형 분류기 Linear Classifier 와 2층 신경망 Two Layer Neural Network 을 직접 구현해보았다. 이전 KNN은 학습 데이터를 그대로 기억하고, 테스트 데이터…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[Pytorch]-KNN-직접-구현하면서-이해하기-거리-계산부터-Cross-Validation까지",
+    "title": "[Pytorch] KNN 직접 구현하면서 이해하기: 거리 계산부터 Cross Validation까지",
+    "category": "Pytorch",
+    "topic": "ai",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "PyTorch로 K-Nearest Neighbor, KNN 분류기 를 직접 구현해보았다. KNN은 머신러닝 알고리즘 중에서도 구조가 꽤 단순한 편이다. 학습 단계에서 모델이 가중치를 업데이트하지 않는다. 대신 학습…",
+    "tag_color": "#db2777"
+  },
+  {
+    "slug": "[CKA]-ReplicaSet-이미지-수정과-Pod-재생성-흐름-정리",
+    "title": "[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.07",
+    "excerpt": "Kubernetes를 공부하다 보면 ReplicaSet 문제에서 자주 만나는 상황이 있다. 예를 들면 이런 문제다. 처음 보면 헷갈린다. 이번 글에서는 ReplicaSet과 Pod의 관계, 이미지 수정 흐름, 왜…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[CKA]-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리n",
+    "title": "[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\\n",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "KodeKloud에서 Kubernetes Pod 문제를 풀다 보면 처음에는 명령어 자체보다도 “문제에서 뭘 물어보는지”를 해석하는 게 더 헷갈린다. 특히 kubectl get pods , READY , descri…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-로컬에서-k3d-클러스터-만들고-LoadBalancer-포트-열기",
+    "title": "[Kubernetes] 로컬에서 k3d 클러스터 만들고 LoadBalancer 포트 열기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/d4c39157-4ed9-4955-846f-baccb49175ea/image.png 이번에는 로컬 환경에서 k3d 를 사용해…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Service-ClusterIP-NodePort-LoadBalancer는-뭐가-다를까",
+    "title": "[Kubernetes] Service, ClusterIP, NodePort, LoadBalancer는 뭐가 다를까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "쿠버네티스를 처음 공부하면 Pod , Service , ClusterIP , NodePort , LoadBalancer 같은 단어가 계속 나온다. 처음에는 전부 네트워크 관련 용어처럼 보여서 헷갈리는데, 핵심은 하…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Spring]-FE에서-쓴-게시글이-진짜-PostgreSQL-DB에-저장됐는지-확인하는-법",
+    "title": "[Spring Boot + Docker] FE에서 쓴 게시글이 진짜 PostgreSQL DB에 저장됐는지 확인하는 법",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/05648411-fc81-440e-947d-aea5bfc7e904/image.png 게시판 프로젝트를 다음 구조로 분리했다.…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Whitelabel-404-URL-매핑-불일치-때문에-boards가-안-뜬-문제",
+    "title": "[Spring Boot] Whitelabel 404: URL 매핑 불일치 때문에 /boards가 안 뜬 문제",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "Spring Boot로 board_fe 를 만들고 Thymeleaf 템플릿까지 채웠는데, 브라우저에서 /boards 에 접속하자 Whitelabel Error Page가 떴다. 에러 화면은 이런 내용이었다. 처음에…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-board_api-정리부터-board_fe-Thymeleaf-화면-서버-구성까지",
+    "title": "[Spring] board_api 정리부터 board_fe Thymeleaf 화면 서버 구성까지",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "이번 작업의 목표는 단순히 게시판 CRUD를 만드는 것이 아니었다. 기존에 하나의 Spring Boot 프로젝트 안에서 화면과 API가 섞여 있던 구조를 정리하고, 역할을 분리하는 것이 핵심이었다. 최종 목표는 다…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-JPA로-바꿨더니-setter를-못-찾는다고-터졌다",
+    "title": "[Spring] JPA로 바꿨더니 setter를 못 찾는다고 터졌다",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "Docker로 PostgreSQL을 띄우고, 기존 board_api를 JPA 기반으로 바꾸는 중에 컴파일 에러가 발생했다. 에러 메시지는 대략 이런 형태였다. 처음에는 PostgreSQL 연결 문제인 줄 알았다.…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Docker]-윈도우에서-Docker-쓰려면-WSL이-꼭-필요할까",
+    "title": "[Docker] 윈도우에서 Docker 쓰려면 WSL이 꼭 필요할까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "윈도우에서 Docker Desktop을 설치하다 보면 WSL이라는 말을 자주 보게 된다. Docker를 설치하려는 건데 갑자기 WSL, Ubuntu, Linux 같은 단어가 같이 나오니까 처음에는 헷갈린다. 나도…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Docker]-서버에서-쓰는-Docker와-Docker-Desktop은-뭐가-다를까",
+    "title": "[Docker] 서버에서 쓰는 Docker와 Docker Desktop은 뭐가 다를까?",
+    "category": "Docker",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "Docker를 처음 설치하려고 하면 가장 헷갈리는 지점이 있다. 분명 Docker를 쓰려는 건 똑같은데, 어떤 글에서는 Docker Desktop 을 설치하라고 하고, 어떤 글에서는 서버에 docker engine…",
+    "tag_color": "#0ea5e9"
+  },
+  {
+    "slug": "[Spring]-DTO란-무엇인가",
+    "title": "[Spring] DTO란 무엇인가",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "DTO는 Data Transfer Object 의 줄임말이다. 이름 그대로 데이터를 전달하기 위한 객체 다. --- 1. 왜 DTO를 쓰냐 보통 처음에는 이렇게 하고 싶어진다. 겉으로는 편하다. 하지만 문제가 있다…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-JPA-getter-setter-new-어디서-써야-하고-어떻게-나눌까",
+    "title": "[Spring/JPA] getter, setter, new… 어디서 써야 하고 어떻게 나눌까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "Spring + JPA를 처음 적용하면 이런 고민이 생긴다. setter는 쓰면 안 된다는데 어디서 쓰는 거지? new는 왜 쓰라는 거지? 서비스랑 도메인은 뭐가 다른 거지? 이걸 한 번에 정리해보면 “역할 분리”…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-JPA-setter-vs-new-뭐가-다른-거고-왜-같이-쓰는-걸까",
+    "title": "[SPRING] [JPA] setter vs new, 뭐가 다른 거고 왜 같이 쓰는 걸까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.06",
+    "excerpt": "개발하다 보면 이런 말을 듣는다. setter 막 쓰지 말고 new로 객체 만들어서 관리해라 처음 들으면 헷갈린다. setter랑 new가 서로 반대 개념 같기도 하고, 뭐가 문제인지 감이 안 온다. 결론부터 말하…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[CKA]-etcd-정리-클러스터의-상태를-저장하는-핵심-데이터베이스",
+    "title": "[CKA] etcd 정리: 클러스터의 상태를 저장하는 핵심 데이터베이스",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.04",
+    "excerpt": "Kubernetes를 공부하다 보면 etcd 라는 단어가 자주 나온다. 처음에는 이름부터 낯설다. Pod, Deployment, Service까지는 “애플리케이션을 배포하는 리소스구나” 하고 이해가 되는데, etc…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[CKA]-기본-예제-nginx-Deployment-만들고-Service로-접속하기",
+    "title": "CKA 기본 예제: nginx Deployment 만들고 Service로 접속하기",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.04",
+    "excerpt": "목표 쿠버네티스 클러스터 안에 nginx 웹서버를 띄우고, Service를 통해 접근 가능한지 확인한다. 최종 구조는 다음과 같다. --- 1. Deployment 생성 먼저 nginx 이미지를 사용하는 Deplo…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[CKA]-Kubernetes-핵심-리소스-입문-정리",
+    "title": "[CKA]Kubernetes 핵심 리소스 입문 정리",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.04",
+    "excerpt": "1. Pod Pod 는 쿠버네티스에서 컨테이너가 실제로 실행되는 가장 작은 단위다. 쉽게 말하면, Spring Boot 애플리케이션을 Docker 이미지로 만들었다고 하면, 쿠버네티스는 그 이미지를 바로 실행하지…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[CKA]-쿠버네티스-관리자-시험에서-자주-쓰는-명령어-흐름",
+    "title": "[CKA] 쿠버네티스 관리자 시험에서 자주 쓰는 명령어 흐름",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.04",
+    "excerpt": "CKA는 Certified Kubernetes Administrator의 약자로, 쿠버네티스 클러스터를 운영하고 관리할 수 있는지를 검증하는 실기형 자격증이다. 단순히 개념을 외우는 시험이라기보다는, 실제 터미널…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Spring]-Spring-Boot에서-어노테이션은-왜-변수-앞에도-붙을까",
+    "title": "[SPRING] Spring Boot에서 어노테이션은 왜 변수 앞에도 붙을까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.05.04",
+    "excerpt": "Spring Boot로 게시판 API를 만들다 보면 처음에는 어노테이션이 낯설게 느껴진다. 클래스 위에 붙는 것도 있고, 메서드 위에 붙는 것도 있고, 심지어 변수처럼 보이는 곳 앞에도 붙는다. 예를 들어 이런 코…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-JPA와-Hibernate",
+    "title": "[SPRING] JPA와 Hibernate?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.05.03",
+    "excerpt": "Spring Boot로 게시판 API를 만들다 보면 처음에는 데이터를 List 에 저장하게 된다. 이 방식은 이해하기 쉽다. 게시글을 만들면 리스트에 넣고, 조회하면 리스트에서 찾고, 수정하면 리스트 안의 객체 값…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Spring-Boot-REST-API-게시판에-Thymeleaf-화면-붙이기",
+    "title": "[Spring] Spring Boot REST API 게시판에 Thymeleaf 화면 붙이기",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.03",
+    "excerpt": "처음에는 Spring Boot로 게시판 REST API를 만들고, 프론트엔드는 React로 따로 구성하는 방식으로 생각하고 있었다. 구조는 단순했다. React 화면에서 Spring Boot API를 호출하고, S…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Thymeleaf는-Bootstrap-같은-게-아니다-Spring-Boot에서-화면을-만드는-방법",
+    "title": "[Spring] Thymeleaf는 Bootstrap 같은 게 아니다 — Spring Boot에서 화면을 만드는 방법",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.05.03",
+    "excerpt": "Spring Boot로 게시판 API를 만들다가 “프론트엔드를 Spring Boot에서 하라”, “HTML은 Thymeleaf로 하라”는 말을 들었다. 처음에는 Thymeleaf가 Bootstrap 같은 디자인 프…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Gradle-프로젝트를-Maven-프로젝트로-바꾸려면-어떻게-해야-할까",
+    "title": "[SPRING] Gradle 프로젝트를 Maven 프로젝트로 바꾸려면 어떻게 해야 할까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.03",
+    "excerpt": "현재 프로젝트를 Gradle이 아니라 Maven으로 관리하기로 했다. 따라서 build.gradle 에 의존성을 추가하는 방식이 아니라, 프로젝트 루트의 pom.xml 을 기준으로 의존성을 관리해야 했다. Grad…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-h2-console-접속-시-Whitelabel-404가-발생한-이유는",
+    "title": "[SPRING] /h2-console 접속 시 Whitelabel 404가 발생한 이유는?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.05.03",
+    "excerpt": "Spring Boot 게시판 CRUD API를 만들면서 H2 인메모리 DB를 연결하려고 했다. application.properties 에는 H2 설정을 추가했고, 브라우저에서 http://localhost:808…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Spring-Boot에서-H2-DB-설정은-왜-하는-걸까",
+    "title": "[SPRING] Spring Boot에서 H2 DB 설정은 왜 하는 걸까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.05.03",
+    "excerpt": "SPRING Spring Boot에서 H2 DB 설정은 왜 하는 걸까? Spring Boot로 게시판 API를 만들다 보면 application.properties 에 이런 설정을 넣게 된다. 처음 보면 단순히 복…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-boards.json을-만들었는데-왜-게시글이-안-나올까",
+    "title": "[SPRING] boards.json을 만들었는데 왜 게시글이 안 나올까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "게시판 CRUD API를 만들면서 처음에는 데이터를 메모리에 저장했다. BoardService 안에 List<Board 를 만들고, 게시글을 생성하면 그 리스트에 추가하는 방식이었다. 이 방식은 구현이 단순해서 처…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-CORS를-Config로-제어하는-방법",
+    "title": "[SPRING] CORS를 Config로 제어하는 방법",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "프론트엔드와 백엔드를 따로 실행하면 CORS 문제가 자주 발생한다. 예를 들어 지금 구조는 이렇게 나뉘어 있다. 둘 다 localhost 이지만 포트가 다르다. 브라우저 입장에서는 서로 다른 출처라고 판단한다. 그…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-ServiceImpl은-왜-따로-만들까",
+    "title": "[SPRING] ServiceImpl은 왜 따로 만들까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "Spring 프로젝트를 하다 보면 이런 말을 듣게 된다. “Service에는 껍데기만 두고, 실제 비즈니스 로직은 Impl에서 구현합니다.” 처음에는 굳이 왜 나누는지 이해가 잘 안 됐다. 그냥 BoardServi…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-final-생성자-주입-RequiredArgsConstructor-이해하기",
+    "title": "[SPRING] final, 생성자 주입, @RequiredArgsConstructor 이해하기",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "Spring에서 Controller를 만들다 보면 아래와 같은 코드를 보게 된다. 처음 보면 단순한 생성자처럼 보이지만, 사실 이 코드는 의존성 주입 Dependency Injection 의 핵심 구조다. ---…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Lombok-롬복-이란",
+    "title": "[SPRING] Lombok(롬복)이란?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "Spring이나 Java 프로젝트를 하다 보면 이런 코드를 자주 보게 된다. 이런 것들이 바로 Lombok 롬복 이다. --- 1. Lombok이란? 반복적인 코드를 자동으로 생성해주는 라이브러리 자바는 기본적으로…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-RequiredArgsConstructor란-Lombok-없이-쓰면-어떻게-될까",
+    "title": "[SPRING] @RequiredArgsConstructor란? (Lombok 없이 쓰면 어떻게 될까)",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "Spring 코드를 보다 보면 이런 어노테이션을 자주 보게 된다. 처음 보면 “이게 뭐지?” 싶지만, 사실은 생성자를 대신 만들어주는 도구 다. --- 1. @RequiredArgsConstructor의 역할 이…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-기본-생성자-생성자-GetterSetter-그리고-도메인-클래스란",
+    "title": "[SPRING] 기본 생성자, 생성자, Getter/Setter, 그리고 도메인 클래스란?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.30",
+    "excerpt": "Spring으로 게시판 API를 만들다 보면 아래처럼 생긴 클래스를 만나게 된다. 처음 보면 그냥 코드 덩어리처럼 보이지만, 사실 역할이 명확하게 나뉘어 있다. --- 1. 생성자란? 생성자는 객체를 만들 때 값을…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-게시글-작성-실패-원인-CORS-차단",
+    "title": "[SPRING] 게시글 작성 실패 원인: CORS 차단",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/0fcf5a63-c1f9-41fc-a2c2-3e6d53ae107f/image.png 게시글 작성 버튼을 눌렀을 때 프론트에서는…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-게시글-작성-실패-원인-API-요청-자체가-안-나가는-경우",
+    "title": "[SPRING] 게시글 작성 실패 원인: API 요청 자체가 안 나가는 경우",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/d5412c4e-51a1-418d-8d76-c5786d01f1c0/image.png 게시글 작성 버튼을 눌렀는데 실패 aler…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-게시글-작성-실패-프론트와-백엔드-연결-트러블슈팅",
+    "title": "[SPRING] 게시글 작성 실패: 프론트와 백엔드 연결 트러블슈팅",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/9b7de7eb-bdf0-4112-8e74-ceff56cb0b26/image.png 게시글 작성 버튼을 눌렀는데 브라우저 al…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-생성자-에러로-서버-안-뜰-때-Board-수정-후-터진-컴파일-에러-해결",
+    "title": "[SPRING] 생성자 에러로 서버 안 뜰 때 — Board 수정 후 터진 컴파일 에러 해결",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "게시판을 만들다가 서버가 갑자기 안 뜨는 상황이 생겼다. 로그를 보면 이런 메시지가 나온다. --- 1. 문제 상황 에러가 난 코드: 이 코드는 Long, String 형태의 생성자를 찾는다. 하지만 Board 클…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-왜-갑자기-코드가-이렇게-바뀌었을까-JSON-때문에-생긴-변화",
+    "title": "[SPRING] 왜 갑자기 코드가 이렇게 바뀌었을까? — JSON 때문에 생긴 변화",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "이번에 게시판 코드를 바꾸면서 가장 큰 이유는 하나다. 처음에는 단순하게 title 하나만 다루는 코드였는데, 프론트와 연결하면서 상황이 완전히 달라졌다. --- 1. 문제 상황 프론트에서 보내는 데이터는 이렇게…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-getter-setter-도대체-뭐야-처음-보는-사람-기준",
+    "title": "[SPRING] getter, setter 도대체 뭐야? (처음 보는 사람 기준)",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "Spring 공부하다 보면 갑자기 이런 코드가 나온다. 그리고 밑에 이상한 함수 두 개가 붙는다. 이게 바로 getter, setter 다. --- 1. 왜 이런 걸 만드는 걸까? Java에서는 보통 변수 앞에 p…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-DB-없이-JSON-파일로-데이터-불러오기-ObjectMapper-사용",
+    "title": "[SPRING] DB 없이 JSON 파일로 데이터 불러오기 (ObjectMapper 사용)",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "DB를 붙이기 전에 CRUD 흐름을 빠르게 만들고 싶다면 Spring에서 JSON 파일을 “임시 DB처럼” 사용하는 방법이 있다. 이번 글에서는 boards.json 파일을 읽어서 List로 변환하는 과정 을 정리…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-프론트와-백엔드-연결할-때-API_BASE_URL-기준-제대로-잡기",
+    "title": "[SPRING] 프론트와 백엔드 연결할 때 API_BASE_URL 기준 제대로 잡기",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "Spring Boot로 API를 만들고 프론트에서 연결할 때 가장 많이 헷갈리는 부분이 바로 API_BASE_URL 설정 이다. 처음에는 단순해 보이는데, 경로가 조금만 바뀌어도 404가 나면서 막히기 쉽다. 이번…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-PUT과-DELETE-게시글-수정과-삭제",
+    "title": "[SPRING] PUT과 DELETE — 게시글 수정과 삭제",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "게시판 API를 만들면서 GET, POST까지는 자연스럽게 이해가 됐는데 그 다음 단계에서 등장하는 게 바로 PUT과 DELETE 다. 이번 글에서는 \"게시글 수정\"과 \"게시글 삭제\"를 기준으로 PUT과 DELET…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-String-객체로-바꾸기",
+    "title": "[SPRING] String → 객체로 바꾸기",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "지금까지 게시판 API는 String 으로만 데이터를 관리하고 있었다. 이 방식은 간단하지만 한계가 명확하다. 실제 서비스에서는 게시글 하나가 단순 문자열이 아니라 여러 정보를 가진다. 그래서 String 이 아니…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Postman이-코드를-바꾸는-걸까",
+    "title": "[SPRING] Postman이 코드를 바꾸는 걸까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/80e2a306-f8db-452d-b3a4-4c61bf89947c/image.png json 포스트맨에서 고치고 ! https…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-GET-다음-단계-POST-API-추가해서-데이터-생성하기",
+    "title": "[SPRING] GET 다음 단계, POST API 추가해서 데이터 생성하기",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "Spring Boot로 게시판 API를 만들고 있다. 처음에는 가장 단순한 조회 기능부터 만들었다. 게시글 목록을 반환하는 GET /boards API다. ! https://velog.velcdn.com/image…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Postman-사용법",
+    "title": "[SPRING] Postman 사용법",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/39c39da8-bf3b-4bfb-8724-953f515cce97/image.png 일단 포스트맨을 앱으로 깐다 ! https…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-404-Whitelabel-Error-Page-해결-경로-중복-문제",
+    "title": "[SPRING] 404 Whitelabel Error Page 해결 (경로 중복 문제)",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.29",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/1fb0a7f2-2ae2-45e5-b49e-2a5bbd339526/image.png ! https://velog.velcdn.…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-로그-읽는-법과-포트-충돌-해결",
+    "title": "[SPRING] 로그 읽는 법과 포트 충돌 해결",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.28",
+    "excerpt": "스프링 실행이 실패하면 마지막에 보통 이렇게 나온다. 근데 이건 결과 일 뿐이다. 진짜 원인은 항상 그 위에 있다. --- 1. 로그에서 제일 먼저 볼 곳 아래 문구를 찾으면 된다. 그 아래에 보통 원인이 나온다.…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-.gradlew-bootRun-이건-도대체-뭐지",
+    "title": "[SPRING] ./gradlew bootRun 이건 도대체 뭐지?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.28",
+    "excerpt": "스프링 프로젝트를 처음 실행할 때 자주 보게 되는 명령어가 있다 처음 보면 이게 뭔지 감이 잘 안 온다. 그냥 “서버 실행하는 명령어인가?” 정도로 넘어가기 쉬운데, 이 안에는 중요한 개념이 몇 개 들어 있다. -…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Controller랑-Service는-왜-나눌까",
+    "title": "[SPRING] Controller랑 Service는 왜 나눌까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.04.28",
+    "excerpt": "! https://velog.velcdn.com/images/yorange50/post/bedc6599-0cf9-4e47-a522-71e8e327c007/image.png 스프링을 처음 시작하면 가장 헷갈리는 구조…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-this로-Service랑-Controller를-연결한다는-게-무슨-뜻일까",
+    "title": "[SPRING] this로 Service랑 Controller를 연결한다는 게 무슨 뜻일까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.28",
+    "excerpt": "스프링을 공부하다 보면 이런 코드를 보게 된다. 처음 보면 여기서 막힌다. “this가 뭐지?” --- this는 “지금 이 객체 자신”이다 핵심은 이거 하나다. this = 지금 생성된 객체 자기 자신 --- 변…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-GetMapping은-도대체-뭘까",
+    "title": "[SPRING] @GetMapping은 도대체 뭘까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.28",
+    "excerpt": "코드를 보면 이런 게 있다. 처음 보면 이렇게 생각 든다. “이건 또 뭐야… 왜 괄호 안에 /boards가 있어?” --- @GetMapping은 요청 주소를 연결해주는 역할이다 핵심은 이거다. @GetMappin…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-RestController는-도대체-뭘까",
+    "title": "[SPRING] @RestController는 도대체 뭘까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "",
+    "date": "2026.04.28",
+    "excerpt": "스프링을 하다 보면 이런 코드가 나온다. 그리고 이런 말을 듣는다. “이건 컨트롤러야” 바로 막힌다. “컨트롤러가 뭐야?” --- 컨트롤러는 요청을 받는 입구다 핵심부터 말하면 이거다. @RestController…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-Bean은-도대체-뭘까",
+    "title": "[SPRING] Bean은 도대체 뭘까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.04.28",
+    "excerpt": "스프링을 공부하다 보면 이런 코드가 계속 보인다. 그리고 이런 말을 듣는다. “이건 Bean으로 등록된다” 처음 들으면 바로 막힌다. “Bean이 뭐야?” --- Bean은 스프링이 관리하는 객체다 가장 핵심부터…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Spring]-클래스는-도대체-뭘까",
+    "title": "[SPRING] 클래스는 도대체 뭘까?",
+    "category": "Spring",
+    "topic": "spring",
+    "tags": "Spring",
+    "date": "2026.04.28",
+    "excerpt": "스프링을 공부하다 보면 이런 코드를 자주 보게 된다. 처음 보면 이런 생각이 든다. “클래스가 뭔데 자꾸 나오는 거지?” 클래스는 기능을 담아두는 상자다 클래스를 아주 쉽게 말하면 기능들을 담아두는 상자 다. 예를…",
+    "tag_color": "#16a34a"
+  },
+  {
+    "slug": "[Upstage]-AI-API-모니터링은-어떻게-해야-할까",
+    "title": "[Upstage] AI API 모니터링은 어떻게 해야 할까",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "",
+    "excerpt": "AI API 모니터링은 어떻게 해야 할까? AI DevOps 관점에서 중요한 질문이 있다. 아니다. API를 붙이는 것보다 더 중요한 건 운영 중에 이 API들이 잘 돌고 있는지 보는 것 이다. 서비스는 로컬에서…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-API는-대체-어떻게-생겼을까",
+    "title": "[Upstage] API는 대체 어떻게 생겼을까",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "",
+    "excerpt": "맞아. API 문서 는 “이 API를 어떻게 호출해야 하는지 적어둔 사용 설명서”야. 코드로 비유하면, API 자체가 자판기라면 API 문서는 이런 안내문임. 개발식으로 바꾸면 API 문서에는 보통 이게 적혀 있어…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-Solar-LLM-API-문서는-어떻게-생겼을까",
+    "title": "[Upstage] Solar LLM API 문서는 어떻게 생겼을까",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "",
+    "excerpt": "맞아. 순서는 거의 이렇게 보면 돼. 근데 엄밀히 말하면 임베딩 = 벡터화 에 가까워. 그래서 더 정확히 쓰면 이거야. --- 1. 청킹이 뭐냐 청킹은 긴 문서를 작은 조각으로 자르는 거야. 예를 들어 PDF 하나…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-Solar-LLM은-대체-뭐고-어디에-쓰는-걸까",
+    "title": "[Upstage] Solar LLM은 대체 뭐고 어디에 쓰는 걸까",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "",
+    "excerpt": "Solar LLM은 대체 뭐고, 어디에 쓰는 걸까? Upstage를 이해하려면 Solar LLM 을 알아야 한다. Upstage는 OCR, Document Parse, Embedding, Information Ex…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-latency-error-rate-timeout-retry-token-usage-p95는-다-뭐야",
+    "title": "[Upstage] latency error rate timeout retry token usage p95는 다 뭐야",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "",
+    "excerpt": "latency, error rate, timeout, retry, token usage, p95는 다 뭐야? API나 DevOps 공부를 하다 보면 이런 말을 자주 본다. 처음 보면 다 따로 노는 단어처럼 보인다.…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-업스테이지는-왜-API를-다-따로-만들었을까",
+    "title": "[Upstage] 업스테이지는 왜 API를 다 따로 만들었을까",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "",
+    "excerpt": "업스테이지는 왜 API를 다 따로 만들었을까? 업스테이지를 이해할 때 중요한 포인트가 있다. 업스테이지는 단순히 “LLM 하나 만든 회사”라기보다는, 문서 기반 AI 서비스를 만들 때 필요한 기능들을 각각 API…",
+    "tag_color": "#0d9488"
   }
 ]

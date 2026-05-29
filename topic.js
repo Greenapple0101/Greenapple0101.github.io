@@ -7,6 +7,15 @@
   const pagination = document.getElementById("pagination");
   const cards = Array.from(list.querySelectorAll(".post-card"));
 
+  function publishedTimestamp(card) {
+    const raw = card.dataset.published || "";
+    const t = Date.parse(raw);
+    return Number.isNaN(t) ? 0 : t;
+  }
+
+  cards.sort((a, b) => publishedTimestamp(b) - publishedTimestamp(a));
+  cards.forEach((card) => list.appendChild(card));
+
   let currentPage = 1;
 
   function readUrlState() {

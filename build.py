@@ -7,7 +7,8 @@ import html
 import json
 import re
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import markdown
@@ -222,14 +223,35 @@ def category_color(category: str) -> str:
     return "#64748b"
 
 
-def format_date(iso: str) -> str:
-    if not iso:
-        return ""
+def parse_published_date(value: str) -> datetime | None:
+    if not value:
+        return None
+    value = value.strip()
     try:
-        dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
-        return dt.strftime("%Y.%m.%d")
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
-        return iso[:10].replace("-", ".")
+        pass
+    try:
+        return parsedate_to_datetime(value)
+    except (TypeError, ValueError, IndexError):
+        pass
+    return None
+
+
+def published_sort_key(entry: dict) -> float:
+    dt = parse_published_date(entry.get("published", ""))
+    if dt is None:
+        return 0.0
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.timestamp()
+
+
+def format_date(iso: str) -> str:
+    dt = parse_published_date(iso)
+    if dt is None:
+        return ""
+    return dt.strftime("%Y.%m.%d")
 
 
 def excerpt(body: str, limit: int = 120) -> str:
@@ -501,6 +523,7 @@ def build_index(entries: list[dict]) -> None:
     )
     (ROOT / "index.html").write_text(index, encoding="utf-8")
 
+    sorted_entries = sorted(entries, key=published_sort_key, reverse=True)
     posts_json = [
         {
             "slug": e["slug"],
@@ -512,7 +535,7 @@ def build_index(entries: list[dict]) -> None:
             "excerpt": e.get("excerpt", ""),
             "tag_color": e["tag_color"],
         }
-        for e in entries
+        for e in sorted_entries
     ]
     (ROOT / "posts.json").write_text(
         json.dumps(posts_json, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -530,7 +553,7 @@ def build_topic_pages(entries: list[dict]) -> None:
         topic_id = topic["id"]
         topic_entries = sorted(
             by_topic.get(topic_id, []),
-            key=lambda e: e.get("published") or "",
+            key=published_sort_key,
             reverse=True,
         )
         cards = [render_card(e, post_href_prefix="../posts/") for e in topic_entries]
@@ -591,7 +614,7 @@ def main() -> None:
     for e in entries:
         by_topic.setdefault(e["topic"], []).append(e)
     for topic_id in by_topic:
-        by_topic[topic_id].sort(key=lambda e: e.get("published") or "", reverse=True)
+        by_topic[topic_id].sort(key=published_sort_key, reverse=True)
 
     for e in entries:
         topic_entries = by_topic[e["topic"]]
