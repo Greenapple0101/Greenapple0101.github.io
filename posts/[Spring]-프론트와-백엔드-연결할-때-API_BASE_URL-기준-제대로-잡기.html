@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] 프론트와 백엔드 연결할 때 API_BASE_URL 기준 제대로 잡기 | Greenapple0101</title>
+  <meta name="description" content="Spring Boot로 API를 만들고 프론트에서 연결할 때 가장 많이 헷갈리는 부분이 바로 API_BASE_URL 설정 이다. 처음에는 단순해 보이는데, 경로가 조금만 바뀌어도 404가 나면서 막히기 쉽다. 이번 글에서는 이 기준을 정확하게 정리한다. --- 1. 현재 Spring…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] 프론트와 백엔드 연결할 때 API_BASE_URL 기준 제대로 잡기</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-29T14:26:47.349Z">2026.04.29</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-프론트와-백엔드-연결할-때-APIBASEURL-기준-제대로-잡기" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring Boot로 API를 만들고 프론트에서 연결할 때 가장 많이 헷갈리는 부분이 바로 <strong>API_BASE_URL 설정</strong>이다.
+처음에는 단순해 보이는데, 경로가 조금만 바뀌어도 404가 나면서 막히기 쉽다.</p>
+<p>이번 글에서는 이 기준을 정확하게 정리한다.</p>
+<hr>
+<h2>1. 현재 Spring API 구조</h2>
+<pre><code class="language-java">@RestController
+@RequestMapping
+public class BoardController {
+
+    @GetMapping(&quot;/boards&quot;)
+</code></pre>
+<p>이 경우 실제 API 주소는 다음과 같다.</p>
+<pre><code>http://localhost:8080/boards
+</code></pre>
+<hr>
+<h2>2. 프론트에서 API_BASE_URL 설정</h2>
+<p>이 구조라면 프론트에서는 이렇게 잡아야 한다.</p>
+<pre><code class="language-ts">const API_BASE_URL = 'http://localhost:8080';
+</code></pre>
+<p>그리고 실제 호출은 아래처럼 한다.</p>
+<pre><code class="language-ts">fetch(`${API_BASE_URL}/boards`)
+</code></pre>
+<hr>
+<h2>3. 만약 /api prefix가 붙는 경우</h2>
+<p>Spring 코드가 아래처럼 바뀌면</p>
+<pre><code class="language-java">@RequestMapping(&quot;/api&quot;)
+@GetMapping(&quot;/boards&quot;)
+</code></pre>
+<p>실제 API 주소는 이렇게 된다.</p>
+<pre><code>http://localhost:8080/api/boards
+</code></pre>
+<p>이때는 프론트도 같이 바뀌어야 한다.</p>
+<pre><code class="language-ts">const API_BASE_URL = 'http://localhost:8080/api';
+</code></pre>
+<pre><code class="language-ts">fetch(`${API_BASE_URL}/boards`)
+</code></pre>
+<hr>
+<h2>4. 핵심 개념 정리</h2>
+<p>중요한 기준은 하나다.</p>
+<ul>
+<li>API_BASE_URL → 공통 prefix만 작성</li>
+<li>실제 API 경로 → fetch에서 붙인다</li>
+</ul>
+<p>즉 구조는 항상 이렇게 나뉜다.</p>
+<pre><code>[BASE_URL] + [/boards]
+</code></pre>
+<hr>
+<h2>5. 반드시 확인해야 할 것 (404 방지)</h2>
+<h3>1) 브라우저로 직접 확인</h3>
+<pre><code>http://localhost:8080/boards
+</code></pre>
+<p>여기서 데이터가 나오면 백엔드는 정상이다.</p>
+<h3>2) 프론트 요청 확인</h3>
+<pre><code class="language-ts">fetch('http://localhost:8080/boards')
+</code></pre>
+<hr>
+<h2>6. 가장 많이 하는 실수</h2>
+<ul>
+<li>API_BASE_URL에 <code>/boards</code>까지 포함시킴</li>
+<li>그리고 fetch에서도 <code>/boards</code>를 또 붙임</li>
+</ul>
+<p>결과:</p>
+<pre><code>http://localhost:8080/boards/boards
+</code></pre>
+<p>→ 404 발생</p>
+<hr>
+<h2>7. 결론</h2>
+<p>프론트와 백엔드를 연결할 때 중요한 건 단 하나다.</p>
+<pre><code>BASE_URL은 &quot;공통 경로까지만&quot;
+</code></pre>
+<p>이 기준만 정확히 잡으면
+경로 문제로 막히는 일은 거의 사라진다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-PUT과-DELETE-게시글-수정과-삭제.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] PUT과 DELETE — 게시글 수정과 삭제</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-DB-없이-JSON-파일로-데이터-불러오기-ObjectMapper-사용.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] DB 없이 JSON 파일로 데이터 불러오기 (ObjectMapper 사용)</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

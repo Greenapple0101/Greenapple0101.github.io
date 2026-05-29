@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[DOCKER] 단일 스테이지 구조를 쓰면 항상 EC2 안에서 빌드해야 할까? | Greenapple0101</title>
+  <meta name="description" content="Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다. 결론부터 말하면 반드시 EC2 안에서 빌드해야 하는 것은 아니다. 다만 단일 스테이지 구조에서는 Docker 이미지가 JAR 파일이 이미 존재한다 는 전제를 가지…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+    <h1>[DOCKER] 단일 스테이지 구조를 쓰면 항상 EC2 안에서 빌드해야 할까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-17T09:27:34.161Z">2026.05.17</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/DOCKER-단일-스테이지-구조를-쓰면-항상-EC2-안에서-빌드해야-할까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다.</p>
+<pre><code class="language-text">단일 스테이지 구조면 항상 EC2 내부에서 ./gradlew build를 해야 하나?
+</code></pre>
+<p>결론부터 말하면 <strong>반드시 EC2 안에서 빌드해야 하는 것은 아니다.</strong></p>
+<p>다만 단일 스테이지 구조에서는 Docker 이미지가 <code>JAR 파일이 이미 존재한다</code>는 전제를 가지고 있기 때문에, <strong>어디선가 미리 JAR를 만들어야 한다.</strong></p>
+<p>그 위치가 EC2일 수도 있고, 내 로컬 PC일 수도 있고, Jenkins나 GitHub Actions 같은 CI 서버일 수도 있다.</p>
+<h2>1. 단일 스테이지 Dockerfile의 구조</h2>
+<p>단일 스테이지 Dockerfile은 보통 이렇게 생겼다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>이 Dockerfile은 굉장히 단순하다.</p>
+<p>컨테이너 안에서 Gradle 빌드를 하지 않는다.</p>
+<p>그냥 이미 만들어져 있는 <code>app.jar</code>를 이미지 안으로 복사하고 실행한다.</p>
+<pre><code class="language-text">이미 존재하는 app.jar
+↓
+Docker 이미지 안으로 COPY
+↓
+java -jar app.jar 실행
+</code></pre>
+<p>즉, 이 Dockerfile의 책임은 <strong>빌드가 아니라 실행</strong>이다.</p>
+<h2>2. 그럼 JAR는 누가 만들어야 할까?</h2>
+<p>단일 스테이지 구조에서는 Dockerfile이 JAR를 만들지 않는다.</p>
+<p>따라서 Docker 빌드 전에 누군가는 이 명령어를 실행해야 한다.</p>
+<pre><code class="language-bash">./gradlew clean build -x test
+</code></pre>
+<p>그러면 Spring Boot 프로젝트의 <code>build/libs</code> 아래에 JAR 파일이 생성된다.</p>
+<pre><code class="language-text">build/libs/
+├── board-api-0.0.1-SNAPSHOT.jar
+└── board-api-0.0.1-SNAPSHOT-plain.jar
+</code></pre>
+<p>그다음 실행 가능한 JAR를 <code>app.jar</code>로 정리할 수 있다.</p>
+<pre><code class="language-bash">JAR_FILE=$(find build/libs -name &quot;*.jar&quot; ! -name &quot;*plain.jar&quot; | head -n 1)
+cp &quot;$JAR_FILE&quot; app.jar
+</code></pre>
+<p>이제 Dockerfile은 <code>app.jar</code>를 복사할 수 있다.</p>
+<pre><code class="language-bash">docker build -t board-api .
+</code></pre>
+<p>정리하면 단일 스테이지 구조는 이렇게 동작한다.</p>
+<pre><code class="language-text">1. 어딘가에서 Gradle 빌드
+2. app.jar 생성
+3. docker build
+4. Dockerfile이 app.jar COPY
+5. 컨테이너 실행
+</code></pre>
+<h2>3. 반드시 EC2 내부에서 빌드해야 하는 건 아님</h2>
+<p>중요한 건 이것이다.</p>
+<pre><code class="language-text">단일 스테이지 = EC2 내부 빌드 필수
+</code></pre>
+<p>이게 아니다.</p>
+<p>정확히는 이거다.</p>
+<pre><code class="language-text">단일 스테이지 = Docker 이미지 빌드 전에 JAR가 필요함
+</code></pre>
+<p>JAR를 어디서 만들지는 선택이다.</p>
+<h2>4. 방법 1: EC2 내부에서 직접 빌드하는 방식</h2>
+<p>가장 단순한 방식은 EC2에 접속해서 직접 빌드하는 것이다.</p>
+<pre><code class="language-bash">cd board_api
+
+chmod +x gradlew
+
+./gradlew clean build -x test
+
+JAR_FILE=$(find build/libs -name &quot;*.jar&quot; ! -name &quot;*plain.jar&quot; | head -n 1)
+cp &quot;$JAR_FILE&quot; app.jar
+
+docker build -t board-api .
+
+docker rm -f board-api || true
+
+docker run -d \
+  --name board-api \
+  -p 8080:8080 \
+  board-api
+</code></pre>
+<p>이 방식은 이해하기 쉽다.</p>
+<p>EC2 안에서 소스코드 받고, EC2 안에서 JAR 만들고, EC2 안에서 Docker 이미지까지 만든다.</p>
+<pre><code class="language-text">EC2
+├── 소스코드
+├── Gradle 빌드
+├── app.jar 생성
+├── docker build
+└── docker run
+</code></pre>
+<p>하지만 단점도 있다.</p>
+<p>EC2에 JDK가 있어야 한다.</p>
+<p>Gradle이 실행되어야 한다.</p>
+<p>빌드 시간이 EC2에서 소모된다.</p>
+<p>사람이 직접 명령어를 치면 순서를 실수할 수 있다.</p>
+<p>그래서 이 방식은 공부용, 실습용, 작은 개인 프로젝트에는 괜찮지만 운영 자동화 관점에서는 조금 불안정하다.</p>
+<h2>5. 방법 2: 로컬에서 빌드하고 EC2로 JAR를 보내는 방식</h2>
+<p>두 번째 방법은 내 노트북에서 JAR를 만든 뒤 EC2로 보내는 것이다.</p>
+<p>로컬에서 먼저 빌드한다.</p>
+<pre><code class="language-bash">./gradlew clean build -x test
+
+JAR_FILE=$(find build/libs -name &quot;*.jar&quot; ! -name &quot;*plain.jar&quot; | head -n 1)
+cp &quot;$JAR_FILE&quot; app.jar
+</code></pre>
+<p>그다음 EC2로 전송한다.</p>
+<pre><code class="language-bash">scp app.jar ubuntu@EC2_PUBLIC_IP:/home/ubuntu/board_api/app.jar
+</code></pre>
+<p>EC2에서는 Docker 빌드만 한다.</p>
+<pre><code class="language-bash">cd /home/ubuntu/board_api
+
+docker build -t board-api .
+
+docker rm -f board-api || true
+
+docker run -d \
+  --name board-api \
+  -p 8080:8080 \
+  board-api
+</code></pre>
+<p>이 구조에서는 EC2가 Gradle 빌드를 하지 않는다.</p>
+<pre><code class="language-text">로컬 PC
+├── Gradle 빌드
+└── app.jar 생성
+
+EC2
+├── app.jar 받음
+├── docker build
+└── docker run
+</code></pre>
+<p>하지만 이 방식도 운영에서는 조심해야 한다.</p>
+<p>내 로컬 환경에서 빌드한 결과물을 서버에 올리는 방식이기 때문에, 사람 손을 많이 탄다.</p>
+<p>로컬 Java 버전, Gradle 버전, OS 차이 때문에 결과가 달라질 수도 있다.</p>
+<p>또 실수로 예전 <code>app.jar</code>를 올리면 배포가 꼬일 수 있다.</p>
+<h2>6. 방법 3: Jenkins나 GitHub Actions에서 빌드하는 방식</h2>
+<p>운영에 가장 가까운 방식은 CI 서버에서 빌드하는 것이다.</p>
+<p>예를 들어 Jenkins가 있다고 해보자.</p>
+<p>Jenkins는 다음 일을 한다.</p>
+<pre><code class="language-text">1. GitHub에서 최신 코드 pull
+2. ./gradlew clean build 실행
+3. app.jar 생성
+4. docker build 실행
+5. docker push 또는 EC2 배포
+</code></pre>
+<p>이 경우 EC2에서는 직접 Gradle 빌드를 하지 않아도 된다.</p>
+<p>EC2는 이미 만들어진 이미지를 받아서 실행만 하면 된다.</p>
+<pre><code class="language-text">Jenkins
+├── Gradle 빌드
+├── app.jar 생성
+├── Docker 이미지 생성
+└── Docker Hub/ECR에 push
+
+EC2
+├── docker pull
+└── docker run
+</code></pre>
+<p>이 구조가 더 운영 친화적이다.</p>
+<p>EC2는 애플리케이션을 실행하는 서버 역할에 집중하고, 빌드는 Jenkins 같은 CI 서버가 담당한다.</p>
+<h2>7. 단일 스테이지와 멀티스테이지의 차이</h2>
+<p>단일 스테이지와 멀티스테이지의 차이는 여기서 명확해진다.</p>
+<p>단일 스테이지는 Dockerfile 안에서 빌드하지 않는다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY app.jar app.jar
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>그래서 Docker 빌드 전에 <code>app.jar</code>가 필요하다.</p>
+<p>반면 멀티스테이지는 Dockerfile 안에서 직접 빌드한다.</p>
+<pre><code class="language-dockerfile">FROM gradle:8.7-jdk17 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN gradle clean build -x test
+
+RUN JAR_FILE=$(find build/libs -name &quot;*.jar&quot; ! -name &quot;*plain.jar&quot; | head -n 1) &amp;&amp; \
+    cp &quot;$JAR_FILE&quot; app.jar
+
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/app.jar app.jar
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>이 경우에는 Docker 빌드 명령어 하나로 JAR 생성까지 처리된다.</p>
+<pre><code class="language-bash">docker build -t board-api .
+</code></pre>
+<p>즉, 차이는 이렇게 볼 수 있다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>단일 스테이지</th>
+<th>멀티스테이지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JAR 빌드 위치</td>
+<td>Docker 바깥</td>
+<td>Docker 빌드 내부</td>
+</tr>
+<tr>
+<td>EC2에서 Gradle 필요 여부</td>
+<td>EC2에서 직접 빌드한다면 필요</td>
+<td>보통 불필요</td>
+</tr>
+<tr>
+<td>Dockerfile 역할</td>
+<td>실행 이미지 생성</td>
+<td>빌드 + 실행 이미지 생성</td>
+</tr>
+<tr>
+<td>사전 app.jar 필요 여부</td>
+<td>필요</td>
+<td>불필요</td>
+</tr>
+<tr>
+<td>재현성</td>
+<td>빌드 위치에 따라 달라짐</td>
+<td>비교적 높음</td>
+</tr>
+</tbody>
+</table>
+<h2>8. 그럼 단일 스테이지는 언제 쓰면 좋을까?</h2>
+<p>단일 스테이지가 무조건 나쁜 것은 아니다.</p>
+<p>오히려 CI/CD 구조가 잘 잡혀 있으면 단일 스테이지도 깔끔하다.</p>
+<p>예를 들어 Jenkins가 이미 JAR를 만들고 있다면 Dockerfile이 굳이 Gradle 빌드까지 할 필요가 없을 수 있다.</p>
+<p>이때는 Dockerfile을 실행 전용으로 단순하게 유지할 수 있다.</p>
+<pre><code class="language-text">Jenkins가 빌드 담당
+Dockerfile은 실행 이미지 담당
+EC2는 컨테이너 실행 담당
+</code></pre>
+<p>이렇게 책임이 나뉘면 구조가 명확하다.</p>
+<p>단일 스테이지가 어울리는 경우는 다음과 같다.</p>
+<pre><code class="language-text">CI 서버에서 이미 JAR를 빌드하는 경우
+빌드 산출물을 별도로 관리하는 경우
+Docker 이미지는 실행 환경만 담고 싶은 경우
+이미지 빌드 속도를 빠르게 가져가고 싶은 경우
+EC2를 빌드 서버처럼 쓰고 싶지 않은 경우
+</code></pre>
+<h2>9. 단일 스테이지를 EC2에서 직접 빌드하면 안 좋은가?</h2>
+<p>안 좋은 건 아니다.</p>
+<p>다만 운영 관점에서는 추천 우선순위가 낮다.</p>
+<p>EC2에서 직접 빌드하면 EC2가 두 가지 역할을 동시에 하게 된다.</p>
+<pre><code class="language-text">빌드 서버 역할
+실행 서버 역할
+</code></pre>
+<p>처음에는 편하다.</p>
+<p>하지만 프로젝트가 커지면 문제가 생길 수 있다.</p>
+<p>빌드 도중 CPU와 메모리를 많이 쓴다.</p>
+<p>운영 중인 서비스와 빌드 작업이 같은 서버 자원을 공유한다.</p>
+<p>Java, Gradle, 권한, 캐시 상태에 따라 배포가 흔들릴 수 있다.</p>
+<p>누가 어떤 명령어를 쳤는지 추적하기 어렵다.</p>
+<p>그래서 실제 운영에서는 보통 이렇게 분리하는 게 좋다.</p>
+<pre><code class="language-text">빌드: Jenkins / GitHub Actions
+실행: EC2
+</code></pre>
+<h2>10. 정리</h2>
+<p>단일 스테이지 구조를 쓴다고 해서 항상 EC2 안에서 빌드 명령어를 쳐야 하는 것은 아니다.</p>
+<p>정확한 표현은 이거다.</p>
+<pre><code class="language-text">단일 스테이지 구조에서는 Docker 이미지 빌드 전에 app.jar가 미리 있어야 한다.
+</code></pre>
+<p>그 <code>app.jar</code>를 만드는 위치는 선택할 수 있다.</p>
+<pre><code class="language-text">1. EC2 내부에서 직접 빌드
+2. 로컬에서 빌드 후 EC2로 전송
+3. Jenkins/GitHub Actions에서 빌드
+</code></pre>
+<p>다만 운영에 가까운 구조로 갈수록 추천은 이쪽이다.</p>
+<pre><code class="language-text">Jenkins/GitHub Actions에서 빌드
+↓
+Docker 이미지 생성
+↓
+Registry에 push
+↓
+EC2에서 pull &amp; run
+</code></pre>
+<p>한 줄로 정리하면 다음과 같다.</p>
+<pre><code class="language-text">단일 스테이지는 “EC2에서 꼭 빌드해야 하는 구조”가 아니라,
+“Docker 밖에서 미리 빌드된 JAR를 이미지에 담는 구조”다.
+</code></pre>
+<p>그래서 EC2에서 직접 <code>./gradlew build</code>를 칠 수도 있지만, 더 좋은 방향은 CI/CD에서 JAR와 이미지를 만들고 EC2는 실행만 담당하게 만드는 것이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Docker]-이미지를-jdk로-할건지-jre로-할건지.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Docker] 이미지를 jdk로 할건지 jre로 할건지</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Docker]-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Spring Boot] Whitelabel 404: URL 매핑 불일치 때문에 /boards가 안 뜬 문제 | Greenapple0101</title>
+  <meta name="description" content="Spring Boot로 board_fe 를 만들고 Thymeleaf 템플릿까지 채웠는데, 브라우저에서 /boards 에 접속하자 Whitelabel Error Page가 떴다. 에러 화면은 이런 내용이었다. 처음에는 Thymeleaf 템플릿을 못 찾는 문제인가 싶었다. 하지만 원인은…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[Spring Boot] Whitelabel 404: URL 매핑 불일치 때문에 /boards가 안 뜬 문제</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-06T04:55:11.381Z">2026.05.06</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Spring-Boot-Whitelabel-404-URL-매핑-불일치-때문에-boards가-안-뜬-문제" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring Boot로 <code>board_fe</code>를 만들고 Thymeleaf 템플릿까지 채웠는데, 브라우저에서 <code>/boards</code>에 접속하자 Whitelabel Error Page가 떴다.</p>
+<p>에러 화면은 이런 내용이었다.</p>
+<p>```text id=&rdquo;yien6n&rdquo;
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>
+<p>There was an unexpected error (type=Not Found, status=404).</p>
+<pre><code>
+처음에는 Thymeleaf 템플릿을 못 찾는 문제인가 싶었다.
+하지만 원인은 템플릿 문제가 아니라 **URL 매핑 불일치 문제**였다.
+
+---
+
+## 1. 상황
+
+프로젝트 구조는 다음과 같이 나뉘어 있었다.
+
+```text id=&quot;a42vdp&quot;
+board_api
+→ REST API 서버
+→ JPA
+→ PostgreSQL
+→ JSON 응답
+
+board_fe
+→ Spring Boot 화면 서버
+→ Thymeleaf
+→ RestClient
+→ board_api 호출
+</code></pre>
+<p><code>board_api</code>는 이미 정상적으로 실행되고 있었다.</p>
+<p>```text id=&rdquo;jsyzxl&rdquo;
+http://localhost:8080/boards</p>
+<pre><code>
+여기서는 JSON 응답이 나와야 한다.
+
+`board_fe`는 다음 주소로 화면을 보여주는 역할이었다.
+
+```text id=&quot;a9i3iz&quot;
+http://localhost:8081/boards
+</code></pre>
+<p>그런데 <code>/boards</code>에 접속하자 404가 발생했다.</p>
+<hr>
+<h2>2. 404가 의미하는 것</h2>
+<p>Spring Boot에서 404는 보통 다음 의미다.</p>
+<p>```text id=&rdquo;0fp0i8&rdquo;
+서버는 떠 있다.
+하지만 해당 URL을 처리할 Controller 매핑이 없다.</p>
+<pre><code>
+즉 서버 자체가 죽은 것은 아니다.
+포트도 열려 있고 애플리케이션도 실행 중인데, 내가 요청한 주소를 받을 메서드가 없는 것이다.
+
+예를 들어 브라우저에서 다음 주소로 요청했다고 하자.
+
+```text id=&quot;eeqbb9&quot;
+GET /boards
+</code></pre>
+<p>그러면 Spring은 Controller 안에서 <code>/boards</code>를 처리할 메서드를 찾는다.</p>
+<p>```java id=&rdquo;drxz41&rdquo;
+@GetMapping(&ldquo;/boards&rdquo;)</p>
+<pre><code>
+또는:
+
+```java id=&quot;ehos06&quot;
+@RequestMapping(&quot;/boards&quot;)
+@GetMapping
+</code></pre>
+<p>그런데 이런 매핑이 없으면 404가 난다.</p>
+<hr>
+<h2>3. 실제 원인</h2>
+<p>문제는 컨트롤러와 템플릿의 URL 기준이 달랐다는 점이었다.</p>
+<p>템플릿에서는 <code>/boards</code> 기준으로 링크를 작성했다.</p>
+<p>```html id=&rdquo;mxn1du&rdquo;
+<a href="/boards/write">글쓰기</a></p>
+<pre><code>
+상세 페이지도 `/boards/{id}` 기준이었다.
+
+```html id=&quot;89ceoo&quot;
+&lt;a th:href=&quot;@{/boards/{id}(id=${board.id})}&quot;&gt;상세보기&lt;/a&gt;
+</code></pre>
+<p>그런데 컨트롤러는 <code>/boards-page</code> 기준으로 등록되어 있었다.</p>
+<p>```java id=&rdquo;5y2dlu&rdquo;
+@GetMapping(&ldquo;/boards-page&rdquo;)
+public String boardsPage(Model model) {
+    return &ldquo;boards/list&rdquo;;
+}</p>
+<pre><code>
+즉 실제 상태는 이랬다.
+
+```text id=&quot;sc68xc&quot;
+템플릿 URL
+→ /boards
+→ /boards/write
+→ /boards/{id}
+
+컨트롤러 매핑
+→ /boards-page
+</code></pre>
+<p>브라우저는 <code>/boards</code>로 요청했는데,
+서버에는 <code>/boards-page</code>만 등록되어 있으니 당연히 404가 발생한 것이다.</p>
+<p>핵심 원인은 이거다.</p>
+<p>```text id=&rdquo;706x5u&rdquo;
+HTML에서 사용하는 URL과 Controller에서 받는 URL이 서로 달랐다.</p>
+<pre><code>
+---
+
+## 4. 잘못된 구조
+
+기존 컨트롤러가 이런 식이었다고 보자.
+
+```java id=&quot;67sbkj&quot;
+@Controller
+public class BoardPageController {
+
+    @GetMapping(&quot;/boards-page&quot;)
+    public String boardsPage(Model model) {
+        return &quot;boards/list&quot;;
+    }
+
+    @GetMapping(&quot;/boards-page/{id}&quot;)
+    public String boardDetail(@PathVariable Long id, Model model) {
+        return &quot;boards/detail&quot;;
+    }
+}
+</code></pre>
+<p>이 경우 실제로 가능한 주소는 다음과 같다.</p>
+<p>```text id=&rdquo;c2kqgo&rdquo;
+/boards-page
+/boards-page/1</p>
+<pre><code>
+하지만 템플릿은 이렇게 되어 있었다.
+
+```text id=&quot;h728wv&quot;
+/boards
+/boards/1
+/boards/write
+</code></pre>
+<p>그러면 아무리 <code>list.html</code>을 잘 만들어도 <code>/boards</code>로는 접근할 수 없다.</p>
+<hr>
+<h2>5. 해결 방향</h2>
+<p>해결 방법은 간단하다.</p>
+<p>컨트롤러의 기준 URL을 템플릿과 맞추면 된다.</p>
+<p>나는 템플릿을 <code>/boards</code> 기준으로 만들었기 때문에,
+컨트롤러도 <code>/boards</code> 기준으로 수정했다.</p>
+<p>```java id=&rdquo;tv53ld&rdquo;
+@Controller
+@RequestMapping(&ldquo;/boards&rdquo;)
+public class BoardPageController {
+}</p>
+<pre><code>
+이렇게 하면 이 컨트롤러 안의 모든 메서드는 `/boards` 아래에 묶인다.
+
+```java id=&quot;nhnspv&quot;
+@GetMapping
+public String list() {
+    return &quot;boards/list&quot;;
+}
+</code></pre>
+<p>이 메서드는 다음 URL을 처리한다.</p>
+<p>```text id=&rdquo;y376xa&rdquo;
+GET /boards</p>
+<pre><code>
+```java id=&quot;nvzjss&quot;
+@GetMapping(&quot;/write&quot;)
+public String writeForm() {
+    return &quot;boards/write&quot;;
+}
+</code></pre>
+<p>이 메서드는 다음 URL을 처리한다.</p>
+<p>```text id=&rdquo;iyw3sl&rdquo;
+GET /boards/write</p>
+<pre><code>
+---
+
+## 6. 수정한 BoardPageController
+
+최종적으로 `board_fe`의 `BoardPageController`는 다음처럼 정리했다.
+
+```java id=&quot;2lahma&quot;
+package com.board.fe.controller;
+
+import com.board.fe.client.BoardApiClient;
+import com.board.fe.dto.BoardCreateRequest;
+import com.board.fe.dto.BoardResponse;
+import com.board.fe.dto.BoardUpdateRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+@RequestMapping(&quot;/boards&quot;)
+public class BoardPageController {
+
+    private final BoardApiClient boardApiClient;
+
+    public BoardPageController(BoardPageController boardApiClient) {
+        this.boardApiClient = boardApiClient;
+    }
+
+    @GetMapping
+    public String list(Model model) {
+        List&lt;BoardResponse&gt; boards = boardApiClient.getBoards();
+        model.addAttribute(&quot;boards&quot;, boards);
+        return &quot;boards/list&quot;;
+    }
+
+    @GetMapping(&quot;/write&quot;)
+    public String writeForm() {
+        return &quot;boards/write&quot;;
+    }
+
+    @PostMapping
+    public String create(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String author
+    ) {
+        BoardCreateRequest request = new BoardCreateRequest(title, content, author);
+        boardApiClient.createBoard(request);
+        return &quot;redirect:/boards&quot;;
+    }
+
+    @GetMapping(&quot;/{id:\\d+}&quot;)
+    public String detail(@PathVariable Long id, Model model) {
+        BoardResponse board = boardApiClient.getBoard(id);
+        model.addAttribute(&quot;board&quot;, board);
+        return &quot;boards/detail&quot;;
+    }
+
+    @GetMapping(&quot;/{id:\\d+}/edit&quot;)
+    public String editForm(@PathVariable Long id, Model model) {
+        BoardResponse board = boardApiClient.getBoard(id);
+        model.addAttribute(&quot;board&quot;, board);
+        return &quot;boards/edit&quot;;
+    }
+
+    @PostMapping(&quot;/{id:\\d+}/edit&quot;)
+    public String update(
+            @PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String author
+    ) {
+        BoardUpdateRequest request = new BoardUpdateRequest(title, content, author);
+        boardApiClient.updateBoard(id, request);
+        return &quot;redirect:/boards/&quot; + id;
+    }
+
+    @PostMapping(&quot;/{id:\\d+}/delete&quot;)
+    public String delete(@PathVariable Long id) {
+        boardApiClient.deleteBoard(id);
+        return &quot;redirect:/boards&quot;;
+    }
+}
+</code></pre>
+<p>다만 위 코드에서 생성자는 실제 코드에서는 이렇게 되어야 한다.</p>
+<p>```java id=&rdquo;wpl5r3&rdquo;
+public BoardPageController(BoardApiClient boardApiClient) {
+    this.boardApiClient = boardApiClient;
+}</p>
+<pre><code>
+즉 `BoardPageController`가 아니라 `BoardApiClient`를 주입받아야 한다.
+
+---
+
+## 7. 왜 `{id:\\d+}`를 썼나?
+
+처음에는 상세 페이지를 이렇게 작성할 수도 있다.
+
+```java id=&quot;7zxwrq&quot;
+@GetMapping(&quot;/{id}&quot;)
+public String detail(@PathVariable Long id, Model model) {
+    return &quot;boards/detail&quot;;
+}
+</code></pre>
+<p>이렇게 해도 보통은 동작한다.</p>
+<p>하지만 <code>/boards/write</code> 같은 경로가 있을 때,
+Spring이 <code>write</code>를 <code>{id}</code>로 해석하려고 시도할 수 있다.</p>
+<p>즉 이런 문제가 생길 수 있다.</p>
+<p>```text id=&rdquo;fdxjxh&rdquo;
+/boards/write
+→ writeForm()으로 가야 함</p>
+<p>그런데
+/boards/{id}
+→ id = &ldquo;write&rdquo;로 해석될 가능성 있음</p>
+<pre><code>
+물론 메서드 순서나 매핑 우선순위에 따라 괜찮을 수도 있지만,
+처음부터 숫자 id만 받도록 제한하는 것이 더 안전하다.
+
+그래서 다음처럼 작성했다.
+
+```java id=&quot;2shlx6&quot;
+@GetMapping(&quot;/{id:\\d+}&quot;)
+</code></pre>
+<p>의미는 다음과 같다.</p>
+<p>```text id=&rdquo;v9p7pq&rdquo;
+{id:\d+}
+→ id 자리에 숫자만 허용
+→ /boards/1 가능
+→ /boards/10 가능
+→ /boards/write 불가능</p>
+<pre><code>
+그래서 URL 충돌을 줄일 수 있다.
+
+---
+
+## 8. 템플릿 위치도 확인해야 한다
+
+URL 매핑을 고친 뒤에도 템플릿 위치가 틀리면 또 다른 에러가 난다.
+
+컨트롤러에서 다음처럼 반환한다면:
+
+```java id=&quot;cdvjxu&quot;
+return &quot;boards/list&quot;;
+</code></pre>
+<p>Spring Boot + Thymeleaf는 기본적으로 다음 위치에서 파일을 찾는다.</p>
+<p>```text id=&rdquo;olcpzu&rdquo;
+src/main/resources/templates/boards/list.html</p>
+<pre><code>
+따라서 템플릿은 반드시 다음 위치에 있어야 한다.
+
+```text id=&quot;v4yfz2&quot;
+board_fe/src/main/resources/templates/boards/list.html
+board_fe/src/main/resources/templates/boards/detail.html
+board_fe/src/main/resources/templates/boards/write.html
+board_fe/src/main/resources/templates/boards/edit.html
+</code></pre>
+<p>반환값과 파일 위치의 관계는 다음과 같다.</p>
+<p>```text id=&rdquo;lsn2u7&rdquo;
+return &ldquo;boards/list&rdquo;
+→ templates/boards/list.html</p>
+<p>return &ldquo;boards/detail&rdquo;
+→ templates/boards/detail.html</p>
+<p>return &ldquo;boards/write&rdquo;
+→ templates/boards/write.html</p>
+<p>return &ldquo;boards/edit&rdquo;
+→ templates/boards/edit.html</p>
+<pre><code>
+---
+
+## 9. 템플릿 URL도 컨트롤러와 맞춰야 한다
+
+컨트롤러만 `/boards`로 바꿔도, 템플릿 링크가 여전히 `/boards-page`를 보고 있으면 또 꼬인다.
+
+그래서 템플릿에서도 모든 링크를 `/boards` 기준으로 맞췄다.
+
+목록에서 글쓰기 링크:
+
+```html id=&quot;bk7esd&quot;
+&lt;a href=&quot;/boards/write&quot;&gt;글쓰기&lt;/a&gt;
+</code></pre>
+<p>상세보기 링크:</p>
+<p>```html id=&rdquo;jbi71p&rdquo;
+<a th:href="@{/boards/{id}(id=${board.id})}">상세보기</a></p>
+<pre><code>
+상세 페이지에서 수정 링크:
+
+```html id=&quot;oxk7lj&quot;
+&lt;a th:href=&quot;@{/boards/{id}/edit(id=${board.id})}&quot;&gt;수정&lt;/a&gt;
+</code></pre>
+<p>삭제 요청:</p>
+<p>```html id=&rdquo;lrmu14&rdquo;</p>
+<form th:action="@{/boards/{id}/delete(id=${board.id})}" method="post">
+    <button type="submit">삭제</button>
+</form>
+
+<pre><code>
+즉 컨트롤러와 템플릿이 같은 URL 체계를 사용해야 한다.
+
+```text id=&quot;pmrty5&quot;
+Controller
+→ /boards 기준
+
+Template
+→ /boards 기준
+</code></pre>
+<hr>
+<h2>10. 이번 문제를 구분하는 방법</h2>
+<p>이번 에러는 다음처럼 구분할 수 있다.</p>
+<h3>404 Not Found</h3>
+<p>```text id=&rdquo;lwylav&rdquo;
+해당 URL을 처리할 Controller 매핑이 없음</p>
+<pre><code>
+확인할 것:
+
+```text id=&quot;13wpe1&quot;
+내가 접속한 주소
+@Controller 또는 @RestController의 @RequestMapping
+@GetMapping, @PostMapping 경로
+템플릿 내부 링크
+</code></pre>
+<h3>TemplateInputException</h3>
+<p>```text id=&rdquo;8eo3qh&rdquo;
+Controller는 찾았지만 반환한 HTML 파일을 못 찾음</p>
+<pre><code>
+확인할 것:
+
+```text id=&quot;7jg9xk&quot;
+return &quot;boards/list&quot;;
+templates/boards/list.html 파일 존재 여부
+파일명 오타
+templates 폴더 위치
+</code></pre>
+<p>즉 이번 문제는 템플릿 파일이 비어서 생긴 문제가 아니라,
+컨트롤러 매핑 자체가 <code>/boards</code>에 없어서 생긴 문제였다.</p>
+<hr>
+<h2>11. 실행 확인</h2>
+<p>먼저 <code>board_api</code>를 실행한다.</p>
+<p>```powershell id=&rdquo;nx2m14&rdquo;
+cd C:\Users\oscbs\OneDrive\Desktop\board\board_api
+mvn spring-boot:run</p>
+<pre><code>
+`board_api`는 8080에서 실행된다.
+
+```text id=&quot;c5vw0g&quot;
+http://localhost:8080/boards
+</code></pre>
+<p>그다음 <code>board_fe</code>를 실행한다.</p>
+<p>```powershell id=&rdquo;u1if9g&rdquo;
+cd C:\Users\oscbs\OneDrive\Desktop\board\board_fe
+mvn spring-boot:run</p>
+<pre><code>
+`board_fe`는 8081에서 실행된다.
+
+```text id=&quot;03rd78&quot;
+http://localhost:8081/boards
+</code></pre>
+<p>이 주소에서 게시글 목록 화면이 나오면 성공이다.</p>
+<hr>
+<h2>12. 정리</h2>
+<p>이번 문제의 핵심은 URL 매핑 불일치였다.</p>
+<p>```text id=&rdquo;ih7hep&rdquo;
+템플릿은 /boards로 이동하려고 함
+컨트롤러는 /boards-page만 받고 있었음
+결과적으로 /boards 요청을 처리할 매핑이 없어 404 발생</p>
+<pre><code>
+해결은 다음과 같이 했다.
+
+```text id=&quot;sy4nj7&quot;
+1. BoardPageController의 기준 경로를 /boards로 수정
+2. list, detail, write, edit 경로를 /boards 기준으로 정리
+3. {id} 경로는 숫자만 받도록 /{id:\d+} 사용
+4. Thymeleaf 템플릿을 src/main/resources/templates/boards 아래에 배치
+5. 템플릿 내부 링크도 /boards 기준으로 통일
+</code></pre>
+<p>이번 트러블슈팅을 통해 다시 확인한 점은 이거다.</p>
+<p>```text id=&rdquo;bs1d7i&rdquo;
+Spring MVC에서는 Controller의 매핑과 템플릿의 URL이 반드시 같은 약속을 바라봐야 한다.</p>
+<pre><code>
+한 줄로 정리하면 다음과 같다.
+
+```text id=&quot;2iiswx&quot;
+Whitelabel 404는 서버가 죽은 것이 아니라, 내가 요청한 URL을 받을 Controller 매핑이 없다는 신호였다.
+</code></pre>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-board_api-정리부터-board_fe-Thymeleaf-화면-서버-구성까지.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Spring] board_api 정리부터 board_fe Thymeleaf 화면 서버 구성까지</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-FE에서-쓴-게시글이-진짜-PostgreSQL-DB에-저장됐는지-확인하는-법.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Spring Boot + Docker] FE에서 쓴 게시글이 진짜 PostgreSQL DB에 저장됐는지 확인하는 법</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

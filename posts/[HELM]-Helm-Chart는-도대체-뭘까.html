@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HELM] Helm Chart는 도대체 뭘까? | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스를 쓰다 보면 이런 명령어를 자주 보게 된다. 처음 보면 헷갈린다. “나는 Ingress Controller를 설치하려고 했는데, 왜 Helm이라는 걸 쓰지?” “Helm Chart는 또 뭐고, values.yaml은 뭐지?” 정리하면 Helm은 쿠버네티스 리소스를 쉽게 설치…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[HELM] Helm Chart는 도대체 뭘까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-17T11:59:02.918Z">2026.05.17</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/HELM-Helm-Chart는-도대체-뭘까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스를 쓰다 보면 이런 명령어를 자주 보게 된다.</p>
+<pre><code class="language-bash">helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+</code></pre>
+<p>처음 보면 헷갈린다.</p>
+<p>“나는 Ingress Controller를 설치하려고 했는데, 왜 Helm이라는 걸 쓰지?”</p>
+<p>“Helm Chart는 또 뭐고, values.yaml은 뭐지?”</p>
+<p>정리하면 Helm은 쿠버네티스 리소스를 쉽게 설치하고 관리하게 해주는 도구이고, Helm Chart는 그 설치 설명서 묶음이다.</p>
+<hr>
+<h1>Helm이란?</h1>
+<p>Helm은 쿠버네티스용 패키지 매니저다.</p>
+<p>Ubuntu에서 패키지를 설치할 때 <code>apt</code>를 쓰는 것처럼:</p>
+<pre><code class="language-bash">apt install nginx
+</code></pre>
+<p>쿠버네티스에서는 여러 리소스를 한 번에 설치할 때 Helm을 많이 쓴다.</p>
+<pre><code class="language-bash">helm install nginx ingress-nginx/ingress-nginx
+</code></pre>
+<p>즉 Helm은 이런 역할을 한다.</p>
+<pre><code class="language-text">쿠버네티스 리소스 여러 개를
+하나의 패키지처럼
+설치, 수정, 삭제, 업그레이드하게 해주는 도구
+</code></pre>
+<hr>
+<h1>Helm Chart란?</h1>
+<p>Helm Chart는 쿠버네티스 애플리케이션을 설치하기 위한 파일 묶음이다.</p>
+<p>예를 들어 NGINX Ingress Controller를 설치한다고 해보자.</p>
+<p>실제로 필요한 리소스는 하나가 아니다.</p>
+<pre><code class="language-text">Deployment
+Service
+ServiceAccount
+Role
+RoleBinding
+ClusterRole
+ClusterRoleBinding
+ConfigMap
+IngressClass
+Webhook 관련 리소스
+</code></pre>
+<p>이걸 사람이 직접 YAML로 하나씩 만들면 너무 복잡하다.</p>
+<p>그래서 Helm Chart가 이 YAML들을 템플릿 형태로 묶어둔다.</p>
+<pre><code class="language-text">Helm Chart
+= Kubernetes 리소스 YAML들을 패키지로 묶어둔 것
+= 설치 설명서 + 템플릿 + 기본 설정값
+</code></pre>
+<p>쉽게 말하면:</p>
+<pre><code class="language-text">Helm
+= 설치 도구
+
+Helm Chart
+= 설치 패키지
+
+values.yaml
+= 설치 옵션값
+</code></pre>
+<hr>
+<h1>Helm Chart가 없으면?</h1>
+<p>Helm Chart가 없으면 Ingress Controller 하나 설치하려고 해도 여러 YAML을 직접 작성해야 한다.</p>
+<pre><code class="language-text">deployment.yaml
+service.yaml
+rbac.yaml
+configmap.yaml
+ingressclass.yaml
+webhook.yaml
+</code></pre>
+<p>그리고 각각을 직접 적용해야 한다.</p>
+<pre><code class="language-bash">kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f rbac.yaml
+kubectl apply -f configmap.yaml
+</code></pre>
+<p>문제는 리소스가 많아질수록 관리가 어려워진다는 것이다.</p>
+<pre><code class="language-text">파일이 너무 많아짐
+버전 관리가 어려움
+설정 변경이 번거로움
+삭제할 때 리소스를 놓칠 수 있음
+업그레이드가 복잡함
+</code></pre>
+<hr>
+<h1>Helm Chart를 쓰면?</h1>
+<p>Helm Chart를 쓰면 명령어 하나로 관련 리소스들을 한 번에 설치할 수 있다.</p>
+<pre><code class="language-bash">helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+</code></pre>
+<p>이 명령어는 단순히 Pod 하나를 띄우는 게 아니다.</p>
+<p>Ingress Controller를 운영하는 데 필요한 여러 Kubernetes 리소스를 한 번에 만든다.</p>
+<pre><code class="language-text">Helm Chart
+  ↓
+Deployment 생성
+Service 생성
+RBAC 생성
+ConfigMap 생성
+IngressClass 생성
+기타 필요한 리소스 생성
+</code></pre>
+<p>즉 Helm Chart는 복잡한 쿠버네티스 리소스 묶음을 편하게 배포하기 위한 패키지다.</p>
+<hr>
+<h1>Helm Chart의 기본 구조</h1>
+<p>일반적인 Helm Chart는 이런 구조를 가진다.</p>
+<pre><code class="language-text">my-chart/
+  Chart.yaml
+  values.yaml
+  templates/
+    deployment.yaml
+    service.yaml
+    ingress.yaml
+</code></pre>
+<p>하나씩 보면 이렇다.</p>
+<hr>
+<h2>Chart.yaml</h2>
+<p>Chart 자체의 정보를 담는 파일이다.</p>
+<pre><code class="language-yaml">apiVersion: v2
+name: my-app
+version: 0.1.0
+appVersion: &quot;1.0.0&quot;
+</code></pre>
+<p>여기에는 Chart 이름, Chart 버전, 애플리케이션 버전 등이 들어간다.</p>
+<pre><code class="language-text">Chart.yaml
+= 이 패키지가 무엇인지 설명하는 메타 정보
+</code></pre>
+<hr>
+<h2>values.yaml</h2>
+<p>Chart에서 사용할 기본 설정값을 담는 파일이다.</p>
+<p>예를 들어 이런 값들이 들어갈 수 있다.</p>
+<pre><code class="language-yaml">replicaCount: 2
+
+image:
+  repository: nginx
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+</code></pre>
+<p>이 값들은 templates 안의 YAML에서 사용된다.</p>
+<pre><code class="language-text">values.yaml
+= 사용자가 바꿀 수 있는 설정값 모음
+</code></pre>
+<hr>
+<h2>templates/</h2>
+<p>실제 Kubernetes YAML 템플릿이 들어가는 폴더다.</p>
+<p>예를 들어 Deployment 템플릿은 이렇게 생길 수 있다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    spec:
+      containers:
+      - name: app
+        image: &quot;{{ .Values.image.repository }}:{{ .Values.image.tag }}&quot;
+</code></pre>
+<p>여기서 중요한 부분은 이거다.</p>
+<pre><code class="language-text">{{ .Values.replicaCount }}
+{{ .Values.image.repository }}
+{{ .Values.image.tag }}
+</code></pre>
+<p>이 값들은 <code>values.yaml</code>에서 가져온다.</p>
+<p>즉 Helm은 템플릿에 values 값을 끼워 넣어서 최종 Kubernetes YAML을 만든다.</p>
+<hr>
+<h1>Helm Chart가 동작하는 방식</h1>
+<p>Helm Chart의 동작 흐름은 이렇게 보면 된다.</p>
+<pre><code class="language-text">1. 사용자가 helm install 명령어 실행
+2. Helm이 Chart를 읽음
+3. values.yaml 값을 읽음
+4. templates/ 안의 YAML에 값을 끼워 넣음
+5. 최종 Kubernetes YAML을 생성
+6. Kubernetes API Server에 리소스 생성 요청
+7. Deployment, Service, ConfigMap 등이 클러스터에 생성됨
+</code></pre>
+<p>즉 Helm은 최종적으로 Kubernetes에 YAML을 적용하는 도구다.</p>
+<p>다만 사람이 YAML을 직접 하나씩 관리하지 않아도 되게 해주는 것이다.</p>
+<pre><code class="language-text">Helm Chart
+  ↓
+템플릿 렌더링
+  ↓
+Kubernetes YAML 생성
+  ↓
+클러스터에 적용
+</code></pre>
+<hr>
+<h1>values.yaml은 왜 중요할까?</h1>
+<p>Helm Chart를 쓰다 보면 <code>values.yaml</code>이 정말 자주 나온다.</p>
+<p>이 파일은 Helm Chart의 설정값이다.</p>
+<p>예를 들어 같은 Chart를 사용하더라도 환경마다 설정이 달라질 수 있다.</p>
+<pre><code class="language-text">개발 환경
+replicaCount: 1
+
+운영 환경
+replicaCount: 3
+</code></pre>
+<p>이미지 태그도 다르게 줄 수 있다.</p>
+<pre><code class="language-yaml">image:
+  repository: my-app
+  tag: v1.0.0
+</code></pre>
+<p>서비스 타입도 바꿀 수 있다.</p>
+<pre><code class="language-yaml">service:
+  type: LoadBalancer
+</code></pre>
+<p>즉 <code>values.yaml</code>은 Chart를 수정하지 않고도 배포 설정을 바꿀 수 있게 해준다.</p>
+<pre><code class="language-text">Chart 자체는 그대로 둔다
+values만 바꾼다
+환경별로 다른 설정을 주입한다
+</code></pre>
+<p>이게 Helm의 핵심 장점이다.</p>
+<hr>
+<h1>Helm Chart와 values.yaml 관계</h1>
+<p>비유하면 이렇다.</p>
+<pre><code class="language-text">Helm Chart
+= 붕어빵 틀
+
+values.yaml
+= 팥, 슈크림, 고구마 같은 옵션
+
+최종 Kubernetes YAML
+= 실제로 만들어진 붕어빵
+</code></pre>
+<p>Chart는 구조를 정한다.</p>
+<p>values.yaml은 구체적인 값을 정한다.</p>
+<p>예를 들어 Chart에는 이런 틀이 있다.</p>
+<pre><code class="language-yaml">replicas: {{ .Values.replicaCount }}
+</code></pre>
+<p>values.yaml에는 이런 값이 있다.</p>
+<pre><code class="language-yaml">replicaCount: 3
+</code></pre>
+<p>그러면 Helm이 최종적으로 이런 YAML을 만든다.</p>
+<pre><code class="language-yaml">replicas: 3
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">templates/deployment.yaml
++ values.yaml
+= 최종 deployment.yaml
+</code></pre>
+<hr>
+<h1>Helm install은 뭘 하는 걸까?</h1>
+<p>예를 들어 이런 명령어를 보자.</p>
+<pre><code class="language-bash">helm install my-nginx bitnami/nginx
+</code></pre>
+<p>이 명령어의 의미는 이렇다.</p>
+<pre><code class="language-text">bitnami/nginx Chart를 사용해서
+my-nginx라는 이름의 Release를 설치한다
+</code></pre>
+<p>여기서 <code>my-nginx</code>는 Release 이름이다.</p>
+<hr>
+<h1>Release란?</h1>
+<p>Helm에서 Release는 Chart를 실제 클러스터에 설치한 결과물이다.</p>
+<p>같은 Chart를 여러 번 설치할 수도 있다.</p>
+<pre><code class="language-bash">helm install app-dev ./my-chart
+helm install app-prod ./my-chart
+</code></pre>
+<p>둘 다 같은 Chart를 쓰지만 Release는 다르다.</p>
+<pre><code class="language-text">app-dev
+= 개발용 Release
+
+app-prod
+= 운영용 Release
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">Chart
+= 설치 패키지
+
+Release
+= 그 Chart를 실제 클러스터에 설치한 인스턴스
+</code></pre>
+<hr>
+<h1>Helm upgrade는 뭘까?</h1>
+<p>애플리케이션 버전을 바꾸거나 설정을 바꾸고 싶을 때는 <code>helm upgrade</code>를 쓴다.</p>
+<pre><code class="language-bash">helm upgrade my-app ./my-chart
+</code></pre>
+<p>예를 들어 이미지 태그를 바꿔서 배포할 수 있다.</p>
+<pre><code class="language-bash">helm upgrade my-app ./my-chart \
+  --set image.tag=v2
+</code></pre>
+<p>이렇게 하면 Helm이 기존 Release를 기준으로 변경 사항을 반영한다.</p>
+<pre><code class="language-text">기존 배포 상태 확인
+변경된 values 반영
+필요한 Kubernetes 리소스 업데이트
+</code></pre>
+<hr>
+<h1>Helm uninstall은 뭘까?</h1>
+<p>설치한 Release를 삭제할 때는 <code>helm uninstall</code>을 쓴다.</p>
+<pre><code class="language-bash">helm uninstall my-app
+</code></pre>
+<p>그러면 Helm이 해당 Release로 생성했던 리소스들을 삭제한다.</p>
+<pre><code class="language-text">Deployment 삭제
+Service 삭제
+ConfigMap 삭제
+관련 리소스 삭제
+</code></pre>
+<p>직접 YAML을 하나씩 지우는 것보다 훨씬 편하다.</p>
+<hr>
+<h1>Helm repo는 뭐지?</h1>
+<p>Helm Chart는 저장소에 모아서 관리할 수 있다.</p>
+<p>이 저장소를 Helm Repository라고 한다.</p>
+<p>예를 들어 Ingress NGINX Chart 저장소를 추가할 때 이런 명령어를 쓴다.</p>
+<pre><code class="language-bash">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+</code></pre>
+<p>이 명령어의 의미는 이렇다.</p>
+<pre><code class="language-text">ingress-nginx라는 이름으로
+공식 Helm Chart 저장소를 등록한다
+</code></pre>
+<p>그 다음 Chart를 설치할 수 있다.</p>
+<pre><code class="language-bash">helm install ingress-nginx ingress-nginx/ingress-nginx
+</code></pre>
+<p>여기서 앞의 <code>ingress-nginx</code>와 뒤의 <code>ingress-nginx</code>가 헷갈릴 수 있다.</p>
+<pre><code class="language-text">helm install [Release 이름] [Repository 이름/Chart 이름]
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-bash">helm install ingress-nginx ingress-nginx/ingress-nginx
+</code></pre>
+<p>은 이렇게 해석한다.</p>
+<pre><code class="language-text">Release 이름: ingress-nginx
+Repository 이름: ingress-nginx
+Chart 이름: ingress-nginx
+</code></pre>
+<hr>
+<h1>Ingress Controller 설치 예시로 이해하기</h1>
+<p>이 명령어를 다시 보자.</p>
+<pre><code class="language-bash">helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+</code></pre>
+<p>이건 Ingress 리소스를 만드는 명령어가 아니다.</p>
+<p>이 명령어는 <strong>NGINX Ingress Controller를 설치하는 명령어</strong>다.</p>
+<p>즉 Helm Chart 안에 들어 있는 여러 리소스가 생성된다.</p>
+<pre><code class="language-text">NGINX Ingress Controller Deployment
+Controller Service
+RBAC 리소스
+Admission Webhook 리소스
+IngressClass
+ConfigMap
+</code></pre>
+<p>이렇게 설치된 Ingress Controller가 나중에 내가 만든 Ingress 리소스를 읽고 동작한다.</p>
+<pre><code class="language-text">Helm으로 설치한 것
+= Ingress Controller
+
+내가 YAML로 작성하는 것
+= Ingress
+</code></pre>
+<hr>
+<h1>Helm Chart를 쓰는 이유</h1>
+<h2>1. 복잡한 YAML을 한 번에 설치할 수 있음</h2>
+<p>쿠버네티스 애플리케이션은 보통 리소스 하나로 끝나지 않는다.</p>
+<pre><code class="language-text">Deployment
+Service
+Ingress
+ConfigMap
+Secret
+ServiceAccount
+Role
+RoleBinding
+</code></pre>
+<p>Helm Chart를 쓰면 이걸 한 번에 설치할 수 있다.</p>
+<hr>
+<h2>2. 환경별 설정 관리가 쉬움</h2>
+<p>개발, 스테이징, 운영 환경은 설정이 다르다.</p>
+<pre><code class="language-text">dev
+replicaCount: 1
+
+prod
+replicaCount: 3
+</code></pre>
+<p>Helm은 values 파일을 따로 둘 수 있다.</p>
+<pre><code class="language-bash">helm install my-app ./my-chart -f values-dev.yaml
+helm install my-app ./my-chart -f values-prod.yaml
+</code></pre>
+<p>같은 Chart를 쓰되 설정만 바꿔서 배포할 수 있다.</p>
+<hr>
+<h2>3. 업그레이드와 롤백이 쉬움</h2>
+<p>Helm은 Release 이력을 관리한다.</p>
+<pre><code class="language-bash">helm history my-app
+</code></pre>
+<p>문제가 생기면 이전 버전으로 되돌릴 수도 있다.</p>
+<pre><code class="language-bash">helm rollback my-app 1
+</code></pre>
+<p>운영에서는 이 기능이 중요하다.</p>
+<p>배포 후 문제가 생겼을 때 빠르게 이전 상태로 복구할 수 있기 때문이다.</p>
+<hr>
+<h2>4. 설치한 리소스를 추적하기 쉬움</h2>
+<p>직접 <code>kubectl apply</code>로 여러 YAML을 적용하면 나중에 어떤 리소스를 만들었는지 헷갈릴 수 있다.</p>
+<p>Helm은 Release 단위로 관리한다.</p>
+<pre><code class="language-bash">helm list
+</code></pre>
+<p>이 명령어로 설치된 Release를 확인할 수 있다.</p>
+<pre><code class="language-text">my-app
+ingress-nginx
+prometheus
+grafana
+</code></pre>
+<hr>
+<h1>자주 쓰는 Helm 명령어</h1>
+<h2>저장소 추가</h2>
+<pre><code class="language-bash">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</code></pre>
+<h2>저장소 업데이트</h2>
+<pre><code class="language-bash">helm repo update
+</code></pre>
+<h2>Chart 설치</h2>
+<pre><code class="language-bash">helm install my-app ./my-chart
+</code></pre>
+<h2>설치 목록 확인</h2>
+<pre><code class="language-bash">helm list
+</code></pre>
+<h2>설정값 확인</h2>
+<pre><code class="language-bash">helm get values my-app
+</code></pre>
+<h2>전체 렌더링 결과 확인</h2>
+<pre><code class="language-bash">helm template my-app ./my-chart
+</code></pre>
+<p>이 명령어는 실제 클러스터에 적용하지 않고, Helm이 어떤 Kubernetes YAML을 만들지 미리 보여준다.</p>
+<h2>업그레이드</h2>
+<pre><code class="language-bash">helm upgrade my-app ./my-chart
+</code></pre>
+<h2>삭제</h2>
+<pre><code class="language-bash">helm uninstall my-app
+</code></pre>
+<hr>
+<h1>면접에서 Helm Chart를 설명한다면</h1>
+<p>면접에서 “Helm Chart가 뭔가요?”라고 물어보면 이렇게 말할 수 있다.</p>
+<pre><code class="language-text">Helm Chart는 Kubernetes 애플리케이션을 배포하기 위한 리소스 템플릿 묶음입니다.
+
+Deployment, Service, ConfigMap, Ingress 같은 여러 Kubernetes YAML을 하나의 패키지로 관리할 수 있게 해줍니다.
+
+Helm은 Chart의 templates와 values.yaml을 조합해서 최종 Kubernetes manifest를 만들고, 이를 클러스터에 적용합니다.
+
+이를 통해 복잡한 애플리케이션 설치, 환경별 설정 관리, 업그레이드, 롤백을 더 쉽게 할 수 있습니다.
+</code></pre>
+<p>조금 더 실무식으로 말하면:</p>
+<pre><code class="language-text">예를 들어 NGINX Ingress Controller를 설치할 때 Helm Chart를 사용했습니다.
+
+직접 Deployment, Service, RBAC, IngressClass 등을 하나씩 작성하지 않고, 공식 Chart를 사용해서 필요한 리소스를 한 번에 설치했습니다.
+
+또한 values.yaml을 통해 서비스 타입이나 replica 수 같은 설정을 바꿀 수 있어서 환경별 배포 관리가 편리했습니다.
+</code></pre>
+<hr>
+<h1>핵심 정리</h1>
+<pre><code class="language-text">Helm
+= Kubernetes 패키지 매니저
+
+Helm Chart
+= Kubernetes 리소스를 설치하기 위한 패키지
+
+values.yaml
+= Chart에 주입할 설정값
+
+templates/
+= Kubernetes YAML 템플릿
+
+Release
+= Chart를 실제 클러스터에 설치한 결과물
+</code></pre>
+<p>한 줄로 정리하면:</p>
+<pre><code class="language-text">Helm Chart는 Kubernetes 리소스들을 하나의 패키지처럼 설치하고 관리하기 위한 템플릿 묶음이다.
+</code></pre>
+<p>즉 Helm Chart는 단순히 YAML 파일 모음이 아니다.</p>
+<p>쿠버네티스 애플리케이션을 반복 가능하게 설치하고, 설정을 분리하고, 업그레이드와 롤백까지 관리하기 위한 배포 패키지다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-Ingress와-Ingress-Controller는-뭐가-다를까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] Ingress와 Ingress Controller는 뭐가 다를까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[HELM]-Helm-Chart는-이미지를-직접-가져오는-걸까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[HELM] Helm Chart는 이미지를 직접 가져오는 걸까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

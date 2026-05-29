@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Spring/JPA] getter, setter, new… 어디서 써야 하고 어떻게 나눌까? | Greenapple0101</title>
+  <meta name="description" content="Spring + JPA를 처음 적용하면 이런 고민이 생긴다. setter는 쓰면 안 된다는데 어디서 쓰는 거지? new는 왜 쓰라는 거지? 서비스랑 도메인은 뭐가 다른 거지? 이걸 한 번에 정리해보면 “역할 분리” 로 이해하면 깔끔해진다. --- 1. 전체 그림 먼저 그리고 핵심 원칙…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[Spring/JPA] getter, setter, new… 어디서 써야 하고 어떻게 나눌까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-06T00:39:52.256Z">2026.05.06</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SpringJPA-getter-setter-new-어디서-써야-하고-어떻게-나눌까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring + JPA를 처음 적용하면 이런 고민이 생긴다.</p>
+<blockquote>
+<p>setter는 쓰면 안 된다는데 어디서 쓰는 거지?
+new는 왜 쓰라는 거지?
+서비스랑 도메인은 뭐가 다른 거지?</p>
+</blockquote>
+<p>이걸 한 번에 정리해보면 <strong>“역할 분리”</strong>로 이해하면 깔끔해진다.</p>
+<hr>
+<h1>1. 전체 그림 먼저</h1>
+<pre><code class="language-text">Controller
+= 요청/응답
+
+Service
+= 흐름 제어 (트랜잭션, 조회, 호출)
+
+Domain(Entity)
+= 상태 변경 책임
+
+DTO/POJO
+= 데이터 전달용 객체
+</code></pre>
+<p>그리고 핵심 원칙:</p>
+<pre><code class="language-text">읽기(getter) = 자유
+
+쓰기(setter) = 제한
+
+상태 변경 = 도메인이 책임
+</code></pre>
+<hr>
+<h1>2. getter는 어디서 쓰냐</h1>
+<p>getter는 단순히 값 읽는 거라서 제한 거의 없다.</p>
+<pre><code class="language-java">log.info(&quot;title={}&quot;, board.getTitle());
+return board.getTitle();
+</code></pre>
+<p>사용 위치:</p>
+<pre><code class="language-text">Controller
+Service
+DTO 변환
+로그
+</code></pre>
+<p>정리:</p>
+<pre><code class="language-text">getter = 어디서든 OK
+</code></pre>
+<hr>
+<h1>3. setter는 어디서 쓰냐 (핵심)</h1>
+<h2>엔티티에서 setter 남용</h2>
+<pre><code class="language-java">board.setTitle(request.getTitle());
+board.setContent(request.getContent());
+</code></pre>
+<p>이게 문제인 이유:</p>
+<pre><code class="language-text">변경 의도 안 보임
+누가 바꿨는지 추적 어려움
+도메인 규칙 깨질 수 있음
+JPA 변경 감지로 DB 반영됨
+</code></pre>
+<hr>
+<h2>엔티티에서는 “행위 메서드” 사용</h2>
+<pre><code class="language-java">board.update(request.getTitle(), request.getContent());
+</code></pre>
+<pre><code class="language-java">public void update(String title, String content) {
+    this.title = title;
+    this.content = content;
+}
+</code></pre>
+<p>차이:</p>
+<pre><code class="language-text">setter
+= 값만 바꿈
+
+update()
+= &quot;게시글 수정&quot;이라는 행동
+</code></pre>
+<hr>
+<h1>4. setter는 어디서 쓰면 되냐</h1>
+<h2>DTO에서는 OK</h2>
+<pre><code class="language-java">public class BoardRequest {
+    private String title;
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+}
+</code></pre>
+<p>이유:</p>
+<pre><code class="language-text">DTO = 데이터 전달용
+비즈니스 규칙 없음
+</code></pre>
+<hr>
+<h2>초기 생성 단계에서도 OK</h2>
+<pre><code class="language-java">Board board = new Board();
+board.setTitle(&quot;제목&quot;);
+</code></pre>
+<p>다만 실무에서는 생성자를 더 많이 쓴다.</p>
+<hr>
+<h1>5. new는 왜 쓰냐</h1>
+<p>new는 setter랑 반대 개념이 아니라 <strong>역할이 다르다.</strong></p>
+<pre><code class="language-text">new
+= 새로운 상태를 만든다
+
+setter
+= 기존 상태를 덮어쓴다
+</code></pre>
+<hr>
+<h2>바로 setter 쓰는 경우</h2>
+<pre><code class="language-java">board.setTitle(request.getTitle());
+</code></pre>
+<p>→ 기존 값 사라짐</p>
+<hr>
+<h2>new로 분리하는 경우</h2>
+<pre><code class="language-java">BoardUpdateData updateData = new BoardUpdateData(
+    request.getTitle(),
+    request.getContent()
+);
+</code></pre>
+<p>구조:</p>
+<pre><code class="language-text">board = 기존 상태
+updateData = 새 상태
+</code></pre>
+<p>이렇게 하면:</p>
+<pre><code class="language-text">비교 가능
+로그 가능
+검증 가능
+</code></pre>
+<hr>
+<h1>6. 올바른 전체 흐름</h1>
+<pre><code class="language-java">@Transactional
+public void updateBoard(Long id, BoardRequest request) {
+
+    // 1. 조회
+    Board board = boardRepository.findById(id).orElseThrow();
+
+    // 2. new로 새 상태 생성
+    BoardUpdateData updateData = new BoardUpdateData(
+        request.getTitle(),
+        request.getContent()
+    );
+
+    // 3. 비교/로그
+    log.info(&quot;oldTitle={}, newTitle={}&quot;,
+            board.getTitle(),
+            updateData.getTitle());
+
+    // 4. 도메인에게 위임
+    board.update(updateData);
+}
+</code></pre>
+<p>도메인:</p>
+<pre><code class="language-java">public void update(BoardUpdateData data) {
+    this.title = data.getTitle();
+    this.content = data.getContent();
+}
+</code></pre>
+<hr>
+<h1>7. @Transactional까지 연결</h1>
+<pre><code class="language-text">@Transactional
+→ 트랜잭션 시작
+
+엔티티 조회
+→ 영속 상태
+
+값 변경
+→ JPA가 변경 감지
+
+메서드 종료
+→ commit → DB 반영
+</code></pre>
+<p>그래서:</p>
+<pre><code class="language-java">board.update(...)
+</code></pre>
+<p>만 해도 DB 반영된다.</p>
+<hr>
+<h1>8. 최종 정리 (핵심만)</h1>
+<pre><code class="language-text">getter
+= 어디서든 사용 가능
+
+setter
+= DTO에서는 OK
+= 엔티티에서는 지양
+
+new
+= 변경될 값을 따로 만든다
+
+엔티티 변경
+= setter ❌
+= update(), changeXxx() ⭕
+
+Service
+= 흐름만 담당
+
+Domain(Entity)
+= 상태 변경 책임
+
+@Transactional
+= 변경 감지 + DB 반영
+</code></pre>
+<hr>
+<h1>9. 한 줄 결론</h1>
+<pre><code class="language-text">값은 new로 분리하고,
+변경은 도메인에게 맡기고,
+setter는 함부로 열어두지 않는다
+</code></pre>
+<p>이 기준 하나 잡히면
+JPA 설계, 서비스/도메인 분리, 트랜잭션 흐름까지 한 번에 정리된다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-JPA-setter-vs-new-뭐가-다른-거고-왜-같이-쓰는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] [JPA] setter vs new, 뭐가 다른 거고 왜 같이 쓰는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-DTO란-무엇인가.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Spring] DTO란 무엇인가</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Spring] Spring Boot REST API 게시판에 Thymeleaf 화면 붙이기 | Greenapple0101</title>
+  <meta name="description" content="처음에는 Spring Boot로 게시판 REST API를 만들고, 프론트엔드는 React로 따로 구성하는 방식으로 생각하고 있었다. 구조는 단순했다. React 화면에서 Spring Boot API를 호출하고, Spring Boot는 게시글 데이터를 JSON으로 반환하는 전형적인 프론…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[Spring] Spring Boot REST API 게시판에 Thymeleaf 화면 붙이기</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-03T12:20:21.904Z">2026.05.03</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Spring-Boot-REST-API-게시판에-Thymeleaf-화면-붙이기" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>처음에는 Spring Boot로 게시판 REST API를 만들고, 프론트엔드는 React로 따로 구성하는 방식으로 생각하고 있었다. 구조는 단순했다.</p>
+<pre><code class="language-text">BOARD_FE  → React 프론트엔드
+board_api → Spring Boot REST API
+</code></pre>
+<p>React 화면에서 Spring Boot API를 호출하고, Spring Boot는 게시글 데이터를 JSON으로 반환하는 전형적인 프론트엔드/백엔드 분리 구조였다.</p>
+<p>하지만 중간에 요구사항이 바뀌었다.</p>
+<blockquote>
+<p>프론트엔드를 Spring Boot에서 한다.
+프론트 Spring Boot에서 API를 호출해야 한다.
+HTML은 Thymeleaf로 한다.</p>
+</blockquote>
+<p>처음에는 이 말이 조금 헷갈렸다. 이미 React 프론트 레포를 만들어둔 상태였고, Thymeleaf가 Bootstrap 같은 디자인 도구인지도 명확하지 않았다. 이번 작업은 이 요구사항을 이해하고, 기존 REST API 게시판에 Thymeleaf 기반 화면을 붙이는 과정이었다.</p>
+<hr>
+<h2>1. Thymeleaf는 Bootstrap이 아니었다</h2>
+<p>처음에 가장 헷갈렸던 부분은 Thymeleaf의 역할이었다.</p>
+<p>정리하면 다음과 같다.</p>
+<pre><code class="language-text">Bootstrap  → 화면을 예쁘게 꾸미는 CSS 프레임워크
+Thymeleaf  → Spring Boot 데이터를 HTML에 넣어주는 템플릿 엔진
+React      → 브라우저에서 화면을 동적으로 만드는 프론트엔드 라이브러리
+</code></pre>
+<p>Bootstrap은 버튼, 테이블, 카드 같은 UI를 예쁘게 꾸미는 도구다.</p>
+<pre><code class="language-html">&lt;button class=&quot;btn btn-primary&quot;&gt;등록&lt;/button&gt;
+</code></pre>
+<p>반면 Thymeleaf는 서버에서 전달한 데이터를 HTML 안에 출력하는 도구다.</p>
+<pre><code class="language-html">&lt;p th:text=&quot;${board.title}&quot;&gt;&lt;/p&gt;
+</code></pre>
+<p>즉 Thymeleaf는 디자인 프레임워크가 아니라, <strong>Spring Boot 서버에서 HTML을 렌더링하기 위한 서버 사이드 템플릿 엔진</strong>이다.</p>
+<hr>
+<h2>2. 기존 REST API 구조</h2>
+<p>기존에는 게시판 CRUD를 처리하는 REST API 컨트롤러가 있었다.</p>
+<pre><code class="language-java">package com.board.api.controller;
+
+import com.board.api.domain.Board;
+import com.board.api.service.BoardService;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController
+@RequestMapping(&quot;/boards&quot;)
+@CrossOrigin(origins = &quot;http://localhost:5173&quot;)
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService){
+        this.boardService = boardService;
+    }
+
+    @GetMapping
+    public List&lt;Board&gt; getBoards(){
+        return boardService.getBoards();
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public Board getBoard(@PathVariable Long id){
+        return boardService.getBoard(id);
+    }
+
+    @PostMapping
+    public Board createBoard(@RequestBody Board board){
+        return boardService.createBoard(board);
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public Board updateBoard(@PathVariable Long id, @RequestBody Board board){
+        return boardService.updateBoard(id, board);
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public String deleteBoard(@PathVariable Long id){
+        boardService.deleteBoard(id);
+        return &quot;삭제됨: &quot; + id;
+    }
+}
+</code></pre>
+<p>이 컨트롤러는 다음 API를 담당한다.</p>
+<pre><code class="language-text">GET    /boards       → 게시글 전체 조회
+GET    /boards/{id}  → 게시글 단건 조회
+POST   /boards       → 게시글 작성
+PUT    /boards/{id}  → 게시글 수정
+DELETE /boards/{id}  → 게시글 삭제
+</code></pre>
+<p>여기서 중요한 점은, Thymeleaf를 도입한다고 해서 이 REST API 컨트롤러를 삭제하면 안 된다는 것이다. 이 컨트롤러는 여전히 게시판 데이터 처리의 핵심이다.</p>
+<hr>
+<h2>3. REST API 컨트롤러와 화면 컨트롤러 분리</h2>
+<p>Thymeleaf를 붙이면서 가장 먼저 정리한 것은 컨트롤러의 역할 분리였다.</p>
+<pre><code class="language-text">BoardController.java      → REST API 담당
+HomeController.java       → Thymeleaf 홈 화면 담당
+BoardPageController.java  → Thymeleaf 게시판 화면 담당
+</code></pre>
+<p>즉 URL 역할은 이렇게 나뉜다.</p>
+<pre><code class="language-text">/boards       → JSON API
+/             → Thymeleaf 홈 화면
+/boards-page  → Thymeleaf 게시글 목록 화면
+</code></pre>
+<p><code>@RestController</code>와 <code>@Controller</code>의 차이도 여기서 확실히 이해했다.</p>
+<pre><code class="language-text">@RestController → return 값을 HTTP 응답 본문으로 그대로 반환
+@Controller     → return 값을 Thymeleaf 템플릿 이름으로 해석
+</code></pre>
+<p>예를 들어 <code>@RestController</code>에서 <code>return "index";</code>를 하면 브라우저에는 문자열 <code>index</code>가 그대로 출력된다.</p>
+<p>하지만 <code>@Controller</code>에서 <code>return "index";</code>를 하면 Spring Boot는 아래 파일을 찾아 화면으로 렌더링한다.</p>
+<pre><code class="language-text">src/main/resources/templates/index.html
+</code></pre>
+<hr>
+<h2>4. Thymeleaf 의존성 추가</h2>
+<p>Spring Boot에서 Thymeleaf를 사용하기 위해 <code>pom.xml</code>에 의존성을 추가했다.</p>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>이 의존성을 추가하면 Spring Boot는 기본적으로 아래 경로에 있는 HTML 파일을 Thymeleaf 템플릿으로 인식한다.</p>
+<pre><code class="language-text">src/main/resources/templates/
+</code></pre>
+<hr>
+<h2>5. 첫 Thymeleaf 홈페이지 구현</h2>
+<p>먼저 홈 화면을 만들었다.</p>
+<p>파일 위치는 다음과 같다.</p>
+<pre><code class="language-text">src/main/resources/templates/index.html
+</code></pre>
+<p>내용은 간단하게 구성했다.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Board Home&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;게시판 홈&lt;/h1&gt;
+    &lt;p&gt;Spring Boot + Thymeleaf 홈페이지입니다.&lt;/p&gt;
+
+    &lt;a th:href=&quot;@{/boards-page}&quot;&gt;게시글 목록 보기&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>그리고 <code>/</code> 요청을 처리할 <code>HomeController</code>를 만들었다.</p>
+<pre><code class="language-java">package com.board.api.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping(&quot;/&quot;)
+    public String home() {
+        return &quot;index&quot;;
+    }
+}
+</code></pre>
+<p>여기서 <code>return "index";</code>는 문자열을 반환하는 것이 아니라, <code>templates/index.html</code>을 렌더링하라는 의미다.</p>
+<p>브라우저에서 아래 주소로 접속했다.</p>
+<pre><code class="language-text">http://localhost:8080/
+</code></pre>
+<p>결과적으로 Thymeleaf 홈 화면이 정상적으로 렌더링되었다.</p>
+<pre><code class="language-text">게시판 홈
+Spring Boot + Thymeleaf 홈페이지입니다.
+게시글 목록 보기
+</code></pre>
+<p>이 시점에서 확인한 것은 다음과 같다.</p>
+<pre><code class="language-text">Spring Boot 실행 성공
+Thymeleaf 의존성 적용 성공
+HomeController 매핑 성공
+index.html 렌더링 성공
+</code></pre>
+<hr>
+<h2>6. 게시글 목록 화면 구현</h2>
+<p>다음으로 <code>/boards-page</code>에서 게시글 목록을 보여주도록 구현했다.</p>
+<p><code>BoardPageController</code>를 생성했다.</p>
+<pre><code class="language-java">package com.board.api.controller;
+
+import com.board.api.service.BoardService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class BoardPageController {
+
+    private final BoardService boardService;
+
+    public BoardPageController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    @GetMapping(&quot;/boards-page&quot;)
+    public String boardsPage(Model model) {
+        model.addAttribute(&quot;boards&quot;, boardService.getBoards());
+        return &quot;boards&quot;;
+    }
+}
+</code></pre>
+<p>여기서 핵심은 이 부분이다.</p>
+<pre><code class="language-java">model.addAttribute(&quot;boards&quot;, boardService.getBoards());
+</code></pre>
+<p><code>boardService.getBoards()</code>로 가져온 게시글 목록을 <code>boards</code>라는 이름으로 HTML에서 사용할 수 있게 넘겨주는 코드다.</p>
+<p>그리고 <code>return "boards";</code>는 아래 파일을 렌더링한다는 의미다.</p>
+<pre><code class="language-text">src/main/resources/templates/boards.html
+</code></pre>
+<hr>
+<h2>7. <code>boards.html</code>에서 목록 출력하기</h2>
+<p>게시글 목록 화면에서는 Thymeleaf 반복문을 사용했다.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;게시글 목록&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;게시글 목록&lt;/h1&gt;
+
+&lt;a th:href=&quot;@{/}&quot;&gt;홈으로&lt;/a&gt;
+&lt;a th:href=&quot;@{/boards-write}&quot;&gt;글 작성&lt;/a&gt;
+
+&lt;table border=&quot;1&quot;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+        &lt;th&gt;ID&lt;/th&gt;
+        &lt;th&gt;제목&lt;/th&gt;
+        &lt;th&gt;작성자&lt;/th&gt;
+        &lt;th&gt;작성일&lt;/th&gt;
+        &lt;th&gt;관리&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+
+    &lt;tbody&gt;
+    &lt;tr th:each=&quot;board : ${boards}&quot;&gt;
+        &lt;td th:text=&quot;${board.id}&quot;&gt;&lt;/td&gt;
+
+        &lt;td&gt;
+            &lt;a th:href=&quot;@{/boards-page/{id}(id=${board.id})}&quot;
+               th:text=&quot;${board.title}&quot;&gt;
+            &lt;/a&gt;
+        &lt;/td&gt;
+
+        &lt;td th:text=&quot;${board.author}&quot;&gt;&lt;/td&gt;
+        &lt;td th:text=&quot;${board.createdAt}&quot;&gt;&lt;/td&gt;
+
+        &lt;td&gt;
+            &lt;a th:href=&quot;@{/boards-edit/{id}(id=${board.id})}&quot;&gt;수정&lt;/a&gt;
+
+            &lt;form th:action=&quot;@{/boards-delete/{id}(id=${board.id})}&quot;
+                  method=&quot;post&quot;
+                  style=&quot;display:inline;&quot;&gt;
+                &lt;button type=&quot;submit&quot;&gt;삭제&lt;/button&gt;
+            &lt;/form&gt;
+        &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>여기서 사용한 Thymeleaf 문법은 다음과 같다.</p>
+<pre><code class="language-text">th:each → 리스트 반복
+th:text → 값 출력
+th:href → 링크 생성
+</code></pre>
+<p>React에서 <code>boards.map(board =&gt; ...)</code>를 사용하던 것과 비슷하게, Thymeleaf에서는 <code>th:each</code>로 리스트를 반복한다.</p>
+<hr>
+<h2>8. 브라우저 주소창에서는 GET만 된다</h2>
+<p>구현 중에 “왜 읽기만 되는 것처럼 보이지?”라는 문제가 있었다.</p>
+<p>이유는 간단했다.</p>
+<pre><code class="language-text">브라우저 주소창은 기본적으로 GET 요청만 보낼 수 있다.
+</code></pre>
+<p>따라서 <code>/boards</code>에 접속하면 전체 조회는 가능하지만, 주소창만으로는 <code>POST</code>, <code>PUT</code>, <code>DELETE</code>를 테스트할 수 없다.</p>
+<p>REST API 자체는 다음 순서로 테스트할 수 있다.</p>
+<pre><code class="language-text">1. GET    /boards       → 전체 조회
+2. POST   /boards       → 게시글 작성
+3. GET    /boards       → 작성 결과 확인
+4. GET    /boards/{id}  → 단건 조회
+5. PUT    /boards/{id}  → 게시글 수정
+6. DELETE /boards/{id}  → 게시글 삭제
+7. GET    /boards       → 삭제 결과 확인
+</code></pre>
+<p>하지만 브라우저 화면에서 직접 작성, 수정, 삭제를 하려면 Thymeleaf form을 만들어야 한다.</p>
+<hr>
+<h2>9. 글 작성 화면 추가</h2>
+<p>글 작성 화면을 위해 다음 파일을 만들었다.</p>
+<pre><code class="language-text">src/main/resources/templates/board-write.html
+</code></pre>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;게시글 작성&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;게시글 작성&lt;/h1&gt;
+
+&lt;form th:action=&quot;@{/boards-page}&quot; method=&quot;post&quot;&gt;
+    &lt;div&gt;
+        &lt;label&gt;제목&lt;/label&gt;
+        &lt;input type=&quot;text&quot; name=&quot;title&quot;&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label&gt;작성자&lt;/label&gt;
+        &lt;input type=&quot;text&quot; name=&quot;author&quot;&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label&gt;내용&lt;/label&gt;
+        &lt;textarea name=&quot;content&quot;&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot;&gt;등록&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;a th:href=&quot;@{/boards-page}&quot;&gt;목록으로&lt;/a&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>컨트롤러에는 작성 화면과 작성 처리 메서드를 추가했다.</p>
+<pre><code class="language-java">@GetMapping(&quot;/boards-write&quot;)
+public String writeForm() {
+    return &quot;board-write&quot;;
+}
+
+@PostMapping(&quot;/boards-page&quot;)
+public String createBoard(@ModelAttribute Board board) {
+    boardService.createBoard(board);
+    return &quot;redirect:/boards-page&quot;;
+}
+</code></pre>
+<p>여기서 REST API와 Thymeleaf form의 차이를 알게 되었다.</p>
+<pre><code class="language-text">REST API에서는 @RequestBody 사용
+Thymeleaf form에서는 @ModelAttribute 사용
+</code></pre>
+<p>REST API는 JSON을 보낸다.</p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;제목&quot;,
+  &quot;content&quot;: &quot;내용&quot;,
+  &quot;author&quot;: &quot;작성자&quot;
+}
+</code></pre>
+<p>반면 HTML form은 다음과 같은 form 데이터를 보낸다.</p>
+<pre><code class="language-text">title=제목&amp;content=내용&amp;author=작성자
+</code></pre>
+<p>그래서 Thymeleaf form에서는 <code>@RequestBody</code>가 아니라 <code>@ModelAttribute</code>로 받는 것이 자연스럽다.</p>
+<hr>
+<h2>10. 상세 화면 추가</h2>
+<p>게시글 제목을 클릭하면 상세 페이지로 이동하도록 만들었다.</p>
+<p>컨트롤러에는 단건 조회 화면을 추가했다.</p>
+<pre><code class="language-java">@GetMapping(&quot;/boards-page/{id}&quot;)
+public String boardDetail(@PathVariable Long id, Model model) {
+    model.addAttribute(&quot;board&quot;, boardService.getBoard(id));
+    return &quot;board-detail&quot;;
+}
+</code></pre>
+<p>파일은 다음 위치에 만들었다.</p>
+<pre><code class="language-text">src/main/resources/templates/board-detail.html
+</code></pre>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;게시글 상세&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;게시글 상세&lt;/h1&gt;
+
+&lt;p&gt;ID: &lt;span th:text=&quot;${board.id}&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;제목: &lt;span th:text=&quot;${board.title}&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;작성자: &lt;span th:text=&quot;${board.author}&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;내용: &lt;span th:text=&quot;${board.content}&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;작성일: &lt;span th:text=&quot;${board.createdAt}&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;수정일: &lt;span th:text=&quot;${board.updatedAt}&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+
+&lt;a th:href=&quot;@{/boards-page}&quot;&gt;목록으로&lt;/a&gt;
+&lt;a th:href=&quot;@{/boards-edit/{id}(id=${board.id})}&quot;&gt;수정&lt;/a&gt;
+
+&lt;form th:action=&quot;@{/boards-delete/{id}(id=${board.id})}&quot;
+      method=&quot;post&quot;
+      style=&quot;display:inline;&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;삭제&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<hr>
+<h2>11. 수정 화면 추가</h2>
+<p>수정 기능을 화면에서 처리하기 위해 수정 페이지를 추가했다.</p>
+<pre><code class="language-text">src/main/resources/templates/board-edit.html
+</code></pre>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;게시글 수정&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;게시글 수정&lt;/h1&gt;
+
+&lt;form th:action=&quot;@{/boards-edit/{id}(id=${board.id})}&quot; method=&quot;post&quot;&gt;
+    &lt;div&gt;
+        &lt;label&gt;제목&lt;/label&gt;
+        &lt;input type=&quot;text&quot; name=&quot;title&quot; th:value=&quot;${board.title}&quot;&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label&gt;작성자&lt;/label&gt;
+        &lt;input type=&quot;text&quot; name=&quot;author&quot; th:value=&quot;${board.author}&quot;&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label&gt;내용&lt;/label&gt;
+        &lt;textarea name=&quot;content&quot; th:text=&quot;${board.content}&quot;&gt;&lt;/textarea&gt;
+    &lt;/div&gt;
+
+    &lt;button type=&quot;submit&quot;&gt;수정 완료&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;a th:href=&quot;@{/boards-page/{id}(id=${board.id})}&quot;&gt;상세로&lt;/a&gt;
+&lt;a th:href=&quot;@{/boards-page}&quot;&gt;목록으로&lt;/a&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>컨트롤러에는 수정 화면과 수정 처리 메서드를 추가했다.</p>
+<pre><code class="language-java">@GetMapping(&quot;/boards-edit/{id}&quot;)
+public String editForm(@PathVariable Long id, Model model) {
+    model.addAttribute(&quot;board&quot;, boardService.getBoard(id));
+    return &quot;board-edit&quot;;
+}
+
+@PostMapping(&quot;/boards-edit/{id}&quot;)
+public String updateBoard(@PathVariable Long id, @ModelAttribute Board board) {
+    boardService.updateBoard(id, board);
+    return &quot;redirect:/boards-page/&quot; + id;
+}
+</code></pre>
+<p>여기서도 HTML form의 제약을 고려했다.</p>
+<p>HTML form은 기본적으로 <code>GET</code>과 <code>POST</code>만 지원한다. 그래서 화면에서는 <code>PUT</code> 대신 <code>POST</code>로 수정 처리를 했다.</p>
+<pre><code class="language-text">REST API 기준 수정 → PUT /boards/{id}
+화면 기준 수정    → POST /boards-edit/{id}
+</code></pre>
+<hr>
+<h2>12. 삭제 기능 추가</h2>
+<p>삭제도 HTML form으로 처리했다.</p>
+<p>컨트롤러에는 삭제 처리 메서드를 추가했다.</p>
+<pre><code class="language-java">@PostMapping(&quot;/boards-delete/{id}&quot;)
+public String deleteBoard(@PathVariable Long id) {
+    boardService.deleteBoard(id);
+    return &quot;redirect:/boards-page&quot;;
+}
+</code></pre>
+<p>목록 화면이나 상세 화면에서는 다음과 같이 form으로 삭제 요청을 보낸다.</p>
+<pre><code class="language-html">&lt;form th:action=&quot;@{/boards-delete/{id}(id=${board.id})}&quot; method=&quot;post&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;삭제&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p>정리하면 다음과 같다.</p>
+<pre><code class="language-text">REST API 기준 삭제 → DELETE /boards/{id}
+화면 기준 삭제    → POST /boards-delete/{id}
+</code></pre>
+<p>REST API에서는 <code>DELETE</code> 메서드를 유지하고, Thymeleaf 화면에서는 HTML form 제약에 맞춰 <code>POST</code>로 삭제 처리했다.</p>
+<hr>
+<h2>13. 최종 <code>BoardPageController</code></h2>
+<p>최종적으로 Thymeleaf 화면용 컨트롤러는 다음과 같은 구조가 되었다.</p>
+<pre><code class="language-java">package com.board.api.controller;
+
+import com.board.api.domain.Board;
+import com.board.api.service.BoardService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class BoardPageController {
+
+    private final BoardService boardService;
+
+    public BoardPageController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    // 게시글 목록 화면
+    @GetMapping(&quot;/boards-page&quot;)
+    public String boardsPage(Model model) {
+        model.addAttribute(&quot;boards&quot;, boardService.getBoards());
+        return &quot;boards&quot;;
+    }
+
+    // 게시글 상세 화면
+    @GetMapping(&quot;/boards-page/{id}&quot;)
+    public String boardDetail(@PathVariable Long id, Model model) {
+        model.addAttribute(&quot;board&quot;, boardService.getBoard(id));
+        return &quot;board-detail&quot;;
+    }
+
+    // 게시글 작성 화면
+    @GetMapping(&quot;/boards-write&quot;)
+    public String writeForm() {
+        return &quot;board-write&quot;;
+    }
+
+    // 게시글 작성 처리
+    @PostMapping(&quot;/boards-page&quot;)
+    public String createBoard(@ModelAttribute Board board) {
+        boardService.createBoard(board);
+        return &quot;redirect:/boards-page&quot;;
+    }
+
+    // 게시글 수정 화면
+    @GetMapping(&quot;/boards-edit/{id}&quot;)
+    public String editForm(@PathVariable Long id, Model model) {
+        model.addAttribute(&quot;board&quot;, boardService.getBoard(id));
+        return &quot;board-edit&quot;;
+    }
+
+    // 게시글 수정 처리
+    @PostMapping(&quot;/boards-edit/{id}&quot;)
+    public String updateBoard(@PathVariable Long id, @ModelAttribute Board board) {
+        boardService.updateBoard(id, board);
+        return &quot;redirect:/boards-page/&quot; + id;
+    }
+
+    // 게시글 삭제 처리
+    @PostMapping(&quot;/boards-delete/{id}&quot;)
+    public String deleteBoard(@PathVariable Long id) {
+        boardService.deleteBoard(id);
+        return &quot;redirect:/boards-page&quot;;
+    }
+}
+</code></pre>
+<hr>
+<h2>14. 최종 Thymeleaf 화면 흐름</h2>
+<p>최종적으로 화면 흐름은 다음과 같다.</p>
+<pre><code class="language-text">GET  /                  → 홈 화면
+GET  /boards-page       → 게시글 목록 화면
+GET  /boards-write      → 게시글 작성 화면
+POST /boards-page       → 게시글 작성 처리
+
+GET  /boards-page/{id}  → 게시글 상세 화면
+GET  /boards-edit/{id}  → 게시글 수정 화면
+POST /boards-edit/{id}  → 게시글 수정 처리
+
+POST /boards-delete/{id} → 게시글 삭제 처리
+</code></pre>
+<p>이제 브라우저에서 단순 조회뿐 아니라 작성, 상세 조회, 수정, 삭제까지 처리할 수 있게 되었다.</p>
+<hr>
+<h2>15. 실행 방식 차이: Run 버튼과 Maven 명령어</h2>
+<p>작업 중에 VSCode의 Run 버튼과 Maven 명령어 실행 결과가 다르게 나오는 문제도 겪었다.</p>
+<p>정리하면 다음과 같다.</p>
+<pre><code class="language-text">Run 버튼 실행
+→ VSCode Java Extension이 main() 메서드를 직접 실행
+
+mvn spring-boot:run
+→ Maven이 pom.xml 기준으로 앱을 실행
+</code></pre>
+<p>Run 버튼은 빠르고 편하지만, VSCode의 Java 캐시나 classpath 상태에 영향을 받을 수 있다.</p>
+<p>반면 <code>mvn spring-boot:run</code>은 <code>pom.xml</code> 기준으로 의존성과 빌드를 반영해서 실행하기 때문에 더 안정적이었다.</p>
+<p>실제로 Run 버튼에서는 이전 상태처럼 보이거나 빈 화면이 나왔고, <code>mvn spring-boot:run</code>으로 실행했을 때는 최신 Thymeleaf 화면이 정상적으로 렌더링되었다.</p>
+<p>그래서 현재 기준으로는 Maven 방식으로 실행했다.</p>
+<pre><code class="language-bash">mvn clean package
+mvn spring-boot:run
+</code></pre>
+<hr>
+<h2>16. 최종 프로젝트 구조</h2>
+<p>현재 프로젝트 구조는 다음과 같이 정리할 수 있다.</p>
+<pre><code class="language-text">src/main/java/com/board/api/
+├─ BoardApiApplication.java
+│
+├─ controller/
+│  ├─ BoardController.java       // REST API용
+│  ├─ HomeController.java        // 홈 화면용
+│  └─ BoardPageController.java   // Thymeleaf 화면 CRUD용
+│
+├─ service/
+│  └─ BoardService.java
+│
+└─ domain/
+   └─ Board.java
+</code></pre>
+<pre><code class="language-text">src/main/resources/
+├─ templates/
+│  ├─ index.html
+│  ├─ boards.html
+│  ├─ board-detail.html
+│  ├─ board-write.html
+│  └─ board-edit.html
+│
+└─ static/
+   └─ 필요 시 css/js 추가 가능
+</code></pre>
+<hr>
+<h2>17. 현재까지 완료한 기능</h2>
+<p>이번 작업을 통해 완료한 기능은 다음과 같다.</p>
+<pre><code class="language-text">1. Spring Boot REST API CRUD 구현
+2. Thymeleaf 의존성 추가
+3. / 경로 홈페이지 렌더링
+4. /boards-page 게시글 목록 화면 구현
+5. Model을 이용해 BoardService 데이터 전달
+6. th:each, th:text, th:href 사용
+7. 글 작성 화면 구현
+8. 글 작성 form 처리 구현
+9. 상세 화면 구현
+10. 수정 화면 구현
+11. 수정 form 처리 구현
+12. 삭제 form 처리 구현
+13. REST API 컨트롤러와 화면 컨트롤러 역할 분리
+14. Maven 실행 방식과 VSCode Run 실행 방식 차이 확인
+</code></pre>
+<hr>
+<h2>18. 회고</h2>
+<p>이번 작업을 통해 REST API와 서버 사이드 렌더링의 역할 차이를 직접 이해할 수 있었다.</p>
+<p>처음에는 Thymeleaf를 Bootstrap 같은 디자인 도구로 오해했지만, 실제로는 Spring Boot 서버 데이터를 HTML에 주입하는 템플릿 엔진이라는 점을 알게 되었다.</p>
+<p>또한 <code>@RestController</code>는 JSON API 반환용이고, <code>@Controller</code>는 HTML 템플릿 렌더링용이라는 차이를 직접 구현하면서 이해했다.</p>
+<p>브라우저 주소창에서는 GET 요청만 가능하기 때문에, POST, PUT, DELETE 같은 요청은 curl/Postman 같은 도구나 HTML form을 사용해야 한다는 점도 확인했다.</p>
+<p>마지막으로 VSCode Run 버튼과 <code>mvn spring-boot:run</code>의 실행 기준이 다르다는 점을 경험했다. 의존성이나 빌드 반영까지 확실하게 확인하려면 Maven 실행이 더 안정적이라는 것도 알게 되었다.</p>
+<p>이번 작업은 단순히 HTML 화면을 하나 띄운 것이 아니라, 기존 REST API 게시판 프로젝트에 Thymeleaf 기반 서버 사이드 화면을 추가하고, 브라우저에서 CRUD 흐름을 처리할 수 있도록 확장한 경험이었다.</p>
+<hr>
+<h2>한 줄 요약</h2>
+<pre><code class="language-text">기존 Spring Boot REST API 게시판 프로젝트에 Thymeleaf 기반 서버 사이드 화면을 추가하고, 목록 조회부터 작성·상세·수정·삭제까지 브라우저에서 처리할 수 있도록 확장했다.
+</code></pre>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-Thymeleaf는-Bootstrap-같은-게-아니다-Spring-Boot에서-화면을-만드는-방법.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Spring] Thymeleaf는 Bootstrap 같은 게 아니다 — Spring Boot에서 화면을 만드는 방법</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-JPA와-Hibernate.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] JPA와 Hibernate?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

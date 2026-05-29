@@ -13,7 +13,7 @@ from pathlib import Path
 import markdown
 
 ROOT = Path(__file__).resolve().parent
-POSTS_SRC = ROOT.parent / "velog-posts"
+POSTS_SRC = ROOT.parent / "git-pages"
 POSTS_DIR = ROOT / "posts"
 MD = markdown.Markdown(
     extensions=["fenced_code", "tables", "sane_lists", "smarty"],
@@ -78,10 +78,14 @@ KUBERNETES_PREFIXES = frozenset(
         "ckakubernetes",
         "k3dkubernetes",
         "k3d",
+        "k3d-kubernetes",
         "helm",
         "argo",
         "argocd",
+        "argo-cd",
         "dockerk3d",
+        "docker-k3d",
+        "network",
     }
 )
 
@@ -90,7 +94,13 @@ CATEGORY_COLORS = {
     "Spring": "#16a34a",
     "DOCKER": "#0ea5e9",
     "Docker": "#0ea5e9",
+    "CI/CD": "#64748b",
+    "CI-CD": "#64748b",
     "Kubernetes": "#7c3aed",
+    "AI Infra": "#db2777",
+    "AI-Infra": "#db2777",
+    "Argo CD": "#7c3aed",
+    "Argo-CD": "#7c3aed",
     "AI": "#db2777",
     "DL": "#db2777",
     "PyTorch": "#db2777",
@@ -173,12 +183,27 @@ def topic_for_entry(category: str, slug: str) -> str:
     if cat_key in spring_keys or prefix in spring_keys or cat_key.startswith("spring"):
         return "spring"
 
-    ai_keys = frozenset({"ai", "dl", "pytorch", "ml", "rag", "ragmlops", "cs"})
+    ai_keys = frozenset(
+        {"ai", "ai-infra", "dl", "pytorch", "ml", "rag", "ragmlops", "rag-mlops", "cs"}
+    )
     if cat_key in ai_keys or prefix in ai_keys:
         return "ai"
 
     docker_k8s_keys = KUBERNETES_PREFIXES | frozenset(
-        {"docker", "kubernetes", "k8s", "dockerdocker", "cicdfrom", "argo-cd"}
+        {
+            "docker",
+            "kubernetes",
+            "k8s",
+            "dockerdocker",
+            "cicdfrom",
+            "argo-cd",
+            "ci-cd",
+            "ci/cd",
+            "helm",
+            "cka",
+            "network",
+            "docker-k3d",
+        }
     )
     if (
         cat_key in docker_k8s_keys
@@ -541,14 +566,10 @@ def sync_markdown() -> list[Path]:
 
 
 def source_markdown_files() -> list[Path]:
-    """Collect .md files and extensionless Velog exports (e.g. [Upstage]...)."""
+    """Collect markdown sources from git-pages."""
     files: list[Path] = []
     for path in sorted(POSTS_SRC.iterdir()):
-        if not path.is_file() or path.name.startswith("."):
-            continue
-        if path.suffix == ".md":
-            files.append(path)
-        elif path.suffix == "" and path.name.startswith("["):
+        if path.is_file() and path.suffix == ".md" and not path.name.startswith("."):
             files.append(path)
     return files
 

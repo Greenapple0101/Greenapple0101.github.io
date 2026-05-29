@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] PUT과 DELETE — 게시글 수정과 삭제 | Greenapple0101</title>
+  <meta name="description" content="게시판 API를 만들면서 GET, POST까지는 자연스럽게 이해가 됐는데 그 다음 단계에서 등장하는 게 바로 PUT과 DELETE 다. 이번 글에서는 &quot;게시글 수정&quot;과 &quot;게시글 삭제&quot;를 기준으로 PUT과 DELETE가 실제로 어떻게 쓰이는지 정리해봤다. --- PUT — 게시글 수정…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] PUT과 DELETE — 게시글 수정과 삭제</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-29T13:25:31.537Z">2026.04.29</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-PUT과-DELETE-게시글-수정과-삭제" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>게시판 API를 만들면서 GET, POST까지는 자연스럽게 이해가 됐는데
+그 다음 단계에서 등장하는 게 바로 <strong>PUT과 DELETE</strong>다.</p>
+<p>이번 글에서는
+&ldquo;게시글 수정&rdquo;과 &ldquo;게시글 삭제&rdquo;를 기준으로
+PUT과 DELETE가 실제로 어떻게 쓰이는지 정리해봤다.</p>
+<hr>
+<h2>PUT — 게시글 수정</h2>
+<p>PUT은 <strong>기존 데이터를 수정할 때 사용하는 HTTP 메서드</strong>다.</p>
+<p>예를 들어,
+이미 존재하는 게시글의 제목을 바꾸고 싶다면 PUT을 사용한다.</p>
+<h3>요청 구조</h3>
+<ul>
+<li>URL: <code>/boards/{id}</code></li>
+<li>Method: <code>PUT</code></li>
+<li>Body: 수정할 데이터(JSON)</li>
+</ul>
+<h3>코드</h3>
+<pre><code class="language-java">@PutMapping(&quot;/boards/{id}&quot;)
+public Board updateBoard(@PathVariable Long id,
+                         @RequestBody Map&lt;String, String&gt; body){
+    String title = body.get(&quot;title&quot;);
+    return boardService.updateBoard(id, title);
+}
+</code></pre>
+<h3>흐름</h3>
+<ol>
+<li>클라이언트가 <code>/boards/1</code> 같은 URL로 요청을 보냄</li>
+<li><code>@PathVariable</code>로 id를 가져옴</li>
+<li><code>@RequestBody</code>로 수정할 데이터(title)를 받음</li>
+<li>서비스에서 해당 id의 게시글을 찾아 수정</li>
+</ol>
+<h3>핵심 포인트</h3>
+<ul>
+<li>PUT은 <strong>&ldquo;이미 존재하는 데이터&rdquo;를 수정</strong></li>
+<li>URL에 <strong>id를 포함</strong>해서 어떤 데이터를 수정할지 명확하게 지정</li>
+<li>요청 body에 <strong>변경할 값 포함</strong></li>
+</ul>
+<hr>
+<h2>DELETE — 게시글 삭제</h2>
+<p>DELETE는 말 그대로 <strong>데이터를 삭제할 때 사용하는 HTTP 메서드</strong>다.</p>
+<h3>요청 구조</h3>
+<ul>
+<li>URL: <code>/boards/{id}</code></li>
+<li>Method: <code>DELETE</code></li>
+</ul>
+<h3>코드</h3>
+<pre><code class="language-java">@DeleteMapping(&quot;/boards/{id}&quot;)
+public String deleteBoard(@PathVariable Long id){
+    boardService.deleteBoard(id);
+    return &quot;삭제됨: &quot; + id;
+}
+</code></pre>
+<h3>흐름</h3>
+<ol>
+<li><code>/boards/1</code>로 DELETE 요청</li>
+<li><code>@PathVariable</code>로 id 추출</li>
+<li>해당 id의 게시글 삭제</li>
+</ol>
+<h3>핵심 포인트</h3>
+<ul>
+<li>DELETE는 <strong>데이터 제거</strong></li>
+<li>보통 body 없이 <strong>id만으로 처리</strong></li>
+<li>성공 시 간단한 메시지나 상태 코드 반환</li>
+</ul>
+<hr>
+<h2>PUT vs DELETE 한눈에 비교</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>PUT</th>
+<th>DELETE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>목적</td>
+<td>데이터 수정</td>
+<td>데이터 삭제</td>
+</tr>
+<tr>
+<td>대상</td>
+<td>이미 존재하는 데이터</td>
+<td>이미 존재하는 데이터</td>
+</tr>
+<tr>
+<td>URL</td>
+<td>/boards/{id}</td>
+<td>/boards/{id}</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>있음 (수정값)</td>
+<td>없음 (보통)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>실제로 해보면서 느낀 점</h2>
+<p>GET, POST는 단순히 가져오고 만드는 느낌이었다면
+PUT과 DELETE는 &ldquo;데이터를 관리한다&rdquo;는 느낌이 강했다.</p>
+<p>특히 id를 기준으로
+<strong>정확히 어떤 데이터를 건드리는지 명확하게 지정하는 게 핵심</strong>이었다.</p>
+<hr>
+<h2>마무리</h2>
+<p>CRUD에서</p>
+<ul>
+<li>GET → 조회</li>
+<li>POST → 생성</li>
+<li>PUT → 수정</li>
+<li>DELETE → 삭제</li>
+</ul>
+<p>이렇게 흐름이 완성된다.</p>
+<p>이제 단순히 API를 만든 게 아니라
+<strong>데이터를 다루는 기본 구조를 이해한 단계</strong>라고 보면 될 것 같다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-String-객체로-바꾸기.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] String → 객체로 바꾸기</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-프론트와-백엔드-연결할-때-API_BASE_URL-기준-제대로-잡기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] 프론트와 백엔드 연결할 때 API_BASE_URL 기준 제대로 잡기</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

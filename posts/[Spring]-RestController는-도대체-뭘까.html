@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] @RestController는 도대체 뭘까? | Greenapple0101</title>
+  <meta name="description" content="스프링을 하다 보면 이런 코드가 나온다. 그리고 이런 말을 듣는다. “이건 컨트롤러야” 바로 막힌다. “컨트롤러가 뭐야?” --- 컨트롤러는 요청을 받는 입구다 핵심부터 말하면 이거다. @RestController = 외부 요청을 받는 입구 --- 우리가 만든 서비스는 그냥 내부 로직…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] @RestController는 도대체 뭘까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-28T07:20:56.250Z">2026.04.28</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-RestController는-도대체-뭘까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링을 하다 보면 이런 코드가 나온다.</p>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    @GetMapping(&quot;/boards&quot;)
+    public List&lt;String&gt; getBoards() {
+        return List.of(&quot;게시글1&quot;, &quot;게시글2&quot;);
+    }
+}
+</code></pre>
+<p>그리고 이런 말을 듣는다.</p>
+<p>“이건 컨트롤러야”</p>
+<p>바로 막힌다.</p>
+<p>“컨트롤러가 뭐야?”</p>
+<hr>
+<h3>컨트롤러는 요청을 받는 입구다</h3>
+<p>핵심부터 말하면 이거다.</p>
+<p><strong>@RestController = 외부 요청을 받는 입구</strong></p>
+<hr>
+<h3>우리가 만든 서비스는 그냥 내부 로직이다</h3>
+<pre><code class="language-java">@Service
+public class BoardService {
+
+    public List&lt;String&gt; getBoards() {
+        return List.of(&quot;게시글1&quot;, &quot;게시글2&quot;);
+    }
+}
+</code></pre>
+<p>이건 그냥 기능이다.</p>
+<p>문제는 이거다.</p>
+<p>“이걸 누가 호출하지?”</p>
+<hr>
+<h3>사용자는 이렇게 요청한다</h3>
+<p>브라우저에서</p>
+<pre><code>http://localhost:8080/boards
+</code></pre>
+<p>이렇게 요청을 보낸다.</p>
+<hr>
+<h3>이걸 받아주는 게 컨트롤러다</h3>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    @GetMapping(&quot;/boards&quot;)
+    public List&lt;String&gt; getBoards() {
+        return List.of(&quot;게시글1&quot;, &quot;게시글2&quot;);
+    }
+}
+</code></pre>
+<p>이 코드는 이렇게 읽으면 된다.</p>
+<ul>
+<li>/boards 요청이 오면</li>
+<li>getBoards() 실행해라</li>
+<li>결과를 그대로 반환해라</li>
+</ul>
+<hr>
+<h3>그래서 흐름은 이렇게 된다</h3>
+<pre><code>[사용자]
+   ↓ 요청 (/boards)
+[Controller]
+   ↓
+[Service]
+   ↓
+[결과 반환]
+</code></pre>
+<hr>
+<h3>@RestController의 진짜 의미</h3>
+<p>이건 사실 두 개가 합쳐진 거다.</p>
+<pre><code>@Controller + @ResponseBody
+</code></pre>
+<p>뜻은 이거다.</p>
+<ul>
+<li>@Controller → 요청 받는 클래스</li>
+<li>@ResponseBody → 결과를 JSON으로 반환</li>
+</ul>
+<p>그래서 @RestController는</p>
+<p><strong>“요청 받고, 결과를 JSON으로 바로 내려주는 클래스”</strong></p>
+<hr>
+<h3>왜 JSON으로 주냐?</h3>
+<p>웹/앱은 보통 데이터만 필요하다.</p>
+<pre><code class="language-json">[&quot;게시글1&quot;, &quot;게시글2&quot;]
+</code></pre>
+<p>이걸 프론트엔드가 받아서 화면에 뿌린다.</p>
+<hr>
+<h3>@GetMapping은 뭐냐</h3>
+<pre><code class="language-java">@GetMapping(&quot;/boards&quot;)
+</code></pre>
+<p>이건 이렇게 읽으면 된다.</p>
+<ul>
+<li>GET 요청이</li>
+<li>/boards로 들어오면</li>
+<li>이 메서드를 실행해라</li>
+</ul>
+<hr>
+<h3>컨트롤러는 로직을 하면 안 된다</h3>
+<p>여기서 중요한 포인트</p>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    public List&lt;String&gt; getBoards() {
+        // ❌ 여기서 로직 다 하면 안됨
+    }
+}
+</code></pre>
+<p>컨트롤러 역할은 딱 하나다.</p>
+<ul>
+<li>요청 받기</li>
+<li>서비스 호출</li>
+<li>결과 반환</li>
+</ul>
+<p>그래서 이렇게 쓴다.</p>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    @GetMapping(&quot;/boards&quot;)
+    public List&lt;String&gt; getBoards() {
+        return boardService.getBoards();
+    }
+}
+</code></pre>
+<hr>
+<h3>역할 정리</h3>
+<ul>
+<li>Controller → 입구</li>
+<li>Service → 로직</li>
+<li>Repository → 데이터</li>
+</ul>
+<hr>
+<h3>비유로 보면</h3>
+<p>컨트롤러 = 주문 받는 직원
+서비스 = 요리사</p>
+<ul>
+<li>손님이 주문한다 (요청)</li>
+<li>직원이 주문을 받는다 (Controller)</li>
+<li>요리사에게 전달한다 (Service)</li>
+<li>음식이 나온다 (응답)</li>
+</ul>
+<hr>
+<h3>한 줄 결론</h3>
+<p><strong>@RestController는 외부 요청을 받아서 처리 결과를 JSON으로 내려주는 스프링의 입구다</strong></p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-Bean은-도대체-뭘까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] Bean은 도대체 뭘까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-GetMapping은-도대체-뭘까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] @GetMapping은 도대체 뭘까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

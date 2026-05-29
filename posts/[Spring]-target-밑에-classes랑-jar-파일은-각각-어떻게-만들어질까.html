@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] target 밑에 classes랑 jar 파일은 각각 어떻게 만들어질까? | Greenapple0101</title>
+  <meta name="description" content="스프링 프로젝트를 Maven으로 빌드하다 보면 target 폴더 밑에 여러 파일이 생긴다. 처음 보면 조금 어지럽다. 특히 눈에 띄는 게 있다. 여기서 핵심은 두 개다. 그리고 둘 다 빌드 결과물이긴 한데, 역할이 다르다. classes 는 “컴파일된 중간 결과물”이고, jar 는 “…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] target 밑에 classes랑 jar 파일은 각각 어떻게 만들어질까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-12T09:09:05.249Z">2026.05.12</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-target-밑에-classes랑-jar-파일은-각각-어떻게-만들어질까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링 프로젝트를 Maven으로 빌드하다 보면 <code>target</code> 폴더 밑에 여러 파일이 생긴다. 처음 보면 조금 어지럽다. 특히 눈에 띄는 게 있다.</p>
+<pre><code class="language-text">target
+├── classes
+│   ├── com
+│   └── application.properties
+├── generated-sources
+├── generated-test-sources
+├── maven-archiver
+├── maven-status
+├── surefire-reports
+├── test-classes
+├── hello-world-0.0.1-SNAPSHOT.jar
+└── hello-world-0.0.1-SNAPSHOT.jar.original
+</code></pre>
+<p>여기서 핵심은 두 개다.</p>
+<pre><code class="language-text">target/classes
+</code></pre>
+<p>그리고</p>
+<pre><code class="language-text">target/hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>둘 다 빌드 결과물이긴 한데, 역할이 다르다.</p>
+<p><code>classes</code>는 “컴파일된 중간 결과물”이고, <code>jar</code>는 “실행하거나 배포하기 좋게 묶은 최종 결과물”이다.</p>
+<hr>
+<h2>1. target 폴더는 언제 생길까?</h2>
+<p>Maven 프로젝트에서 빌드를 하면 <code>target</code> 폴더가 생긴다.</p>
+<p>예를 들어 이런 명령어를 치면 된다.</p>
+<pre><code class="language-bash">./mvnw compile
+</code></pre>
+<p>또는</p>
+<pre><code class="language-bash">./mvnw package
+</code></pre>
+<p>윈도우라면 보통 이렇게 칠 수 있다.</p>
+<pre><code class="language-bash">mvnw.cmd compile
+</code></pre>
+<p>또는</p>
+<pre><code class="language-bash">mvnw.cmd package
+</code></pre>
+<p><code>target</code> 폴더는 Maven이 빌드하면서 만든 결과물을 모아두는 곳이다.</p>
+<p>소스코드는 보통 여기에 있다.</p>
+<pre><code class="language-text">src/main/java
+src/main/resources
+src/test/java
+</code></pre>
+<p>빌드 결과물은 여기에 생긴다.</p>
+<pre><code class="language-text">target
+</code></pre>
+<p>즉, <code>src</code>는 내가 작성한 원본이고, <code>target</code>은 Maven이 만들어낸 결과물이다.</p>
+<hr>
+<h2>2. classes 폴더는 뭘까?</h2>
+<p><code>target/classes</code>는 자바 코드가 컴파일된 결과물이 들어가는 폴더다.</p>
+<p>예를 들어 내가 이런 파일을 만들었다고 하자.</p>
+<pre><code class="language-text">src/main/java/com/example/helloworld/HelloWorldApplication.java
+</code></pre>
+<p>이 파일은 사람이 읽는 자바 코드다.</p>
+<pre><code class="language-java">public class HelloWorldApplication {
+    public static void main(String[] args) {
+        System.out.println(&quot;Hello World&quot;);
+    }
+}
+</code></pre>
+<p>그런데 컴퓨터는 <code>.java</code> 파일을 그대로 실행하지 않는다.</p>
+<p>자바 코드는 먼저 컴파일되어야 한다.</p>
+<p>컴파일을 하면 <code>.java</code> 파일이 <code>.class</code> 파일로 바뀐다.</p>
+<pre><code class="language-text">HelloWorldApplication.java
+</code></pre>
+<p>이게 컴파일되면</p>
+<pre><code class="language-text">HelloWorldApplication.class
+</code></pre>
+<p>가 된다.</p>
+<p>그리고 그 결과물이 들어가는 곳이 바로 <code>target/classes</code>다.</p>
+<hr>
+<h2>3. classes 폴더 안에 com 폴더가 있는 이유</h2>
+<p>스크린샷을 보면 <code>classes</code> 밑에 <code>com</code> 폴더가 있다.</p>
+<pre><code class="language-text">target/classes/com
+</code></pre>
+<p>이건 패키지 구조 때문이다.</p>
+<p>예를 들어 자바 파일 위에 이런 패키지 선언이 있었다고 하자.</p>
+<pre><code class="language-java">package com.example.helloworld;
+</code></pre>
+<p>그러면 컴파일 결과도 이 패키지 구조를 따라간다.</p>
+<pre><code class="language-text">target/classes/com/example/helloworld/HelloWorldApplication.class
+</code></pre>
+<p>즉, 원래 소스 구조가 이랬다면</p>
+<pre><code class="language-text">src/main/java/com/example/helloworld/HelloWorldApplication.java
+</code></pre>
+<p>컴파일 후에는 이렇게 된다.</p>
+<pre><code class="language-text">target/classes/com/example/helloworld/HelloWorldApplication.class
+</code></pre>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">src/main/java 안의 .java 파일
+        ↓ 컴파일
+target/classes 안의 .class 파일
+</code></pre>
+<hr>
+<h2>4. application.properties는 왜 classes 밑에 있을까?</h2>
+<p>스크린샷을 보면 <code>classes</code> 밑에 <code>application.properties</code>도 있다.</p>
+<pre><code class="language-text">target/classes/application.properties
+</code></pre>
+<p>이 파일은 원래 보통 여기에 있다.</p>
+<pre><code class="language-text">src/main/resources/application.properties
+</code></pre>
+<p><code>resources</code> 폴더에 있는 파일은 자바 코드처럼 컴파일되지는 않는다.</p>
+<p>대신 빌드할 때 <code>target/classes</code>로 복사된다.</p>
+<p>즉, 이런 흐름이다.</p>
+<pre><code class="language-text">src/main/resources/application.properties
+        ↓ 복사
+target/classes/application.properties
+</code></pre>
+<p>왜 <code>classes</code> 밑으로 복사될까?</p>
+<p>스프링 부트 애플리케이션이 실행될 때 <code>application.properties</code> 같은 설정 파일을 클래스패스에서 찾기 때문이다.</p>
+<p>여기서 클래스패스란 간단히 말하면 “자바 애플리케이션이 실행될 때 참고하는 파일 경로”다.</p>
+<p><code>target/classes</code>는 실행 시 클래스패스에 포함된다.</p>
+<p>그래서 <code>.class</code> 파일뿐만 아니라 설정 파일도 같이 들어간다.</p>
+<hr>
+<h2>5. 그러면 classes 폴더만 있으면 실행할 수 있나?</h2>
+<p>이론적으로는 가능하다.</p>
+<p>컴파일된 <code>.class</code> 파일과 필요한 리소스가 <code>target/classes</code>에 있으니까, 이걸 기준으로 실행할 수도 있다.</p>
+<p>하지만 실무에서는 보통 <code>classes</code> 폴더를 직접 들고 다니지 않는다.</p>
+<p>왜냐하면 실행에 필요한 파일이 여러 군데 흩어져 있기 때문이다.</p>
+<p>스프링 부트 프로젝트는 내 코드만 필요한 게 아니다.</p>
+<p>예를 들어 이런 라이브러리들이 필요하다.</p>
+<pre><code class="language-text">spring-boot
+spring-web
+tomcat
+jackson
+logging
+</code></pre>
+<p>내가 만든 <code>.class</code> 파일만 있다고 해서 애플리케이션이 완전히 실행되는 게 아니다.</p>
+<p>그래서 필요한 것들을 하나로 묶은 파일이 필요하다.</p>
+<p>그게 바로 <code>jar</code> 파일이다.</p>
+<hr>
+<h2>6. jar 파일은 뭘까?</h2>
+<p><code>jar</code>는 Java Archive의 줄임말이다.</p>
+<p>쉽게 말하면 자바 애플리케이션을 실행하거나 배포하기 위해 파일들을 하나로 묶은 압축 파일이다.</p>
+<p>스크린샷에 이런 파일이 있다.</p>
+<pre><code class="language-text">hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>이 파일은 Maven의 <code>package</code> 단계에서 만들어진다.</p>
+<p>명령어로는 보통 이렇게 만든다.</p>
+<pre><code class="language-bash">./mvnw package
+</code></pre>
+<p>윈도우라면</p>
+<pre><code class="language-bash">mvnw.cmd package
+</code></pre>
+<p>이 명령어를 실행하면 Maven은 대략 이런 일을 한다.</p>
+<pre><code class="language-text">1. src/main/java 컴파일
+2. target/classes 생성
+3. src/main/resources 파일 복사
+4. 테스트 코드 컴파일
+5. 테스트 실행
+6. 컴파일 결과물과 리소스를 jar로 묶음
+</code></pre>
+<p>즉, <code>jar</code>는 <code>classes</code>보다 나중에 만들어진다.</p>
+<hr>
+<h2>7. compile과 package의 차이</h2>
+<p>여기서 중요한 차이가 있다.</p>
+<pre><code class="language-bash">./mvnw compile
+</code></pre>
+<p>을 하면 보통 <code>target/classes</code>까지 만들어진다.</p>
+<p>하지만 jar 파일은 아직 안 만들어질 수 있다.</p>
+<p>반면</p>
+<pre><code class="language-bash">./mvnw package
+</code></pre>
+<p>를 하면 <code>classes</code>도 만들고, 최종적으로 <code>jar</code> 파일까지 만든다.</p>
+<p>흐름으로 보면 이렇다.</p>
+<pre><code class="language-text">mvn compile
+    ↓
+target/classes 생성
+
+mvn package
+    ↓
+target/classes 생성
+    ↓
+target/*.jar 생성
+</code></pre>
+<p>즉, <code>compile</code>은 중간 결과물까지 만드는 단계이고, <code>package</code>는 실행 가능한 패키지까지 만드는 단계다.</p>
+<hr>
+<h2>8. Spring Boot의 jar는 그냥 jar랑 조금 다르다</h2>
+<p>일반 자바 프로젝트의 jar는 단순히 <code>.class</code> 파일과 리소스를 묶은 파일일 수 있다.</p>
+<p>그런데 스프링 부트의 jar는 보통 실행 가능한 jar다.</p>
+<p>즉, 이렇게 실행할 수 있다.</p>
+<pre><code class="language-bash">java -jar target/hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>그러면 스프링 부트 애플리케이션이 실행된다.</p>
+<pre><code class="language-text">Tomcat started on port 8080
+Started HelloWorldApplication
+</code></pre>
+<p>스프링 부트 jar 안에는 내 코드뿐만 아니라 실행에 필요한 구조가 같이 들어간다.</p>
+<p>대략 이런 식이다.</p>
+<pre><code class="language-text">hello-world-0.0.1-SNAPSHOT.jar
+├── BOOT-INF
+│   ├── classes
+│   │   ├── com
+│   │   └── application.properties
+│   └── lib
+│       ├── spring-boot-*.jar
+│       ├── spring-web-*.jar
+│       └── ...
+├── META-INF
+└── org/springframework/boot/loader
+</code></pre>
+<p>여기서 중요한 부분은 이거다.</p>
+<pre><code class="language-text">BOOT-INF/classes
+</code></pre>
+<p>여기에 내 애플리케이션의 컴파일 결과물이 들어간다.</p>
+<p>그리고</p>
+<pre><code class="language-text">BOOT-INF/lib
+</code></pre>
+<p>여기에 필요한 라이브러리들이 들어간다.</p>
+<p>즉, 스프링 부트 jar는 단순히 내 코드만 묶은 게 아니라, 애플리케이션 실행에 필요한 것들을 꽤 많이 포함하고 있다.</p>
+<p>그래서 <code>java -jar</code>로 바로 실행할 수 있다.</p>
+<hr>
+<h2>9. jar.original은 뭘까?</h2>
+<p>스크린샷을 보면 이런 파일도 보인다.</p>
+<pre><code class="language-text">hello-world-0.0.1-SNAPSHOT.jar.original
+</code></pre>
+<p>이건 스프링 부트 Maven 플러그인이 jar를 다시 패키징하면서 생기는 파일이다.</p>
+<p>조금 더 풀어서 보면 이렇다.</p>
+<p>Maven이 먼저 일반 jar를 만든다.</p>
+<pre><code class="language-text">hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>그런데 스프링 부트는 이 jar를 실행 가능한 jar로 바꿔야 한다.</p>
+<p>그래서 기존 jar를 백업해두고</p>
+<pre><code class="language-text">hello-world-0.0.1-SNAPSHOT.jar.original
+</code></pre>
+<p>새로운 실행 가능한 jar를 만든다.</p>
+<pre><code class="language-text">hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>즉, 최종적으로 우리가 실행할 파일은 보통 이거다.</p>
+<pre><code class="language-bash">java -jar target/hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p><code>.jar.original</code>은 보통 직접 실행하지 않는다.</p>
+<hr>
+<h2>10. 전체 흐름 정리</h2>
+<p>스프링 프로젝트에서 내가 작성한 파일은 보통 여기에 있다.</p>
+<pre><code class="language-text">src/main/java
+src/main/resources
+</code></pre>
+<p>Maven 빌드를 하면 먼저 자바 코드가 컴파일된다.</p>
+<pre><code class="language-text">src/main/java/com/example/HelloWorldApplication.java
+        ↓
+target/classes/com/example/HelloWorldApplication.class
+</code></pre>
+<p>그리고 리소스 파일이 복사된다.</p>
+<pre><code class="language-text">src/main/resources/application.properties
+        ↓
+target/classes/application.properties
+</code></pre>
+<p>그다음 <code>package</code> 단계에서 이것들을 jar로 묶는다.</p>
+<pre><code class="language-text">target/classes
+        ↓
+target/hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>최종 실행은 이렇게 한다.</p>
+<pre><code class="language-bash">java -jar target/hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<hr>
+<h2>11. Dockerfile에서 jar를 복사하는 이유</h2>
+<p>Dockerfile을 보면 이런 코드가 자주 나온다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>여기서 이 부분이 중요하다.</p>
+<pre><code class="language-dockerfile">COPY target/*.jar app.jar
+</code></pre>
+<p>도커 이미지 안에 <code>target/classes</code>를 복사하는 게 아니라 <code>jar</code> 파일을 복사한다.</p>
+<p>왜냐하면 jar 파일이 실행에 필요한 것들을 하나로 묶은 최종 결과물이기 때문이다.</p>
+<p>즉, 로컬에서 Maven 빌드를 먼저 한다.</p>
+<pre><code class="language-bash">./mvnw package
+</code></pre>
+<p>그러면 jar가 생긴다.</p>
+<pre><code class="language-text">target/hello-world-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p>그 다음 Docker build를 한다.</p>
+<pre><code class="language-bash">docker build -t hello-world:v1 .
+</code></pre>
+<p>Dockerfile은 <code>target/*.jar</code>를 이미지 안으로 복사한다.</p>
+<p>그리고 컨테이너가 실행될 때 이 명령어가 실행된다.</p>
+<pre><code class="language-bash">java -jar app.jar
+</code></pre>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">Maven package
+    ↓
+target/classes 생성
+    ↓
+target/*.jar 생성
+    ↓
+Docker build
+    ↓
+jar를 이미지 안으로 복사
+    ↓
+Docker run
+    ↓
+컨테이너 안에서 java -jar app.jar 실행
+</code></pre>
+<hr>
+<h2>12. classes와 jar의 차이 한 번에 정리</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>target/classes</th>
+<th>target/*.jar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>역할</td>
+<td>컴파일된 중간 결과물</td>
+<td>실행/배포용 최종 결과물</td>
+</tr>
+<tr>
+<td>생성 시점</td>
+<td><code>mvn compile</code>부터 생성</td>
+<td><code>mvn package</code>에서 생성</td>
+</tr>
+<tr>
+<td>들어있는 것</td>
+<td><code>.class</code> 파일, resources 파일</td>
+<td>classes, resources, 라이브러리, 실행 구조</td>
+</tr>
+<tr>
+<td>직접 실행</td>
+<td>가능은 하지만 번거로움</td>
+<td><code>java -jar</code>로 실행 가능</td>
+</tr>
+<tr>
+<td>Docker에서 사용</td>
+<td>보통 직접 복사하지 않음</td>
+<td>보통 이 파일을 이미지에 복사</td>
+</tr>
+<tr>
+<td>실무 관점</td>
+<td>빌드 중간 산출물</td>
+<td>배포 산출물</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>13. 결론</h2>
+<p><code>target/classes</code>는 Maven이 자바 코드를 컴파일해서 만든 중간 결과물이다.</p>
+<pre><code class="language-text">.java → .class
+</code></pre>
+<p>그리고 <code>src/main/resources</code>에 있던 설정 파일도 이곳으로 복사된다.</p>
+<pre><code class="language-text">application.properties → target/classes/application.properties
+</code></pre>
+<p>반면 <code>target/*.jar</code>는 애플리케이션을 실행하거나 배포하기 위해 최종적으로 묶은 파일이다.</p>
+<pre><code class="language-text">target/classes + 필요한 라이브러리 + 실행 구조 → jar
+</code></pre>
+<p>그래서 개발 중에는 <code>classes</code> 폴더를 보면서 “아, 컴파일 결과물이 여기 생기는구나”라고 이해하면 되고, 실제 실행이나 Docker 이미지 생성에서는 보통 <code>jar</code> 파일을 사용하면 된다.</p>
+<p>한 줄로 정리하면 이렇다.</p>
+<pre><code class="language-text">classes는 컴파일 결과물이고, jar는 그 결과물을 실행 가능하게 묶은 배포 파일이다.
+</code></pre>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-톰캣-Tomcat-은-도대체-뭘-하는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] 톰캣(Tomcat)은 도대체 뭘 하는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-Spring-AI는-어떻게-Spring-Boot에-붙는-걸까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] Spring AI는 어떻게 Spring Boot에 붙는 걸까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

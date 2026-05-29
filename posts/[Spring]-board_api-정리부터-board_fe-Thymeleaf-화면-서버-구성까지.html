@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Spring] board_api 정리부터 board_fe Thymeleaf 화면 서버 구성까지 | Greenapple0101</title>
+  <meta name="description" content="이번 작업의 목표는 단순히 게시판 CRUD를 만드는 것이 아니었다. 기존에 하나의 Spring Boot 프로젝트 안에서 화면과 API가 섞여 있던 구조를 정리하고, 역할을 분리하는 것이 핵심이었다. 최종 목표는 다음과 같았다. 즉 브라우저가 직접 board_api 를 보는 것이 아니라…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[Spring] board_api 정리부터 board_fe Thymeleaf 화면 서버 구성까지</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-06T04:26:41.047Z">2026.05.06</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Spring-boardapi-정리부터-boardfe-Thymeleaf-화면-서버-구성까지" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>이번 작업의 목표는 단순히 게시판 CRUD를 만드는 것이 아니었다.
+기존에 하나의 Spring Boot 프로젝트 안에서 화면과 API가 섞여 있던 구조를 정리하고, 역할을 분리하는 것이 핵심이었다.</p>
+<p>최종 목표는 다음과 같았다.</p>
+<pre><code class="language-text">board_api
+→ REST API 서버
+→ JPA
+→ PostgreSQL
+→ JSON 응답
+
+board_fe
+→ Spring Boot 화면 서버
+→ Thymeleaf
+→ RestClient
+→ board_api 호출
+</code></pre>
+<p>즉 브라우저가 직접 <code>board_api</code>를 보는 것이 아니라,
+사용자는 <code>board_fe</code>에 접속하고 <code>board_fe</code>가 내부적으로 <code>board_api</code>를 호출하는 구조다.</p>
+<pre><code class="language-text">Browser
+→ board_fe
+→ RestClient
+→ board_api
+→ JPA
+→ PostgreSQL
+</code></pre>
+<hr>
+<h2>1. 기존 구조의 문제</h2>
+<p>처음에는 <code>board_api</code> 안에 API용 컨트롤러와 화면용 컨트롤러가 같이 있었다.</p>
+<p>예를 들면 이런 파일들이 있었다.</p>
+<pre><code class="language-text">controller
+├── BoardController.java
+├── BoardPageController.java
+└── HomeController.java
+</code></pre>
+<p>여기서 <code>BoardController</code>는 REST API 역할을 하고,
+<code>BoardPageController</code>, <code>HomeController</code>는 Thymeleaf 화면을 반환하는 역할이었다.</p>
+<p>처음에는 작은 프로젝트라 이렇게 해도 동작은 한다.</p>
+<p>하지만 이번 목표는 <code>board_api</code>와 <code>board_fe</code>를 나누는 것이었기 때문에,
+<code>board_api</code> 안에 화면 관련 코드가 남아 있으면 역할이 애매해진다.</p>
+<p>그래서 기준을 다시 잡았다.</p>
+<pre><code class="language-text">board_api는 JSON만 반환한다.
+board_fe는 HTML 화면만 담당한다.
+</code></pre>
+<hr>
+<h2>2. board_api에서 화면 코드 제거</h2>
+<p>먼저 <code>board_api</code>를 REST API 서버로 정리했다.</p>
+<p>삭제하거나 이동해야 하는 파일은 다음과 같았다.</p>
+<pre><code class="language-text">BoardPageController.java
+HomeController.java
+templates 폴더
+static 폴더
+boards.json
+</code></pre>
+<p><code>BoardPageController.java</code>와 <code>HomeController.java</code>는 보통 이런 형태의 코드였다.</p>
+<pre><code class="language-java">@Controller
+public class HomeController {
+
+    @GetMapping(&quot;/&quot;)
+    public String home() {
+        return &quot;home&quot;;
+    }
+}
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-java">@Controller
+public class BoardPageController {
+
+    @GetMapping(&quot;/boards-page&quot;)
+    public String boardsPage(Model model) {
+        return &quot;boards&quot;;
+    }
+}
+</code></pre>
+<p>이런 코드는 HTML 파일 이름을 반환한다.</p>
+<pre><code class="language-java">return &quot;home&quot;;
+return &quot;boards/list&quot;;
+</code></pre>
+<p>즉 API 서버의 역할이 아니라 화면 서버의 역할이다.</p>
+<p>그래서 <code>board_api</code>에서는 제거하고,
+화면 관련 코드는 <code>board_fe</code>에서 다시 구성하기로 했다.</p>
+<hr>
+<h2>3. board_api 최종 구조</h2>
+<p>정리 후 <code>board_api</code>는 다음 구조로 가져갔다.</p>
+<pre><code class="language-text">board_api
+└── src
+    └── main
+        ├── java
+        │   └── com
+        │       └── board
+        │           └── api
+        │               ├── BoardApiApplication.java
+        │               ├── controller
+        │               │   └── BoardController.java
+        │               ├── domain
+        │               │   └── Board.java
+        │               ├── repository
+        │               │   └── BoardRepository.java
+        │               └── service
+        │                   └── BoardService.java
+        │
+        └── resources
+            └── application.properties
+</code></pre>
+<p>각 파일의 역할은 다음과 같다.</p>
+<pre><code class="language-text">BoardApiApplication.java
+→ Spring Boot 실행 클래스
+
+BoardController.java
+→ REST API 요청 처리
+
+Board.java
+→ JPA Entity
+
+BoardRepository.java
+→ PostgreSQL 접근
+
+BoardService.java
+→ 게시글 비즈니스 로직
+
+application.properties
+→ DB 연결 설정
+</code></pre>
+<hr>
+<h2>4. board_api는 @RestController만 남긴다</h2>
+<p><code>board_api</code>의 컨트롤러는 <code>@Controller</code>가 아니라 <code>@RestController</code> 중심으로 정리했다.</p>
+<pre><code class="language-java">@RestController
+@RequestMapping(&quot;/boards&quot;)
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    @GetMapping
+    public List&lt;Board&gt; getBoards() {
+        return boardService.getBoards();
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public Board getBoard(@PathVariable Long id) {
+        return boardService.getBoard(id);
+    }
+
+    @PostMapping
+    public Board createBoard(@RequestBody Board board) {
+        return boardService.createBoard(board);
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public Board updateBoard(@PathVariable Long id, @RequestBody Board board) {
+        return boardService.updateBoard(id, board);
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public void deleteBoard(@PathVariable Long id) {
+        boardService.deleteBoard(id);
+    }
+}
+</code></pre>
+<p>이제 <code>board_api</code>는 화면을 반환하지 않는다.</p>
+<p>브라우저에서 다음 주소에 접근하면:</p>
+<pre><code class="language-text">http://localhost:8080/boards
+</code></pre>
+<p>HTML 화면이 아니라 JSON 데이터가 나와야 한다.</p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;title&quot;: &quot;첫 게시글&quot;,
+    &quot;content&quot;: &quot;내용&quot;,
+    &quot;author&quot;: &quot;작성자&quot;
+  }
+]
+</code></pre>
+<p>데이터가 없으면 다음처럼 나올 수 있다.</p>
+<pre><code class="language-json">[]
+</code></pre>
+<p>이것도 정상이다.
+API 서버가 정상적으로 JSON 응답을 주고 있다는 뜻이다.</p>
+<hr>
+<h2>5. board_api와 PostgreSQL 연결</h2>
+<p><code>board_api</code>는 JPA를 통해 PostgreSQL과 연결되도록 구성했다.</p>
+<p><code>pom.xml</code>에는 JPA와 PostgreSQL 의존성을 추가했다.</p>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p><code>application.properties</code>에는 DB 연결 정보를 설정했다.</p>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:5432/boarddb
+spring.datasource.username=board
+spring.datasource.password=board1234
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+</code></pre>
+<p>PostgreSQL은 Docker로 로컬에 띄웠다.</p>
+<pre><code class="language-powershell">docker run --name board-postgres -e POSTGRES_USER=board -e POSTGRES_PASSWORD=board1234 -e POSTGRES_DB=boarddb -p 5432:5432 -d postgres:16
+</code></pre>
+<p>즉 현재 로컬 구조는 다음과 같다.</p>
+<pre><code class="language-text">board_api
+→ JPA
+→ localhost:5432
+→ Docker PostgreSQL
+</code></pre>
+<hr>
+<h2>6. Board 엔티티 정리</h2>
+<p>JPA를 적용하면서 <code>Board</code>는 엔티티로 정리했다.</p>
+<pre><code class="language-java">@Entity
+public class Board {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+    private String content;
+
+    private String author;
+
+    protected Board() {
+    }
+
+    public Board(String title, String content, String author) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void update(String title, String content, String author) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
+    }
+}
+</code></pre>
+<p>여기서 의식한 부분은 setter를 무분별하게 열어두지 않는 것이었다.</p>
+<p>기존 방식은 다음과 같았다.</p>
+<pre><code class="language-java">board.setTitle(request.getTitle());
+board.setContent(request.getContent());
+</code></pre>
+<p>하지만 이렇게 되면 객체 상태가 어디서든 쉽게 바뀔 수 있다.</p>
+<p>그래서 수정은 <code>update()</code> 메서드로 제한했다.</p>
+<pre><code class="language-java">board.update(
+        request.getTitle(),
+        request.getContent(),
+        request.getAuthor()
+);
+</code></pre>
+<p>즉 단순히 필드를 바꾸는 것이 아니라,
+“게시글을 수정한다”는 의미를 가진 메서드로 변경을 처리했다.</p>
+<hr>
+<h2>7. BoardRepository 추가</h2>
+<p>JPA를 사용하기 위해 Repository를 만들었다.</p>
+<pre><code class="language-java">package com.board.api.repository;
+
+import com.board.api.domain.Board;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p><code>JpaRepository&lt;Board, Long&gt;</code>의 의미는 다음과 같다.</p>
+<pre><code class="language-text">Board 엔티티를 대상으로 한다.
+Board의 id 타입은 Long이다.
+</code></pre>
+<p>이렇게만 작성해도 기본 CRUD 메서드를 사용할 수 있다.</p>
+<pre><code class="language-text">findAll()
+findById()
+save()
+deleteById()
+</code></pre>
+<hr>
+<h2>8. BoardService를 JPA 기반으로 변경</h2>
+<p>기존에는 Service에서 직접 List나 JSON 파일을 다루었다.</p>
+<p>변경 후에는 Repository를 통해 DB에 접근하도록 바꿨다.</p>
+<pre><code class="language-java">@Service
+public class BoardService {
+
+    private final BoardRepository boardRepository;
+
+    public BoardService(BoardRepository boardRepository) {
+        this.boardRepository = boardRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;Board&gt; getBoards() {
+        return boardRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Board getBoard(Long id) {
+        return boardRepository.findById(id)
+                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;게시글이 없습니다. id=&quot; + id));
+    }
+
+    @Transactional
+    public Board createBoard(Board request) {
+        Board board = new Board(
+                request.getTitle(),
+                request.getContent(),
+                request.getAuthor()
+        );
+
+        return boardRepository.save(board);
+    }
+
+    @Transactional
+    public Board updateBoard(Long id, Board request) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;게시글이 없습니다. id=&quot; + id));
+
+        board.update(
+                request.getTitle(),
+                request.getContent(),
+                request.getAuthor()
+        );
+
+        return board;
+    }
+
+    @Transactional
+    public void deleteBoard(Long id) {
+        boardRepository.deleteById(id);
+    }
+}
+</code></pre>
+<p>이제 데이터 흐름은 다음처럼 정리된다.</p>
+<pre><code class="language-text">Controller
+→ Service
+→ Repository
+→ PostgreSQL
+</code></pre>
+<hr>
+<h2>9. board_fe 생성 목적</h2>
+<p><code>board_api</code> 정리가 끝난 뒤에는 <code>board_fe</code>를 만들었다.</p>
+<p><code>board_fe</code>의 목적은 화면을 담당하는 것이다.</p>
+<p>중요한 기준은 다음과 같다.</p>
+<pre><code class="language-text">board_fe는 DB에 직접 접근하지 않는다.
+board_fe는 board_api를 RestClient로 호출한다.
+board_fe는 Thymeleaf로 HTML을 렌더링한다.
+</code></pre>
+<p>즉 <code>board_fe</code>는 데이터베이스를 모른다.
+DB 접근은 오직 <code>board_api</code>만 담당한다.</p>
+<pre><code class="language-text">Browser
+→ board_fe
+→ RestClient
+→ board_api
+→ PostgreSQL
+</code></pre>
+<hr>
+<h2>10. board_fe 최종 구조</h2>
+<p><code>board_fe</code>는 다음 구조로 정리했다.</p>
+<pre><code class="language-text">board_fe
+└── src
+    └── main
+        ├── java
+        │   └── com
+        │       └── board
+        │           └── fe
+        │               ├── BoardFeApplication.java
+        │               ├── config
+        │               │   └── RestClientConfig.java
+        │               ├── client
+        │               │   └── BoardApiClient.java
+        │               ├── controller
+        │               │   └── BoardPageController.java
+        │               └── dto
+        │                   ├── BoardResponse.java
+        │                   ├── BoardCreateRequest.java
+        │                   └── BoardUpdateRequest.java
+        │
+        └── resources
+            ├── application.properties
+            └── templates
+                └── boards
+                    ├── list.html
+                    ├── detail.html
+                    ├── write.html
+                    └── edit.html
+</code></pre>
+<p>각 역할은 다음과 같다.</p>
+<pre><code class="language-text">config
+→ RestClient 설정
+
+client
+→ board_api 호출 담당
+
+controller
+→ 화면 요청 처리
+
+dto
+→ API와 주고받는 데이터 형식
+
+templates
+→ Thymeleaf HTML 화면
+</code></pre>
+<hr>
+<h2>11. board_fe 포트 분리</h2>
+<p><code>board_api</code>는 8080 포트를 사용하고,
+<code>board_fe</code>는 8081 포트를 사용하도록 설정했다.</p>
+<p><code>board_fe/src/main/resources/application.properties</code></p>
+<pre><code class="language-properties">server.port=8081
+
+board.api.base-url=http://localhost:8080
+</code></pre>
+<p>이제 접속 주소는 다음처럼 나뉜다.</p>
+<pre><code class="language-text">board_api
+→ http://localhost:8080/boards
+→ JSON 응답
+
+board_fe
+→ http://localhost:8081/boards
+→ HTML 화면
+</code></pre>
+<hr>
+<h2>12. RestClient 설정</h2>
+<p><code>board_fe</code>에서 <code>board_api</code>를 호출하기 위해 <code>RestClient</code>를 설정했다.</p>
+<pre><code class="language-java">@Configuration
+public class RestClientConfig {
+
+    @Bean
+    public RestClient restClient(@Value(&quot;${board.api.base-url}&quot;) String baseUrl) {
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .build();
+    }
+}
+</code></pre>
+<p>여기서 <code>board.api.base-url</code>은 <code>application.properties</code>에 정의한 값이다.</p>
+<pre><code class="language-properties">board.api.base-url=http://localhost:8080
+</code></pre>
+<p>즉 <code>board_fe</code>는 이 주소를 기준으로 <code>board_api</code>를 호출한다.</p>
+<hr>
+<h2>13. BoardApiClient 만들기</h2>
+<p>컨트롤러에서 직접 RestClient를 호출하지 않고,
+API 호출 전담 클래스를 따로 만들었다.</p>
+<pre><code class="language-java">@Component
+public class BoardApiClient {
+
+    private final RestClient restClient;
+
+    public BoardApiClient(RestClient restClient) {
+        this.restClient = restClient;
+    }
+
+    public List&lt;BoardResponse&gt; getBoards() {
+        return restClient.get()
+                .uri(&quot;/boards&quot;)
+                .retrieve()
+                .body(new ParameterizedTypeReference&lt;List&lt;BoardResponse&gt;&gt;() {});
+    }
+
+    public BoardResponse getBoard(Long id) {
+        return restClient.get()
+                .uri(&quot;/boards/{id}&quot;, id)
+                .retrieve()
+                .body(BoardResponse.class);
+    }
+
+    public void createBoard(BoardCreateRequest request) {
+        restClient.post()
+                .uri(&quot;/boards&quot;)
+                .body(request)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public void updateBoard(Long id, BoardUpdateRequest request) {
+        restClient.put()
+                .uri(&quot;/boards/{id}&quot;, id)
+                .body(request)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public void deleteBoard(Long id) {
+        restClient.delete()
+                .uri(&quot;/boards/{id}&quot;, id)
+                .retrieve()
+                .toBodilessEntity();
+    }
+}
+</code></pre>
+<p>이렇게 분리하면 컨트롤러가 깔끔해진다.</p>
+<pre><code class="language-text">Controller
+→ 화면 흐름 담당
+
+BoardApiClient
+→ API 통신 담당
+</code></pre>
+<hr>
+<h2>14. BoardPageController 만들기</h2>
+<p><code>board_fe</code>의 컨트롤러는 화면을 반환한다.</p>
+<pre><code class="language-java">@Controller
+@RequestMapping(&quot;/boards&quot;)
+public class BoardPageController {
+
+    private final BoardApiClient boardApiClient;
+
+    public BoardPageController(BoardApiClient boardApiClient) {
+        this.boardApiClient = boardApiClient;
+    }
+
+    @GetMapping
+    public String list(Model model) {
+        List&lt;BoardResponse&gt; boards = boardApiClient.getBoards();
+        model.addAttribute(&quot;boards&quot;, boards);
+        return &quot;boards/list&quot;;
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public String detail(@PathVariable Long id, Model model) {
+        BoardResponse board = boardApiClient.getBoard(id);
+        model.addAttribute(&quot;board&quot;, board);
+        return &quot;boards/detail&quot;;
+    }
+
+    @GetMapping(&quot;/write&quot;)
+    public String writeForm() {
+        return &quot;boards/write&quot;;
+    }
+
+    @PostMapping
+    public String create(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String author
+    ) {
+        BoardCreateRequest request = new BoardCreateRequest(title, content, author);
+        boardApiClient.createBoard(request);
+        return &quot;redirect:/boards&quot;;
+    }
+
+    @GetMapping(&quot;/{id}/edit&quot;)
+    public String editForm(@PathVariable Long id, Model model) {
+        BoardResponse board = boardApiClient.getBoard(id);
+        model.addAttribute(&quot;board&quot;, board);
+        return &quot;boards/edit&quot;;
+    }
+
+    @PostMapping(&quot;/{id}/edit&quot;)
+    public String update(
+            @PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String author
+    ) {
+        BoardUpdateRequest request = new BoardUpdateRequest(title, content, author);
+        boardApiClient.updateBoard(id, request);
+        return &quot;redirect:/boards/&quot; + id;
+    }
+
+    @PostMapping(&quot;/{id}/delete&quot;)
+    public String delete(@PathVariable Long id) {
+        boardApiClient.deleteBoard(id);
+        return &quot;redirect:/boards&quot;;
+    }
+}
+</code></pre>
+<p><code>board_fe</code>의 컨트롤러는 HTML 파일 이름을 반환한다.</p>
+<pre><code class="language-java">return &quot;boards/list&quot;;
+return &quot;boards/detail&quot;;
+return &quot;boards/write&quot;;
+return &quot;boards/edit&quot;;
+</code></pre>
+<p>그래서 실제 파일 위치는 다음과 같아야 한다.</p>
+<pre><code class="language-text">templates/boards/list.html
+templates/boards/detail.html
+templates/boards/write.html
+templates/boards/edit.html
+</code></pre>
+<hr>
+<h2>15. Thymeleaf 템플릿 구성</h2>
+<p>화면은 최소 CRUD 기준으로 네 개를 만들었다.</p>
+<pre><code class="language-text">list.html
+→ 게시글 목록
+
+detail.html
+→ 게시글 상세
+
+write.html
+→ 게시글 작성
+
+edit.html
+→ 게시글 수정
+</code></pre>
+<p>예를 들어 목록 화면은 다음과 같은 방식으로 작성했다.</p>
+<pre><code class="language-html">&lt;tr th:each=&quot;board : ${boards}&quot;&gt;
+    &lt;td th:text=&quot;${board.id}&quot;&gt;1&lt;/td&gt;
+    &lt;td th:text=&quot;${board.title}&quot;&gt;제목&lt;/td&gt;
+    &lt;td th:text=&quot;${board.author}&quot;&gt;작성자&lt;/td&gt;
+    &lt;td&gt;
+        &lt;a th:href=&quot;@{/boards/{id}(id=${board.id})}&quot;&gt;상세보기&lt;/a&gt;
+    &lt;/td&gt;
+&lt;/tr&gt;
+</code></pre>
+<p>여기서 <code>boards</code>는 컨트롤러에서 Model에 담은 값이다.</p>
+<pre><code class="language-java">model.addAttribute(&quot;boards&quot;, boards);
+</code></pre>
+<p>즉 흐름은 다음과 같다.</p>
+<pre><code class="language-text">board_fe Controller
+→ BoardApiClient로 board_api 호출
+→ 응답 데이터를 Model에 담음
+→ Thymeleaf가 HTML로 렌더링
+</code></pre>
+<hr>
+<h2>16. 실행 순서</h2>
+<p>실행 순서도 중요했다.</p>
+<p>먼저 PostgreSQL 컨테이너가 떠 있어야 한다.</p>
+<pre><code class="language-powershell">docker ps
+</code></pre>
+<p>그다음 <code>board_api</code>를 실행한다.</p>
+<pre><code class="language-powershell">cd C:\Users\oscbs\OneDrive\Desktop\board\board_api
+mvn spring-boot:run
+</code></pre>
+<p><code>board_api</code>가 정상 실행되면 다음 주소에서 JSON 응답을 확인한다.</p>
+<pre><code class="language-text">http://localhost:8080/boards
+</code></pre>
+<p>그다음 <code>board_fe</code>를 실행한다.</p>
+<pre><code class="language-powershell">cd C:\Users\oscbs\OneDrive\Desktop\board\board_fe
+mvn spring-boot:run
+</code></pre>
+<p>브라우저에서 다음 주소로 접속한다.</p>
+<pre><code class="language-text">http://localhost:8081/boards
+</code></pre>
+<p>이때 게시판 HTML 화면이 보이면 성공이다.</p>
+<hr>
+<h2>17. 이번 작업에서 배운 점</h2>
+<p>이번 작업의 핵심은 단순히 Thymeleaf 화면을 붙이는 것이 아니었다.</p>
+<p>더 중요한 것은 서버의 역할을 분리하는 것이었다.</p>
+<p>기존에는 하나의 프로젝트에서 화면도 처리하고 API도 처리했다.</p>
+<pre><code class="language-text">Spring Boot 하나
+→ Controller
+→ Service
+→ 데이터
+→ HTML 또는 JSON
+</code></pre>
+<p>하지만 이번에는 다음처럼 나누었다.</p>
+<pre><code class="language-text">board_api
+→ 데이터와 API 담당
+
+board_fe
+→ 화면과 사용자 요청 흐름 담당
+</code></pre>
+<p>이 구조로 나누면 각각의 책임이 명확해진다.</p>
+<pre><code class="language-text">DB 연결 문제
+→ board_api에서 확인
+
+화면 렌더링 문제
+→ board_fe에서 확인
+
+API 통신 문제
+→ board_fe의 RestClient 또는 board_api endpoint 확인
+</code></pre>
+<hr>
+<h2>18. 최종 정리</h2>
+<p>이번 작업은 기존 게시판 프로젝트를 다음 단계로 발전시키는 과정이었다.</p>
+<pre><code class="language-text">1. board_api에서 화면 관련 파일 제거
+2. board_api를 REST API 서버로 정리
+3. PostgreSQL Docker 컨테이너와 JPA 연결
+4. Board 엔티티, Repository, Service 구조 정리
+5. board_fe를 별도 Spring Boot 프로젝트로 구성
+6. board_fe에 Thymeleaf 템플릿 추가
+7. board_fe에서 RestClient로 board_api 호출
+8. 브라우저에서는 board_fe에 접속해서 HTML 화면 확인
+</code></pre>
+<p>최종 구조는 다음과 같다.</p>
+<pre><code class="language-text">Browser
+→ board_fe(Spring Boot + Thymeleaf)
+→ RestClient
+→ board_api(Spring Boot REST API + JPA)
+→ PostgreSQL(Docker)
+</code></pre>
+<p>한 줄로 정리하면 이렇다.</p>
+<pre><code class="language-text">기존에 섞여 있던 게시판 프로젝트를 API 서버와 화면 서버로 분리하고, DB 접근은 board_api에만 두고 board_fe는 RestClient로 데이터를 받아 Thymeleaf 화면을 렌더링하도록 정리했다.
+</code></pre>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-JPA로-바꿨더니-setter를-못-찾는다고-터졌다.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Spring] JPA로 바꿨더니 setter를 못 찾는다고 터졌다</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-Whitelabel-404-URL-매핑-불일치-때문에-boards가-안-뜬-문제.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Spring Boot] Whitelabel 404: URL 매핑 불일치 때문에 /boards가 안 뜬 문제</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

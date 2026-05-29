@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\n | Greenapple0101</title>
+  <meta name="description" content="KodeKloud에서 Kubernetes Pod 문제를 풀다 보면 처음에는 명령어 자체보다도 “문제에서 뭘 물어보는지”를 해석하는 게 더 헷갈린다. 특히 kubectl get pods , READY , describe , delete 같은 명령어는 초반 Pod 실습에서 거의 계속 나온…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\n</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-06T22:29:26.075Z">2026.05.06</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>KodeKloud에서 Kubernetes Pod 문제를 풀다 보면 처음에는 명령어 자체보다도 “문제에서 뭘 물어보는지”를 해석하는 게 더 헷갈린다. 특히 <code>kubectl get pods</code>, <code>READY</code>, <code>describe</code>, <code>delete</code> 같은 명령어는 초반 Pod 실습에서 거의 계속 나온다. 이번 글은 KodeKloud Pod 문제를 풀면서 실제로 자주 만난 명령어와 헷갈렸던 부분을 정리한 내용이다.</p>
+<hr>
+<h2>Pod란?</h2>
+<p>Pod는 Kubernetes에서 컨테이너가 실행되는 가장 작은 단위다.</p>
+<p>보통 Docker에서는 컨테이너 하나를 바로 실행한다고 생각하지만, Kubernetes에서는 컨테이너를 직접 관리하기보다 Pod라는 단위 안에 컨테이너를 넣어서 관리한다.</p>
+<p>즉, 구조를 간단히 보면 다음과 같다.</p>
+<pre><code class="language-text">Kubernetes
+ └── Pod
+      └── Container
+</code></pre>
+<p>보통 Pod 하나에는 컨테이너 하나가 들어가는 경우가 많지만, 필요하면 Pod 하나 안에 컨테이너가 여러 개 들어갈 수도 있다.</p>
+<hr>
+<h2>현재 Pod 목록 확인하기</h2>
+<p>가장 기본 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<p>또는 짧게 alias가 잡혀 있다면 다음처럼 쓸 수도 있다.</p>
+<pre><code class="language-bash">k get pods
+</code></pre>
+<p>실행하면 대략 이런 형태로 나온다.</p>
+<pre><code class="language-bash">NAME            READY   STATUS             RESTARTS   AGE
+newpods-r6mnr   1/1     Running            0          10m
+newpods-dw8lv   1/1     Running            0          10m
+newpods-5x6jn   1/1     Running            0          10m
+nginx           1/1     Running            0          8m42s
+webapp          1/2     ImagePullBackOff   0          5m42s
+</code></pre>
+<p>각 컬럼의 의미는 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>컬럼</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NAME</td>
+<td>Pod 이름</td>
+</tr>
+<tr>
+<td>READY</td>
+<td>준비된 컨테이너 수 / 전체 컨테이너 수</td>
+</tr>
+<tr>
+<td>STATUS</td>
+<td>Pod 상태</td>
+</tr>
+<tr>
+<td>RESTARTS</td>
+<td>재시작 횟수</td>
+</tr>
+<tr>
+<td>AGE</td>
+<td>생성된 지 얼마나 지났는지</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>READY 컬럼의 의미</h2>
+<p><code>READY</code> 컬럼은 Pod 안에 있는 컨테이너 중 몇 개가 정상 준비 상태인지 보여준다.</p>
+<p>예를 들어 다음과 같은 출력이 있다고 하자.</p>
+<pre><code class="language-bash">NAME      READY   STATUS    RESTARTS   AGE
+nginx     1/1     Running   0          5m
+webapp    1/2     Running   0          3m
+</code></pre>
+<p>여기서 <code>nginx</code>의 <code>READY</code>가 <code>1/1</code>이라는 것은 다음 의미다.</p>
+<pre><code class="language-text">전체 컨테이너 1개 중 1개가 Ready 상태
+</code></pre>
+<p>반면 <code>webapp</code>의 <code>READY</code>가 <code>1/2</code>라면 다음 의미다.</p>
+<pre><code class="language-text">전체 컨테이너 2개 중 1개만 Ready 상태
+</code></pre>
+<p>즉, <code>webapp</code> Pod 안에는 컨테이너가 2개 있는데 그중 하나는 아직 정상 준비되지 않았다는 뜻이다.</p>
+<p>KodeKloud 문제에서 이런 질문이 나올 수 있다.</p>
+<pre><code class="language-text">What does the READY column in the output of the kubectl get pods command indicate?
+</code></pre>
+<p>정답은 다음과 같이 이해하면 된다.</p>
+<pre><code class="language-text">READY 컬럼은 Pod 안의 전체 컨테이너 중 몇 개의 컨테이너가 Ready 상태인지 나타낸다.
+</code></pre>
+<p>영어로 답하면 다음과 같다.</p>
+<pre><code class="language-text">It indicates how many containers in the pod are ready out of the total number of containers in that pod.
+</code></pre>
+<hr>
+<h2>Pod 상태 확인하기</h2>
+<p>Pod 목록을 보면 <code>STATUS</code> 컬럼도 중요하다.</p>
+<p>자주 보이는 상태는 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>STATUS</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Running</td>
+<td>정상 실행 중</td>
+</tr>
+<tr>
+<td>Pending</td>
+<td>아직 실행될 노드가 정해지지 않았거나 준비 중</td>
+</tr>
+<tr>
+<td>ContainerCreating</td>
+<td>컨테이너 생성 중</td>
+</tr>
+<tr>
+<td>ImagePullBackOff</td>
+<td>이미지를 가져오지 못해서 재시도 중</td>
+</tr>
+<tr>
+<td>ErrImagePull</td>
+<td>이미지 가져오기 실패</td>
+</tr>
+<tr>
+<td>CrashLoopBackOff</td>
+<td>컨테이너가 실행됐다가 계속 죽는 중</td>
+</tr>
+<tr>
+<td>Completed</td>
+<td>작업이 끝남</td>
+</tr>
+</tbody>
+</table>
+<p>예를 들어 다음 상태를 보자.</p>
+<pre><code class="language-bash">webapp   1/2   ImagePullBackOff   0   5m42s
+</code></pre>
+<p>이 경우 <code>webapp</code> Pod 안에 컨테이너는 2개인데, 그중 하나가 이미지를 가져오지 못해서 정상 실행되지 못하고 있는 상태다.</p>
+<hr>
+<h2>Pod 자세히 보기</h2>
+<p>Pod의 자세한 정보를 보려면 <code>describe</code>를 사용한다.</p>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>또는 짧게:</p>
+<pre><code class="language-bash">k describe pod webapp
+</code></pre>
+<p>이 명령어로 확인할 수 있는 내용은 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Pod 이름</td>
+</tr>
+<tr>
+<td>Namespace</td>
+<td>Pod가 속한 namespace</td>
+</tr>
+<tr>
+<td>Node</td>
+<td>Pod가 배치된 노드</td>
+</tr>
+<tr>
+<td>Containers</td>
+<td>Pod 안의 컨테이너 목록</td>
+</tr>
+<tr>
+<td>Image</td>
+<td>각 컨테이너가 사용하는 이미지</td>
+</tr>
+<tr>
+<td>State</td>
+<td>컨테이너 상태</td>
+</tr>
+<tr>
+<td>Events</td>
+<td>스케줄링, 이미지 다운로드, 실행 실패 등의 이벤트</td>
+</tr>
+</tbody>
+</table>
+<p>특히 에러가 났을 때는 아래쪽 <code>Events</code>를 잘 봐야 한다.</p>
+<p>예를 들어 이런 로그가 있을 수 있다.</p>
+<pre><code class="language-bash">Failed to pull image &quot;agentx&quot;
+Error: ImagePullBackOff
+</code></pre>
+<p>이 뜻은 Kubernetes가 <code>agentx</code>라는 이미지를 가져오려고 했는데 실패했다는 뜻이다.</p>
+<p>이미지 이름이 틀렸거나, 존재하지 않거나, 권한이 필요한 private image일 수 있다.</p>
+<hr>
+<h2>Pod가 어느 노드에 올라갔는지 확인하기</h2>
+<p>KodeKloud 문제에서 이런 질문도 자주 나온다.</p>
+<pre><code class="language-text">Which nodes are these pods placed on?
+</code></pre>
+<p>이럴 때는 <code>-o wide</code> 옵션을 붙이면 된다.</p>
+<pre><code class="language-bash">kubectl get pods -o wide
+</code></pre>
+<p>출력 예시:</p>
+<pre><code class="language-bash">NAME      READY   STATUS    IP           NODE
+nginx     1/1     Running   10.42.0.10   controlplane
+webapp    1/2     Running   10.42.0.11   node01
+</code></pre>
+<p>여기서 <code>NODE</code> 컬럼을 보면 각 Pod가 어느 노드에 배치됐는지 알 수 있다.</p>
+<hr>
+<h2>Pod 안의 컨테이너 개수 확인하기</h2>
+<p>문제에서 이런 식으로 물어볼 수 있다.</p>
+<pre><code class="language-text">How many containers are part of the webapp pod?
+</code></pre>
+<p>이때는 먼저 <code>describe</code>로 확인하면 된다.</p>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>출력 중에서 <code>Containers:</code> 부분을 보면 된다.</p>
+<p>예시:</p>
+<pre><code class="language-bash">Containers:
+  nginx:
+  agentx:
+</code></pre>
+<p>이렇게 컨테이너 이름이 2개 나오면 <code>webapp</code> Pod 안에는 컨테이너가 2개 있는 것이다.</p>
+<p>또는 명령어로 간단히 확인할 수도 있다.</p>
+<pre><code class="language-bash">kubectl get pod webapp -o jsonpath='{.spec.containers[*].name}'
+</code></pre>
+<p>출력 예시:</p>
+<pre><code class="language-bash">nginx agentx
+</code></pre>
+<p>이 경우 컨테이너는 2개다.</p>
+<hr>
+<h2>Pod가 사용하는 이미지 확인하기</h2>
+<p>문제에서 이런 질문도 나온다.</p>
+<pre><code class="language-text">Which image is specified for the pod?
+</code></pre>
+<p>이때는 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>그리고 <code>Image:</code> 부분을 보면 된다.</p>
+<p>또는 더 짧게 확인하려면 다음처럼 쓸 수 있다.</p>
+<pre><code class="language-bash">kubectl get pod webapp -o jsonpath='{.spec.containers[*].image}'
+</code></pre>
+<p>출력 예시:</p>
+<pre><code class="language-bash">nginx agentx
+</code></pre>
+<p>이 경우 <code>webapp</code> Pod는 <code>nginx</code>, <code>agentx</code> 이미지를 사용하고 있다는 뜻이다.</p>
+<hr>
+<h2>nginx Pod 생성하기</h2>
+<p>KodeKloud에서 자주 나오는 문제다.</p>
+<pre><code class="language-text">Create a new pod using the nginx image.
+</code></pre>
+<p>이때는 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl run nginx --image=nginx
+</code></pre>
+<p>의미는 다음과 같다.</p>
+<pre><code class="language-text">nginx라는 이름의 Pod를 만들고, nginx 이미지를 사용한다.
+</code></pre>
+<p>구조로 보면 다음과 같다.</p>
+<pre><code class="language-bash">kubectl run &lt;pod-name&gt; --image=&lt;image-name&gt;
+</code></pre>
+<p>예를 들어 <code>webapp</code>이라는 이름의 Pod를 <code>nginx</code> 이미지로 만들고 싶으면 다음처럼 쓴다.</p>
+<pre><code class="language-bash">kubectl run webapp --image=nginx
+</code></pre>
+<hr>
+<h2>Pod 삭제하기</h2>
+<p>Pod를 삭제할 때는 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>또는 짧게:</p>
+<pre><code class="language-bash">k delete pod webapp
+</code></pre>
+<p>KodeKloud에서 이런 문제가 나올 수 있다.</p>
+<pre><code class="language-text">Delete the webapp Pod.
+Once deleted, wait for the pod to fully terminate.
+</code></pre>
+<p>이 경우 정답 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>삭제 후에는 바로 Check를 누르지 말고, Pod가 완전히 사라졌는지 확인하는 게 좋다.</p>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<p>목록에서 <code>webapp</code>이 사라졌으면 삭제가 완료된 것이다.</p>
+<hr>
+<h2><code>&lt;webapp&gt;</code>이라고 치면 안 되는 이유</h2>
+<p>실습하면서 헷갈렸던 부분이 있다.</p>
+<p>처음에는 이런 식으로 입력했다.</p>
+<pre><code class="language-bash">kubectl delete pod &lt;webapp&gt;
+</code></pre>
+<p>그랬더니 이런 에러가 났다.</p>
+<pre><code class="language-bash">-bash: syntax error near unexpected token `newline'
+</code></pre>
+<p>이유는 간단하다.</p>
+<p>문서에서 자주 보이는 <code>&lt;pod-name&gt;</code> 같은 표기는 “여기에 실제 Pod 이름을 넣으세요”라는 뜻이다.
+실제로 명령어에 <code>&lt; &gt;</code>까지 입력하라는 뜻이 아니다.</p>
+<p>즉, 아래처럼 쓰면 안 된다.</p>
+<pre><code class="language-bash">kubectl delete pod &lt;webapp&gt;
+</code></pre>
+<p>정확한 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>정리하면 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>잘못된 명령어</th>
+<th>올바른 명령어</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kubectl delete pod &lt;webapp&gt;</code></td>
+<td><code>kubectl delete pod webapp</code></td>
+</tr>
+<tr>
+<td><code>k delete pod &lt;webapp&gt;</code></td>
+<td><code>k delete pod webapp</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>&lt; &gt;</code>는 설명용 표시일 뿐 실제 명령어에는 넣지 않는다.</p>
+<hr>
+<h2>Pod 개수 세기</h2>
+<p>문제에서 이런 질문이 나올 수 있다.</p>
+<pre><code class="language-text">How many pods exist on the system?
+In the current(default) namespace.
+</code></pre>
+<p>이때는 현재 namespace의 Pod만 보면 된다.</p>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<p>만약 개수를 명령어로 세고 싶으면 Linux 환경에서는 다음처럼 쓸 수 있다.</p>
+<pre><code class="language-bash">kubectl get pods --no-headers | wc -l
+</code></pre>
+<p>하지만 KodeKloud 초반 문제에서는 보통 <code>kubectl get pods</code>를 보고 눈으로 세도 충분하다.</p>
+<p>주의할 점은 문제에서 <code>current(default) namespace</code>라고 했으면 <code>-A</code>를 붙이면 안 된다는 것이다.</p>
+<pre><code class="language-bash">kubectl get pods -A
+</code></pre>
+<p>이 명령어는 모든 namespace의 Pod를 보여준다.
+문제가 default namespace만 물어보는 경우에는 답이 달라질 수 있다.</p>
+<hr>
+<h2>전체 namespace의 Pod 보기</h2>
+<p>모든 namespace의 Pod를 보고 싶을 때는 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl get pods -A
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">kubectl get pods --all-namespaces
+</code></pre>
+<p>하지만 KodeKloud 문제에서는 “현재 namespace에서”라고 하는지, “전체 시스템에서”라고 하는지 잘 읽어야 한다.</p>
+<hr>
+<h2>Pod 로그 확인하기</h2>
+<p>Pod의 로그를 보고 싶으면 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl logs webapp
+</code></pre>
+<p>Pod 안에 컨테이너가 하나라면 이 명령어로 충분하다.</p>
+<p>하지만 Pod 안에 컨테이너가 여러 개 있으면 컨테이너 이름을 지정해야 한다.</p>
+<pre><code class="language-bash">kubectl logs webapp -c nginx
+</code></pre>
+<p>형식은 다음과 같다.</p>
+<pre><code class="language-bash">kubectl logs &lt;pod-name&gt; -c &lt;container-name&gt;
+</code></pre>
+<p>여기서도 마찬가지로 <code>&lt; &gt;</code>는 실제로 입력하지 않는다.</p>
+<hr>
+<h2>Pod 안으로 들어가기</h2>
+<p>Pod 내부에 접속하고 싶을 때는 <code>exec</code>를 사용한다.</p>
+<pre><code class="language-bash">kubectl exec -it webapp -- sh
+</code></pre>
+<p>만약 bash가 있는 이미지라면 다음처럼 쓸 수도 있다.</p>
+<pre><code class="language-bash">kubectl exec -it webapp -- bash
+</code></pre>
+<p>하지만 <code>nginx</code>, <code>busybox</code>, <code>alpine</code> 같은 가벼운 이미지는 bash가 없는 경우가 많다.
+그럴 때는 보통 <code>sh</code>를 사용한다.</p>
+<pre><code class="language-bash">kubectl exec -it webapp -- sh
+</code></pre>
+<hr>
+<h2>Pod YAML 확인하기</h2>
+<p>Pod의 전체 설정을 YAML로 보고 싶으면 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl get pod webapp -o yaml
+</code></pre>
+<p>이 명령어로 확인할 수 있는 것들은 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>metadata</td>
+<td>이름, 라벨, namespace 등</td>
+</tr>
+<tr>
+<td>spec</td>
+<td>컨테이너 이미지, 포트, 볼륨 등 원하는 상태</td>
+</tr>
+<tr>
+<td>status</td>
+<td>현재 상태, IP, 컨테이너 상태 등</td>
+</tr>
+</tbody>
+</table>
+<p>Pod 설정을 더 정확히 보고 싶을 때는 <code>describe</code>와 <code>-o yaml</code>을 같이 활용하면 좋다.</p>
+<hr>
+<h2>Pod YAML 파일 만들기</h2>
+<p>시험이나 실습에서는 명령어로 바로 Pod를 만들 수도 있지만, YAML 파일을 만들어 수정하는 방식도 많이 쓴다.</p>
+<p>다음 명령어는 Pod를 실제로 만들지 않고 YAML 파일만 생성한다.</p>
+<pre><code class="language-bash">kubectl run nginx --image=nginx --dry-run=client -o yaml &gt; pod.yaml
+</code></pre>
+<p>생성된 파일 확인:</p>
+<pre><code class="language-bash">cat pod.yaml
+</code></pre>
+<p>적용:</p>
+<pre><code class="language-bash">kubectl apply -f pod.yaml
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">kubectl create -f pod.yaml
+</code></pre>
+<hr>
+<h2>KodeKloud Pod 문제 풀이 흐름</h2>
+<p>Pod 문제를 풀 때는 보통 다음 순서로 접근하면 된다.</p>
+<h3>1. 먼저 Pod 목록 확인</h3>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<p>현재 어떤 Pod가 있는지 확인한다.</p>
+<hr>
+<h3>2. 자세한 정보 확인</h3>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>이미지, 컨테이너 개수, 이벤트, 에러 원인 등을 확인한다.</p>
+<hr>
+<h3>3. 노드 정보까지 확인</h3>
+<pre><code class="language-bash">kubectl get pods -o wide
+</code></pre>
+<p>Pod가 어느 노드에 올라갔는지 확인한다.</p>
+<hr>
+<h3>4. 필요한 경우 로그 확인</h3>
+<pre><code class="language-bash">kubectl logs webapp
+</code></pre>
+<p>컨테이너가 여러 개면:</p>
+<pre><code class="language-bash">kubectl logs webapp -c nginx
+</code></pre>
+<hr>
+<h3>5. 삭제 문제면 delete 사용</h3>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>삭제 후 확인:</p>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<hr>
+<h2>자주 나오는 문제별 명령어 정리</h2>
+<h3>Create a new pod using the nginx image.</h3>
+<pre><code class="language-bash">kubectl run nginx --image=nginx
+</code></pre>
+<hr>
+<h3>How many pods exist on the system?</h3>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<hr>
+<h3>What does the READY column indicate?</h3>
+<pre><code class="language-text">Pod 안의 전체 컨테이너 중 Ready 상태인 컨테이너 수를 나타낸다.
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-text">1/2 = 전체 컨테이너 2개 중 1개가 Ready 상태
+</code></pre>
+<hr>
+<h3>Which image is specified for the pod?</h3>
+<pre><code class="language-bash">kubectl describe pod &lt;pod-name&gt;
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">kubectl get pod webapp -o jsonpath='{.spec.containers[*].image}'
+</code></pre>
+<hr>
+<h3>Which nodes are these pods placed on?</h3>
+<pre><code class="language-bash">kubectl get pods -o wide
+</code></pre>
+<hr>
+<h3>How many containers are part of the webapp pod?</h3>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">kubectl get pod webapp -o jsonpath='{.spec.containers[*].name}'
+</code></pre>
+<hr>
+<h3>Delete the webapp Pod.</h3>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>삭제 확인:</p>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<hr>
+<h2>헷갈리지 말아야 할 것</h2>
+<p>문서나 문제 풀이에서 자주 나오는 이런 표기들이 있다.</p>
+<pre><code class="language-bash">kubectl describe pod &lt;pod-name&gt;
+kubectl delete pod &lt;pod-name&gt;
+kubectl logs &lt;pod-name&gt;
+</code></pre>
+<p>여기서 <code>&lt;pod-name&gt;</code>은 실제로 입력하는 값이 아니다.</p>
+<p>예를 들어 Pod 이름이 <code>webapp</code>이면 다음처럼 입력해야 한다.</p>
+<pre><code class="language-bash">kubectl describe pod webapp
+kubectl delete pod webapp
+kubectl logs webapp
+</code></pre>
+<p>아래처럼 입력하면 안 된다.</p>
+<pre><code class="language-bash">kubectl delete pod &lt;webapp&gt;
+</code></pre>
+<p><code>&lt; &gt;</code>는 설명용 기호다.
+실제 터미널에서는 빼고 입력해야 한다.</p>
+<hr>
+<h2>핵심 명령어만 다시 정리</h2>
+<pre><code class="language-bash">kubectl get pods
+</code></pre>
+<p>Pod 목록 확인</p>
+<pre><code class="language-bash">kubectl get pods -o wide
+</code></pre>
+<p>Pod 목록과 노드 정보 확인</p>
+<pre><code class="language-bash">kubectl describe pod webapp
+</code></pre>
+<p>Pod 상세 정보 확인</p>
+<pre><code class="language-bash">kubectl run nginx --image=nginx
+</code></pre>
+<p>nginx 이미지로 Pod 생성</p>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>Pod 삭제</p>
+<pre><code class="language-bash">kubectl logs webapp
+</code></pre>
+<p>Pod 로그 확인</p>
+<pre><code class="language-bash">kubectl exec -it webapp -- sh
+</code></pre>
+<p>Pod 내부 접속</p>
+<pre><code class="language-bash">kubectl get pod webapp -o yaml
+</code></pre>
+<p>Pod YAML 확인</p>
+<pre><code class="language-bash">kubectl get pod webapp -o jsonpath='{.spec.containers[*].image}'
+</code></pre>
+<p>Pod 이미지 확인</p>
+<hr>
+<h2>마무리</h2>
+<p>KodeKloud Pod 문제는 처음에는 영어 문제도 헷갈리고 명령어도 낯설어서 어렵게 느껴진다.
+하지만 초반 문제들은 대부분 <code>get</code>, <code>describe</code>, <code>run</code>, <code>delete</code> 네 가지 명령어 안에서 해결된다.</p>
+<p>가장 중요한 흐름은 다음과 같다.</p>
+<pre><code class="language-text">목록 확인은 get
+자세한 정보는 describe
+생성은 run
+삭제는 delete
+상태 원인은 Events 확인
+</code></pre>
+<p>그리고 <code>&lt;pod-name&gt;</code> 같은 표기는 실제로 입력하는 게 아니라, 그 자리에 진짜 Pod 이름을 넣으라는 뜻이다.</p>
+<p>예를 들어 문제에서 <code>webapp</code> Pod를 삭제하라고 하면 정답은 다음이다.</p>
+<pre><code class="language-bash">kubectl delete pod webapp
+</code></pre>
+<p>Pod 실습 초반에는 이 정도 명령어만 익숙해져도 KodeKloud 문제를 훨씬 덜 헤매고 풀 수 있다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-로컬에서-k3d-클러스터-만들고-LoadBalancer-포트-열기.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] 로컬에서 k3d 클러스터 만들고 LoadBalancer 포트 열기</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[CKA]-ReplicaSet-이미지-수정과-Pod-재생성-흐름-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[NETWORK] SSH는 어떻게 동작하는가 | Greenapple0101</title>
+  <meta name="description" content="개발이나 DevOps를 하다 보면 정말 많이 보게 되는 명령어가 있다. 그리고 같이 등장하는 것들: 처음엔: 싶다. 근데 SSH는: 공개키 암호화 인증 암호화 통신 개념이 다 들어간 꽤 중요한 기술이다. 오늘은 SSH가 실제로 어떻게 동작하는지 흐름으로 이해해보자. --- 1. SSH…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[NETWORK] SSH는 어떻게 동작하는가</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T14:45:04.235Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/NETWORK-SSH는-어떻게-동작하는가" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>개발이나 DevOps를 하다 보면 정말 많이 보게 되는 명령어가 있다.</p>
+<pre><code class="language-bash">ssh ubuntu@10.0.0.5
+</code></pre>
+<p>그리고 같이 등장하는 것들:</p>
+<p>```text id=&rdquo;5h8w6s&rdquo;
+pem 키
+id_rsa
+authorized_keys
+22번 포트</p>
+<pre><code>
+처음엔:
+
+```text id=&quot;yz8nzc&quot;
+&quot;그냥 원격 접속 아닌가?&quot;
+</code></pre>
+<p>싶다.</p>
+<p>근데 SSH는:</p>
+<ul>
+<li>공개키 암호화</li>
+<li>인증</li>
+<li>암호화 통신</li>
+</ul>
+<p>개념이 다 들어간 꽤 중요한 기술이다.</p>
+<p>오늘은 SSH가 실제로 어떻게 동작하는지 흐름으로 이해해보자.</p>
+<hr>
+<h1>1. SSH란?</h1>
+<p>SSH는:</p>
+<p>```text id=&rdquo;l0vrk1&rdquo;
+Secure Shell</p>
+<pre><code>
+의 약자다.
+
+쉽게 말하면:
+
+&gt; 안전하게 원격 서버에 접속하는 기술
+
+이다.
+
+---
+
+# 2. 왜 SSH가 필요한가?
+
+예전에는:
+
+```text id=&quot;bxu73w&quot;
+Telnet
+</code></pre>
+<p>을 많이 썼다.</p>
+<p>근데 문제는:</p>
+<p>```text id=&rdquo;6poh8f&rdquo;
+암호화가 없었다</p>
+<pre><code>
+는 것이다.
+
+즉 비밀번호가 인터넷에 그대로 날아갔다.
+
+그래서 등장한 게:
+
+```text id=&quot;l0v9q6&quot;
+SSH
+</code></pre>
+<p>다.</p>
+<hr>
+<h1>3. SSH의 핵심 기능</h1>
+<p>SSH는 크게 3가지를 제공한다.</p>
+<hr>
+<h2>1) 원격 접속</h2>
+<pre><code class="language-bash">ssh user@server
+</code></pre>
+<hr>
+<h2>2) 암호화 통신</h2>
+<p>중간에서 패킷을 봐도 해석 불가.</p>
+<hr>
+<h2>3) 인증</h2>
+<p>접속자가 진짜 허용된 사용자인지 확인.</p>
+<hr>
+<h1>4. SSH 기본 구조</h1>
+<p>예를 들어:</p>
+<p>```text id=&rdquo;1htw2d&rdquo;
+내 노트북
+↓
+인터넷
+↓
+리눅스 서버</p>
+<pre><code>
+가 있다고 해보자.
+
+SSH는:
+
+```text id=&quot;g5sz1y&quot;
+암호화된 터미널 연결
+</code></pre>
+<p>을 만든다.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;86o4s8&rdquo;
+내가 입력하는 명령어</p>
+<pre><code>
+가 안전하게 서버까지 전달된다.
+
+---
+
+# 5. SSH는 몇 번 포트를 사용할까?
+
+기본적으로:
+
+```text id=&quot;n7wxks&quot;
+22번 포트
+</code></pre>
+<p>를 사용한다.</p>
+<p>예:</p>
+<pre><code class="language-bash">ssh -p 22 ubuntu@10.0.0.5
+</code></pre>
+<hr>
+<h1>6. SSH 로그인 방식</h1>
+<p>SSH는 크게 두 가지 인증 방식을 많이 쓴다.</p>
+<hr>
+<h1>7. 1) 비밀번호 로그인</h1>
+<p>가장 단순한 방식.</p>
+<p>```text id=&rdquo;yrg9mq&rdquo;
+아이디 + 비밀번호</p>
+<pre><code>
+입력.
+
+---
+
+## 문제점
+
+비밀번호 공격 위험이 크다.
+
+예:
+
+* 브루트포스 공격
+* 비밀번호 유출
+* 사전 공격
+
+그래서 실무에서는 점점 안 쓰는 추세다.
+
+---
+
+# 8. 2) SSH Key 로그인
+
+실무에서 가장 많이 사용하는 방식.
+
+---
+
+## 핵심
+
+```text id=&quot;gny79r&quot;
+공개키 암호화 기반 인증
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>9. SSH Key 생성</h1>
+<p>보통 이런 명령어를 사용한다.</p>
+<pre><code class="language-bash">ssh-keygen
+</code></pre>
+<p>그러면 보통:</p>
+<p>```text id=&rdquo;ax7u7f&rdquo;
+~/.ssh/id_rsa
+~/.ssh/id_rsa.pub</p>
+<pre><code>
+파일이 생성된다.
+
+---
+
+# 10. 각각 의미
+
+## id_rsa
+
+```text id=&quot;j4tfgu&quot;
+개인키(Private Key)
+</code></pre>
+<p>절대 유출되면 안 된다.</p>
+<hr>
+<h2>id_rsa.pub</h2>
+<p>```text id=&rdquo;4xrfcz&rdquo;
+공개키(Public Key)</p>
+<pre><code>
+서버에 등록 가능.
+
+---
+
+# 11. SSH Key 인증 흐름
+
+---
+
+# 12. 1단계 — 서버에 공개키 등록
+
+서버에는:
+
+```text id=&quot;mjlwm4&quot;
+~/.ssh/authorized_keys
+</code></pre>
+<p>파일이 있다.</p>
+<p>여기에:</p>
+<p>```text id=&rdquo;mxmcb6&rdquo;
+내 공개키</p>
+<pre><code>
+를 넣는다.
+
+---
+
+# 13. 2단계 — SSH 접속 시도
+
+내 PC가 서버에 접속한다.
+
+```bash
+ssh ubuntu@server
+</code></pre>
+<hr>
+<h1>14. 3단계 — 서버가 검증 요청</h1>
+<p>서버는:</p>
+<p>```text id=&rdquo;m92m4f&rdquo;
+&ldquo;그 공개키에 대응되는 개인키 진짜 가지고 있음?&rdquo;</p>
+<pre><code>
+을 확인한다.
+
+---
+
+# 15. 4단계 — 개인키로 응답
+
+내 컴퓨터는:
+
+```text id=&quot;jzjlwm&quot;
+개인키로 서명
+</code></pre>
+<p>을 생성한다.</p>
+<hr>
+<h1>16. 5단계 — 서버가 공개키로 검증</h1>
+<p>서버는 저장된 공개키로:</p>
+<p>```text id=&rdquo;mev4x3&rdquo;
+서명 검증</p>
+<pre><code>
+을 한다.
+
+일치하면:
+
+```text id=&quot;h9twdm&quot;
+접속 허용
+</code></pre>
+<p>한다.</p>
+<hr>
+<h1>17. 핵심 구조</h1>
+<p>즉 SSH는:</p>
+<p>```text id=&rdquo;ufjlwm&rdquo;
+개인키 가진 사용자만
+접속 가능</p>
+<pre><code>
+구조다.
+
+---
+
+# 18. 왜 안전한가?
+
+핵심은:
+
+```text id=&quot;1a6i1v&quot;
+개인키는 네 PC 밖으로 안 나감
+</code></pre>
+<p>이다.</p>
+<p>즉 인터넷 중간에서 누가 봐도:</p>
+<p>```text id=&rdquo;kjlwmv&rdquo;
+개인키 탈취 불가</p>
+<pre><code>
+하다.
+
+---
+
+# 19. pem 파일은 뭔가?
+
+AWS EC2 만들면:
+
+```text id=&quot;e3u1o5&quot;
+my-key.pem
+</code></pre>
+<p>같은 걸 준다.</p>
+<p>이건 사실:</p>
+<p>```text id=&rdquo;7jlwmx&rdquo;
+개인키 파일</p>
+<pre><code>
+이다.
+
+즉:
+
+```text id=&quot;b9m3uj&quot;
+pem = SSH 개인키
+</code></pre>
+<p>라고 생각해도 된다.</p>
+<hr>
+<h1>20. 왜 pem 잃어버리면 접속 못하나?</h1>
+<p>서버는:</p>
+<p>```text id=&rdquo;hjlwmr&rdquo;
+공개키만 저장</p>
+<pre><code>
+하고 있다.
+
+근데 개인키를 잃어버리면:
+
+```text id=&quot;djlwmc&quot;
+&quot;내가 진짜 사용자다&quot;
+</code></pre>
+<p>를 증명할 방법이 없다.</p>
+<p>그래서 접속이 막힌다.</p>
+<hr>
+<h1>21. authorized_keys란?</h1>
+<p>리눅스 서버의:</p>
+<p>```text id=&rdquo;rjlwmq&rdquo;
+~/.ssh/authorized_keys</p>
+<pre><code>
+파일은:
+
+&gt; “접속 허용할 공개키 목록”
+
+이다.
+
+즉:
+
+```text id=&quot;djlwmf&quot;
+여기 등록된 공개키의 개인키 가진 사람만
+접속 허용
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>22. known_hosts는 뭔가?</h1>
+<p>클라이언트 쪽에는:</p>
+<p>```text id=&rdquo;vjlwmr&rdquo;
+~/.ssh/known_hosts</p>
+<pre><code>
+파일이 있다.
+
+이건:
+
+```text id=&quot;6jlwmn&quot;
+&quot;예전에 접속했던 서버 목록&quot;
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>23. 왜 처음 접속하면 물어보는가?</h1>
+<p>처음 SSH 접속 시:</p>
+<pre><code class="language-text">Are you sure you want to continue connecting?
+</code></pre>
+<p>가 뜬다.</p>
+<p>이건:</p>
+<p>```text id=&rdquo;3jlwmv&rdquo;
+서버 공개키 신뢰 여부</p>
+<pre><code>
+를 묻는 것이다.
+
+---
+
+# 24. SSH와 TLS 차이
+
+둘 다 암호화 통신이지만 목적이 다르다.
+
+| 기술  | 목적       |
+| --- | -------- |
+| TLS | 웹 통신 보호  |
+| SSH | 원격 서버 접속 |
+
+---
+
+# 25. 실무에서 SSH 쓰는 곳
+
+엄청 많다.
+
+예:
+
+```text id=&quot;8jlwmc&quot;
+EC2 접속
+리눅스 서버 관리
+Git 인증
+배포 서버 접근
+Docker/K8s 노드 접근
+</code></pre>
+<hr>
+<h1>26. 정리</h1>
+<h2>SSH</h2>
+<p>안전한 원격 접속 기술</p>
+<hr>
+<h2>기본 포트</h2>
+<p>```text id=&rdquo;ljlwmq&rdquo;
+22</p>
+<pre><code>
+---
+
+## SSH Key
+
+```text id=&quot;jjlwmn&quot;
+공개키 + 개인키
+</code></pre>
+<p>기반 인증</p>
+<hr>
+<h2>id_rsa</h2>
+<p>개인키</p>
+<hr>
+<h2>id_rsa.pub</h2>
+<p>공개키</p>
+<hr>
+<h2>authorized_keys</h2>
+<p>접속 허용 공개키 목록</p>
+<hr>
+<h2>pem 파일</h2>
+<p>SSH 개인키 파일</p>
+<hr>
+<h2>핵심 구조</h2>
+<p>```text id=&rdquo;7jlwmz&rdquo;
+개인키로 인증
+↓
+서버가 공개키로 검증</p>
+<pre><code>
+---
+
+# 한 줄 핵심
+
+```text id=&quot;2jlwmx&quot;
+SSH는 공개키 암호화를 이용해,
+인터넷에서도 안전하게 서버에 접속할 수 있게 만든 기술이다.
+</code></pre>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Network]-TLSHTTPS는-왜-안전한가.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[NETWORK] TLS/HTTPS는 왜 안전한가</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Docker]-Dockerfile-빌드-방식-2가지-jar만-복사할까-컨테이너-안에서-빌드할까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[DOCKER] Dockerfile 빌드 방식 2가지: jar만 복사할까, 컨테이너 안에서 빌드할까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

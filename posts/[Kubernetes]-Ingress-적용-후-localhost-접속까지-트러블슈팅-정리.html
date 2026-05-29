@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리 | Greenapple0101</title>
+  <meta name="description" content="! https://velog.velcdn.com/images/yorange50/post/351a7e1a-1db7-476f-a47f-d36542437280/image.png ! https://velog.velcdn.com/images/yorange50/post/abdde549-ad93-…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-13T05:24:35.460Z">2026.05.13</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/KUBERNETES-Ingress-적용-후-localhost-접속까지-트러블슈팅-정리" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p><img alt="" src="https://velog.velcdn.com/images/yorange50/post/351a7e1a-1db7-476f-a47f-d36542437280/image.png">
+<img alt="" src="https://velog.velcdn.com/images/yorange50/post/abdde549-ad93-4db4-bec0-982030d3753f/image.png"></p>
+<p>Kubernetes에서 <code>ingress-nginx</code>를 설치하고 Ingress YAML을 적용한 뒤 브라우저에서 <code>localhost</code>로 접속하려고 했다. 그런데 처음에는 YAML 파일을 찾지 못했고, 그다음에는 연결 거부가 났고, 마지막에는 <code>503 Service Temporarily Unavailable</code>이 발생했다. 이번 글은 이 과정을 하나씩 정리한 트러블슈팅 기록이다.</p>
+<h2>1. 처음 만난 에러: nginx-ingress.yaml 파일이 없다고 나옴</h2>
+<p>처음 실행한 명령어는 다음과 같았다.</p>
+<pre><code class="language-bash">k create -f nginx-ingress.yaml
+</code></pre>
+<p>또는 이후에는 다음처럼 실행했다.</p>
+<pre><code class="language-bash">k apply -f nginx-ingress.yaml
+</code></pre>
+<p>그런데 이런 에러가 발생했다.</p>
+<pre><code class="language-text">error: the path &quot;nginx-ingress.yaml&quot; does not exist
+</code></pre>
+<p>처음 보면 Kubernetes YAML 내용이 잘못된 것처럼 느껴질 수 있다. 하지만 이 에러는 Kubernetes 리소스 문제가 아니다. <strong>터미널이 현재 위치에서 <code>nginx-ingress.yaml</code> 파일을 찾지 못했다는 뜻</strong>이다.</p>
+<p>즉, <code>kubectl</code>은 현재 내가 서 있는 디렉토리에서 이 파일을 찾는다.</p>
+<pre><code class="language-bash">k apply -f nginx-ingress.yaml
+</code></pre>
+<p>이 명령어는 다음과 같은 의미다.</p>
+<pre><code class="language-text">현재 디렉토리에 있는 nginx-ingress.yaml 파일을 Kubernetes에 적용해라
+</code></pre>
+<p>그런데 현재 위치에 해당 파일이 없으면 당연히 실패한다.</p>
+<h2>2. 현재 위치 확인하기</h2>
+<p>이럴 때 먼저 확인해야 하는 명령어는 <code>pwd</code>와 <code>ls</code>다.</p>
+<pre><code class="language-bash">pwd
+</code></pre>
+<p>현재 내가 어느 디렉토리에 있는지 확인한다.</p>
+<pre><code class="language-bash">ls
+</code></pre>
+<p>현재 디렉토리에 어떤 파일이 있는지 확인한다.</p>
+<p>이때 <code>nginx-ingress.yaml</code>이 목록에 없다면, <code>k apply -f nginx-ingress.yaml</code>은 실패한다.</p>
+<h2>3. 파일 경로를 잘못 지정한 경우</h2>
+<p>처음에는 다음처럼 경로를 지정해서 실행했다.</p>
+<pre><code class="language-bash">k apply -f ~/hello-world/nginx-ingress.yaml
+</code></pre>
+<p>그런데 이런 에러가 나왔다.</p>
+<pre><code class="language-text">error: the path &quot;/Users/baegseoyeon/hello-world/nginx-ingress.yaml&quot; does not exist
+</code></pre>
+<p>이 말은 <code>/Users/baegseoyeon/hello-world/</code> 안에도 <code>nginx-ingress.yaml</code> 파일이 없다는 뜻이다.</p>
+<p>즉, 문제는 Kubernetes가 아니라 파일 위치였다.</p>
+<h2>4. 현재 위치에 파일을 만들고 다시 적용</h2>
+<p>그래서 현재 홈 디렉토리에서 직접 파일을 만들었다.</p>
+<pre><code class="language-bash">vi nginx-ingress.yaml
+</code></pre>
+<p>파일을 작성한 뒤 다시 적용했다.</p>
+<pre><code class="language-bash">k apply -f nginx-ingress.yaml
+</code></pre>
+<p>이번에는 성공했다.</p>
+<pre><code class="language-text">ingress.networking.k8s.io/nginx-ingress created
+</code></pre>
+<p>이 메시지는 <code>nginx-ingress</code>라는 Ingress 리소스가 Kubernetes 클러스터에 생성되었다는 뜻이다.</p>
+<h2>5. Ingress 생성 확인</h2>
+<p>Ingress가 생성되었는지 확인했다.</p>
+<pre><code class="language-bash">kubectl get ingress
+</code></pre>
+<p>결과는 다음과 같았다.</p>
+<pre><code class="language-text">NAME            CLASS   HOSTS       ADDRESS   PORTS   AGE
+nginx-ingress   nginx   localhost             80      8s
+</code></pre>
+<p>여기서 중요한 점은 <code>nginx-ingress</code>라는 Ingress가 실제로 생성되었다는 것이다.</p>
+<pre><code class="language-text">NAME: nginx-ingress
+CLASS: nginx
+HOSTS: localhost
+PORTS: 80
+</code></pre>
+<p>즉, Kubernetes 안에는 다음과 같은 규칙이 생긴 상태다.</p>
+<pre><code class="language-text">localhost로 들어오는 HTTP 요청을 특정 Service로 보내라
+</code></pre>
+<p>하지만 이 시점에서 바로 브라우저 접속이 되는 것은 아니다. Ingress는 라우팅 규칙일 뿐이고, 실제 요청을 받는 Ingress Controller와 뒤쪽의 Service, Pod가 모두 정상이어야 한다.</p>
+<h2>6. localhost 접속 시 ERR_CONNECTION_REFUSED 발생</h2>
+<p>처음 브라우저에서 <code>localhost</code>로 접속했을 때는 다음 에러가 나왔다.</p>
+<pre><code class="language-text">ERR_CONNECTION_REFUSED
+</code></pre>
+<p>이 에러는 브라우저가 <code>localhost:80</code>으로 요청을 보냈는데, 그 요청을 받아줄 대상이 없다는 뜻이다.</p>
+<p>이때 구조를 보면 다음과 같다.</p>
+<pre><code class="language-text">브라우저
+→ localhost:80
+→ k3d LoadBalancer
+→ ingress-nginx controller
+→ Ingress
+→ Service
+→ Pod
+</code></pre>
+<p>그런데 <code>ERR_CONNECTION_REFUSED</code>는 보통 앞단에서 막힌다.</p>
+<p>즉, 브라우저 요청이 Kubernetes 안의 ingress-nginx까지 도달하지 못한 상태다.</p>
+<h2>7. 원인: k3d 클러스터 생성 시 80번 포트 매핑이 안 되어 있었음</h2>
+<p>k3d를 사용할 때 로컬 맥북의 80번 포트를 클러스터 안의 LoadBalancer로 연결하려면 클러스터 생성 시 포트 매핑을 해줘야 한다.</p>
+<pre><code class="language-bash">k3d cluster create hello-cluster -p &quot;80:80@loadbalancer&quot;
+</code></pre>
+<p>이 명령어의 의미는 다음과 같다.</p>
+<pre><code class="language-text">맥북 localhost:80
+→ k3d loadbalancer의 80번 포트
+→ ingress-nginx controller
+</code></pre>
+<p>그런데 이미 <code>hello-cluster</code>라는 클러스터가 존재하는 상태에서 다시 생성하려고 하니 이런 에러가 발생했다.</p>
+<pre><code class="language-text">FATA[0000] Failed to create cluster 'hello-cluster' because a cluster with that name already exists
+</code></pre>
+<p>이 말은 이미 같은 이름의 클러스터가 있기 때문에 새로 만들 수 없다는 뜻이다.</p>
+<p>즉, 기존 클러스터에는 <code>80:80@loadbalancer</code> 포트 매핑이 없었고, 포트 매핑을 추가한 새 클러스터 생성도 실패한 상태였다.</p>
+<h2>8. 해결: 기존 클러스터 삭제 후 포트 매핑 포함해서 다시 생성</h2>
+<p>실습 환경이라면 기존 클러스터를 삭제하고 다시 만드는 것이 가장 깔끔하다.</p>
+<pre><code class="language-bash">k3d cluster delete hello-cluster
+</code></pre>
+<p>그다음 80번 포트 매핑을 포함해서 다시 생성한다.</p>
+<pre><code class="language-bash">k3d cluster create hello-cluster -p &quot;80:80@loadbalancer&quot;
+</code></pre>
+<p>이렇게 하면 로컬 브라우저에서 <code>localhost</code>로 들어온 요청이 k3d 클러스터의 LoadBalancer까지 전달될 수 있다.</p>
+<h2>9. ingress-nginx 다시 설치</h2>
+<p>클러스터를 새로 만들면 기존에 설치했던 리소스들은 사라진다. 따라서 ingress-nginx도 다시 설치해야 한다.</p>
+<pre><code class="language-bash">helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+</code></pre>
+<p>이 명령어는 <code>ingress-nginx</code> namespace를 만들고, 그 안에 ingress-nginx controller를 설치한다.</p>
+<p>설치 후에는 다음 명령어로 확인할 수 있다.</p>
+<pre><code class="language-bash">kubectl get pods -n ingress-nginx
+</code></pre>
+<p>또는 전체 namespace 기준으로 확인할 수도 있다.</p>
+<pre><code class="language-bash">kubectl get pods -A | grep ingress
+</code></pre>
+<p>Service도 확인한다.</p>
+<pre><code class="language-bash">kubectl get svc -A | grep ingress
+</code></pre>
+<h2>10. Ingress YAML 다시 적용</h2>
+<p>클러스터를 다시 만들었기 때문에 Ingress YAML도 다시 적용해야 한다.</p>
+<pre><code class="language-bash">k apply -f nginx-ingress.yaml
+</code></pre>
+<p>그리고 확인한다.</p>
+<pre><code class="language-bash">k get ingress
+</code></pre>
+<p>정상적으로 생성되면 다음처럼 보인다.</p>
+<pre><code class="language-text">NAME            CLASS   HOSTS       ADDRESS   PORTS   AGE
+nginx-ingress   nginx   localhost             80      8s
+</code></pre>
+<p>이제 브라우저에서 <code>localhost</code>로 접속하면 적어도 ingress-nginx controller까지는 요청이 갈 수 있는 상태가 된다.</p>
+<h2>11. 이번에는 503 Service Temporarily Unavailable 발생</h2>
+<p>포트 매핑 문제를 해결하고 다시 접속하니 이번에는 화면이 바뀌었다.</p>
+<pre><code class="language-text">503 Service Temporarily Unavailable
+nginx
+</code></pre>
+<p>이건 이전의 <code>ERR_CONNECTION_REFUSED</code>와 의미가 다르다.</p>
+<p><code>ERR_CONNECTION_REFUSED</code>는 입구 자체가 막힌 것이다.</p>
+<pre><code class="language-text">브라우저 → localhost:80
+여기서 연결 실패
+</code></pre>
+<p>반면 <code>503 Service Temporarily Unavailable</code>은 nginx가 응답을 준 것이다.</p>
+<p>즉, 요청이 ingress-nginx controller까지는 도착했다.</p>
+<pre><code class="language-text">브라우저
+→ localhost:80
+→ k3d loadbalancer
+→ ingress-nginx controller
+</code></pre>
+<p>여기까지는 성공한 것이다.</p>
+<p>하지만 ingress-nginx가 뒤쪽의 Service나 Pod로 요청을 넘기지 못해서 503을 반환한 것이다.</p>
+<h2>12. 503의 의미</h2>
+<p>Ingress 구조는 다음과 같다.</p>
+<pre><code class="language-text">브라우저
+→ Ingress Controller
+→ Ingress 규칙
+→ Service
+→ Pod
+</code></pre>
+<p>503이 떴다는 것은 보통 다음 중 하나다.</p>
+<pre><code class="language-text">Ingress에 적은 Service 이름이 실제 Service 이름과 다름
+Ingress에 적은 Service port가 실제 Service port와 다름
+Service는 있지만 연결된 Pod가 없음
+Service selector와 Pod label이 맞지 않음
+Pod가 아직 Running 상태가 아님
+</code></pre>
+<p>즉, 이제 문제는 포트 매핑이나 Ingress Controller 설치 문제가 아니라 <strong>백엔드 Service와 Pod 연결 문제</strong>로 넘어간 것이다.</p>
+<h2>13. 확인해야 할 명령어</h2>
+<p>먼저 Ingress가 어떤 Service로 보내려고 하는지 확인한다.</p>
+<pre><code class="language-bash">k describe ingress nginx-ingress
+</code></pre>
+<p>여기서 backend 부분을 봐야 한다.</p>
+<pre><code class="language-text">Backend:
+  Service: 서비스이름:포트
+</code></pre>
+<p>그다음 실제 Service 목록을 확인한다.</p>
+<pre><code class="language-bash">k get svc
+</code></pre>
+<p>Pod 목록도 확인한다.</p>
+<pre><code class="language-bash">k get pods
+</code></pre>
+<p>전체를 한 번에 보고 싶으면 다음 명령어가 좋다.</p>
+<pre><code class="language-bash">k get all
+</code></pre>
+<h2>14. Service와 Pod 연결 확인</h2>
+<p>Service가 있다고 해서 무조건 Pod로 연결되는 것은 아니다.</p>
+<p>Service는 selector를 통해 Pod를 찾는다.</p>
+<p>Service의 selector와 Pod의 label이 맞아야 한다.</p>
+<p>확인하려면 다음 명령어를 사용한다.</p>
+<pre><code class="language-bash">k describe svc 서비스이름
+</code></pre>
+<p>여기서 중요한 부분은 <code>Endpoints</code>다.</p>
+<p>정상이라면 다음처럼 Pod IP가 보여야 한다.</p>
+<pre><code class="language-text">Endpoints: 10.42.0.12:80
+</code></pre>
+<p>문제가 있으면 이렇게 나온다.</p>
+<pre><code class="language-text">Endpoints: &lt;none&gt;
+</code></pre>
+<p><code>Endpoints: &lt;none&gt;</code>이면 Service가 연결할 Pod를 찾지 못하고 있다는 뜻이다.</p>
+<p>이 경우 Ingress는 Service로 요청을 보내려고 하지만, Service 뒤에 실제 Pod가 없기 때문에 503이 발생할 수 있다.</p>
+<h2>15. 테스트용 nginx Deployment와 Service 만들기</h2>
+<p>만약 아직 백엔드 앱을 만들지 않았다면, 테스트용 nginx를 만들 수 있다.</p>
+<pre><code class="language-bash">k create deployment nginx --image=nginx
+</code></pre>
+<p>그리고 Service를 만든다.</p>
+<pre><code class="language-bash">k expose deployment nginx --port=80 --target-port=80
+</code></pre>
+<p>확인한다.</p>
+<pre><code class="language-bash">k get pods
+k get svc
+</code></pre>
+<p>정상이라면 다음과 같은 리소스가 있어야 한다.</p>
+<pre><code class="language-text">deployment.apps/nginx
+pod/nginx-...
+service/nginx
+ingress.networking.k8s.io/nginx-ingress
+</code></pre>
+<p>이제 Ingress YAML의 backend service 이름이 <code>nginx</code>인지 확인해야 한다.</p>
+<p>예를 들어 Ingress YAML은 이런 식이어야 한다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 80
+</code></pre>
+<p>여기서 중요한 부분은 이거다.</p>
+<pre><code class="language-yaml">service:
+  name: nginx
+  port:
+    number: 80
+</code></pre>
+<p>이 이름과 포트가 실제 Service와 맞아야 한다.</p>
+<pre><code class="language-bash">k get svc
+</code></pre>
+<p>결과에 <code>nginx</code> Service가 있고, port가 80이어야 한다.</p>
+<h2>16. 수정 후 다시 적용</h2>
+<p>Ingress YAML을 수정했다면 다시 적용한다.</p>
+<pre><code class="language-bash">k apply -f nginx-ingress.yaml
+</code></pre>
+<p>그다음 다시 확인한다.</p>
+<pre><code class="language-bash">k describe ingress nginx-ingress
+</code></pre>
+<p>그리고 브라우저에서 접속한다.</p>
+<pre><code class="language-text">http://localhost
+</code></pre>
+<p>정상이라면 nginx 기본 페이지가 뜬다.</p>
+<h2>17. 이번 트러블슈팅 흐름 정리</h2>
+<p>이번 문제는 단계별로 에러의 의미가 달랐다.</p>
+<pre><code class="language-text">1. error: the path &quot;nginx-ingress.yaml&quot; does not exist
+→ YAML 파일이 현재 경로에 없음
+→ Kubernetes 문제가 아니라 파일 경로 문제
+
+2. ingress.networking.k8s.io/nginx-ingress created
+→ Ingress 리소스 생성 성공
+
+3. ERR_CONNECTION_REFUSED
+→ localhost:80 요청이 ingress-nginx까지 도달하지 못함
+→ k3d 생성 시 80:80@loadbalancer 포트 매핑 필요
+
+4. FATA cluster already exists
+→ 같은 이름의 k3d 클러스터가 이미 있어서 포트 매핑 포함 재생성 실패
+→ 기존 클러스터 삭제 후 다시 생성 필요
+
+5. 503 Service Temporarily Unavailable
+→ ingress-nginx controller까지 요청은 도달함
+→ 하지만 뒤쪽 Service 또는 Pod 연결 실패
+</code></pre>
+<h2>18. 에러별로 보는 원인</h2>
+<p>이번 트러블슈팅을 에러 기준으로 보면 더 명확하다.</p>
+<table>
+<thead>
+<tr>
+<th>에러</th>
+<th>의미</th>
+<th>확인할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>path does not exist</code></td>
+<td>YAML 파일 경로 문제</td>
+<td><code>pwd</code>, <code>ls</code>, 파일 위치</td>
+</tr>
+<tr>
+<td><code>ERR_CONNECTION_REFUSED</code></td>
+<td>localhost 포트에 연결할 대상 없음</td>
+<td>k3d 포트 매핑</td>
+</tr>
+<tr>
+<td><code>cluster already exists</code></td>
+<td>같은 이름의 k3d 클러스터 존재</td>
+<td><code>k3d cluster list</code></td>
+</tr>
+<tr>
+<td><code>503 Service Temporarily Unavailable</code></td>
+<td>Ingress는 받았지만 backend 없음</td>
+<td>Service, Pod, Endpoints</td>
+</tr>
+</tbody>
+</table>
+<h2>19. 핵심 개념 정리</h2>
+<p>이번 과정에서 중요한 개념은 세 가지다.</p>
+<p>첫째, <code>kubectl apply -f</code>는 파일 경로를 기준으로 동작한다.</p>
+<pre><code class="language-bash">k apply -f nginx-ingress.yaml
+</code></pre>
+<p>이 명령어는 현재 디렉토리에 있는 파일을 찾는다. 파일이 없으면 Kubernetes까지 가지도 못하고 로컬에서 실패한다.</p>
+<p>둘째, k3d에서 브라우저로 접속하려면 포트 매핑이 필요하다.</p>
+<pre><code class="language-bash">k3d cluster create hello-cluster -p &quot;80:80@loadbalancer&quot;
+</code></pre>
+<p>이 설정이 있어야 맥북의 <code>localhost:80</code> 요청이 k3d 클러스터 안으로 들어갈 수 있다.</p>
+<p>셋째, Ingress는 단독으로 동작하지 않는다.</p>
+<pre><code class="language-text">Ingress Controller
+Ingress
+Service
+Pod
+</code></pre>
+<p>이 네 가지가 연결되어야 브라우저에서 정상 페이지를 볼 수 있다.</p>
+<h2>정리</h2>
+<p><code>error: the path "nginx-ingress.yaml" does not exist</code>는 Kubernetes 문제가 아니라 현재 디렉토리에 YAML 파일이 없어서 발생한 파일 경로 문제였다. 파일을 현재 위치에 만들고 <code>k apply -f nginx-ingress.yaml</code>을 실행하자 Ingress 리소스는 정상적으로 생성되었다. 이후 브라우저에서 <code>localhost</code> 접속 시 <code>ERR_CONNECTION_REFUSED</code>가 발생했는데, 이는 k3d 클러스터 생성 시 <code>80:80@loadbalancer</code> 포트 매핑이 없어서 로컬 80번 포트가 클러스터의 ingress-nginx까지 연결되지 않았기 때문이다. 기존 <code>hello-cluster</code>가 이미 존재했기 때문에 같은 이름으로 다시 만들 수 없었고, 실습 환경에서는 기존 클러스터를 삭제한 뒤 포트 매핑을 포함해서 다시 생성하는 방식으로 해결할 수 있다. 그다음 나타난 <code>503 Service Temporarily Unavailable</code>은 요청이 ingress-nginx controller까지 도달했다는 뜻이지만, Ingress 뒤쪽의 Service 또는 Pod 연결이 제대로 되지 않았다는 의미다. 따라서 최종적으로는 Ingress의 backend service 이름과 port, 실제 Service 존재 여부, Service의 Endpoints, Pod Running 상태를 확인해야 한다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유n.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Kubernetes]-kubectl로-Ingress-만드는-것과-Helm으로-ingress-nginx-설치하는-것은-뭐가-다를까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] kubectl로 Ingress 만드는 것과 Helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

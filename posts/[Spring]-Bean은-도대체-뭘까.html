@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] Bean은 도대체 뭘까? | Greenapple0101</title>
+  <meta name="description" content="스프링을 공부하다 보면 이런 코드가 계속 보인다. 그리고 이런 말을 듣는다. “이건 Bean으로 등록된다” 처음 들으면 바로 막힌다. “Bean이 뭐야?” --- Bean은 스프링이 관리하는 객체다 가장 핵심부터 말하면 이거다. Bean = 스프링이 대신 만들어서 관리해주는 객체 --…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] Bean은 도대체 뭘까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-28T06:50:38.882Z">2026.04.28</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-Bean은-도대체-뭘까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링을 공부하다 보면 이런 코드가 계속 보인다.</p>
+<pre><code class="language-java">@Service
+public class BoardService {
+}
+</code></pre>
+<p>그리고 이런 말을 듣는다.</p>
+<p>“이건 Bean으로 등록된다”</p>
+<p>처음 들으면 바로 막힌다.</p>
+<p>“Bean이 뭐야?”</p>
+<hr>
+<h3>Bean은 스프링이 관리하는 객체다</h3>
+<p>가장 핵심부터 말하면 이거다.</p>
+<p><strong>Bean = 스프링이 대신 만들어서 관리해주는 객체</strong></p>
+<hr>
+<h3>원래 자바에서는 이렇게 객체를 만든다</h3>
+<pre><code class="language-java">BoardService boardService = new BoardService();
+</code></pre>
+<p>이건 내가 직접 만든 거다.</p>
+<ul>
+<li>내가 new 한다</li>
+<li>내가 들고 있다</li>
+<li>내가 관리한다</li>
+</ul>
+<hr>
+<h3>그런데 스프링은 이렇게 말한다</h3>
+<p>“그거 내가 해줄게”</p>
+<p>그래서 이렇게 바뀐다.</p>
+<pre><code class="language-java">@Service
+public class BoardService {
+}
+</code></pre>
+<p>이 한 줄의 의미는 이거다.</p>
+<p><strong>BoardService 객체를 스프링이 대신 생성하고 관리한다</strong></p>
+<hr>
+<h3>그래서 Bean이 되는 순간 벌어지는 일</h3>
+<pre><code class="language-java">@Service
+public class BoardService {
+}
+</code></pre>
+<p>이게 실행되면 내부에서는 이런 일이 일어난다.</p>
+<ul>
+<li>스프링이 BoardService 클래스를 발견함</li>
+<li>객체를 하나 생성함</li>
+<li>그 객체를 저장해둠</li>
+<li>필요할 때 꺼내서 사용함</li>
+</ul>
+<p>이 저장된 객체를 Bean이라고 부른다.</p>
+<hr>
+<h3>왜 굳이 스프링이 객체를 관리할까?</h3>
+<p>직접 만들면 이런 문제가 생긴다.</p>
+<ul>
+<li>어디서 new 했는지 찾기 힘듦</li>
+<li>같은 객체를 여러 개 만들게 됨</li>
+<li>객체 간 연결(의존성)이 복잡해짐</li>
+</ul>
+<p>그래서 스프링이 대신 관리한다.</p>
+<hr>
+<h3>핵심은 “공용으로 쓰는 객체”라는 점이다</h3>
+<p>Bean은 보통 이런 특징을 가진다.</p>
+<ul>
+<li>여러 곳에서 같이 씀</li>
+<li>한 번만 만들어서 계속 씀</li>
+<li>상태를 공유하거나 로직을 공유함</li>
+</ul>
+<p>예를 들어</p>
+<ul>
+<li>BoardService → 게시판 로직</li>
+<li>UserService → 회원 로직</li>
+<li>Repository → DB 접근</li>
+</ul>
+<p>이런 애들은 매번 새로 만들 필요가 없다.</p>
+<p>그래서 스프링이 하나 만들어놓고 계속 재사용한다.</p>
+<hr>
+<h3>Bean은 어디에 저장될까?</h3>
+<p>스프링은 내부에 이런 공간을 가지고 있다.</p>
+<p><strong>ApplicationContext (스프링 컨테이너)</strong></p>
+<p>여기에 Bean들이 들어간다.</p>
+<pre><code>[스프링 컨테이너]
+
+BoardService Bean
+UserService Bean
+CommentService Bean
+</code></pre>
+<p>필요할 때 여기서 꺼내 쓴다.</p>
+<hr>
+<h3>그래서 @Autowired가 등장한다</h3>
+<pre><code class="language-java">@Service
+public class BoardService {
+}
+</code></pre>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+}
+</code></pre>
+<p>여기서 중요한 포인트</p>
+<ul>
+<li>내가 new 안 했다</li>
+<li>근데 BoardService가 들어온다</li>
+</ul>
+<p>이유는 하나다.</p>
+<p><strong>스프링이 Bean을 꺼내서 넣어줬기 때문</strong></p>
+<hr>
+<h3>클래스 vs Bean 차이</h3>
+<p>여기서 헷갈리는 포인트 정리</p>
+<ul>
+<li>클래스 = 설계도</li>
+<li>객체 = 실제 만든 것</li>
+<li>Bean = 스프링이 관리하는 객체</li>
+</ul>
+<hr>
+<h3>한 번에 정리</h3>
+<ul>
+<li>클래스 → 기능 묶는 상자</li>
+<li>객체 → 클래스로 만든 실제 인스턴스</li>
+<li>Bean → 스프링이 관리하는 객체</li>
+</ul>
+<hr>
+<h3>비유로 보면</h3>
+<p>클래스 → 레시피
+객체 → 직접 만든 요리
+Bean → 식당에서 만들어서 계속 쓰는 요리</p>
+<hr>
+<h3>한 줄 결론</h3>
+<p><strong>Bean은 스프링이 대신 생성하고 관리해주는 객체다</strong></p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-클래스는-도대체-뭘까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] 클래스는 도대체 뭘까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-RestController는-도대체-뭘까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] @RestController는 도대체 뭘까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

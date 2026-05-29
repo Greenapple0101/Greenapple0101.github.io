@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] 404 Whitelabel Error Page 해결 (경로 중복 문제) | Greenapple0101</title>
+  <meta name="description" content="! https://velog.velcdn.com/images/yorange50/post/1fb0a7f2-2ae2-45e5-b49e-2a5bbd339526/image.png ! https://velog.velcdn.com/images/yorange50/post/8d13ca36-43c0-…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] 404 Whitelabel Error Page 해결 (경로 중복 문제)</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-29T00:27:53.029Z">2026.04.29</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-404-Whitelabel-Error-Page-해결-경로-중복-문제" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p><img alt="" src="https://velog.velcdn.com/images/yorange50/post/1fb0a7f2-2ae2-45e5-b49e-2a5bbd339526/image.png">
+<img alt="" src="https://velog.velcdn.com/images/yorange50/post/8d13ca36-43c0-4e98-b606-6a89cd49576c/image.png"></p>
+<p>스프링 서버를 정상적으로 실행했는데도 아래와 같은 화면이 나온다면 당황하기 쉽다.</p>
+<pre><code class="language-text">Whitelabel Error Page
+There was an unexpected error (type=Not Found, status=404)
+</code></pre>
+<p>이 에러는 서버가 죽은 게 아니라,
+<strong>요청한 URL을 처리할 API가 없다는 의미</strong>다.</p>
+<hr>
+<h2>1. 문제 상황</h2>
+<p>브라우저에서 다음 주소로 요청했다.</p>
+<pre><code class="language-text">http://localhost:8080/boards
+</code></pre>
+<p>하지만 404 에러 발생</p>
+<hr>
+<h2>2. 코드 확인</h2>
+<p>Controller 코드:</p>
+<pre><code class="language-java">@RestController
+@RequestMapping(&quot;/boards&quot;)
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService){
+        this.boardService = boardService;
+    }
+
+    @GetMapping(&quot;/boards&quot;)
+    public List&lt;String&gt; getBoards(){
+        return boardService.getBoards();
+    }
+}
+</code></pre>
+<hr>
+<h2>3. 문제 원인</h2>
+<p>스프링은 URL을 다음과 같이 조합한다.</p>
+<pre><code class="language-text">클래스 레벨 @RequestMapping + 메서드 레벨 @GetMapping
+</code></pre>
+<p>현재 코드 기준:</p>
+<pre><code class="language-text">&quot;/boards&quot; + &quot;/boards&quot; = &quot;/boards/boards&quot;
+</code></pre>
+<p>즉, 실제 API 주소는 다음과 같다.</p>
+<pre><code class="language-text">http://localhost:8080/boards/boards
+</code></pre>
+<p>하지만 요청은 <code>/boards</code>로 보냈기 때문에
+→ 404 (Not Found) 발생</p>
+<hr>
+<h2>4. 해결 방법</h2>
+<h3>방법 1 (권장)</h3>
+<p>메서드 매핑을 단순화</p>
+<pre><code class="language-java">@GetMapping
+public List&lt;String&gt; getBoards(){
+    return boardService.getBoards();
+}
+</code></pre>
+<p>이렇게 수정하면 실제 URL:</p>
+<pre><code class="language-text">http://localhost:8080/boards
+</code></pre>
+<hr>
+<h3>방법 2</h3>
+<p>코드는 그대로 두고 URL을 맞춘다.</p>
+<pre><code class="language-text">http://localhost:8080/boards/boards
+</code></pre>
+<hr>
+<h2>5. 핵심 개념</h2>
+<pre><code class="language-text">@RequestMapping(&quot;/boards&quot;)  ← 공통 경로
+@GetMapping(&quot;/boards&quot;)      ← 추가 경로
+</code></pre>
+<p>→ 둘이 합쳐진다</p>
+<hr>
+<h2>6. 정리</h2>
+<pre><code class="language-text">404 에러는 서버 문제 아니라 “경로 매핑 문제”
+스프링은 클래스 + 메서드 경로를 합쳐서 URL을 만든다
+</code></pre>
+<hr>
+<h2>한 줄 결론</h2>
+<p><strong>/boards + /boards → /boards/boards가 되어 발생한 404 에러</strong></p>
+<hr>
+<p>이 문제를 이해하면
+스프링의 URL 구조와 라우팅 개념을 제대로 이해한 상태다</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-로그-읽는-법과-포트-충돌-해결.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] 로그 읽는 법과 포트 충돌 해결</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-Postman-사용법.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] Postman 사용법</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

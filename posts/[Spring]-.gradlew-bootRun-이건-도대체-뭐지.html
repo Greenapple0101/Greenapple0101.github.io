@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] ./gradlew bootRun 이건 도대체 뭐지? | Greenapple0101</title>
+  <meta name="description" content="스프링 프로젝트를 처음 실행할 때 자주 보게 되는 명령어가 있다 처음 보면 이게 뭔지 감이 잘 안 온다. 그냥 “서버 실행하는 명령어인가?” 정도로 넘어가기 쉬운데, 이 안에는 중요한 개념이 몇 개 들어 있다. --- 1. ./gradlew 는 뭐야? gradlew 는 Gradle W…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] ./gradlew bootRun 이건 도대체 뭐지?</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-28T23:35:05.409Z">2026.04.28</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-.gradlew-bootRun-이건-도대체-뭐지" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링 프로젝트를 처음 실행할 때 자주 보게 되는 명령어가 있다</p>
+<pre><code class="language-bash">./gradlew bootRun
+</code></pre>
+<p>처음 보면 이게 뭔지 감이 잘 안 온다.
+그냥 “서버 실행하는 명령어인가?” 정도로 넘어가기 쉬운데, 이 안에는 중요한 개념이 몇 개 들어 있다.</p>
+<hr>
+<h2>1. ./gradlew 는 뭐야?</h2>
+<p><code>gradlew</code>는 <strong>Gradle Wrapper</strong>라는 것이다.</p>
+<p>쉽게 말하면:</p>
+<ul>
+<li>프로젝트 안에 포함된 실행 도구</li>
+<li>컴퓨터에 Gradle이 따로 설치되어 있지 않아도 실행 가능</li>
+</ul>
+<p>즉,</p>
+<p>👉 “이 프로젝트는 이 방식으로 실행해” 라고 정해진 실행기</p>
+<hr>
+<h2>2. bootRun 은 뭐야?</h2>
+<p><code>bootRun</code>은 <strong>Spring Boot 프로젝트를 실행하는 명령어</strong></p>
+<p>이걸 하면 내부적으로:</p>
+<ul>
+<li>자바 코드 컴파일</li>
+<li>필요한 라이브러리 로드</li>
+<li>스프링 컨테이너 생성</li>
+<li>서버 실행 (기본 8080 포트)</li>
+</ul>
+<p>까지 한 번에 다 진행된다</p>
+<hr>
+<h2>3. 전체 해석</h2>
+<pre><code class="language-bash">./gradlew bootRun
+</code></pre>
+<p>이 한 줄을 풀어서 보면:</p>
+<p>👉 “이 프로젝트에 맞는 Gradle로, 스프링 서버를 실행해라”</p>
+<hr>
+<h2>4. 실행하면 실제로 일어나는 일</h2>
+<p>터미널에서 실행하면 이런 로그가 뜬다:</p>
+<pre><code class="language-text">Tomcat started on port 8080
+Started Application in X seconds
+</code></pre>
+<p>이 상태가 되면:</p>
+<p>👉 서버가 살아있는 상태</p>
+<hr>
+<h2>5. 그 다음 해야 할 것</h2>
+<p>서버가 실행됐으면 이제 API를 호출해볼 수 있다</p>
+<p>예를 들어:</p>
+<pre><code class="language-bash">http://localhost:8080/boards
+</code></pre>
+<p>이걸 브라우저나 Postman으로 호출하면
+Controller → Service → 응답 흐름이 실제로 동작한다</p>
+<hr>
+<h2>6. 왜 중요한가</h2>
+<p>이 명령어 하나로:</p>
+<ul>
+<li>서버 실행</li>
+<li>API 테스트</li>
+<li>전체 구조 확인</li>
+</ul>
+<p>이 다 가능하다</p>
+<p>즉,</p>
+<p>👉 “내가 만든 백엔드가 실제로 돌아가는지 확인하는 첫 단계”</p>
+<hr>
+<h2>한 줄 정리</h2>
+<p><strong>./gradlew bootRun
+→ 스프링 서버를 실행해서 API를 실제로 동작시키는 명령어</strong></p>
+<hr>
+<p>이걸 이해하면 다음 단계는 자연스럽게 이어진다</p>
+<p>👉 “실행된 서버에 내가 만든 API를 붙여보기”
+👉 “Controller → Service 흐름 확인하기”</p>
+<p>여기까지 되면 스프링 구조가 단순 문법이 아니라
+“동작하는 시스템”으로 보이기 시작한다</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-Controller랑-Service는-왜-나눌까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] Controller랑 Service는 왜 나눌까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-로그-읽는-법과-포트-충돌-해결.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] 로그 읽는 법과 포트 충돌 해결</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

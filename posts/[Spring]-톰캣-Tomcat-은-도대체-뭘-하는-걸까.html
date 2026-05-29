@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] 톰캣(Tomcat)은 도대체 뭘 하는 걸까? | Greenapple0101</title>
+  <meta name="description" content="스프링 공부하다 보면 계속 이런 말을 듣는다. 내장 톰캣 톰캣 서버 WAS 톰캣 띄운다 8080 포트 근데 처음엔 진짜 헷갈린다. 오늘 이걸 한 번 정리해보자. --- 한 줄 정의 톰캣 Tomcat 이다. --- 먼저 가장 중요한 개념 우리가 만든 스프링 코드는: 이런 코드다. 근데…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] 톰캣(Tomcat)은 도대체 뭘 하는 걸까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T11:00:24.463Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-톰캣Tomcat은-도대체-뭘-하는-걸까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링 공부하다 보면 계속 이런 말을 듣는다.</p>
+<ul>
+<li>내장 톰캣</li>
+<li>톰캣 서버</li>
+<li>WAS</li>
+<li>톰캣 띄운다</li>
+<li>8080 포트</li>
+</ul>
+<p>근데 처음엔 진짜 헷갈린다.</p>
+<p>```text id=&rdquo;ql8h7u&rdquo;
+“그래서 톰캣이 서버야?”
+“스프링이 서버 아니야?”
+“내가 만든 API는 누가 실행하는 거지?”</p>
+<pre><code>
+오늘 이걸 한 번 정리해보자.
+
+---
+
+# 한 줄 정의
+
+## 톰캣(Tomcat)
+
+```text id=&quot;l4w9ga&quot;
+자바 웹 애플리케이션을 실행시켜주는 웹 서버(WAS)
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>먼저 가장 중요한 개념</h1>
+<p>우리가 만든 스프링 코드는:</p>
+<p>```java id=&rdquo;lr7d4g&rdquo;
+@RestController
+public class BoardController {</p>
+<pre><code>@GetMapping("/hello")
+public String hello() {
+    return "hello";
+}
+</code></pre>
+<p>}</p>
+<pre><code>
+이런 코드다.
+
+근데 이 코드는:
+
+```text id=&quot;v53bz9&quot;
+“누가 실행해줘야”
+</code></pre>
+<p>한다.</p>
+<p>그냥 <code>.java</code> 파일만 있다고 인터넷 요청을 받을 수 있는 건 아니다.</p>
+<hr>
+<h1>누가 HTTP 요청을 받아줄까?</h1>
+<p>예를 들어 브라우저에서:</p>
+<p>```text id=&rdquo;u1xptu&rdquo;
+http://localhost:8080/hello</p>
+<pre><code>
+접속했다.
+
+그러면 누군가는:
+
+* 8080 포트 열고
+* 요청 받고
+* 스프링 코드 호출하고
+* 응답 반환
+
+해야 한다.
+
+그 역할을 하는 게:
+
+```text id=&quot;phj9g2&quot;
+톰캣
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>흐름으로 보면 이해 쉽다</h1>
+<p>```text id=&rdquo;m1r4af&rdquo;
+브라우저 요청
+        ↓
+톰캣이 요청 받음
+        ↓
+스프링에게 전달
+        ↓
+컨트롤러 실행
+        ↓
+응답 반환
+        ↓
+톰캣이 브라우저에 전달</p>
+<pre><code>
+---
+
+# 톰캣 없으면 어떻게 될까?
+
+사실 스프링 코드는:
+
+```text id=&quot;5af46g&quot;
+그냥 일반 자바 코드
+</code></pre>
+<p>다.</p>
+<p>즉:</p>
+<p>```java id=&rdquo;9j4b9h&rdquo;
+public class Test {
+}</p>
+<pre><code>
+랑 본질적으로 크게 다르지 않다.
+
+HTTP 요청을 받으려면:
+
+* 포트 열기
+* 소켓 연결
+* HTTP 파싱
+* 응답 처리
+
+같은 작업이 필요하다.
+
+그걸 대신 해주는 게 톰캣이다.
+
+---
+
+# 톰캣은 WAS(Web Application Server)
+
+여기서 많이 나오는 단어:
+
+## WAS
+
+```text id=&quot;mylq52&quot;
+Web Application Server
+</code></pre>
+<p>웹 애플리케이션 실행 서버.</p>
+<hr>
+<h1>왜 그냥 서버라고 안 하고 WAS라고 할까?</h1>
+<p>단순 웹 서버는:</p>
+<ul>
+<li>정적 파일 전달</li>
+</ul>
+<p>정도만 한다.</p>
+<p>예:</p>
+<ul>
+<li>HTML</li>
+<li>CSS</li>
+<li>JS</li>
+<li>이미지</li>
+</ul>
+<hr>
+<h2>대표적인 웹 서버</h2>
+<ul>
+<li>Nginx</li>
+<li>Apache</li>
+</ul>
+<hr>
+<h1>그런데 스프링은 &ldquo;동적 처리&rdquo;가 필요함</h1>
+<p>예를 들어:</p>
+<p>```text id=&rdquo;l4c05d&rdquo;
+회원가입
+로그인
+DB 조회
+게시글 저장</p>
+<pre><code>
+이런 건 코드 실행이 필요하다.
+
+그래서:
+
+```text id=&quot;ltw2ta&quot;
+자바 코드 실행 가능한 서버
+</code></pre>
+<p>가 필요한데 그게 WAS다.</p>
+<p>톰캣이 대표적인 자바 WAS.</p>
+<hr>
+<h1>스프링부트 이전엔 더 복잡했다</h1>
+<p>예전에는:</p>
+<p>```text id=&rdquo;0m2g6u&rdquo;
+1. 톰캣 설치
+2. war 파일 생성
+3. 톰캣 webapps 폴더에 넣기
+4. 톰캣 실행</p>
+<pre><code>
+해야 했다.
+
+즉:
+
+```text id=&quot;33qu8l&quot;
+스프링 앱과 톰캣이 분리
+</code></pre>
+<p>되어 있었다.</p>
+<hr>
+<h1>그런데 Spring Boot가 바꿔버림</h1>
+<p>스프링부트는:</p>
+<p>```text id=&rdquo;tfgr87&rdquo;
+내장 톰캣(Embedded Tomcat)</p>
+<pre><code>
+개념을 넣었다.
+
+즉:
+
+```text id=&quot;pw8h1m&quot;
+jar 안에 톰캣까지 포함
+</code></pre>
+<p>시켜버린 것.</p>
+<hr>
+<h1>그래서 지금은 이렇게 됨</h1>
+<p>```bash id=&rdquo;1h1x0l&rdquo;
+java -jar app.jar</p>
+<pre><code>
+만 하면:
+
+* 톰캣 실행
+* 스프링 실행
+* 서버 실행
+
+이 한 번에 된다.
+
+엄청 편해진 거다.
+
+---
+
+# 실제 로그 보면 보임
+
+스프링 실행하면:
+
+```text id=&quot;e4ehyf&quot;
+Tomcat started on port 8080
+</code></pre>
+<p>같은 로그가 뜬다.</p>
+<p>이 의미는:</p>
+<p>```text id=&rdquo;61s9z5&rdquo;
+“톰캣이 8080 포트 열고 HTTP 요청 받을 준비 완료”</p>
+<pre><code>
+라는 뜻.
+
+---
+
+# 포트 8080은 왜 쓰는 걸까?
+
+예:
+
+```text id=&quot;2t34wl&quot;
+localhost:8080
+</code></pre>
+<p>여기서:</p>
+<ul>
+<li>localhost → 내 컴퓨터</li>
+<li>8080 → 열려있는 서버 포트</li>
+</ul>
+<p>다.</p>
+<p>즉 톰캣이:</p>
+<p>```text id=&rdquo;xupowf&rdquo;
+8080 포트에서 대기</p>
+<pre><code>
+하고 있는 것.
+
+---
+
+# 스프링 코드와 연결되는 구조
+
+예를 들어:
+
+```java id=&quot;12bj2v&quot;
+@GetMapping(&quot;/hello&quot;)
+public String hello() {
+    return &quot;hello&quot;;
+}
+</code></pre>
+<p>브라우저 요청:</p>
+<p>```text id=&rdquo;2fl5pk&rdquo;
+GET /hello</p>
+<pre><code>
+↓
+
+톰캣이 받음
+
+↓
+
+스프링 DispatcherServlet 호출
+
+↓
+
+컨트롤러 실행
+
+↓
+
+응답 반환
+
+---
+
+# DispatcherServlet은 뭐냐?
+
+스프링 내부의 &quot;교통정리 담당&quot;.
+
+톰캣이 요청을 받으면:
+
+```text id=&quot;9n3i6g&quot;
+“이 URL 누구한테 보낼까?”
+</code></pre>
+<p>를 DispatcherServlet이 처리한다.</p>
+<hr>
+<h1>쉽게 비유하면</h1>
+<h2>톰캣</h2>
+<p>```text id=&rdquo;x5ffu7&rdquo;
+건물 입구 경비원</p>
+<pre><code>
+* 요청 받음
+* 사람 들여보냄
+* 연결 관리
+
+---
+
+## 스프링
+
+```text id=&quot;sz3mdg&quot;
+건물 안 직원들
+</code></pre>
+<ul>
+<li>실제 업무 처리</li>
+<li>DB 조회</li>
+<li>응답 생성</li>
+</ul>
+<hr>
+<h1>Docker랑 연결해서 보면</h1>
+<p>Dockerfile:</p>
+<p>```dockerfile id=&rdquo;c7a7vx&rdquo;
+FROM eclipse-temurin:21-jdk</p>
+<p>COPY app.jar app.jar</p>
+<p>ENTRYPOINT [&ldquo;java&rdquo;, &ldquo;-jar&rdquo;, &ldquo;app.jar&rdquo;]</p>
+<pre><code>
+실행하면 내부에서:
+
+```text id=&quot;kgmyo2&quot;
+JVM 실행
+→ Spring Boot 실행
+→ 내장 톰캣 실행
+→ 8080 포트 오픈
+</code></pre>
+<p>된다.</p>
+<hr>
+<h1>그래서 docker run -p 가 중요함</h1>
+<p>예:</p>
+<p>```bash id=&rdquo;o2xj85&rdquo;
+docker run -p 8080:8080 app</p>
+<pre><code>
+의미:
+
+```text id=&quot;0okf79&quot;
+내 컴퓨터 8080
+↓
+컨테이너 내부 톰캣 8080 연결
+</code></pre>
+<p>이다.</p>
+<p>즉 컨테이너 안의 톰캣 서버에 연결되는 것.</p>
+<hr>
+<h1>실무에서는 Nginx랑 같이 많이 씀</h1>
+<p>구조 예시:</p>
+<p>```text id=&rdquo;5ibjjt&rdquo;
+클라이언트
+   ↓
+Nginx
+   ↓
+Spring Boot + Tomcat</p>
+<pre><code>
+---
+
+# 왜 굳이 Nginx 앞에 둠?
+
+Nginx가:
+
+* SSL 처리
+* 정적 파일 처리
+* 로드밸런싱
+* 리버스 프록시
+
+를 잘하기 때문.
+
+톰캣은 자바 애플리케이션 실행에 집중.
+
+---
+
+# 정리하면
+
+## 톰캣 역할
+
+```text id=&quot;k0fjlwm&quot;
+HTTP 요청 받기
+포트 열기
+스프링 코드 실행 연결
+응답 반환
+</code></pre>
+<hr>
+<h1>핵심 구조</h1>
+<p>```text id=&rdquo;kkl78f&rdquo;
+브라우저
+   ↓
+톰캣
+   ↓
+스프링
+   ↓
+컨트롤러
+   ↓
+DB</p>
+<pre><code>
+---
+
+# 핵심 요약
+
+## 톰캣은
+
+```text id=&quot;7ocm7l&quot;
+자바 웹 애플리케이션 실행 서버(WAS)
+</code></pre>
+<hr>
+<h2>스프링부트는</h2>
+<p>```text id=&rdquo;sg4p6i&rdquo;
+내장 톰캣을 포함</p>
+<pre><code>
+해서:
+
+```bash id=&quot;q0rjzb&quot;
+java -jar
+</code></pre>
+<p>만으로 서버 실행 가능.</p>
+<hr>
+<h1>결론</h1>
+<p>스프링 코드만으로는 인터넷 요청을 받을 수 없다.</p>
+<p>중간에서:</p>
+<ul>
+<li>포트 열고</li>
+<li>HTTP 처리하고</li>
+<li>스프링과 연결해주는 존재</li>
+</ul>
+<p>가 필요한데,</p>
+<p>그 역할을 하는 핵심 서버가:</p>
+<p><code>text id="mbrxyd"
+톰캣(Tomcat)</code></p>
+<p>이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-컴파일이랑-빌드는-뭐가-다를까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] 컴파일이랑 빌드는 뭐가 다를까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-target-밑에-classes랑-jar-파일은-각각-어떻게-만들어질까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] target 밑에 classes랑 jar 파일은 각각 어떻게 만들어질까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

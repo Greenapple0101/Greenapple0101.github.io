@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] 유형별 YAML 파일 읽는 법 — 어디부터 봐야 할까? | Greenapple0101</title>
+  <meta name="description" content="\쿠버네티스 YAML을 처음 보면 대부분 이런 느낌이 든다. 분명 글자는 읽히는데 구조가 안 보인다. 처음에는 전부 비슷해 보인다. 근데 쿠버네티스 YAML은 유형별로 읽는 순서가 있다. 오늘은 CKA 공부할 때 기준으로, 리소스별 YAML을 어떻게 읽으면 되는지 정리해본다. ---…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] 유형별 YAML 파일 읽는 법 — 어디부터 봐야 할까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-20T04:30:04.149Z">2026.05.20</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-유형별-YAML-파일-읽는-법-어디부터-봐야-할까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>\쿠버네티스 YAML을 처음 보면 대부분 이런 느낌이 든다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+</code></pre>
+<p>분명 글자는 읽히는데 구조가 안 보인다.</p>
+<pre><code class="language-text">이 YAML이 뭘 만드는 건지
+어디가 이름인지
+어디가 조건인지
+어디가 실제 컨테이너인지
+Service랑 Deployment는 뭐가 다른지
+</code></pre>
+<p>처음에는 전부 비슷해 보인다.</p>
+<p>근데 쿠버네티스 YAML은 유형별로 읽는 순서가 있다.</p>
+<p>오늘은 CKA 공부할 때 기준으로, 리소스별 YAML을 어떻게 읽으면 되는지 정리해본다.</p>
+<hr>
+<h1>1. 모든 YAML의 공통 구조</h1>
+<p>쿠버네티스 YAML은 거의 항상 이 네 덩어리로 시작한다.</p>
+<pre><code class="language-yaml">apiVersion:
+kind:
+metadata:
+spec:
+</code></pre>
+<p>각각 의미는 이렇다.</p>
+<pre><code class="language-text">apiVersion: 이 리소스가 어떤 API 버전을 쓰는지
+kind: 어떤 종류의 리소스인지
+metadata: 이름, 네임스페이스, 라벨 같은 자기소개
+spec: 원하는 상태, 즉 진짜 설정 내용
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+</code></pre>
+<p>읽을 때는 위에서부터 이렇게 보면 된다.</p>
+<pre><code class="language-text">1. kind 확인
+2. metadata.name 확인
+3. metadata.namespace 확인
+4. spec 확인
+</code></pre>
+<p>가장 먼저 볼 건 <code>kind</code>다.</p>
+<p>왜냐면 <code>kind</code>를 봐야 이 YAML이 Pod인지, Service인지, Deployment인지 알 수 있기 때문이다.</p>
+<hr>
+<h1>2. Pod YAML 읽기</h1>
+<p>Pod는 가장 기본 단위다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+</code></pre>
+<p>Pod YAML은 이렇게 읽으면 된다.</p>
+<pre><code class="language-text">kind: Pod
+→ Pod를 만드는 YAML
+
+metadata.name
+→ Pod 이름
+
+metadata.labels
+→ 이 Pod에 붙은 라벨
+
+spec.containers
+→ Pod 안에서 실행할 컨테이너 목록
+
+image
+→ 어떤 이미지로 컨테이너를 띄울지
+
+containerPort
+→ 컨테이너 내부에서 열리는 포트
+</code></pre>
+<p>핵심은 여기다.</p>
+<pre><code class="language-yaml">spec:
+  containers:
+  - name: nginx
+    image: nginx
+</code></pre>
+<p>Pod는 결국:</p>
+<pre><code class="language-text">컨테이너를 하나 또는 여러 개 담는 껍데기
+</code></pre>
+<p>라고 보면 된다.</p>
+<p>그래서 Pod YAML을 읽을 때는 <code>spec.containers</code>부터 보면 된다.</p>
+<hr>
+<h1>3. Deployment YAML 읽기</h1>
+<p>Deployment는 Pod를 직접 하나 띄우는 게 아니라, Pod를 관리하는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+</code></pre>
+<p>처음 보면 길다.</p>
+<p>근데 Deployment는 세 덩어리만 보면 된다.</p>
+<pre><code class="language-text">1. replicas
+2. selector
+3. template
+</code></pre>
+<hr>
+<h2>replicas</h2>
+<pre><code class="language-yaml">replicas: 3
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">Pod를 3개 유지해라
+</code></pre>
+<p>즉 Pod 하나가 죽으면 Deployment가 다시 만들어준다.</p>
+<hr>
+<h2>selector</h2>
+<pre><code class="language-yaml">selector:
+  matchLabels:
+    app: nginx
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">app=nginx 라벨을 가진 Pod를 내가 관리하겠다
+</code></pre>
+<p>Deployment에서 selector는 매우 중요하다.</p>
+<hr>
+<h2>template</h2>
+<pre><code class="language-yaml">template:
+  metadata:
+    labels:
+      app: nginx
+  spec:
+    containers:
+    - name: nginx
+      image: nginx
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">새로 만들 Pod의 설계도
+</code></pre>
+<p>Deployment 안에 Pod YAML이 들어있다고 보면 된다.</p>
+<p>즉 Deployment 구조는 이렇게 읽으면 된다.</p>
+<pre><code class="language-text">Deployment
+ └── spec
+      ├── replicas: 몇 개 띄울지
+      ├── selector: 어떤 Pod를 관리할지
+      └── template: 어떤 Pod를 만들지
+</code></pre>
+<p>여기서 중요한 건 <code>selector.matchLabels</code>와 <code>template.metadata.labels</code>가 맞아야 한다는 것이다.</p>
+<pre><code class="language-yaml">selector:
+  matchLabels:
+    app: nginx
+
+template:
+  metadata:
+    labels:
+      app: nginx
+</code></pre>
+<p>둘 다 <code>app: nginx</code>다.</p>
+<p>이게 안 맞으면 Deployment가 Pod를 제대로 관리하지 못한다.</p>
+<hr>
+<h1>4. Service YAML 읽기</h1>
+<p>Service는 Pod에 접근하기 위한 고정된 입구다.</p>
+<p>Pod는 죽었다 살아나면서 IP가 바뀔 수 있다.</p>
+<p>그래서 Service가 필요하다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+</code></pre>
+<p>Service YAML은 이렇게 읽는다.</p>
+<pre><code class="language-text">kind: Service
+→ Service를 만드는 YAML
+
+spec.type
+→ 어떤 방식으로 노출할지
+
+spec.selector
+→ 어떤 Pod로 트래픽을 보낼지
+
+spec.ports.port
+→ Service가 받을 포트
+
+spec.ports.targetPort
+→ Pod 컨테이너로 보낼 포트
+</code></pre>
+<p>핵심은 <code>selector</code>다.</p>
+<pre><code class="language-yaml">selector:
+  app: nginx
+</code></pre>
+<p>이 뜻은:</p>
+<pre><code class="language-text">app=nginx 라벨이 붙은 Pod로 트래픽을 보내라
+</code></pre>
+<p>이다.</p>
+<p>즉 Service는 Pod 이름을 직접 보고 연결하지 않는다.</p>
+<p>라벨을 보고 연결한다.</p>
+<hr>
+<h2>Service port 구조</h2>
+<pre><code class="language-yaml">ports:
+- port: 80
+  targetPort: 8080
+</code></pre>
+<p>이건 이렇게 읽으면 된다.</p>
+<pre><code class="language-text">Service의 80번 포트로 들어오면
+Pod의 8080번 포트로 보내라
+</code></pre>
+<p>NodePort라면 하나가 더 붙는다.</p>
+<pre><code class="language-yaml">ports:
+- port: 80
+  targetPort: 8080
+  nodePort: 30080
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">노드의 30080번 포트로 들어오면
+Service 80번을 거쳐
+Pod 8080번으로 전달
+</code></pre>
+<p>흐름은 이렇게 보면 된다.</p>
+<pre><code class="language-text">사용자
+  ↓
+NodeIP:30080
+  ↓
+Service port: 80
+  ↓
+Pod targetPort: 8080
+</code></pre>
+<hr>
+<h1>5. ConfigMap YAML 읽기</h1>
+<p>ConfigMap은 설정값을 담는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  APP_MODE: production
+  LOG_LEVEL: info
+</code></pre>
+<p>ConfigMap은 <code>spec</code>이 아니라 <code>data</code>를 많이 본다.</p>
+<p>읽는 순서:</p>
+<pre><code class="language-text">kind: ConfigMap
+→ 설정값 저장소
+
+metadata.name
+→ ConfigMap 이름
+
+data
+→ 실제 설정값
+</code></pre>
+<p>이 ConfigMap은 이런 값을 담고 있다.</p>
+<pre><code class="language-text">APP_MODE=production
+LOG_LEVEL=info
+</code></pre>
+<p>Pod에서 사용할 때는 환경변수로 넣을 수 있다.</p>
+<pre><code class="language-yaml">envFrom:
+- configMapRef:
+    name: app-config
+</code></pre>
+<p>이 뜻은:</p>
+<pre><code class="language-text">app-config ConfigMap에 있는 값을 환경변수로 주입하겠다
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>6. Secret YAML 읽기</h1>
+<p>Secret은 비밀번호, 토큰 같은 민감한 값을 담는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+stringData:
+  DB_PASSWORD: mypassword
+</code></pre>
+<p>읽는 순서:</p>
+<pre><code class="language-text">kind: Secret
+→ 민감한 설정값 저장소
+
+metadata.name
+→ Secret 이름
+
+type
+→ Secret 종류
+
+stringData 또는 data
+→ 실제 값
+</code></pre>
+<p><code>stringData</code>는 사람이 읽기 편하게 평문으로 넣는 방식이다.</p>
+<pre><code class="language-yaml">stringData:
+  DB_PASSWORD: mypassword
+</code></pre>
+<p><code>data</code>는 base64 인코딩된 값을 넣는 방식이다.</p>
+<pre><code class="language-yaml">data:
+  DB_PASSWORD: bXlwYXNzd29yZA==
+</code></pre>
+<p>처음 공부할 때는 이렇게 기억하면 된다.</p>
+<pre><code class="language-text">ConfigMap: 일반 설정값
+Secret: 민감한 설정값
+</code></pre>
+<hr>
+<h1>7. Ingress YAML 읽기</h1>
+<p>Ingress는 외부 HTTP 요청을 내부 Service로 라우팅하는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-service
+            port:
+              number: 80
+</code></pre>
+<p>Ingress는 이렇게 읽는다.</p>
+<pre><code class="language-text">host
+→ 어떤 도메인으로 들어오는 요청인지
+
+path
+→ 어떤 경로인지
+
+backend.service.name
+→ 어느 Service로 보낼지
+
+backend.service.port.number
+→ Service의 몇 번 포트로 보낼지
+</code></pre>
+<p>흐름은 이렇다.</p>
+<pre><code class="language-text">app.example.com/
+  ↓
+Ingress
+  ↓
+app-service:80
+  ↓
+Pod
+</code></pre>
+<p>Ingress는 Pod로 직접 보내는 게 아니다.</p>
+<p>반드시 Service를 거쳐서 보낸다.</p>
+<p>그래서 Ingress YAML을 읽을 때는 backend service 이름을 꼭 확인해야 한다.</p>
+<hr>
+<h1>8. NetworkPolicy YAML 읽기</h1>
+<p>NetworkPolicy는 Pod 간 통신을 제한하는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          role: backend
+    ports:
+    - protocol: TCP
+      port: 5432
+</code></pre>
+<p>NetworkPolicy는 어렵게 느껴지지만 질문을 나눠서 보면 된다.</p>
+<pre><code class="language-text">1. 누구를 보호하는가?
+2. 들어오는 트래픽을 막는가, 나가는 트래픽을 막는가?
+3. 누구에게 허용하는가?
+4. 어떤 포트를 허용하는가?
+</code></pre>
+<p>위 YAML은 이렇게 읽는다.</p>
+<pre><code class="language-yaml">podSelector:
+  matchLabels:
+    role: db
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">role=db 라벨이 붙은 Pod에 정책 적용
+</code></pre>
+<pre><code class="language-yaml">policyTypes:
+- Ingress
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">들어오는 트래픽을 제어
+</code></pre>
+<pre><code class="language-yaml">from:
+- podSelector:
+    matchLabels:
+      role: backend
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">role=backend 라벨이 붙은 Pod에서 오는 트래픽만 허용
+</code></pre>
+<pre><code class="language-yaml">ports:
+- protocol: TCP
+  port: 5432
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">TCP 5432 포트만 허용
+</code></pre>
+<p>전체 의미는:</p>
+<pre><code class="language-text">role=db Pod는
+role=backend Pod로부터 들어오는
+TCP 5432 요청만 허용한다
+</code></pre>
+<hr>
+<h1>9. PersistentVolumeClaim YAML 읽기</h1>
+<p>PVC는 저장공간을 요청하는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+</code></pre>
+<p>읽는 순서:</p>
+<pre><code class="language-text">kind: PersistentVolumeClaim
+→ 저장공간 요청서
+
+metadata.name
+→ PVC 이름
+
+accessModes
+→ 어떤 방식으로 마운트할지
+
+resources.requests.storage
+→ 얼마나 필요한지
+</code></pre>
+<p><code>storage: 1Gi</code>는:</p>
+<pre><code class="language-text">1Gi 크기의 저장공간이 필요하다
+</code></pre>
+<p>라는 뜻이다.</p>
+<p>Pod에서 사용할 때는 이렇게 연결한다.</p>
+<pre><code class="language-yaml">volumes:
+- name: app-storage
+  persistentVolumeClaim:
+    claimName: app-pvc
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">app-pvc라는 저장공간 요청을 Pod에 연결
+</code></pre>
+<hr>
+<h1>10. Job YAML 읽기</h1>
+<p>Job은 한 번 실행되고 끝나는 작업을 만들 때 쓴다.</p>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hello-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: hello
+        image: busybox
+        command: [&quot;echo&quot;, &quot;hello&quot;]
+      restartPolicy: Never
+</code></pre>
+<p>읽는 순서:</p>
+<pre><code class="language-text">kind: Job
+→ 일회성 작업
+
+spec.template
+→ 실행할 Pod 설계도
+
+containers
+→ 어떤 컨테이너로 실행할지
+
+command
+→ 어떤 명령을 실행할지
+
+restartPolicy
+→ 실패하거나 종료됐을 때 재시작 정책
+</code></pre>
+<p>Deployment와 비슷하게 <code>template</code> 안에 Pod 설계도가 들어있다.</p>
+<p>하지만 차이는 목적이다.</p>
+<pre><code class="language-text">Deployment: 계속 떠 있어야 하는 서비스
+Job: 한 번 실행하고 끝나는 작업
+</code></pre>
+<hr>
+<h1>11. CronJob YAML 읽기</h1>
+<p>CronJob은 정해진 시간마다 Job을 실행하는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello-cron
+spec:
+  schedule: &quot;*/5 * * * *&quot;
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox
+            command: [&quot;echo&quot;, &quot;hello&quot;]
+          restartPolicy: OnFailure
+</code></pre>
+<p>읽는 순서:</p>
+<pre><code class="language-text">kind: CronJob
+→ 반복 실행 작업
+
+schedule
+→ 언제 실행할지
+
+jobTemplate
+→ 실행할 Job의 템플릿
+
+containers
+→ 실제 실행할 컨테이너
+</code></pre>
+<p>핵심은 <code>schedule</code>이다.</p>
+<pre><code class="language-yaml">schedule: &quot;*/5 * * * *&quot;
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">5분마다 실행
+</code></pre>
+<p>CronJob 구조는 이렇게 보면 된다.</p>
+<pre><code class="language-text">CronJob
+ └── schedule
+ └── jobTemplate
+      └── Job
+           └── Pod template
+                └── container
+</code></pre>
+<hr>
+<h1>12. RBAC YAML 읽기</h1>
+<p>RBAC는 권한 설정이다.</p>
+<p>보통 <code>Role</code>, <code>ClusterRole</code>, <code>RoleBinding</code>, <code>ClusterRoleBinding</code>이 나온다.</p>
+<h2>Role</h2>
+<pre><code class="language-yaml">apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [&quot;&quot;]
+  resources: [&quot;pods&quot;]
+  verbs: [&quot;get&quot;, &quot;watch&quot;, &quot;list&quot;]
+</code></pre>
+<p>읽는 순서:</p>
+<pre><code class="language-text">kind: Role
+→ 특정 네임스페이스 안에서의 권한
+
+resources
+→ 어떤 리소스에 대해
+
+verbs
+→ 어떤 행동을 허용할지
+</code></pre>
+<p>위 YAML은:</p>
+<pre><code class="language-text">default namespace에서
+pods 리소스에 대해
+get, watch, list 가능
+</code></pre>
+<p>이라는 뜻이다.</p>
+<hr>
+<h2>RoleBinding</h2>
+<pre><code class="language-yaml">apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: jane
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+</code></pre>
+<p>RoleBinding은 이렇게 읽는다.</p>
+<pre><code class="language-text">subjects
+→ 누구에게 권한을 줄지
+
+roleRef
+→ 어떤 Role을 연결할지
+</code></pre>
+<p>즉 위 YAML은:</p>
+<pre><code class="language-text">jane 사용자에게
+pod-reader Role을 연결한다
+</code></pre>
+<p>는 뜻이다.</p>
+<p>RBAC는 이렇게 기억하면 된다.</p>
+<pre><code class="language-text">Role: 권한 내용
+RoleBinding: 권한을 누구에게 붙일지
+</code></pre>
+<hr>
+<h1>13. 유형별로 가장 먼저 볼 부분</h1>
+<p>정리하면 이렇게 보면 된다.</p>
+<table>
+<thead>
+<tr>
+<th>리소스</th>
+<th>가장 먼저 볼 부분</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pod</td>
+<td><code>spec.containers</code></td>
+<td>어떤 컨테이너를 띄우는가</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td><code>replicas</code>, <code>selector</code>, <code>template</code></td>
+<td>Pod를 몇 개, 어떤 기준으로 관리하는가</td>
+</tr>
+<tr>
+<td>Service</td>
+<td><code>type</code>, <code>selector</code>, <code>ports</code></td>
+<td>어떤 Pod로 트래픽을 보내는가</td>
+</tr>
+<tr>
+<td>ConfigMap</td>
+<td><code>data</code></td>
+<td>어떤 설정값을 담는가</td>
+</tr>
+<tr>
+<td>Secret</td>
+<td><code>stringData</code> 또는 <code>data</code></td>
+<td>어떤 민감값을 담는가</td>
+</tr>
+<tr>
+<td>Ingress</td>
+<td><code>rules</code>, <code>backend.service</code></td>
+<td>어떤 요청을 어느 Service로 보내는가</td>
+</tr>
+<tr>
+<td>NetworkPolicy</td>
+<td><code>podSelector</code>, <code>ingress/egress</code></td>
+<td>누구의 통신을 제한하는가</td>
+</tr>
+<tr>
+<td>PVC</td>
+<td><code>accessModes</code>, <code>resources.requests.storage</code></td>
+<td>어떤 저장공간을 요청하는가</td>
+</tr>
+<tr>
+<td>Job</td>
+<td><code>template.spec.containers</code>, <code>command</code></td>
+<td>어떤 작업을 한 번 실행하는가</td>
+</tr>
+<tr>
+<td>CronJob</td>
+<td><code>schedule</code>, <code>jobTemplate</code></td>
+<td>언제 어떤 Job을 반복 실행하는가</td>
+</tr>
+<tr>
+<td>Role</td>
+<td><code>resources</code>, <code>verbs</code></td>
+<td>어떤 리소스에 어떤 행동을 허용하는가</td>
+</tr>
+<tr>
+<td>RoleBinding</td>
+<td><code>subjects</code>, <code>roleRef</code></td>
+<td>누구에게 어떤 Role을 붙이는가</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>14. YAML 읽는 공통 루틴</h1>
+<p>어떤 YAML이든 처음 보면 이렇게 읽으면 된다.</p>
+<pre><code class="language-text">1. kind를 본다
+2. metadata.name을 본다
+3. metadata.namespace를 본다
+4. spec에서 핵심 필드를 찾는다
+5. selector와 labels가 연결되는지 본다
+6. ports가 어디에서 어디로 이어지는지 본다
+7. apply 후 get / describe로 실제 상태를 확인한다
+</code></pre>
+<p>특히 쿠버네티스에서 자주 나오는 연결은 이거다.</p>
+<pre><code class="language-text">Deployment template label
+↔ Service selector
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-yaml">template:
+  metadata:
+    labels:
+      app: nginx
+</code></pre>
+<pre><code class="language-yaml">selector:
+  app: nginx
+</code></pre>
+<p>이 둘이 맞아야 Service가 Deployment가 만든 Pod를 찾을 수 있다.</p>
+<hr>
+<h1>마무리</h1>
+<p>쿠버네티스 YAML은 처음 보면 너무 길고 복잡해 보인다.</p>
+<p>하지만 리소스마다 보는 위치가 정해져 있다.</p>
+<pre><code class="language-text">Pod는 containers
+Deployment는 replicas, selector, template
+Service는 type, selector, ports
+ConfigMap과 Secret은 data
+Ingress는 rules와 backend
+NetworkPolicy는 podSelector와 ingress/egress
+PVC는 storage 요청
+RBAC는 resources, verbs, subjects, roleRef
+</code></pre>
+<p>이렇게 유형별로 읽으면 YAML이 훨씬 덜 무섭다.</p>
+<p>결국 중요한 건 YAML을 통째로 외우는 게 아니라:</p>
+<pre><code class="language-text">이 리소스는 어디를 봐야 하는지
+어떤 필드끼리 연결되는지
+문제 조건을 어느 위치에 넣어야 하는지
+</code></pre>
+<p>를 아는 것이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[CKA]-공식문서에서-YAML-파일은-어떻게-찾을까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[CKA] 공식문서에서 YAML 파일은 어떻게 찾을까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[CKA]-Nginx-ConfigMap-수정-후-TLSv1.3만-허용하기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA] Nginx ConfigMap 수정 후 TLSv1.3만 허용하기</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

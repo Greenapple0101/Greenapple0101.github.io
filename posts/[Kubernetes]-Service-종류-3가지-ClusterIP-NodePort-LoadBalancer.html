@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] Service 종류 3가지: ClusterIP, NodePort, LoadBalancer | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스에서 Pod는 계속 생성되고 삭제될 수 있다. 문제는 Pod가 새로 만들어질 때마다 IP가 바뀔 수 있다는 점이다. 그래서 클라이언트가 Pod IP를 직접 바라보게 만들면 안정적이지 않다. 이런 상황에서 매번 바뀌는 Pod IP를 직접 찾아서 접근하는 건 현실적으로 어렵다.…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] Service 종류 3가지: ClusterIP, NodePort, LoadBalancer</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-14T03:56:05.351Z">2026.05.14</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-Service-종류-3가지-ClusterIP-NodePort-LoadBalancer" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스에서 Pod는 계속 생성되고 삭제될 수 있다.
+문제는 Pod가 새로 만들어질 때마다 IP가 바뀔 수 있다는 점이다.</p>
+<p>그래서 클라이언트가 Pod IP를 직접 바라보게 만들면 안정적이지 않다.</p>
+<pre><code class="language-text">Pod A IP: 10.244.1.3
+Pod 삭제
+Pod B 새로 생성
+Pod B IP: 10.244.1.9
+</code></pre>
+<p>이런 상황에서 매번 바뀌는 Pod IP를 직접 찾아서 접근하는 건 현실적으로 어렵다.</p>
+<p>그래서 Kubernetes는 <strong>Service</strong>라는 리소스를 제공한다.</p>
+<hr>
+<h1>1. Service란?</h1>
+<p>Service는 쉽게 말하면 <strong>Pod 앞에 세우는 고정된 입구</strong>다.</p>
+<p>Pod는 바뀔 수 있지만, Service는 비교적 안정적인 주소를 제공한다.</p>
+<pre><code class="language-text">Client
+  ↓
+Service
+  ↓
+Pod
+</code></pre>
+<p>즉, 사용자는 Pod를 직접 찾는 것이 아니라 Service를 통해 접근한다.</p>
+<p>Service는 뒤에 있는 Pod들을 selector로 찾아서 요청을 전달한다.</p>
+<pre><code class="language-yaml">selector:
+  app: web
+</code></pre>
+<p>이렇게 되어 있으면 Service는 <code>app=web</code> 라벨을 가진 Pod들을 찾아서 요청을 보낸다.</p>
+<hr>
+<h1>2. 왜 Service가 필요할까?</h1>
+<p>Pod는 일회성에 가깝다.</p>
+<p>Deployment가 Pod를 관리하긴 하지만, Pod 자체는 언제든지 죽고 다시 만들어질 수 있다.</p>
+<p>예를 들어 장애가 나면 기존 Pod가 죽고 새 Pod가 생성된다.</p>
+<pre><code class="language-text">기존 Pod 죽음
+  ↓
+새 Pod 생성
+  ↓
+새 IP 할당
+</code></pre>
+<p>이때 Service가 없으면 클라이언트는 매번 바뀐 Pod IP를 알아야 한다.</p>
+<p>하지만 Service가 있으면 클라이언트는 Service만 바라보면 된다.</p>
+<pre><code class="language-text">Client
+  ↓
+Service IP는 유지
+  ↓
+뒤쪽 Pod는 바뀌어도 됨
+</code></pre>
+<p>즉, Service의 핵심 목적은 다음과 같다.</p>
+<pre><code class="language-text">Pod의 IP가 바뀌어도
+고정된 접근 지점을 제공하기 위해
+</code></pre>
+<hr>
+<h1>3. Service 종류 3가지</h1>
+<p>CKA나 쿠버네티스 기초에서 가장 많이 보는 Service 종류는 보통 세 가지다.</p>
+<pre><code class="language-text">ClusterIP
+NodePort
+LoadBalancer
+</code></pre>
+<p>각각 접근 범위가 다르다.</p>
+<pre><code class="language-text">ClusterIP      → 클러스터 내부 접근
+NodePort       → 외부에서 Node IP와 Port로 접근
+LoadBalancer   → 클라우드 로드밸런서를 통해 외부 접근
+</code></pre>
+<hr>
+<h1>4. ClusterIP</h1>
+<h2>ClusterIP란?</h2>
+<p>ClusterIP는 Kubernetes Service의 기본 타입이다.</p>
+<p>Service를 만들 때 type을 따로 지정하지 않으면 기본적으로 ClusterIP가 된다.</p>
+<pre><code class="language-yaml">type: ClusterIP
+</code></pre>
+<p>ClusterIP는 <strong>클러스터 내부에서만 접근 가능한 Service</strong>다.</p>
+<p>즉, 외부 사용자가 직접 접근하는 용도가 아니라, 클러스터 안의 Pod들끼리 통신할 때 사용한다.</p>
+<hr>
+<h2>ClusterIP 구조</h2>
+<pre><code class="language-text">Pod A
+  ↓
+ClusterIP Service
+  ↓
+Pod B
+</code></pre>
+<p>예를 들어 백엔드 Pod가 데이터베이스 Pod에 접근해야 한다고 해보자.</p>
+<p>백엔드가 DB Pod의 IP를 직접 바라보면 위험하다.
+DB Pod가 재시작되면 IP가 바뀔 수 있기 때문이다.</p>
+<p>그래서 DB 앞에 Service를 둔다.</p>
+<pre><code class="language-text">backend Pod
+  ↓
+db-service
+  ↓
+db Pod
+</code></pre>
+<p>백엔드는 DB Pod IP를 몰라도 된다.
+그냥 <code>db-service</code>라는 Service 이름으로 접근하면 된다.</p>
+<hr>
+<h2>ClusterIP 예시 YAML</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  type: ClusterIP
+  selector:
+    app: web
+  ports:
+  - port: 80
+    targetPort: 8080
+</code></pre>
+<p>여기서 중요한 부분은 이거다.</p>
+<pre><code class="language-yaml">type: ClusterIP
+</code></pre>
+<p>그리고 port와 targetPort의 의미는 다음과 같다.</p>
+<pre><code class="language-text">port
+= Service가 받는 포트
+
+targetPort
+= Pod 컨테이너로 전달할 포트
+</code></pre>
+<p>즉, 요청 흐름은 이렇게 된다.</p>
+<pre><code class="language-text">Client Pod
+  ↓
+web-service:80
+  ↓
+web Pod:8080
+</code></pre>
+<hr>
+<h2>ClusterIP 특징 정리</h2>
+<pre><code class="language-text">클러스터 내부에서만 접근 가능
+Service의 기본 타입
+Pod 간 통신에 사용
+외부에서는 직접 접근 불가
+</code></pre>
+<p>한 줄로 정리하면 이렇다.</p>
+<pre><code class="language-text">ClusterIP = 클러스터 내부용 고정 입구
+</code></pre>
+<hr>
+<h1>5. NodePort</h1>
+<h2>NodePort란?</h2>
+<p>NodePort는 외부에서 Kubernetes 클러스터 안의 Pod에 접근할 수 있게 해주는 Service 타입이다.</p>
+<pre><code class="language-yaml">type: NodePort
+</code></pre>
+<p>NodePort를 사용하면 각 Node의 특정 포트가 열린다.</p>
+<p>외부 사용자는 다음과 같은 방식으로 접근할 수 있다.</p>
+<pre><code class="language-text">NodeIP:NodePort
+</code></pre>
+<p>예를 들어 Node IP가 <code>192.168.0.10</code>이고 nodePort가 <code>30080</code>이면 다음처럼 접근한다.</p>
+<pre><code class="language-text">http://192.168.0.10:30080
+</code></pre>
+<hr>
+<h2>NodePort 구조</h2>
+<pre><code class="language-text">외부 사용자
+  ↓
+NodeIP:30080
+  ↓
+NodePort Service
+  ↓
+Pod
+</code></pre>
+<p>NodePort는 외부 접근이 가능하기 때문에 실습에서 자주 사용된다.</p>
+<p>특히 KodeKloud나 CKA 연습 문제에서 이런 형태가 많이 나온다.</p>
+<pre><code class="language-text">Create a Service
+Type: NodePort
+targetPort: 8080
+port: 8080
+nodePort: 30080
+</code></pre>
+<hr>
+<h2>NodePort 예시 YAML</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: NodePort
+  selector:
+    name: simple-webapp
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
+</code></pre>
+<p>이 설정을 하나씩 보면 다음과 같다.</p>
+<pre><code class="language-yaml">type: NodePort
+</code></pre>
+<p>Service 타입을 NodePort로 만든다는 뜻이다.</p>
+<pre><code class="language-yaml">selector:
+  name: simple-webapp
+</code></pre>
+<p><code>name=simple-webapp</code> 라벨을 가진 Pod로 요청을 보내겠다는 뜻이다.</p>
+<pre><code class="language-yaml">port: 8080
+</code></pre>
+<p>Service가 내부적으로 받을 포트다.</p>
+<pre><code class="language-yaml">targetPort: 8080
+</code></pre>
+<p>Pod 컨테이너로 전달할 포트다.</p>
+<pre><code class="language-yaml">nodePort: 30080
+</code></pre>
+<p>외부에서 접근할 때 사용할 Node의 포트다.</p>
+<hr>
+<h2>port, targetPort, nodePort 차이</h2>
+<p>NodePort에서 제일 헷갈리는 게 이 세 개다.</p>
+<pre><code class="language-text">nodePort
+= 외부 사용자가 Node로 들어올 때 사용하는 포트
+
+port
+= Service 자체의 포트
+
+targetPort
+= 실제 Pod 컨테이너의 포트
+</code></pre>
+<p>흐름으로 보면 더 쉽다.</p>
+<pre><code class="language-text">외부 사용자
+  ↓
+NodeIP:30080
+  ↓
+Service:8080
+  ↓
+Pod:8080
+</code></pre>
+<p>즉, 위 YAML에서는 이렇게 연결된다.</p>
+<pre><code class="language-text">30080 → 8080 → 8080
+</code></pre>
+<hr>
+<h2>NodePort 특징 정리</h2>
+<pre><code class="language-text">외부에서 접근 가능
+Node의 특정 포트를 열어줌
+기본 포트 범위는 보통 30000~32767
+실습 환경에서 많이 사용
+운영 환경에서는 LoadBalancer나 Ingress를 더 많이 사용
+</code></pre>
+<p>한 줄로 정리하면 이렇다.</p>
+<pre><code class="language-text">NodePort = 노드에 외부에서 들어올 수 있는 문을 하나 뚫는 방식
+</code></pre>
+<hr>
+<h1>6. LoadBalancer</h1>
+<h2>LoadBalancer란?</h2>
+<p>LoadBalancer는 클라우드 환경에서 외부 로드밸런서를 생성해주는 Service 타입이다.</p>
+<pre><code class="language-yaml">type: LoadBalancer
+</code></pre>
+<p>AWS, GCP, Azure 같은 클라우드 환경에서 LoadBalancer 타입의 Service를 만들면 클라우드 로드밸런서가 생성된다.</p>
+<p>외부 사용자는 로드밸런서의 IP나 DNS로 접근한다.</p>
+<hr>
+<h2>LoadBalancer 구조</h2>
+<pre><code class="language-text">외부 사용자
+  ↓
+Cloud Load Balancer
+  ↓
+Kubernetes Service
+  ↓
+Pod
+</code></pre>
+<p>NodePort는 사용자가 직접 Node IP와 NodePort를 알아야 한다.</p>
+<p>반면 LoadBalancer는 클라우드 로드밸런서가 앞에서 요청을 받아준다.</p>
+<p>그래서 운영 환경에서는 NodePort를 직접 노출하기보다 LoadBalancer나 Ingress를 사용하는 경우가 많다.</p>
+<hr>
+<h2>LoadBalancer 예시 YAML</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+</code></pre>
+<p>이 Service를 만들면 클라우드 환경에서는 외부 IP가 할당될 수 있다.</p>
+<p>확인은 이렇게 한다.</p>
+<pre><code class="language-bash">kubectl get service
+</code></pre>
+<p>예시 출력은 이런 느낌이다.</p>
+<pre><code class="language-text">NAME            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)
+nginx-service   LoadBalancer   10.96.120.10    1.2.3.4          80:31234/TCP
+</code></pre>
+<p>여기서 <code>EXTERNAL-IP</code>가 외부에서 접근할 수 있는 주소다.</p>
+<hr>
+<h2>LoadBalancer 특징 정리</h2>
+<pre><code class="language-text">클라우드 로드밸런서를 생성
+외부 IP 또는 DNS를 통해 접근
+운영 환경에서 외부 트래픽을 받을 때 사용
+AWS, GCP, Azure 같은 클라우드 환경과 연결됨
+</code></pre>
+<p>한 줄로 정리하면 이렇다.</p>
+<pre><code class="language-text">LoadBalancer = 클라우드 로드밸런서를 붙여서 외부에 공개하는 방식
+</code></pre>
+<hr>
+<h1>7. 세 가지 Service 비교</h1>
+<table>
+<thead>
+<tr>
+<th>타입</th>
+<th>접근 범위</th>
+<th>주 사용 목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ClusterIP</td>
+<td>클러스터 내부</td>
+<td>Pod 간 내부 통신</td>
+</tr>
+<tr>
+<td>NodePort</td>
+<td>외부 → Node 포트</td>
+<td>실습, 간단한 외부 노출</td>
+</tr>
+<tr>
+<td>LoadBalancer</td>
+<td>외부 → 클라우드 LB</td>
+<td>운영 환경 외부 공개</td>
+</tr>
+</tbody>
+</table>
+<p>조금 더 쉽게 표현하면 이렇다.</p>
+<pre><code class="language-text">ClusterIP
+= 내부 직원들끼리 쓰는 사내 전화번호
+
+NodePort
+= 건물 외벽에 임시 출입문 하나 뚫기
+
+LoadBalancer
+= 정식 안내 데스크와 정문 만들기
+</code></pre>
+<hr>
+<h1>8. 요청 흐름으로 다시 보기</h1>
+<h2>ClusterIP</h2>
+<pre><code class="language-text">클러스터 내부 Pod
+  ↓
+ClusterIP Service
+  ↓
+Pod
+</code></pre>
+<p>외부에서는 접근하지 못한다.</p>
+<hr>
+<h2>NodePort</h2>
+<pre><code class="language-text">외부 사용자
+  ↓
+NodeIP:30080
+  ↓
+NodePort Service
+  ↓
+Pod
+</code></pre>
+<p>Node의 포트를 통해 외부 접근이 가능하다.</p>
+<hr>
+<h2>LoadBalancer</h2>
+<pre><code class="language-text">외부 사용자
+  ↓
+Cloud Load Balancer
+  ↓
+Service
+  ↓
+Pod
+</code></pre>
+<p>클라우드 로드밸런서가 앞에서 요청을 받아준다.</p>
+<hr>
+<h1>9. CKA 실습에서 자주 나오는 감각</h1>
+<p>CKA나 KodeKloud 문제에서는 Service YAML을 직접 작성하라는 문제가 자주 나온다.</p>
+<p>예를 들어 이런 문제다.</p>
+<pre><code class="language-text">Create a new service to access the web application.
+
+Name: webapp-service
+Type: NodePort
+targetPort: 8080
+port: 8080
+nodePort: 30080
+selector:
+  name: simple-webapp
+</code></pre>
+<p>그러면 YAML은 이렇게 작성하면 된다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: NodePort
+  selector:
+    name: simple-webapp
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
+</code></pre>
+<p>여기서 중요한 건 Service가 Pod를 직접 이름으로 찾는 게 아니라는 점이다.</p>
+<p>Service는 Pod 이름을 보는 게 아니라 <strong>label</strong>을 본다.</p>
+<pre><code class="language-yaml">selector:
+  name: simple-webapp
+</code></pre>
+<p>이 selector와 Pod의 label이 맞아야 연결된다.</p>
+<p>Pod에 이런 label이 있어야 한다.</p>
+<pre><code class="language-yaml">metadata:
+  labels:
+    name: simple-webapp
+</code></pre>
+<p>만약 selector와 label이 다르면 Service는 Pod를 찾지 못한다.</p>
+<p>그 결과 endpoint가 비어 있을 수 있다.</p>
+<pre><code class="language-bash">kubectl get endpoints
+</code></pre>
+<p>이 명령어로 Service가 실제로 어떤 Pod와 연결되어 있는지 확인할 수 있다.</p>
+<hr>
+<h1>10. 정리</h1>
+<p>Kubernetes Service는 Pod 앞에 세우는 고정된 접근 지점이다.</p>
+<p>Pod는 죽고 다시 만들어질 수 있고, IP도 바뀔 수 있다.
+그래서 클라이언트가 Pod를 직접 바라보면 안정적이지 않다.</p>
+<p>Service는 이 문제를 해결한다.</p>
+<pre><code class="language-text">Pod는 바뀌어도
+Service는 고정된 입구 역할을 한다
+</code></pre>
+<p>Service 종류는 대표적으로 세 가지가 있다.</p>
+<pre><code class="language-text">ClusterIP
+= 클러스터 내부 통신용
+
+NodePort
+= Node의 포트를 열어서 외부 접근 허용
+
+LoadBalancer
+= 클라우드 로드밸런서를 붙여서 외부 공개
+</code></pre>
+<p>최종적으로 이렇게 기억하면 된다.</p>
+<pre><code class="language-text">ClusterIP는 내부용
+
+NodePort는 노드 포트로 외부 노출
+
+LoadBalancer는 클라우드 로드밸런서로 외부 노출
+</code></pre>
+<p>쿠버네티스 네트워크를 이해할 때 Service는 정말 중요한 개념이다.
+Pod가 실제 일하는 애라면, Service는 그 Pod들을 찾아갈 수 있게 해주는 안정적인 입구라고 보면 된다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-Deployment-배포-전략이란-RollingUpdate와-Rollback-이해하기.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] Deployment 배포 전략이란? RollingUpdate와 Rollback 이해하기</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Docker]-컨테이너는-왜-설정이-날아갈까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[DOCKER] 컨테이너는 왜 설정이 날아갈까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CKA] Ingress → Gateway API 마이그레이션 문제 푸는 법 + 공식문서 활용법\n | Greenapple0101</title>
+  <meta name="description" content="문제는 이거다. 처음 보면 YAML을 새로 만들어야 해서 어렵게 느껴진다. 근데 이 문제의 핵심은 YAML 암기가 아니다. 다. --- 1. 문제 해석 문제에서 이미 알려준 값이 있다. 그리고 기존 Ingress에서 뽑아와야 하는 값이 있다. 즉 바로 YAML부터 쓰면 안 된다. 먼저…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[CKA] Ingress → Gateway API 마이그레이션 문제 푸는 법 + 공식문서 활용법\n</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-20T07:24:19.658Z">2026.05.20</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/CKA-Ingress-Gateway-API-마이그레이션-문제-푸는-법-공식문서-활용법" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>문제는 이거다.</p>
+<p>```text id=&rdquo;2rsyau&rdquo;
+기존 Ingress web이 있다.
+이걸 Gateway API로 마이그레이션해라.</p>
+<p>GatewayClass 이름은 nginx다.</p>
+<p>Gateway 이름은 web-gateway
+hostname은 gateway.web.k8s.local</p>
+<p>HTTPRoute 이름은 web-route
+기존 Ingress web의 TLS/listener/routing rule을 유지해야 한다.</p>
+<p>마지막에 curl 성공 확인 후 기존 Ingress web 삭제</p>
+<pre><code>
+처음 보면 YAML을 새로 만들어야 해서 어렵게 느껴진다.
+
+근데 이 문제의 핵심은 YAML 암기가 아니다.
+
+```text id=&quot;u9nx8j&quot;
+기존 Ingress를 읽고
+그 안에 있는 값을
+Gateway와 HTTPRoute로 옮기는 문제
+</code></pre>
+<p>다.</p>
+<hr>
+<h1>1. 문제 해석</h1>
+<p>문제에서 이미 알려준 값이 있다.</p>
+<p>```text id=&rdquo;dop5fy&rdquo;
+GatewayClass name: nginx
+Gateway name: web-gateway
+Gateway hostname: gateway.web.k8s.local
+HTTPRoute name: web-route
+기존 Ingress name: web</p>
+<pre><code>
+그리고 기존 Ingress에서 뽑아와야 하는 값이 있다.
+
+```text id=&quot;sltz7z&quot;
+TLS secret 이름
+기존 path
+기존 backend Service 이름
+기존 backend Service port
+</code></pre>
+<p>즉 바로 YAML부터 쓰면 안 된다.</p>
+<p>먼저 기존 Ingress를 확인해야 한다.</p>
+<p>```bash id=&rdquo;9yf1ba&rdquo;
+kubectl get ingress web -o yaml</p>
+<pre><code>
+공식 kubectl Quick Reference에도 특정 리소스를 YAML로 보는 예시가 나온다. 예를 들어 `kubectl get pod my-pod -o yaml`처럼 `-o yaml`은 현재 리소스 설정을 YAML 형태로 확인할 때 쓰는 기본 패턴이다. 
+
+---
+
+# 2. 기존 Ingress에서 봐야 하는 부분
+
+Ingress YAML에서 봐야 할 건 크게 두 군데다.
+
+```yaml id=&quot;2b95cz&quot;
+spec:
+  tls:
+  - hosts:
+    - web.k8s.local
+    secretName: web-tls
+  rules:
+  - host: web.k8s.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
+</code></pre>
+<p>여기서 옮길 값은 이거다.</p>
+<table>
+<thead>
+<tr>
+<th>Ingress 위치</th>
+<th>Gateway API에서 들어갈 위치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spec.tls[].secretName</code></td>
+<td>Gateway <code>listeners[].tls.certificateRefs[].name</code></td>
+</tr>
+<tr>
+<td><code>spec.rules[].host</code></td>
+<td>문제에서는 <code>gateway.web.k8s.local</code>로 변경</td>
+</tr>
+<tr>
+<td><code>spec.rules[].http.paths[].path</code></td>
+<td>HTTPRoute <code>rules[].matches[].path.value</code></td>
+</tr>
+<tr>
+<td><code>pathType: Prefix</code></td>
+<td>HTTPRoute <code>PathPrefix</code></td>
+</tr>
+<tr>
+<td><code>backend.service.name</code></td>
+<td>HTTPRoute <code>backendRefs[].name</code></td>
+</tr>
+<tr>
+<td><code>backend.service.port.number</code></td>
+<td>HTTPRoute <code>backendRefs[].port</code></td>
+</tr>
+</tbody>
+</table>
+<p>즉 Ingress를 Gateway API로 바꿀 때는 이렇게 생각하면 된다.</p>
+<p>```text id=&rdquo;65hmo8&rdquo;
+Ingress의 TLS/도메인 입구 부분
+→ Gateway</p>
+<p>Ingress의 path/backend 라우팅 부분
+→ HTTPRoute</p>
+<pre><code>
+---
+
+# 3. Gateway API 구조 먼저 이해하기
+
+Gateway API는 역할이 나뉜다.
+
+공식문서에서는 Gateway API가 동적 인프라 프로비저닝과 고급 트래픽 라우팅을 위한 API 종류들의 모음이라고 설명하고, 대표적으로 `GatewayClass`, `Gateway`, `HTTPRoute` 같은 리소스를 사용한다고 정리한다. ([Kubernetes][1])
+
+간단히 말하면:
+
+```text id=&quot;vnqsyi&quot;
+GatewayClass
+→ 어떤 Gateway Controller를 쓸지
+
+Gateway
+→ 외부에서 들어오는 입구, listener, hostname, TLS
+
+HTTPRoute
+→ Gateway로 들어온 HTTP 요청을 어느 Service로 보낼지
+</code></pre>
+<p>흐름은 이렇게 보면 된다.</p>
+<p>```text id=&rdquo;y55a5t&rdquo;
+Client
+  ↓
+GatewayClass nginx가 관리하는 Gateway
+  ↓
+Gateway listener HTTPS 443
+  ↓
+HTTPRoute
+  ↓
+Service
+  ↓
+Pod</p>
+<pre><code>
+---
+
+# 4. 공식문서에서는 어디를 봐야 하나
+
+공식문서 검색창에서 이렇게 찾으면 된다.
+
+```text id=&quot;xuhkqc&quot;
+Gateway API
+</code></pre>
+<p>또는</p>
+<p>```text id=&rdquo;ufx2ju&rdquo;
+HTTPRoute</p>
+<pre><code>
+또는
+
+```text id=&quot;if2afd&quot;
+Gateway
+</code></pre>
+<p>공식문서 경로는 보통 이쪽이다.</p>
+<p>```text id=&rdquo;5izklh&rdquo;
+Documentation
+  → Concepts
+  → Services, Load Balancing, and Networking
+  → Gateway API</p>
+<pre><code>
+들어간 뒤 페이지 안에서 `Ctrl + F`로 찾을 키워드는 이거다.
+
+```text id=&quot;bzgpvm&quot;
+Gateway
+HTTPRoute
+listeners
+certificateRefs
+backendRefs
+PathPrefix
+Migrating from Ingress
+</code></pre>
+<p>Gateway API 공식문서에는 <code>GatewayClass</code>, <code>Gateway</code>, <code>HTTPRoute</code>의 관계가 설명되어 있고, HTTPRoute는 Gateway listener에서 backend endpoint, 보통 Service로 HTTP 트래픽을 매핑하는 규칙이라고 설명한다. (<a href="https://kubernetes.io/docs/concepts/services-networking/gateway/?utm_source=chatgpt.com" title="Gateway API">Kubernetes</a>)</p>
+<p>즉 문서에서 복사해야 하는 YAML은 보통 두 종류다.</p>
+<p>```text id=&rdquo;hmdvtu&rdquo;
+kind: Gateway
+kind: HTTPRoute</p>
+<pre><code>
+---
+
+# 5. Gateway YAML 작성
+
+문제 조건:
+
+```text id=&quot;c71ztc&quot;
+Gateway 이름: web-gateway
+GatewayClass 이름: nginx
+hostname: gateway.web.k8s.local
+기존 Ingress의 TLS secret 유지
+HTTPS 443 listener 유지
+</code></pre>
+<p>예시 YAML:</p>
+<p>```yaml id=&rdquo;axxi01&rdquo;
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: gateway.web.k8s.local
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: web-tls</p>
+<pre><code>
+여기서 `web-tls`는 예시다.
+
+실제 시험에서는 반드시 기존 Ingress에서 확인한 값을 넣어야 한다.
+
+```bash id=&quot;uqpovx&quot;
+kubectl get ingress web -o yaml
+</code></pre>
+<p>에서:</p>
+<p>```yaml id=&rdquo;brh1uz&rdquo;
+spec:
+  tls:
+  - secretName: web-tls</p>
+<pre><code>
+이렇게 나온 값을 Gateway의 certificateRefs에 넣는다.
+
+---
+
+# 6. HTTPRoute YAML 작성
+
+문제 조건:
+
+```text id=&quot;vyma0t&quot;
+HTTPRoute 이름: web-route
+hostname: gateway.web.k8s.local
+기존 Ingress의 routing rule 유지
+</code></pre>
+<p>예시 YAML:</p>
+<p>```yaml id=&rdquo;7z0z18&rdquo;
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+spec:
+  parentRefs:
+  - name: web-gateway
+  hostnames:
+  - gateway.web.k8s.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: web-service
+      port: 80</p>
+<pre><code>
+여기서 중요한 건 세 가지다.
+
+```text id=&quot;a9irqk&quot;
+parentRefs.name
+→ 어느 Gateway에 붙을지
+
+hostnames
+→ 어떤 hostname 요청을 처리할지
+
+backendRefs
+→ 어느 Service로 보낼지
+</code></pre>
+<p><code>web-service</code>와 <code>80</code>도 예시다.</p>
+<p>반드시 기존 Ingress의 backend service를 보고 넣어야 한다.</p>
+<hr>
+<h1>7. 전체 풀이 순서</h1>
+<p>실전에서는 이렇게 간다.</p>
+<h2>1단계. GatewayClass 확인</h2>
+<p>문제에서 <code>nginx</code>가 있다고 했지만, 그래도 확인 가능하다.</p>
+<p>```bash id=&rdquo;dh6kcn&rdquo;
+kubectl get gatewayclass</p>
+<pre><code>
+---
+
+## 2단계. 기존 Ingress 확인
+
+```bash id=&quot;kxfe42&quot;
+kubectl get ingress web -o yaml
+</code></pre>
+<p>여기서 확인할 것:</p>
+<p>```text id=&rdquo;ufd4cj&rdquo;
+tls.secretName
+rules.host
+paths.path
+paths.pathType
+backend.service.name
+backend.service.port.number</p>
+<pre><code>
+---
+
+## 3단계. Gateway YAML 작성
+
+```bash id=&quot;cd27v4&quot;
+vi web-gateway.yaml
+</code></pre>
+<p>```yaml id=&rdquo;wsbeml&rdquo;
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: gateway.web.k8s.local
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: &lt;기존 Ingress의 TLS secret 이름&gt;</p>
+<pre><code>
+---
+
+## 4단계. HTTPRoute YAML 작성
+
+```bash id=&quot;xoitn6&quot;
+vi web-route.yaml
+</code></pre>
+<p>```yaml id=&rdquo;ucg8z6&rdquo;
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+spec:
+  parentRefs:
+  - name: web-gateway
+  hostnames:
+  - gateway.web.k8s.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: &lt;기존 Ingress의 path&gt;
+    backendRefs:
+    - name: &lt;기존 Ingress의 backend service 이름&gt;
+      port: &lt;기존 Ingress의 backend service port&gt;</p>
+<pre><code>
+---
+
+## 5단계. 적용
+
+```bash id=&quot;gcv3jo&quot;
+kubectl apply -f web-gateway.yaml
+kubectl apply -f web-route.yaml
+</code></pre>
+<p>공식 kubectl 문서에서도 <code>kubectl apply -f ./my-manifest.yaml</code>은 manifest 파일로 리소스를 생성하거나 업데이트하는 기본 명령으로 나온다. </p>
+<hr>
+<h2>6단계. 생성 확인</h2>
+<p>```bash id=&rdquo;h5q2w0&rdquo;
+kubectl get gateway
+kubectl get httproute</p>
+<pre><code>
+더 자세히:
+
+```bash id=&quot;qohs04&quot;
+kubectl describe gateway web-gateway
+kubectl describe httproute web-route
+</code></pre>
+<hr>
+<h2>7단계. curl 테스트</h2>
+<p>문제에서 준 명령어:</p>
+<p>```bash id=&rdquo;3o58l0&rdquo;
+curl https://gateway.web.k8s.local</p>
+<pre><code>
+주의할 점은 문제에 적힌:
+
+```text id=&quot;4ctyhv&quot;
+curl https: //gateway.web.k8s.local
+</code></pre>
+<p>이건 띄어쓰기 때문에 실제 명령어로는 틀리다.</p>
+<p>실제는 붙여서 써야 한다.</p>
+<p>```bash id=&rdquo;iymvrr&rdquo;
+curl https://gateway.web.k8s.local</p>
+<pre><code>
+---
+
+## 8단계. 기존 Ingress 삭제
+
+테스트 성공 후 삭제한다.
+
+```bash id=&quot;azl54w&quot;
+kubectl delete ingress web
+</code></pre>
+<p>공식 kubectl Quick Reference에도 <code>kubectl delete -f</code>, <code>kubectl delete pod,service</code>처럼 리소스를 삭제하는 기본 패턴이 정리되어 있다. </p>
+<hr>
+<h1>8. 이 문제에서 문서 활용하는 법</h1>
+<p>시험장에서 공식문서를 열면 이렇게 움직이면 된다.</p>
+<p>```text id=&rdquo;9o29x2&rdquo;
+1. 검색창에 Gateway API 검색
+2. Gateway API 문서 진입
+3. Ctrl + F로 Gateway 검색
+4. kind: Gateway 예시 확인
+5. Ctrl + F로 HTTPRoute 검색
+6. kind: HTTPRoute 예시 확인
+7. 필요한 필드만 문제 조건에 맞게 수정</p>
+<pre><code>
+페이지 안에서 특히 찾을 키워드:
+
+```text id=&quot;den7cv&quot;
+gatewayClassName
+listeners
+protocol
+hostname
+tls
+certificateRefs
+parentRefs
+hostnames
+matches
+backendRefs
+</code></pre>
+<p>그리고 터미널에서는 이걸 같이 쓴다.</p>
+<p>```bash id=&rdquo;xz3ewj&rdquo;
+kubectl explain gateway.spec
+kubectl explain gateway.spec.listeners
+kubectl explain httproute.spec
+kubectl explain httproute.spec.rules</p>
+<pre><code>
+이렇게 하면 필드 구조가 헷갈릴 때 바로 확인 가능하다.
+
+---
+
+# 9. Ingress와 Gateway API 매핑표
+
+이 문제는 이 표를 기억하면 거의 풀린다.
+
+| 기존 Ingress                    | Gateway API                                          |
+| ----------------------------- | ---------------------------------------------------- |
+| `spec.ingressClassName`       | `GatewayClass` / `gatewayClassName`                  |
+| `spec.tls.secretName`         | `Gateway.spec.listeners.tls.certificateRefs.name`    |
+| `spec.rules.host`             | `Gateway.listener.hostname` 또는 `HTTPRoute.hostnames` |
+| `spec.rules.http.paths.path`  | `HTTPRoute.rules.matches.path.value`                 |
+| `pathType: Prefix`            | `type: PathPrefix`                                   |
+| `backend.service.name`        | `HTTPRoute.backendRefs.name`                         |
+| `backend.service.port.number` | `HTTPRoute.backendRefs.port`                         |
+
+---
+
+# 10. 왜 Gateway와 HTTPRoute를 나눌까
+
+Ingress에서는 한 파일 안에 이런 것들이 섞여 있었다.
+
+```text id=&quot;5zbisb&quot;
+TLS 설정
+hostname
+path routing
+backend service
+</code></pre>
+<p>Gateway API는 이걸 나눈다.</p>
+<p>```text id=&rdquo;8yslec&rdquo;
+Gateway
+→ 입구 설정
+→ listener
+→ hostname
+→ TLS</p>
+<p>HTTPRoute
+→ 라우팅 설정
+→ path
+→ backend service</p>
+<pre><code>
+그래서 문제를 풀 때도 이렇게 나눠 생각하면 된다.
+
+```text id=&quot;v8lmoa&quot;
+HTTPS 443, TLS, hostname
+→ Gateway에 작성
+
+path, backend service, service port
+→ HTTPRoute에 작성
+</code></pre>
+<hr>
+<h1>11. 최종 템플릿</h1>
+<p>실전에서 빈칸만 채우면 되는 형태로 보면 이거다.</p>
+<h2>Gateway</h2>
+<p>```yaml id=&rdquo;evk1m9&rdquo;
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: gateway.web.k8s.local
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: <tls-secret-name></p>
+<pre><code>
+## HTTPRoute
+
+```yaml id=&quot;wf3nvd&quot;
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+spec:
+  parentRefs:
+  - name: web-gateway
+  hostnames:
+  - gateway.web.k8s.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: &lt;path&gt;
+    backendRefs:
+    - name: &lt;service-name&gt;
+      port: &lt;service-port&gt;
+</code></pre>
+<h2>적용 및 검증</h2>
+<p>```bash id=&rdquo;pc59s0&rdquo;
+kubectl apply -f web-gateway.yaml
+kubectl apply -f web-route.yaml</p>
+<p>kubectl get gateway
+kubectl get httproute</p>
+<p>curl https://gateway.web.k8s.local</p>
+<p>kubectl delete ingress web</p>
+<pre><code>
+---
+
+# 마무리
+
+이 문제는 외워서 푸는 문제가 아니다.
+
+핵심은 이 흐름이다.
+
+```text id=&quot;iyv0jr&quot;
+기존 Ingress 확인
+→ TLS secret 확인
+→ backend Service 확인
+→ Gateway 작성
+→ HTTPRoute 작성
+→ curl 성공 확인
+→ 기존 Ingress 삭제
+</code></pre>
+<p>그리고 문서 활용은 이렇게 하면 된다.</p>
+<p>```text id=&rdquo;admon7&rdquo;
+Gateway API 문서에서 Gateway / HTTPRoute 예시 찾기
+→ Ctrl + F로 certificateRefs, backendRefs 찾기
+→ 기존 Ingress의 값을 옮겨 넣기</p>
+<pre><code>
+즉 이 문제의 본질은:
+
+```text id=&quot;wj38ev&quot;
+Ingress YAML을 읽고
+Gateway API의 두 리소스 구조로 분리해서 다시 쓰는 것
+</code></pre>
+<p>이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-ConfigMap이란-설정값을-컨테이너-밖으로-빼내는-방법.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] ConfigMap이란? 설정값을 컨테이너 밖으로 빼내는 방법</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[CKA]-HPA-생성-문제-공식문서-보고-YAML로-푸는-법.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA] HPA 생성 문제 — 공식문서 보고 YAML로 푸는 법</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

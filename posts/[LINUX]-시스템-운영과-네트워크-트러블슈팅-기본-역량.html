@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[LINUX] 시스템 운영과 네트워크 트러블슈팅 기본 역량 | Greenapple0101</title>
+  <meta name="description" content="1. 왜 Linux와 Network를 같이 봐야 할까? 서버를 운영하다 보면 문제는 보통 한 군데에서만 터지지 않는다. 예를 들어 웹 서버가 안 열린다고 해보자. 했는데 응답이 안 온다. 이때 원인은 여러 가지일 수 있다. 그래서 실무에서 Linux 기반 시스템 운영 역량과 네트워크…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/web.html">웹 · 기타</a>
+    </nav>
+    <span class="tag" style="--tag-color: #64748b">LINUX</span>
+    <h1>[LINUX] 시스템 운영과 네트워크 트러블슈팅 기본 역량</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-12T18:45:40.876Z">2026.05.12</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/LINUX-시스템-운영과-네트워크-트러블슈팅-기본-역량" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<h2>1. 왜 Linux와 Network를 같이 봐야 할까?</h2>
+<p>서버를 운영하다 보면 문제는 보통 한 군데에서만 터지지 않는다.</p>
+<p>예를 들어 웹 서버가 안 열린다고 해보자.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>했는데 응답이 안 온다.</p>
+<p>이때 원인은 여러 가지일 수 있다.</p>
+<pre><code class="language-text">애플리케이션이 안 떠 있음
+프로세스는 떴는데 포트를 안 열었음
+포트는 열렸는데 방화벽이 막고 있음
+컨테이너 포트 매핑이 잘못됨
+DNS가 안 풀림
+서버는 정상인데 네트워크 라우팅이 안 됨
+인증 문제로 401/403이 남
+</code></pre>
+<p>그래서 실무에서 Linux 기반 시스템 운영 역량과 네트워크 트러블슈팅 역량은 거의 붙어 다닌다.</p>
+<p>단순히 명령어를 외우는 게 아니라, 문제가 생겼을 때 다음 순서로 볼 수 있어야 한다.</p>
+<pre><code class="language-text">프로세스가 떠 있는가?
+포트를 열고 있는가?
+내부에서 접근 가능한가?
+외부에서 접근 가능한가?
+DNS는 정상인가?
+HTTP 응답은 어떤 상태인가?
+로그에는 뭐라고 찍히는가?
+</code></pre>
+<p>이 흐름을 잡는 게 핵심이다.</p>
+<hr>
+<h2>2. Linux 기반 시스템 운영이란?</h2>
+<p>Linux 기반 시스템 운영은 서버 위에서 서비스가 정상적으로 돌아가도록 관리하는 일이다.</p>
+<p>여기서 서버는 보통 Ubuntu, CentOS, Rocky Linux, Amazon Linux 같은 Linux OS를 의미한다.</p>
+<p>시스템 운영에서 자주 보는 항목은 다음과 같다.</p>
+<pre><code class="language-text">프로세스
+포트
+로그
+파일 권한
+디스크 용량
+메모리 사용량
+CPU 사용량
+서비스 상태
+네트워크 연결 상태
+</code></pre>
+<p>개발자는 코드를 짜고 끝나는 게 아니라, 그 코드가 실제 서버에서 어떻게 실행되는지도 알아야 한다.</p>
+<p>특히 백엔드, DevOps, Cloud, MLOps 쪽으로 가면 Linux를 피하기 어렵다.</p>
+<hr>
+<h2>3. 프로세스 확인</h2>
+<p>프로세스는 실행 중인 프로그램이다.</p>
+<p>Spring Boot 애플리케이션을 실행하면 Java 프로세스가 뜬다.</p>
+<p>Nginx를 실행하면 nginx 프로세스가 뜬다.</p>
+<p>Docker를 실행하면 docker 관련 프로세스가 뜬다.</p>
+<p>현재 실행 중인 프로세스를 확인할 때는 보통 <code>ps</code>를 쓴다.</p>
+<pre><code class="language-bash">ps aux
+</code></pre>
+<p>너무 많이 나오기 때문에 보통 <code>grep</code>이랑 같이 쓴다.</p>
+<pre><code class="language-bash">ps aux | grep java
+</code></pre>
+<p>이 명령어는 실행 중인 프로세스 중에서 <code>java</code>라는 문자열이 들어간 것을 찾는다.</p>
+<p>예를 들어 Spring Boot 앱이 정상적으로 떠 있다면 이런 식으로 보일 수 있다.</p>
+<pre><code class="language-text">user  12345  5.0  3.2  java -jar app.jar
+</code></pre>
+<p>여기서 중요한 건 PID다.</p>
+<p>PID는 프로세스 ID다.</p>
+<p>특정 프로세스를 종료하고 싶으면 PID를 이용한다.</p>
+<pre><code class="language-bash">kill 12345
+</code></pre>
+<p>강제로 종료해야 할 때는 다음처럼 쓴다.</p>
+<pre><code class="language-bash">kill -9 12345
+</code></pre>
+<p>하지만 <code>kill -9</code>는 최후의 수단에 가깝다. 정상 종료 기회를 주지 않고 바로 죽이는 방식이기 때문이다.</p>
+<hr>
+<h2>4. 포트 확인</h2>
+<p>서버 애플리케이션은 보통 특정 포트를 연다.</p>
+<p>예를 들어 Spring Boot는 기본적으로 8080 포트를 사용한다.</p>
+<pre><code class="language-text">Spring Boot → 8080
+Nginx → 80 또는 443
+PostgreSQL → 5432
+MySQL → 3306
+Prometheus → 9090
+Grafana → 3000
+</code></pre>
+<p>포트가 열려 있는지 확인하려면 다음 명령어를 쓴다.</p>
+<pre><code class="language-bash">lsof -i :8080
+</code></pre>
+<p>또는</p>
+<pre><code class="language-bash">netstat -tulnp
+</code></pre>
+<p>요즘 Linux에서는 <code>ss</code>를 많이 쓴다.</p>
+<pre><code class="language-bash">ss -tulnp
+</code></pre>
+<p>여기서 옵션 의미는 대략 이렇다.</p>
+<pre><code class="language-text">-t : TCP
+-u : UDP
+-l : listening 상태
+-n : 숫자로 출력
+-p : 프로세스 정보 출력
+</code></pre>
+<p>8080 포트를 누가 쓰고 있는지 보고 싶으면 이렇게 본다.</p>
+<pre><code class="language-bash">ss -tulnp | grep 8080
+</code></pre>
+<p>만약 이미 8080 포트를 다른 프로세스가 쓰고 있다면 새 애플리케이션이 뜨지 못한다.</p>
+<p>이때 흔히 보는 에러가 이런 것이다.</p>
+<pre><code class="language-text">Port 8080 was already in use
+Address already in use
+</code></pre>
+<p>이 경우 해야 할 일은 둘 중 하나다.</p>
+<pre><code class="language-text">기존 프로세스를 종료한다
+새 애플리케이션의 포트를 바꾼다
+</code></pre>
+<hr>
+<h2>5. curl로 응답 확인하기</h2>
+<p>서버가 진짜 응답하는지 확인할 때는 <code>curl</code>을 많이 쓴다.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>이 명령어는 현재 서버 안에서 8080 포트로 요청을 보내는 것이다.</p>
+<p>만약 Spring Boot가 정상적으로 떠 있고 <code>/</code> 경로가 있다면 응답이 온다.</p>
+<p>하지만 이런 에러가 날 수도 있다.</p>
+<pre><code class="language-bash">curl: (7) Failed to connect to localhost port 8080
+</code></pre>
+<p>이 말은 보통 다음 의미다.</p>
+<pre><code class="language-text">8080 포트에 아무 서비스도 안 떠 있음
+애플리케이션 실행 실패
+포트가 다름
+컨테이너 내부에는 떠 있는데 호스트 포트 매핑이 안 됨
+</code></pre>
+<p>반대로 응답은 오는데 이런 게 나올 수 있다.</p>
+<pre><code class="language-text">404 Not Found
+</code></pre>
+<p>이건 서버 자체는 떠 있다는 뜻이다. 다만 요청한 경로에 해당하는 API나 페이지가 없는 것이다.</p>
+<p>즉, <code>connection refused</code>와 <code>404</code>는 다르다.</p>
+<pre><code class="language-text">connection refused → 서버/포트 접근 자체 실패
+404 → 서버는 살아있지만 해당 경로 없음
+</code></pre>
+<p>이 차이를 아는 게 중요하다.</p>
+<hr>
+<h2>6. HTTP Status Code 이해</h2>
+<p>네트워크 트러블슈팅에서 HTTP 상태 코드는 매우 중요하다.</p>
+<p>자주 보는 상태 코드는 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>상태 코드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>성공</td>
+</tr>
+<tr>
+<td>201</td>
+<td>생성 성공</td>
+</tr>
+<tr>
+<td>301 / 302</td>
+<td>리다이렉트</td>
+</tr>
+<tr>
+<td>400</td>
+<td>잘못된 요청</td>
+</tr>
+<tr>
+<td>401</td>
+<td>인증 필요</td>
+</tr>
+<tr>
+<td>403</td>
+<td>권한 없음</td>
+</tr>
+<tr>
+<td>404</td>
+<td>경로 없음</td>
+</tr>
+<tr>
+<td>405</td>
+<td>메서드 불일치</td>
+</tr>
+<tr>
+<td>500</td>
+<td>서버 내부 오류</td>
+</tr>
+<tr>
+<td>502</td>
+<td>게이트웨이 오류</td>
+</tr>
+<tr>
+<td>503</td>
+<td>서비스 사용 불가</td>
+</tr>
+<tr>
+<td>504</td>
+<td>게이트웨이 타임아웃</td>
+</tr>
+</tbody>
+</table>
+<p>예를 들어 <code>GET /boards</code>는 되는데 <code>POST /boards</code>가 안 된다면 405가 날 수 있다.</p>
+<pre><code class="language-text">405 Method Not Allowed
+</code></pre>
+<p>이건 경로는 있는데 HTTP 메서드가 맞지 않는 경우다.</p>
+<p>예를 들어 컨트롤러에는 이렇게 되어 있는데</p>
+<pre><code class="language-java">@GetMapping(&quot;/boards&quot;)
+</code></pre>
+<p>클라이언트가 POST로 보내면 맞지 않는다.</p>
+<pre><code class="language-bash">curl -X POST localhost:8080/boards
+</code></pre>
+<p>이런 식으로 HTTP 상태 코드를 보면 문제가 어디에 있는지 좁혀갈 수 있다.</p>
+<hr>
+<h2>7. 로그 확인</h2>
+<p>실무에서는 로그를 봐야 한다.</p>
+<p>서버가 안 뜨거나 API가 실패할 때, 화면만 보고는 원인을 알기 어렵다.</p>
+<p>Linux에서 로그를 볼 때 자주 쓰는 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">tail -f app.log
+</code></pre>
+<p><code>tail -f</code>는 로그 파일의 마지막 부분을 계속 따라가면서 보여준다.</p>
+<p>Spring Boot를 직접 실행한다면 터미널에 로그가 바로 찍힌다.</p>
+<pre><code class="language-bash">java -jar app.jar
+</code></pre>
+<p>systemd로 서비스화되어 있다면 <code>journalctl</code>을 쓴다.</p>
+<pre><code class="language-bash">journalctl -u my-app
+</code></pre>
+<p>실시간으로 보고 싶으면 다음처럼 쓴다.</p>
+<pre><code class="language-bash">journalctl -u my-app -f
+</code></pre>
+<p>Docker 컨테이너 로그는 이렇게 본다.</p>
+<pre><code class="language-bash">docker logs 컨테이너명
+</code></pre>
+<p>실시간으로 보려면</p>
+<pre><code class="language-bash">docker logs -f 컨테이너명
+</code></pre>
+<p>Kubernetes에서는 다음처럼 본다.</p>
+<pre><code class="language-bash">kubectl logs pod명
+</code></pre>
+<p>실시간 로그는</p>
+<pre><code class="language-bash">kubectl logs -f pod명
+</code></pre>
+<p>결국 환경이 달라져도 핵심은 같다.</p>
+<pre><code class="language-text">문제가 생기면 로그를 본다
+로그에서 에러 메시지를 찾는다
+에러 메시지를 기준으로 원인을 좁힌다
+</code></pre>
+<hr>
+<h2>8. ping으로 네트워크 연결 확인</h2>
+<p><code>ping</code>은 상대 서버까지 네트워크 연결이 되는지 확인할 때 쓴다.</p>
+<pre><code class="language-bash">ping google.com
+</code></pre>
+<p>또는 특정 IP로 보낼 수 있다.</p>
+<pre><code class="language-bash">ping 8.8.8.8
+</code></pre>
+<p>여기서 중요한 건 DNS 문제와 네트워크 문제를 구분하는 것이다.</p>
+<p>예를 들어</p>
+<pre><code class="language-bash">ping google.com
+</code></pre>
+<p>은 안 되는데</p>
+<pre><code class="language-bash">ping 8.8.8.8
+</code></pre>
+<p>은 된다면 DNS 문제일 가능성이 있다.</p>
+<p>즉, 인터넷 연결 자체는 되지만 도메인 이름을 IP로 바꾸는 과정이 안 되는 것이다.</p>
+<hr>
+<h2>9. DNS 확인</h2>
+<p>DNS는 도메인 이름을 IP 주소로 바꿔주는 시스템이다.</p>
+<p>예를 들어 사용자가 브라우저에 다음 주소를 입력한다고 하자.</p>
+<pre><code class="language-text">example.com
+</code></pre>
+<p>컴퓨터는 실제로 <code>example.com</code>이라는 문자열로 서버를 찾는 게 아니라, 이 도메인에 연결된 IP 주소를 찾아서 접속한다.</p>
+<p>DNS 확인에는 다음 명령어를 쓴다.</p>
+<pre><code class="language-bash">nslookup example.com
+</code></pre>
+<p>또는</p>
+<pre><code class="language-bash">dig example.com
+</code></pre>
+<p>DNS 문제는 은근히 자주 나온다.</p>
+<pre><code class="language-text">도메인 오타
+DNS 레코드 설정 오류
+내부 DNS 문제
+캐시 문제
+사설망 DNS 문제
+</code></pre>
+<p>특히 회사 내부망, VPN, Kubernetes, 클라우드 환경에서는 DNS가 중요한 트러블슈팅 포인트가 된다.</p>
+<hr>
+<h2>10. 인증과 인가 문제</h2>
+<p>API 요청이 실패했을 때 항상 네트워크 문제는 아니다.</p>
+<p>인증과 인가 문제일 수도 있다.</p>
+<pre><code class="language-text">인증 Authentication → 너 누구야?
+인가 Authorization → 너 이거 해도 돼?
+</code></pre>
+<p>대표적인 상태 코드는 다음과 같다.</p>
+<pre><code class="language-text">401 Unauthorized → 로그인 안 됨, 토큰 없음, 토큰 만료
+403 Forbidden → 로그인은 됐지만 권한 없음
+</code></pre>
+<p>예를 들어 JWT 토큰이 필요한 API에 토큰 없이 요청하면 401이 날 수 있다.</p>
+<pre><code class="language-bash">curl localhost:8080/api/users
+</code></pre>
+<p>토큰을 넣어서 요청할 때는 보통 이렇게 한다.</p>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer 토큰값&quot; localhost:8080/api/users
+</code></pre>
+<p>실무에서는 401과 403을 구분할 줄 알아야 한다.</p>
+<pre><code class="language-text">401 → 인증 자체가 안 됨
+403 → 인증은 됐지만 권한이 없음
+</code></pre>
+<hr>
+<h2>11. JSON 요청 확인</h2>
+<p>백엔드 API는 보통 JSON으로 데이터를 주고받는다.</p>
+<p>POST 요청을 보낼 때는 <code>Content-Type</code>을 명시해야 한다.</p>
+<pre><code class="language-bash">curl -X POST localhost:8080/boards \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;title&quot;:&quot;hello&quot;,&quot;content&quot;:&quot;world&quot;}'
+</code></pre>
+<p>여기서 중요한 부분은 두 가지다.</p>
+<pre><code class="language-text">-H &quot;Content-Type: application/json&quot;
+-d '{&quot;title&quot;:&quot;hello&quot;,&quot;content&quot;:&quot;world&quot;}'
+</code></pre>
+<p><code>Content-Type</code>을 안 보내면 서버가 요청 본문을 제대로 해석하지 못할 수 있다.</p>
+<p>Spring Boot에서는 JSON 요청을 받을 때 보통 <code>@RequestBody</code>를 쓴다.</p>
+<pre><code class="language-java">@PostMapping(&quot;/boards&quot;)
+public Board createBoard(@RequestBody Board board) {
+    return boardService.save(board);
+}
+</code></pre>
+<p>이때 클라이언트가 JSON 형식을 잘못 보내면 400 Bad Request가 날 수 있다.</p>
+<hr>
+<h2>12. 포트, 프로세스, 로그를 같이 봐야 하는 이유</h2>
+<p>서버가 안 된다고 했을 때 한 가지만 보면 안 된다.</p>
+<p>예를 들어 이런 상황을 보자.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>결과가 실패했다.</p>
+<p>그러면 순서대로 확인한다.</p>
+<p>첫 번째, 프로세스가 떠 있는지 확인한다.</p>
+<pre><code class="language-bash">ps aux | grep java
+</code></pre>
+<p>두 번째, 포트가 열려 있는지 확인한다.</p>
+<pre><code class="language-bash">ss -tulnp | grep 8080
+</code></pre>
+<p>세 번째, 로그를 확인한다.</p>
+<pre><code class="language-bash">tail -f app.log
+</code></pre>
+<p>Docker라면 이렇게 본다.</p>
+<pre><code class="language-bash">docker ps
+docker logs -f 컨테이너명
+</code></pre>
+<p>이 흐름이 실무에서 매우 중요하다.</p>
+<pre><code class="language-text">프로세스 확인
+포트 확인
+로그 확인
+요청 확인
+응답 코드 확인
+</code></pre>
+<p>이걸 반복하면서 원인을 좁히는 것이다.</p>
+<hr>
+<h2>13. 자주 나오는 트러블슈팅 시나리오</h2>
+<h3>1. 서버가 아예 안 뜨는 경우</h3>
+<p>증상:</p>
+<pre><code class="language-text">curl: Failed to connect
+</code></pre>
+<p>확인할 것:</p>
+<pre><code class="language-bash">ps aux | grep java
+ss -tulnp | grep 8080
+</code></pre>
+<p>가능한 원인:</p>
+<pre><code class="language-text">애플리케이션 실행 실패
+포트 충돌
+환경변수 누락
+빌드 실패
+DB 연결 실패로 애플리케이션 종료
+</code></pre>
+<hr>
+<h3>2. 서버는 떴는데 404가 나는 경우</h3>
+<p>증상:</p>
+<pre><code class="language-text">404 Not Found
+</code></pre>
+<p>확인할 것:</p>
+<pre><code class="language-text">요청 URL이 맞는가?
+Controller 매핑이 맞는가?
+GET/POST 경로가 맞는가?
+context-path가 설정되어 있지는 않은가?
+</code></pre>
+<p>예를 들어 서버는 살아있지만 <code>/</code> 경로가 없으면 404가 날 수 있다.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>하지만 실제 API가 <code>/boards</code>라면 이렇게 해야 한다.</p>
+<pre><code class="language-bash">curl localhost:8080/boards
+</code></pre>
+<hr>
+<h3>3. 500 에러가 나는 경우</h3>
+<p>증상:</p>
+<pre><code class="language-text">500 Internal Server Error
+</code></pre>
+<p>확인할 것:</p>
+<pre><code class="language-text">서버 로그
+예외 메시지
+DB 연결
+NullPointerException
+SQL 에러
+외부 API 호출 실패
+</code></pre>
+<p>500은 서버 내부에서 예외가 터진 것이다.</p>
+<p>이때는 거의 무조건 로그를 봐야 한다.</p>
+<hr>
+<h3>4. 401 또는 403이 나는 경우</h3>
+<p>증상:</p>
+<pre><code class="language-text">401 Unauthorized
+403 Forbidden
+</code></pre>
+<p>확인할 것:</p>
+<pre><code class="language-text">토큰이 있는가?
+토큰이 만료되었는가?
+Authorization 헤더 형식이 맞는가?
+권한 Role이 맞는가?
+</code></pre>
+<hr>
+<h3>5. DNS가 안 되는 경우</h3>
+<p>증상:</p>
+<pre><code class="language-text">도메인으로 접속 안 됨
+IP로는 접속 됨
+</code></pre>
+<p>확인할 것:</p>
+<pre><code class="language-bash">ping 도메인
+ping IP주소
+nslookup 도메인
+dig 도메인
+</code></pre>
+<p>가능한 원인:</p>
+<pre><code class="language-text">DNS 설정 오류
+도메인 오타
+내부 DNS 장애
+VPN/DNS 충돌
+</code></pre>
+<hr>
+<h2>14. 실무에서 중요한 사고방식</h2>
+<p>Linux와 네트워크 트러블슈팅은 명령어 암기가 전부가 아니다.</p>
+<p>중요한 건 순서다.</p>
+<p>무작정 이것저것 치는 게 아니라, 계층적으로 내려가야 한다.</p>
+<pre><code class="language-text">1. 애플리케이션은 실행 중인가?
+2. 프로세스가 살아 있는가?
+3. 포트가 열려 있는가?
+4. 같은 서버 내부에서 curl이 되는가?
+5. 외부에서 접근이 되는가?
+6. DNS는 정상인가?
+7. HTTP 상태 코드는 무엇인가?
+8. 로그에는 어떤 에러가 있는가?
+9. 인증/인가 문제는 아닌가?
+10. 요청 JSON 형식은 맞는가?
+</code></pre>
+<p>이 순서대로 보면 문제를 훨씬 빨리 좁힐 수 있다.</p>
+<hr>
+<h2>15. 기본 명령어 정리</h2>
+<table>
+<thead>
+<tr>
+<th>목적</th>
+<th>명령어</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프로세스 확인</td>
+<td><code>ps aux</code></td>
+</tr>
+<tr>
+<td>특정 프로세스 검색</td>
+<td><code>ps aux \| grep java</code></td>
+</tr>
+<tr>
+<td>포트 확인</td>
+<td><code>ss -tulnp</code></td>
+</tr>
+<tr>
+<td>특정 포트 확인</td>
+<td><code>ss -tulnp \| grep 8080</code></td>
+</tr>
+<tr>
+<td>HTTP 요청 테스트</td>
+<td><code>curl localhost:8080</code></td>
+</tr>
+<tr>
+<td>네트워크 연결 확인</td>
+<td><code>ping google.com</code></td>
+</tr>
+<tr>
+<td>DNS 확인</td>
+<td><code>nslookup example.com</code></td>
+</tr>
+<tr>
+<td>DNS 상세 확인</td>
+<td><code>dig example.com</code></td>
+</tr>
+<tr>
+<td>로그 확인</td>
+<td><code>tail -f app.log</code></td>
+</tr>
+<tr>
+<td>systemd 로그 확인</td>
+<td><code>journalctl -u 서비스명 -f</code></td>
+</tr>
+<tr>
+<td>Docker 컨테이너 확인</td>
+<td><code>docker ps</code></td>
+</tr>
+<tr>
+<td>Docker 로그 확인</td>
+<td><code>docker logs -f 컨테이너명</code></td>
+</tr>
+<tr>
+<td>Kubernetes 로그 확인</td>
+<td><code>kubectl logs -f pod명</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>16. 결론</h2>
+<p>Linux 기반 시스템 운영과 네트워크 트러블슈팅은 백엔드, 클라우드, DevOps 직무에서 기본 체력에 가깝다.</p>
+<p>처음에는 명령어가 많아 보여서 어렵지만, 결국 핵심은 단순하다.</p>
+<pre><code class="language-text">프로세스가 떠 있는지 본다
+포트가 열렸는지 본다
+curl로 응답을 본다
+HTTP 상태 코드를 해석한다
+로그를 본다
+DNS와 네트워크 연결을 확인한다
+인증/인가와 JSON 요청 형식을 확인한다
+</code></pre>
+<p>문제가 생겼을 때 당황하지 않고 이 순서대로 확인할 수 있으면 된다.</p>
+<p>실무에서 중요한 사람은 모든 명령어를 외운 사람이 아니라, 장애 상황에서 어디부터 봐야 하는지 아는 사람이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[HA]-Auto-Scaling은-왜-필요할까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[HA] Auto Scaling은 왜 필요할까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[WEB]-HTTP-XMLJSON-웹-보안-OAuth까지-한-번에-정리하기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[WEB] HTTP, XML/JSON, 웹 보안, OAuth까지 한 번에 정리하기</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

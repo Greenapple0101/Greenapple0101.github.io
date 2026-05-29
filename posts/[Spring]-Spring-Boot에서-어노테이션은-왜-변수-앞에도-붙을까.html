@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] Spring Boot에서 어노테이션은 왜 변수 앞에도 붙을까? | Greenapple0101</title>
+  <meta name="description" content="Spring Boot로 게시판 API를 만들다 보면 처음에는 어노테이션이 낯설게 느껴진다. 클래스 위에 붙는 것도 있고, 메서드 위에 붙는 것도 있고, 심지어 변수처럼 보이는 곳 앞에도 붙는다. 예를 들어 이런 코드가 있다. 처음 보면 이런 생각이 든다. “ @GetMapping 은…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] Spring Boot에서 어노테이션은 왜 변수 앞에도 붙을까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-04T00:58:03.559Z">2026.05.04</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-Spring-Boot에서-어노테이션은-왜-변수-앞에도-붙을까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring Boot로 게시판 API를 만들다 보면 처음에는 어노테이션이 낯설게 느껴진다. 클래스 위에 붙는 것도 있고, 메서드 위에 붙는 것도 있고, 심지어 변수처럼 보이는 곳 앞에도 붙는다.</p>
+<p>예를 들어 이런 코드가 있다.</p>
+<p>```java id=&rdquo;mk0pwi&rdquo;
+@GetMapping(&ldquo;/{id}&rdquo;)
+public Board getBoard(@PathVariable Long id){
+    return boardService.getBoard(id);
+}</p>
+<pre><code>
+처음 보면 이런 생각이 든다.
+
+“`@GetMapping`은 메서드 위에 붙는 건 알겠는데, `@PathVariable`은 왜 변수 선언 앞에 있지?”
+
+그런데 정확히 말하면 `@PathVariable`은 일반 변수 앞에 붙은 것이 아니라 **메서드 파라미터에 붙은 어노테이션**이다.
+
+---
+
+## 어노테이션이란?
+
+어노테이션은 자바 코드에 붙이는 **설명 표시**라고 볼 수 있다.
+
+자바 코드 자체의 흐름을 바꾸는 일반 명령문이라기보다는, Spring에게 특정 정보를 알려주는 표시다.
+
+예를 들어 다음 코드를 보자.
+
+```java id=&quot;og05u5&quot;
+@GetMapping(&quot;/{id}&quot;)
+</code></pre>
+<p>이 코드는 Spring에게 이렇게 알려준다.</p>
+<p>```text id=&rdquo;arrp9t&rdquo;
+이 메서드는 GET 요청을 처리한다.
+그리고 URL은 /{id} 형태다.</p>
+<pre><code>
+즉, 어노테이션은 Spring이 코드를 해석할 수 있도록 붙이는 메타 정보다.
+
+---
+
+## @GetMapping(&quot;/{id}&quot;)의 의미
+
+게시글 하나를 조회하는 API를 만든다고 해보자.
+
+보통 게시글 목록은 다음과 같이 요청한다.
+
+```text id=&quot;uyoxlo&quot;
+GET /boards
+</code></pre>
+<p>게시글 하나를 조회할 때는 id를 붙여서 요청한다.</p>
+<p>```text id=&rdquo;b60t4m&rdquo;
+GET /boards/1
+GET /boards/2
+GET /boards/3</p>
+<pre><code>
+이때 컨트롤러에 공통 주소가 `/boards`로 잡혀 있다면, 메서드에서는 그 뒤에 붙는 id 부분만 받으면 된다.
+
+```java id=&quot;ws1mlm&quot;
+@GetMapping(&quot;/{id}&quot;)
+public Board getBoard(@PathVariable Long id){
+    return boardService.getBoard(id);
+}
+</code></pre>
+<p>여기서</p>
+<p>```java id=&rdquo;84oogv&rdquo;
+@GetMapping(&ldquo;/{id}&rdquo;)</p>
+<pre><code>
+는 URL 경로에서 어떤 값 하나가 들어올 수 있다는 뜻이다.
+
+예를 들어 요청이 이렇게 들어오면,
+
+```text id=&quot;sww1eg&quot;
+GET /boards/3
+</code></pre>
+<p>Spring은 URL을 이렇게 해석한다.</p>
+<p>```text id=&rdquo;tbixg0&rdquo;
+/boards/{id}
+        ↓
+        3</p>
+<pre><code>
+즉, `{id}` 자리에 들어온 값은 `3`이다.
+
+---
+
+## @PathVariable Long id의 의미
+
+그럼 URL에서 꺼낸 `3`을 자바 코드 안에서는 어떻게 사용할까?
+
+이때 사용하는 것이 `@PathVariable`이다.
+
+```java id=&quot;lod7yp&quot;
+@PathVariable Long id
+</code></pre>
+<p>이 코드는 Spring에게 이렇게 알려준다.</p>
+<p>```text id=&rdquo;tbg0si&rdquo;
+URL 경로에 있는 id 값을
+Long 타입 변수 id에 넣어라.</p>
+<pre><code>
+즉, 다음 요청이 들어오면,
+
+```text id=&quot;77qzkp&quot;
+GET /boards/3
+</code></pre>
+<p>Spring은 내부적으로 이런 식으로 처리한다.</p>
+<p>```text id=&rdquo;0q53uv&rdquo;
+{id} = 3
+Long id = 3L
+boardService.getBoard(3L)</p>
+<pre><code>
+그래서 전체 코드는 이렇게 해석할 수 있다.
+
+```java id=&quot;n79f89&quot;
+@GetMapping(&quot;/{id}&quot;)
+public Board getBoard(@PathVariable Long id){
+    return boardService.getBoard(id);
+}
+</code></pre>
+<p>의미:</p>
+<p>```text id=&rdquo;30mh7z&rdquo;
+GET /boards/3 요청이 들어오면
+URL의 3을 id 변수에 넣고
+boardService.getBoard(id)를 실행한다.</p>
+<pre><code>
+---
+
+## 왜 그냥 Long id라고 쓰면 안 될까?
+
+처음에는 이렇게 생각할 수 있다.
+
+```java id=&quot;5l2r73&quot;
+@GetMapping(&quot;/{id}&quot;)
+public Board getBoard(Long id){
+    return boardService.getBoard(id);
+}
+</code></pre>
+<p>“어차피 URL에도 id가 있고, 변수 이름도 id인데 Spring이 알아서 넣어주면 안 되나?”</p>
+<p>하지만 Spring 입장에서는 메서드 파라미터가 어디에서 온 값인지 알아야 한다.</p>
+<p>HTTP 요청에는 값을 보낼 수 있는 위치가 여러 개 있다.</p>
+<p>```text id=&rdquo;zy9b72&rdquo;
+URL 경로
+쿼리 파라미터
+요청 본문
+헤더
+쿠키</p>
+<pre><code>
+예를 들어 `id`라는 값이 URL 경로에 있을 수도 있고,
+
+```text id=&quot;vn6bdc&quot;
+/boards/3
+</code></pre>
+<p>쿼리 파라미터에 있을 수도 있다.</p>
+<p>```text id=&rdquo;upnnvn&rdquo;
+/boards?id=3</p>
+<pre><code>
+JSON 요청 본문 안에 있을 수도 있다.
+
+```json id=&quot;sbuf3r&quot;
+{
+  &quot;id&quot;: 3
+}
+</code></pre>
+<p>그래서 Spring에게 명확하게 알려줘야 한다.</p>
+<p>```java id=&rdquo;4swqv0&rdquo;
+@PathVariable Long id</p>
+<pre><code>
+이 말은:
+
+```text id=&quot;iqhxgd&quot;
+이 id는 URL 경로에서 꺼내라.
+</code></pre>
+<p>라는 뜻이다.</p>
+<hr>
+<h2>@PathVariable 이름과 URL 변수 이름</h2>
+<p>보통은 URL에 적은 이름과 파라미터 이름을 같게 쓴다.</p>
+<p>```java id=&rdquo;mb8f2u&rdquo;
+@GetMapping(&ldquo;/{id}&rdquo;)
+public Board getBoard(@PathVariable Long id){
+    return boardService.getBoard(id);
+}</p>
+<pre><code>
+여기서는 둘 다 `id`다.
+
+```text id=&quot;i1x2w8&quot;
+URL 변수 이름: {id}
+자바 파라미터 이름: id
+</code></pre>
+<p>그래서 Spring이 자연스럽게 연결할 수 있다.</p>
+<p>만약 이름을 다르게 쓰고 싶다면 이렇게 명시할 수 있다.</p>
+<p>```java id=&rdquo;gvj5aj&rdquo;
+@GetMapping(&ldquo;/{id}&rdquo;)
+public Board getBoard(@PathVariable(&ldquo;id&rdquo;) Long boardId){
+    return boardService.getBoard(boardId);
+}</p>
+<pre><code>
+여기서는 URL에서는 `{id}`라고 받고, 자바 코드에서는 `boardId`라는 이름으로 사용한다.
+
+```text id=&quot;pwz0po&quot;
+GET /boards/3
+{id} = 3
+Long boardId = 3L
+</code></pre>
+<hr>
+<h2>비슷한 어노테이션들</h2>
+<p>Spring Controller에서는 요청 데이터를 꺼내기 위해 여러 어노테이션을 사용한다.</p>
+<p>대표적으로 다음 세 가지가 자주 나온다.</p>
+<hr>
+<h2>1. @PathVariable</h2>
+<p><code>@PathVariable</code>은 URL 경로에서 값을 꺼낸다.</p>
+<p>```java id=&rdquo;y4e2cr&rdquo;
+@GetMapping(&ldquo;/boards/{id}&rdquo;)
+public Board getBoard(@PathVariable Long id){
+    return boardService.getBoard(id);
+}</p>
+<pre><code>
+요청:
+
+```text id=&quot;nt4zfm&quot;
+GET /boards/1
+</code></pre>
+<p>의미:</p>
+<p>```text id=&rdquo;cwtfa6&rdquo;
+URL 경로의 1을 id에 넣는다.</p>
+<pre><code>
+보통 특정 게시글, 특정 회원, 특정 상품처럼 **하나의 자원을 id로 조회할 때** 많이 사용한다.
+
+```text id=&quot;8o848k&quot;
+/boards/1
+/users/10
+/products/7
+</code></pre>
+<hr>
+<h2>2. @RequestParam</h2>
+<p><code>@RequestParam</code>은 쿼리 파라미터에서 값을 꺼낸다.</p>
+<p>```java id=&rdquo;y4n1pd&rdquo;
+@GetMapping(&ldquo;/boards&rdquo;)
+public List<Board> searchBoards(@RequestParam String author){
+    return boardService.searchByAuthor(author);
+}</p>
+<pre><code>
+요청:
+
+```text id=&quot;su718n&quot;
+GET /boards?author=kim
+</code></pre>
+<p>의미:</p>
+<p>```text id=&rdquo;8ho33r&rdquo;
+author=kim 값을 String author 변수에 넣는다.</p>
+<pre><code>
+보통 검색, 필터링, 정렬, 페이지 번호처럼 선택 조건을 보낼 때 사용한다.
+
+```text id=&quot;st8z7u&quot;
+/boards?author=kim
+/boards?page=1
+/boards?keyword=spring
+/products?category=book
+</code></pre>
+<hr>
+<h2>3. @RequestBody</h2>
+<p><code>@RequestBody</code>는 요청 본문에 담긴 JSON 데이터를 객체로 바꿔준다.</p>
+<p>```java id=&rdquo;miu4jy&rdquo;
+@PostMapping(&ldquo;/boards&rdquo;)
+public Board createBoard(@RequestBody Board board){
+    return boardService.createBoard(board);
+}</p>
+<pre><code>
+요청 본문:
+
+```json id=&quot;enri96&quot;
+{
+  &quot;title&quot;: &quot;제목&quot;,
+  &quot;content&quot;: &quot;내용&quot;,
+  &quot;author&quot;: &quot;작성자&quot;
+}
+</code></pre>
+<p>의미:</p>
+<p>```text id=&rdquo;40pdvb&rdquo;
+JSON 데이터를 Board 객체로 변환해서 board 변수에 넣는다.</p>
+<pre><code>
+보통 게시글 생성, 회원가입, 로그인, 수정 요청처럼 여러 값을 한 번에 보낼 때 사용한다.
+
+---
+
+## 셋의 차이 정리
+
+```text id=&quot;6ba1l6&quot;
+@PathVariable
+URL 경로에서 값을 꺼낸다.
+예: /boards/1
+
+@RequestParam
+URL 뒤의 쿼리 문자열에서 값을 꺼낸다.
+예: /boards?author=kim
+
+@RequestBody
+요청 본문 JSON에서 값을 꺼낸다.
+예: {&quot;title&quot;: &quot;제목&quot;, &quot;content&quot;: &quot;내용&quot;}
+</code></pre>
+<p>게시판 API에 적용하면 이렇게 볼 수 있다.</p>
+<p>```java id=&rdquo;pf4mcz&rdquo;
+@GetMapping(&ldquo;/boards/{id}&rdquo;)
+public Board getBoard(@PathVariable Long id)</p>
+<pre><code>
+특정 게시글 조회
+
+```java id=&quot;dx3ktj&quot;
+@GetMapping(&quot;/boards?author=kim&quot;)
+</code></pre>
+<p>작성자 기준 검색</p>
+<p>```java id=&rdquo;qy7qye&rdquo;
+@PostMapping(&ldquo;/boards&rdquo;)
+public Board createBoard(@RequestBody Board board)</p>
+<pre><code>
+게시글 생성
+
+---
+
+## 전체 흐름으로 이해하기
+
+게시글 상세 조회 API를 다시 보면 다음과 같다.
+
+```java id=&quot;dd9jad&quot;
+@GetMapping(&quot;/{id}&quot;)
+public Board getBoard(@PathVariable Long id){
+    return boardService.getBoard(id);
+}
+</code></pre>
+<p>이 코드는 단순히 메서드 하나가 아니다.</p>
+<p>HTTP 요청이 들어오면 Spring이 다음 순서로 처리한다.</p>
+<p>```text id=&rdquo;oy5ryk&rdquo;
+1. 사용자가 GET /boards/3 요청을 보낸다.</p>
+<ol start="2">
+<li>
+<p>Spring이 /boards/{id}와 매칭되는 메서드를 찾는다.</p>
+</li>
+<li>
+<p>{id} 자리에 들어온 3을 꺼낸다.</p>
+</li>
+<li>
+<p>@PathVariable Long id에 3을 넣는다.</p>
+</li>
+<li>
+<p>getBoard(3L) 메서드를 실행한다.</p>
+</li>
+<li>
+<p>boardService.getBoard(3L)을 호출한다.</p>
+</li>
+<li>
+<p>id가 3인 게시글을 찾아서 반환한다.</p>
+</li>
+</ol>
+<pre><code>
+그래서 `@PathVariable Long id`는 단순한 변수 선언이 아니라, HTTP 요청의 값을 자바 메서드 안으로 가져오는 연결 지점이다.
+
+---
+
+## 정리
+
+처음에는 어노테이션이 변수 앞에 붙어 있어서 어색해 보일 수 있다.
+
+하지만 정확히 보면 `@PathVariable`은 변수 앞에 붙은 것이 아니라, **메서드 파라미터에 붙은 어노테이션**이다.
+
+```java id=&quot;e0j2rx&quot;
+public Board getBoard(@PathVariable Long id)
+</code></pre>
+<p>이 코드는 Spring에게 이렇게 말한다.</p>
+<p>```text id=&rdquo;s0mvay&rdquo;
+URL 경로에 있는 id 값을
+Long 타입 id 파라미터에 넣어줘.</p>
+<pre><code>
+`@GetMapping(&quot;/{id}&quot;)`는 요청 주소를 정하고, `@PathVariable Long id`는 그 주소 안의 값을 자바 변수로 받아온다.
+
+한 줄로 정리하면 다음과 같다.
+
+```text id=&quot;w51hhb&quot;
+@GetMapping(&quot;/{id}&quot;) = /boards/3 같은 요청을 받는 문
+@PathVariable Long id = 그 3을 꺼내서 id 변수에 넣는 통로
+</code></pre>
+<p>Spring Boot에서 어노테이션은 단순 장식이 아니다.
+Spring이 HTTP 요청을 자바 코드와 연결할 수 있게 도와주는 중요한 표시다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-JPA와-Hibernate.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] JPA와 Hibernate?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-JPA-setter-vs-new-뭐가-다른-거고-왜-같이-쓰는-걸까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] [JPA] setter vs new, 뭐가 다른 거고 왜 같이 쓰는 걸까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

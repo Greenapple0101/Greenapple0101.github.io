@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] kubectl describe nodes는 어디부터 봐야 할까? | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스를 공부하다 보면 kubectl describe nodes 명령어를 자주 보게 된다. 처음 이 명령어를 치면 출력이 너무 길다. 노드 이름, 라벨, 어노테이션, IP, 자원, 파드 목록, 이벤트까지 한 번에 쏟아진다. 그래서 처음에는 이런 생각이 든다. 이걸 다 봐야 하나?…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] kubectl describe nodes는 어디부터 봐야 할까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-12T09:18:04.365Z">2026.05.12</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-kubectl-describe-nodes는-어디부터-봐야-할까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스를 공부하다 보면 <code>kubectl describe nodes</code> 명령어를 자주 보게 된다.</p>
+<pre><code class="language-bash">kubectl describe nodes
+</code></pre>
+<p>처음 이 명령어를 치면 출력이 너무 길다.</p>
+<p>노드 이름, 라벨, 어노테이션, IP, 자원, 파드 목록, 이벤트까지 한 번에 쏟아진다.</p>
+<p>그래서 처음에는 이런 생각이 든다.</p>
+<blockquote>
+<p>이걸 다 봐야 하나?
+어디가 중요한 거지?
+CKA에서는 뭘 보고 판단해야 하지?</p>
+</blockquote>
+<p>결론부터 말하면 전부 다 외울 필요는 없다.</p>
+<p>실제로는 아래 순서대로 보면 된다.</p>
+<pre><code class="language-text">Conditions → Taints → Capacity/Allocatable → Allocated resources → Events
+</code></pre>
+<p>이 순서만 익혀도 노드 상태를 읽는 기본 흐름은 잡을 수 있다.</p>
+<hr>
+<h1>1. Conditions</h1>
+<p>가장 먼저 볼 곳은 <code>Conditions</code>다.</p>
+<p><code>Conditions</code>는 노드가 지금 정상 상태인지, 자원 압박을 받고 있는지 보여준다.</p>
+<p>예시는 이런 식으로 나온다.</p>
+<pre><code class="language-text">Conditions:
+  Type             Status
+  ----             ------
+  MemoryPressure   False
+  DiskPressure     False
+  PIDPressure      False
+  Ready            True
+</code></pre>
+<p>여기서 제일 먼저 봐야 하는 것은 <code>Ready</code>다.</p>
+<pre><code class="language-text">Ready   True
+</code></pre>
+<p><code>Ready</code>가 <code>True</code>면 일단 노드는 정상적으로 클러스터에 붙어 있는 상태다.</p>
+<p>반대로 이렇게 나오면 문제가 있다.</p>
+<pre><code class="language-text">Ready   False
+</code></pre>
+<p>또는</p>
+<pre><code class="language-text">Ready   Unknown
+</code></pre>
+<p>이 경우에는 노드 자체가 정상적으로 동작하지 않거나, API Server가 노드 상태를 제대로 확인하지 못하는 상황일 수 있다.</p>
+<hr>
+<h2>Conditions에서 보는 핵심 값</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th style="text-align: right;">정상 상태</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ready</td>
+<td style="text-align: right;">True</td>
+<td>노드가 정상적으로 동작 중</td>
+</tr>
+<tr>
+<td>MemoryPressure</td>
+<td style="text-align: right;">False</td>
+<td>메모리 부족 없음</td>
+</tr>
+<tr>
+<td>DiskPressure</td>
+<td style="text-align: right;">False</td>
+<td>디스크 부족 없음</td>
+</tr>
+<tr>
+<td>PIDPressure</td>
+<td style="text-align: right;">False</td>
+<td>프로세스 수 압박 없음</td>
+</tr>
+</tbody>
+</table>
+<p>정상적인 노드는 보통 이렇게 보이면 된다.</p>
+<pre><code class="language-text">Ready            True
+MemoryPressure   False
+DiskPressure     False
+PIDPressure      False
+</code></pre>
+<p>즉, 해석하면 이렇다.</p>
+<pre><code class="language-text">노드는 살아 있고,
+메모리도 괜찮고,
+디스크도 괜찮고,
+프로세스 수도 괜찮다.
+</code></pre>
+<p>반대로 <code>DiskPressure True</code>가 보이면 디스크 부족 문제를 의심해야 한다.</p>
+<pre><code class="language-text">DiskPressure   True
+</code></pre>
+<p>이 상태에서는 Pod가 제대로 스케줄링되지 않거나, 기존 Pod가 Evicted될 수도 있다.</p>
+<p><code>MemoryPressure True</code>도 마찬가지다.</p>
+<pre><code class="language-text">MemoryPressure   True
+</code></pre>
+<p>메모리가 부족해서 Pod가 쫓겨나거나 새 Pod가 올라가지 못할 수 있다.</p>
+<p>그래서 <code>kubectl describe nodes</code>를 보면 제일 먼저 이렇게 생각하면 된다.</p>
+<blockquote>
+<p>이 노드 Ready인가?
+Pressure 걸린 건 없는가?</p>
+</blockquote>
+<hr>
+<h1>2. Taints</h1>
+<p>두 번째로 볼 곳은 <code>Taints</code>다.</p>
+<p>예시는 이런 식으로 나온다.</p>
+<pre><code class="language-text">Taints: node-role.kubernetes.io/control-plane:NoSchedule
+</code></pre>
+<p><code>Taints</code>는 쉽게 말하면 노드가 Pod를 받지 않기 위해 걸어두는 조건이다.</p>
+<p>특히 control-plane 노드에는 보통 이런 taint가 붙어 있다.</p>
+<pre><code class="language-text">node-role.kubernetes.io/control-plane:NoSchedule
+</code></pre>
+<p>뜻은 이거다.</p>
+<pre><code class="language-text">일반 Pod는 이 노드에 스케줄링하지 마라.
+</code></pre>
+<p>그래서 Pod가 Pending 상태일 때 <code>Taints</code>를 꼭 봐야 한다.</p>
+<p>예를 들어 노드는 Ready인데 Pod가 계속 Pending이라면 이런 가능성이 있다.</p>
+<pre><code class="language-text">노드는 살아 있음
+하지만 Taint 때문에 Pod가 못 올라감
+</code></pre>
+<hr>
+<h2>Taints가 중요한 이유</h2>
+<p>Pod는 기본적으로 아무 노드에나 올라가는 것이 아니다.</p>
+<p>노드에 <code>Taint</code>가 있으면, Pod는 그 Taint를 견딜 수 있는 <code>Toleration</code>이 있어야 올라갈 수 있다.</p>
+<p>간단히 말하면 이렇다.</p>
+<pre><code class="language-text">Taint = 노드가 Pod를 거부하는 조건
+Toleration = Pod가 그 조건을 견디겠다는 설정
+</code></pre>
+<p>예를 들어 control-plane 노드에 이런 taint가 있으면:</p>
+<pre><code class="language-text">node-role.kubernetes.io/control-plane:NoSchedule
+</code></pre>
+<p>일반 Pod는 그 노드에 올라가지 못한다.</p>
+<p>그래서 CKA 문제를 풀 때 Pod가 Pending이면 이런 흐름으로 보면 된다.</p>
+<pre><code class="language-bash">kubectl describe pod 파드이름
+kubectl describe node 노드이름
+</code></pre>
+<p>그리고 노드 쪽에서 <code>Taints</code>를 확인한다.</p>
+<hr>
+<h1>3. Capacity / Allocatable</h1>
+<p>세 번째로 볼 곳은 <code>Capacity</code>와 <code>Allocatable</code>이다.</p>
+<p>출력은 보통 이런 식이다.</p>
+<pre><code class="language-text">Capacity:
+  cpu:                2
+  memory:             4042468Ki
+  pods:               110
+
+Allocatable:
+  cpu:                2
+  memory:             3930068Ki
+  pods:               110
+</code></pre>
+<p>여기서는 노드가 가진 자원과 실제로 Pod에게 줄 수 있는 자원을 확인한다.</p>
+<hr>
+<h2>Capacity</h2>
+<p><code>Capacity</code>는 노드가 전체적으로 가지고 있는 자원이다.</p>
+<pre><code class="language-text">Capacity:
+  cpu: 2
+  memory: 4042468Ki
+  pods: 110
+</code></pre>
+<p>해석하면 이렇다.</p>
+<pre><code class="language-text">이 노드는 CPU 2개,
+메모리 약 4GB,
+최대 Pod 110개 정도를 수용할 수 있다.
+</code></pre>
+<hr>
+<h2>Allocatable</h2>
+<p><code>Allocatable</code>은 Pod가 실제로 사용할 수 있는 자원이다.</p>
+<pre><code class="language-text">Allocatable:
+  cpu: 2
+  memory: 3930068Ki
+  pods: 110
+</code></pre>
+<p><code>Capacity</code>와 <code>Allocatable</code>은 완전히 같지 않을 수 있다.</p>
+<p>왜냐하면 노드 자체도 kubelet, container runtime, 시스템 프로세스 같은 것들이 자원을 사용하기 때문이다.</p>
+<p>쉽게 비유하면 이렇다.</p>
+<pre><code class="language-text">Capacity = 노트북 전체 용량
+Allocatable = 앱들이 실제로 사용할 수 있는 용량
+</code></pre>
+<p>쿠버네티스에서는 Pod를 스케줄링할 때 아무 기준 없이 올리지 않는다.</p>
+<p>Pod의 <code>requests</code>를 보고, 노드의 <code>Allocatable</code> 안에 들어갈 수 있는지 판단한다.</p>
+<p>그래서 Pod가 Pending일 때는 이런 질문을 해야 한다.</p>
+<blockquote>
+<p>이 노드에 실제로 남은 자원이 있나?
+Pod가 요청한 CPU/Memory를 받을 수 있나?</p>
+</blockquote>
+<hr>
+<h1>4. Allocated resources</h1>
+<p>네 번째로 볼 곳은 <code>Allocated resources</code>다.</p>
+<p>예시는 이런 식이다.</p>
+<pre><code class="language-text">Allocated resources:
+  Resource           Requests    Limits
+  cpu                250m (12%)  0 (0%)
+  memory             140Mi (3%)  340Mi (8%)
+</code></pre>
+<p>여기는 현재 노드에 올라간 Pod들이 얼마나 자원을 요청하고 있는지 보여준다.</p>
+<p>중요한 값은 <code>Requests</code>와 <code>Limits</code>다.</p>
+<hr>
+<h2>Requests</h2>
+<p><code>Requests</code>는 Pod가 최소한 필요하다고 요청한 자원이다.</p>
+<p>예를 들어 어떤 Pod가 이렇게 설정되어 있다고 해보자.</p>
+<pre><code class="language-yaml">resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+</code></pre>
+<p>그러면 쿠버네티스 스케줄러는 이렇게 판단한다.</p>
+<pre><code class="language-text">이 Pod는 최소 CPU 100m, Memory 128Mi가 필요하구나.
+이걸 수용할 수 있는 노드에 배치해야겠다.
+</code></pre>
+<p>즉, 스케줄링 기준은 실제 사용량이 아니라 <code>requests</code>다.</p>
+<hr>
+<h2>Limits</h2>
+<p><code>Limits</code>는 Pod가 최대로 사용할 수 있는 자원이다.</p>
+<pre><code class="language-yaml">resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+</code></pre>
+<p>해석하면 이렇다.</p>
+<pre><code class="language-text">이 Pod는 CPU는 최대 500m까지,
+메모리는 최대 512Mi까지 사용할 수 있다.
+</code></pre>
+<p>특히 메모리 limit을 넘으면 Pod가 죽을 수 있다.</p>
+<hr>
+<h2>Allocated resources를 왜 봐야 할까?</h2>
+<p>Pod가 Pending일 때 이런 상황이 있을 수 있다.</p>
+<pre><code class="language-text">노드는 Ready True
+Taint도 문제 없음
+그런데 Pod가 안 올라감
+</code></pre>
+<p>이때는 자원이 부족한지 봐야 한다.</p>
+<p>예를 들어 <code>Allocated resources</code>가 이렇게 되어 있다고 하자.</p>
+<pre><code class="language-text">cpu      1900m (95%)
+memory   3700Mi (94%)
+</code></pre>
+<p>그러면 새 Pod가 요청한 자원을 받아줄 공간이 없을 수 있다.</p>
+<p>즉, <code>Allocated resources</code>는 이런 걸 확인하는 곳이다.</p>
+<pre><code class="language-text">이 노드가 이미 꽉 찼나?
+Pod들이 request를 너무 많이 잡고 있나?
+새 Pod를 받을 수 있나?
+</code></pre>
+<hr>
+<h1>5. Events</h1>
+<p>마지막으로 볼 곳은 <code>Events</code>다.</p>
+<p>보통 출력 맨 아래에 있다.</p>
+<pre><code class="language-text">Events:
+  Type     Reason                   Age    From     Message
+  ----     ------                   ----   ----     -------
+  Normal   Starting                 10m    kubelet  Starting kubelet.
+  Warning  InvalidDiskCapacity      10m    kubelet  invalid capacity 0 on image filesystem
+</code></pre>
+<p><code>Events</code>는 노드에서 발생한 사건 로그다.</p>
+<p>문제가 있을 때는 여기에 힌트가 많이 나온다.</p>
+<p>특히 봐야 할 것은 <code>Warning</code>이다.</p>
+<pre><code class="language-text">Warning
+</code></pre>
+<p>예를 들어 이런 메시지가 있을 수 있다.</p>
+<pre><code class="language-text">NodeNotReady
+KubeletNotReady
+DiskPressure
+MemoryPressure
+NetworkPluginNotReady
+InvalidDiskCapacity
+</code></pre>
+<p>이벤트는 원인을 직접적으로 알려주는 경우가 많다.</p>
+<p>예를 들어 <code>NetworkPluginNotReady</code>가 보이면 CNI 문제를 의심할 수 있다.</p>
+<pre><code class="language-text">NetworkPluginNotReady
+</code></pre>
+<p><code>DiskPressure</code>가 보이면 디스크 부족 문제를 의심할 수 있다.</p>
+<pre><code class="language-text">DiskPressure
+</code></pre>
+<p><code>KubeletNotReady</code>가 보이면 kubelet 상태를 확인해야 한다.</p>
+<pre><code class="language-text">KubeletNotReady
+</code></pre>
+<p>그래서 <code>Events</code>는 마지막에 보는 이유가 있다.</p>
+<p>앞에서 상태를 먼저 보고, 마지막에 이벤트로 원인을 확인하는 흐름이다.</p>
+<hr>
+<h1>정리</h1>
+<p><code>kubectl describe nodes</code>는 출력이 길지만, 보는 순서는 단순하다.</p>
+<pre><code class="language-text">Conditions → Taints → Capacity/Allocatable → Allocated resources → Events
+</code></pre>
+<p>각각의 의미는 이렇다.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">순서</th>
+<th>보는 곳</th>
+<th>확인할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Conditions</td>
+<td>노드가 Ready인지, Pressure가 있는지</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Taints</td>
+<td>Pod 스케줄링을 막는 조건이 있는지</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Capacity/Allocatable</td>
+<td>노드 전체 자원과 실제 사용 가능 자원</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Allocated resources</td>
+<td>현재 Pod들이 예약한 자원</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Events</td>
+<td>Warning이나 장애 힌트</td>
+</tr>
+</tbody>
+</table>
+<p>실제로는 이렇게 생각하면서 보면 된다.</p>
+<pre><code class="language-text">1. 노드가 살아 있나?
+2. 노드가 Pod를 거부하고 있나?
+3. 노드에 자원은 충분한가?
+4. 이미 자원이 꽉 차 있나?
+5. 이벤트에 에러 힌트가 있나?
+</code></pre>
+<p>CKA나 실무에서 노드 문제를 볼 때도 이 흐름이 기본이다.</p>
+<pre><code class="language-bash">kubectl get nodes
+kubectl describe node 노드이름
+</code></pre>
+<p>그리고 출력이 길어도 당황하지 말고 이 순서대로 보면 된다.</p>
+<pre><code class="language-text">Conditions
+Taints
+Capacity/Allocatable
+Allocated resources
+Events
+</code></pre>
+<p>결국 <code>kubectl describe nodes</code>는 단순히 노드 정보를 많이 보여주는 명령어가 아니라,</p>
+<pre><code class="language-text">노드가 정상인지
+Pod가 올라갈 수 있는지
+자원이 부족한지
+무슨 문제가 있었는지
+</code></pre>
+<p>를 한 번에 확인하는 명령어다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Docker]-docker-run-하기-전에-mvn-spring-bootrun도-해야-할까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DOCKER] docker run 하기 전에 mvn spring-boot:run도 해야 할까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Kubernetes]-BUSYBOX.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[K8S] BUSYBOX</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

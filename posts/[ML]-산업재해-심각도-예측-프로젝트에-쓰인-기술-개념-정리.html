@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[ML] 산업재해 심각도 예측 프로젝트에 쓰인 기술 개념 정리 | Greenapple0101</title>
+  <meta name="description" content="산업재해 심각도 예측 프로젝트에는 단순히 “모델 하나 돌려보기” 수준이 아니라, 데이터 분석부터 전처리, 머신러닝 baseline 실험, 딥러닝 모델링, 클래스 불균형 처리, 평가 지표 재설계, 해석 가능성 확보, 군집 분석까지 꽤 넓은 범위의 기술이 들어간다. 그래서 이번 글에서는…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/ai.html">AI</a>
+    </nav>
+    <span class="tag" style="--tag-color: #64748b">ML</span>
+    <h1>[ML] 산업재해 심각도 예측 프로젝트에 쓰인 기술 개념 정리</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-12T19:34:25.190Z">2026.05.12</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/ML-산업재해-심각도-예측-프로젝트에-쓰인-기술-개념-정리" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>산업재해 심각도 예측 프로젝트에는 단순히 “모델 하나 돌려보기” 수준이 아니라, 데이터 분석부터 전처리, 머신러닝 baseline 실험, 딥러닝 모델링, 클래스 불균형 처리, 평가 지표 재설계, 해석 가능성 확보, 군집 분석까지 꽤 넓은 범위의 기술이 들어간다. 그래서 이번 글에서는 프로젝트에 사용된 기술들을 하나씩 개념 중심으로 정리해보려고 한다.</p>
+<hr>
+<h1>1. 데이터 분석: Pandas, NumPy</h1>
+<h2>Pandas란?</h2>
+<p>Pandas는 Python에서 표 형태의 데이터를 다루기 위한 대표적인 라이브러리다.</p>
+<p>엑셀이나 CSV처럼 행과 열로 이루어진 데이터를 코드로 읽고, 정리하고, 필터링하고, 집계할 때 사용한다.</p>
+<p>산업재해 데이터도 결국 이런 형태일 가능성이 높다.</p>
+<pre><code class="language-text">통계기준년월
+업종
+발생형태
+재해정도
+질병종류
+성별
+연령
+근무기간
+지역
+</code></pre>
+<p>이런 열들이 있고, 각 행마다 하나의 재해 사례가 들어있는 구조다.</p>
+<p>Pandas에서는 이런 데이터를 <code>DataFrame</code>이라는 구조로 다룬다.</p>
+<pre><code class="language-python">import pandas as pd
+
+df = pd.read_csv(&quot;accident_data.csv&quot;)
+</code></pre>
+<p>이렇게 데이터를 불러오면, 이후에는 다음과 같은 작업을 할 수 있다.</p>
+<pre><code class="language-python">df.head()
+df.info()
+df.describe()
+df[&quot;재해정도&quot;].value_counts()
+df.isnull().sum()
+</code></pre>
+<p>즉, Pandas는 데이터를 모델에 넣기 전에 “이 데이터가 어떤 상태인지” 확인하고 정리하는 도구다.</p>
+<hr>
+<h2>Pandas를 이 프로젝트에서 쓴 이유</h2>
+<p>산업재해 데이터는 처음부터 모델이 바로 학습할 수 있는 형태가 아니다.</p>
+<p>예를 들어 재해정도가 8단계로 나뉘어 있을 수 있고, 질병종류나 발생형태 같은 값은 문자열로 되어 있을 수 있다.</p>
+<p>모델은 문자열을 그대로 이해하지 못한다.</p>
+<p>그래서 먼저 데이터를 분석해야 한다.</p>
+<pre><code class="language-text">각 재해정도별 데이터가 몇 개 있는가?
+중대재해 데이터는 얼마나 적은가?
+결측치는 있는가?
+특정 업종에서 중대재해가 많이 발생하는가?
+연령대별 차이가 있는가?
+</code></pre>
+<p>이런 질문에 답하기 위해 Pandas를 사용한다.</p>
+<p>이 프로젝트에서는 특히 클래스 불균형을 발견하는 과정에서 Pandas가 중요했을 것이다.</p>
+<pre><code class="language-python">df[&quot;재해정도&quot;].value_counts(normalize=True)
+</code></pre>
+<p>이런 식으로 각 클래스 비율을 확인하면, 중대재해 클래스가 얼마나 적은지 볼 수 있다.</p>
+<p>즉, Pandas는 단순히 데이터를 불러오는 도구가 아니라, <strong>문제의 구조를 발견하는 도구</strong>다.</p>
+<hr>
+<h2>NumPy란?</h2>
+<p>NumPy는 Python에서 숫자 배열을 빠르게 계산하기 위한 라이브러리다.</p>
+<p>Pandas가 표 형태 데이터를 다루는 데 강하다면, NumPy는 배열과 행렬 계산에 강하다.</p>
+<p>머신러닝과 딥러닝은 결국 많은 숫자 계산이다.</p>
+<p>모델에 들어가는 데이터도 최종적으로는 숫자 배열로 바뀐다.</p>
+<pre><code class="language-python">import numpy as np
+
+arr = np.array([1, 2, 3, 4])
+</code></pre>
+<p>NumPy는 평균, 표준편차, 행렬 연산, 배열 변환 같은 작업에 많이 쓰인다.</p>
+<pre><code class="language-python">np.mean(arr)
+np.std(arr)
+np.reshape(arr, (2, 2))
+</code></pre>
+<hr>
+<h2>NumPy를 이 프로젝트에서 쓴 이유</h2>
+<p>산업재해 데이터를 모델에 넣기 위해서는 문자열과 범주형 데이터를 숫자로 바꾸고, 배열 형태로 변환해야 한다.</p>
+<p>예를 들어 딥러닝 모델에 데이터를 넣을 때는 보통 이런 형태가 필요하다.</p>
+<pre><code class="language-text">X_train
+X_test
+y_train
+y_test
+</code></pre>
+<p>여기서 X는 입력 데이터, y는 정답 라벨이다.</p>
+<p>이 값들은 보통 NumPy 배열 형태로 다뤄진다.</p>
+<pre><code class="language-python">X = df.drop(&quot;label&quot;, axis=1).values
+y = df[&quot;label&quot;].values
+</code></pre>
+<p>즉, NumPy는 Pandas로 정리한 데이터를 실제 모델 학습에 넣을 수 있는 숫자 배열로 바꾸는 데 사용된다.</p>
+<hr>
+<h1>2. 전처리: Scikit-learn, LabelEncoder, StandardScaler</h1>
+<h2>Scikit-learn이란?</h2>
+<p>Scikit-learn은 Python에서 가장 많이 쓰이는 머신러닝 라이브러리 중 하나다.</p>
+<p>머신러닝 모델뿐 아니라 전처리, 데이터 분리, 평가 지표, 군집 분석 등 데이터 분석과 머신러닝에 필요한 기능을 폭넓게 제공한다.</p>
+<pre><code class="language-python">from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import classification_report
+</code></pre>
+<p>이 프로젝트에서는 Scikit-learn을 전처리, 머신러닝 모델 실험, 평가, 군집 분석 등에 사용했다.</p>
+<hr>
+<h2>전처리란?</h2>
+<p>전처리는 모델이 데이터를 제대로 학습할 수 있도록 데이터를 정리하고 변환하는 과정이다.</p>
+<p>현실 데이터는 보통 지저분하다.</p>
+<pre><code class="language-text">값이 비어 있음
+문자열 값이 많음
+범주형 데이터가 많음
+숫자 범위가 제각각임
+라벨 체계가 너무 복잡함
+클래스 분포가 불균형함
+</code></pre>
+<p>이런 상태로 모델을 학습시키면 성능이 제대로 나오기 어렵다.</p>
+<p>그래서 전처리를 통해 데이터를 학습 가능한 형태로 바꿔야 한다.</p>
+<p>산업재해 프로젝트에서는 전처리가 특히 중요하다.</p>
+<p>왜냐하면 이 데이터는 숫자형 데이터보다 범주형 데이터가 많을 가능성이 높기 때문이다.</p>
+<pre><code class="language-text">업종
+발생형태
+질병종류
+세부질병종류
+지역
+지방관서
+성별
+규모
+</code></pre>
+<p>이런 값들은 대부분 문자열 또는 범주형 값이다.</p>
+<p>모델이 이해할 수 있도록 인코딩이 필요하다.</p>
+<hr>
+<h2>LabelEncoder란?</h2>
+<p>LabelEncoder는 문자 라벨을 숫자로 바꿔주는 도구다.</p>
+<p>예를 들어 이런 데이터가 있다고 하자.</p>
+<pre><code class="language-text">발생형태
+끼임
+넘어짐
+떨어짐
+끼임
+화상
+</code></pre>
+<p>모델은 “끼임”, “넘어짐”, “떨어짐” 같은 문자열을 그대로 이해하지 못한다.</p>
+<p>그래서 숫자로 바꾼다.</p>
+<pre><code class="language-text">끼임 → 0
+넘어짐 → 1
+떨어짐 → 2
+화상 → 3
+</code></pre>
+<p>코드로는 이렇게 쓸 수 있다.</p>
+<pre><code class="language-python">from sklearn.preprocessing import LabelEncoder
+
+encoder = LabelEncoder()
+df[&quot;발생형태_encoded&quot;] = encoder.fit_transform(df[&quot;발생형태&quot;])
+</code></pre>
+<p>이렇게 하면 범주형 변수를 숫자로 변환할 수 있다.</p>
+<hr>
+<h2>LabelEncoder 사용 시 주의할 점</h2>
+<p>LabelEncoder는 간단하지만 한계도 있다.</p>
+<p>예를 들어 다음처럼 변환된다고 하자.</p>
+<pre><code class="language-text">끼임 → 0
+넘어짐 → 1
+떨어짐 → 2
+화상 → 3
+</code></pre>
+<p>문제는 모델이 이 숫자를 순서나 크기로 오해할 수 있다는 점이다.</p>
+<p>즉, 모델이 “화상은 끼임보다 3배 크다”처럼 잘못 이해할 수 있다.</p>
+<p>실제로 범주형 데이터는 숫자의 크고 작음이 중요한 게 아니다.</p>
+<p>그래서 딥러닝에서는 단순 LabelEncoding보다 Entity Embedding을 사용해서 범주형 변수의 의미를 벡터로 학습하게 만들기도 한다.</p>
+<p>이 프로젝트에서 Entity Embedding을 사용한 이유도 여기에 있다.</p>
+<hr>
+<h2>StandardScaler란?</h2>
+<p>StandardScaler는 숫자형 데이터의 스케일을 표준화하는 도구다.</p>
+<p>어떤 변수는 값의 범위가 작고, 어떤 변수는 값의 범위가 클 수 있다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">연령: 20~70
+근무기간: 0~40
+건설공사금액: 0~수백억
+</code></pre>
+<p>이런 식이면 건설공사금액처럼 값의 범위가 큰 변수가 모델 학습에 과도한 영향을 줄 수 있다.</p>
+<p>그래서 StandardScaler를 사용해 평균은 0, 표준편차는 1이 되도록 바꾼다.</p>
+<pre><code class="language-python">from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+df[[&quot;연령&quot;, &quot;근무기간&quot;]] = scaler.fit_transform(df[[&quot;연령&quot;, &quot;근무기간&quot;]])
+</code></pre>
+<p>표준화의 개념은 다음과 같다.</p>
+<pre><code class="language-text">변환값 = (원래값 - 평균) / 표준편차
+</code></pre>
+<p>이렇게 하면 서로 다른 단위의 숫자형 변수들을 비슷한 스케일로 맞출 수 있다.</p>
+<hr>
+<h1>3. 머신러닝: XGBoost, Random Forest, SVM</h1>
+<h2>머신러닝을 먼저 시도한 이유</h2>
+<p>이 프로젝트에서는 처음부터 딥러닝만 사용한 것이 아니라, XGBoost, Random Forest, SVM 같은 전통적인 머신러닝 모델도 실험했다.</p>
+<p>이건 좋은 접근이다.</p>
+<p>왜냐하면 딥러닝은 복잡하고 학습 비용이 높기 때문에, 먼저 전통적인 머신러닝 모델을 baseline으로 삼는 것이 일반적이다.</p>
+<p>baseline이란 기준점이다.</p>
+<p>즉, 이런 질문을 해보는 것이다.</p>
+<pre><code class="language-text">간단한 모델로는 어느 정도 성능이 나오는가?
+딥러닝을 쓸 만큼 문제가 복잡한가?
+전통 ML 모델의 한계는 무엇인가?
+</code></pre>
+<p>이 프로젝트에서는 전통 ML 모델을 실험한 뒤, 클래스 불균형과 범주형 변수 간 복잡한 상호작용 때문에 한계를 확인했고, 이후 DCN 기반 딥러닝 모델로 전환했다.</p>
+<hr>
+<h2>XGBoost란?</h2>
+<p>XGBoost는 Gradient Boosting 기반의 강력한 머신러닝 알고리즘이다.</p>
+<p>정형 데이터, 즉 표 형태 데이터에서 성능이 좋은 편이다.</p>
+<p>산업재해 데이터처럼 행과 열로 이루어진 데이터에서는 보통 XGBoost가 강한 baseline이 될 수 있다.</p>
+<p>XGBoost의 핵심 아이디어는 다음과 같다.</p>
+<pre><code class="language-text">약한 모델을 여러 개 순차적으로 학습시킨다
+앞 모델이 틀린 부분을 다음 모델이 보완한다
+이 과정을 반복하면서 점점 강한 모델을 만든다
+</code></pre>
+<p>쉽게 말하면, 여러 개의 작은 의사결정나무를 쌓아가면서 오답을 계속 보정하는 방식이다.</p>
+<hr>
+<h2>Random Forest란?</h2>
+<p>Random Forest는 여러 개의 Decision Tree를 모아서 예측하는 모델이다.</p>
+<p>Decision Tree는 질문을 계속 던지면서 데이터를 나누는 모델이다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">연령이 60세 이상인가?
+업종이 건설업인가?
+발생형태가 떨어짐인가?
+근무기간이 1년 미만인가?
+</code></pre>
+<p>이런 질문을 기준으로 데이터를 나누고 예측한다.</p>
+<p>Random Forest는 이런 Decision Tree를 여러 개 만든 뒤, 여러 나무의 결과를 종합해서 최종 예측을 한다.</p>
+<pre><code class="language-text">나무 1: 중대
+나무 2: 중상
+나무 3: 중대
+나무 4: 중대
+
+최종 예측: 중대
+</code></pre>
+<p>여러 모델을 함께 쓰기 때문에 단일 Decision Tree보다 과적합에 강하다.</p>
+<hr>
+<h2>SVM이란?</h2>
+<p>SVM은 Support Vector Machine의 약자다.</p>
+<p>데이터를 구분하는 가장 좋은 경계선을 찾는 알고리즘이다.</p>
+<p>이진 분류에서 많이 설명되지만, 다중분류에도 확장해서 사용할 수 있다.</p>
+<p>SVM의 핵심은 “클래스 사이의 간격을 최대화하는 경계”를 찾는 것이다.</p>
+<p>예를 들어 경상과 중대 데이터를 나눈다고 할 때, 단순히 나누기만 하는 게 아니라 두 그룹 사이의 여유 공간이 가장 큰 선을 찾으려고 한다.</p>
+<p>다만 SVM은 데이터가 많거나 범주형 변수가 많고 복잡한 경우 학습 비용이 커질 수 있다.</p>
+<p>산업재해 데이터처럼 범주형 변수와 클래스 불균형이 많은 데이터에서는 한계가 있을 수 있다.</p>
+<hr>
+<h1>4. 딥러닝: TensorFlow, Keras, DCN, Entity Embedding</h1>
+<h2>TensorFlow란?</h2>
+<p>TensorFlow는 Google에서 만든 딥러닝 프레임워크다.</p>
+<p>딥러닝 모델을 만들고 학습시키고 배포하는 데 사용된다.</p>
+<p>신경망을 구성하고, 손실함수를 정의하고, 최적화 알고리즘으로 가중치를 업데이트하는 과정을 지원한다.</p>
+<pre><code class="language-python">import tensorflow as tf
+</code></pre>
+<p>TensorFlow는 복잡한 수학 연산을 효율적으로 처리할 수 있고, GPU를 활용한 학습도 가능하다.</p>
+<hr>
+<h2>Keras란?</h2>
+<p>Keras는 TensorFlow 위에서 딥러닝 모델을 더 쉽게 만들 수 있게 해주는 고수준 API다.</p>
+<p>TensorFlow를 직접 다루면 코드가 복잡해질 수 있는데, Keras를 사용하면 모델을 비교적 간단하게 정의할 수 있다.</p>
+<pre><code class="language-python">from tensorflow import keras
+from tensorflow.keras import layers
+</code></pre>
+<p>예를 들어 간단한 신경망은 이렇게 만들 수 있다.</p>
+<pre><code class="language-python">model = keras.Sequential([
+    layers.Dense(64, activation=&quot;relu&quot;),
+    layers.Dense(32, activation=&quot;relu&quot;),
+    layers.Dense(3, activation=&quot;softmax&quot;)
+])
+</code></pre>
+<p>이 프로젝트에서는 TensorFlow/Keras를 사용해서 DCN 기반 딥러닝 모델을 구현했다.</p>
+<hr>
+<h2>DCN이란?</h2>
+<p>DCN은 Deep &amp; Cross Network의 약자다.</p>
+<p>추천 시스템이나 정형 데이터 예측 문제에서 자주 쓰이는 딥러닝 구조다.</p>
+<p>DCN은 이름 그대로 두 가지 부분으로 구성된다.</p>
+<pre><code class="language-text">Deep Network
+Cross Network
+</code></pre>
+<p>Deep Network는 일반적인 딥러닝처럼 여러 층을 통과하면서 복잡한 패턴을 학습한다.</p>
+<p>Cross Network는 변수 간의 교차 관계를 직접 학습한다.</p>
+<hr>
+<h2>왜 DCN을 썼을까?</h2>
+<p>산업재해 데이터에서는 변수 하나만 중요한 것이 아니다.</p>
+<p>변수들의 조합이 중요할 수 있다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">업종이 건설업이다
+발생형태가 떨어짐이다
+연령이 높다
+근무기간이 짧다
+</code></pre>
+<p>각각만 보면 평범한 변수일 수 있지만, 이 조합이 모이면 중대재해 위험이 높아질 수 있다.</p>
+<p>또 다른 예시는 이렇다.</p>
+<pre><code class="language-text">질병종류 + 세부질병종류
+업종 + 규모
+발생형태 + 근무기간
+지역 + 업종
+</code></pre>
+<p>이런 변수 간의 상호작용을 단순한 머신러닝 모델이 충분히 포착하지 못할 수 있다.</p>
+<p>DCN은 이런 교차 특성을 학습하기 위해 사용된다.</p>
+<p>즉, DCN은 “어떤 변수 조합이 위험한가?”를 학습하는 데 유리하다.</p>
+<hr>
+<h2>Entity Embedding이란?</h2>
+<p>Entity Embedding은 범주형 변수를 벡터로 표현하는 방식이다.</p>
+<p>범주형 변수에는 이런 것들이 있다.</p>
+<pre><code class="language-text">업종
+발생형태
+질병종류
+세부질병종류
+지역
+성별
+규모
+</code></pre>
+<p>이런 값을 단순히 숫자로 바꾸면 문제가 생길 수 있다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">건설업 → 0
+제조업 → 1
+서비스업 → 2
+운수업 → 3
+</code></pre>
+<p>이렇게 바꾸면 모델이 숫자 크기를 의미 있는 순서처럼 오해할 수 있다.</p>
+<p>하지만 Entity Embedding은 각 범주를 고정된 숫자 하나가 아니라 벡터로 표현한다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">건설업 → [0.12, -0.33, 0.41, 0.08]
+제조업 → [0.21, -0.12, 0.15, 0.37]
+서비스업 → [-0.18, 0.44, 0.09, -0.25]
+</code></pre>
+<p>이 벡터는 모델이 학습하면서 조정된다.</p>
+<p>즉, 모델이 “어떤 업종들이 비슷한 위험 패턴을 가지는지”를 스스로 학습할 수 있다.</p>
+<hr>
+<h2>Entity Embedding이 중요한 이유</h2>
+<p>산업재해 데이터는 범주형 변수가 많다.</p>
+<p>범주형 변수가 많다는 것은 단순 숫자 변환만으로는 정보가 충분히 표현되지 않을 수 있다는 뜻이다.</p>
+<p>Entity Embedding을 사용하면 범주형 변수의 의미를 더 풍부하게 표현할 수 있다.</p>
+<p>예를 들어 모델은 학습 과정에서 이런 관계를 간접적으로 익힐 수 있다.</p>
+<pre><code class="language-text">특정 업종과 특정 발생형태가 함께 나타날 때 위험도가 높다
+특정 질병종류와 연령대가 결합될 때 중대재해 가능성이 커진다
+특정 규모의 사업장과 근무기간 조합이 위험하다
+</code></pre>
+<p>즉, Entity Embedding은 범주형 변수를 딥러닝 모델이 더 잘 이해하도록 도와주는 기술이다.</p>
+<hr>
+<h1>5. 불균형 처리: Focal Loss, Threshold Tuning</h1>
+<h2>클래스 불균형이란?</h2>
+<p>클래스 불균형은 각 클래스의 데이터 개수가 크게 차이 나는 문제다.</p>
+<p>산업재해 데이터에서는 중대재해가 상대적으로 적을 수 있다.</p>
+<p>예를 들어 전체 데이터가 이렇게 분포한다고 해보자.</p>
+<pre><code class="language-text">경상: 10,000건
+중상: 80,000건
+중대: 2,000건
+</code></pre>
+<p>이런 상황에서 모델은 중대재해를 잘 맞히지 못해도 전체 Accuracy는 높게 나올 수 있다.</p>
+<p>극단적으로 모델이 모든 데이터를 중상이라고 예측해도 Accuracy가 꽤 높아 보일 수 있다.</p>
+<p>하지만 실제로 중요한 것은 중대재해를 놓치지 않는 것이다.</p>
+<p>따라서 산업재해 예측에서는 단순 Accuracy보다 소수 클래스에 대한 Recall이 더 중요하다.</p>
+<hr>
+<h2>Focal Loss란?</h2>
+<p>Focal Loss는 클래스 불균형 문제를 해결하기 위해 사용되는 손실함수다.</p>
+<p>일반적인 손실함수는 전체 데이터에 대해 평균적으로 잘 맞히는 방향으로 학습한다.</p>
+<p>그런데 데이터가 불균형하면 모델은 데이터가 많은 클래스에 유리하게 학습된다.</p>
+<p>Focal Loss는 이 문제를 줄이기 위해 만들어졌다.</p>
+<p>핵심 아이디어는 다음과 같다.</p>
+<pre><code class="language-text">쉽게 맞히는 샘플의 영향은 줄인다
+어렵게 맞히는 샘플의 영향은 키운다
+</code></pre>
+<p>즉, 모델이 이미 잘 맞히는 다수 클래스보다, 자주 틀리는 소수 클래스에 더 집중하게 만든다.</p>
+<p>산업재해 프로젝트에서는 중대재해 클래스가 상대적으로 적고 중요하기 때문에 Focal Loss가 의미 있다.</p>
+<hr>
+<h2>Focal Loss를 쓴 이유</h2>
+<p>이 프로젝트의 핵심 목표는 단순히 전체 정확도를 높이는 것이 아니다.</p>
+<p>목표는 이것에 가깝다.</p>
+<pre><code class="language-text">중대재해를 최대한 놓치지 않는 것
+</code></pre>
+<p>중대재해를 경상이나 중상으로 잘못 예측하면 정책적으로 큰 문제가 될 수 있다.</p>
+<p>그래서 모델이 중대재해 데이터에 더 민감하게 반응하도록 해야 한다.</p>
+<p>Focal Loss는 이런 상황에서 유용하다.</p>
+<p>즉, Focal Loss는 이 프로젝트에서 <strong>중대재해 Recall을 높이기 위한 기술적 장치</strong>라고 볼 수 있다.</p>
+<hr>
+<h2>Threshold Tuning이란?</h2>
+<p>딥러닝 분류 모델은 보통 각 클래스에 대한 확률을 출력한다.</p>
+<p>예를 들어 어떤 샘플에 대해 모델이 이렇게 예측했다고 하자.</p>
+<pre><code class="language-text">경상 확률: 0.10
+중상 확률: 0.55
+중대 확률: 0.35
+</code></pre>
+<p>일반적으로는 가장 확률이 높은 클래스를 선택한다.</p>
+<p>그러면 이 샘플은 중상으로 예측된다.</p>
+<p>하지만 정책적으로 중대재해를 놓치지 않는 것이 중요하다면, 중대재해로 판단하는 기준을 낮출 수 있다.</p>
+<p>예를 들어 중대재해 확률이 0.40 이상이면 중대로 본다거나, 0.35 이상이면 중대로 보는 식이다.</p>
+<p>이렇게 예측 기준값을 조정하는 것이 Threshold Tuning이다.</p>
+<hr>
+<h2>Threshold Tuning을 쓴 이유</h2>
+<p>기본적으로 모델은 가장 높은 확률을 가진 클래스를 선택한다.</p>
+<p>하지만 산업재해 예측에서는 중대재해를 놓치는 비용이 크다.</p>
+<p>따라서 중대재해에 대해서는 조금 더 민감하게 예측하도록 기준을 조정할 수 있다.</p>
+<p>예를 들어 Threshold를 0.5로 두면 중대재해로 예측되는 경우가 적을 수 있다.</p>
+<p>하지만 Threshold를 0.4로 낮추면 중대재해로 더 많이 잡아낼 수 있다.</p>
+<p>대신 부작용도 있다.</p>
+<pre><code class="language-text">중대재해 Recall 증가
+중대재해 Precision 감소 가능
+False Positive 증가 가능
+</code></pre>
+<p>즉, 실제로는 중대재해가 아닌데 중대재해라고 예측하는 경우가 늘어날 수 있다.</p>
+<p>하지만 정책 시스템에서는 “위험한 것을 놓치는 것”보다 “조금 더 많이 경고하는 것”이 더 나을 수 있다.</p>
+<p>그래서 Threshold Tuning은 단순 기술이 아니라, 정책 목적에 맞춘 의사결정 조정이라고 볼 수 있다.</p>
+<hr>
+<h1>6. 평가 지표: Precision, Recall, F1-macro, F1-weighted</h1>
+<h2>Accuracy의 한계</h2>
+<p>Accuracy는 전체 데이터 중 몇 개를 맞혔는지를 보는 지표다.</p>
+<pre><code class="language-text">Accuracy = 맞힌 개수 / 전체 개수
+</code></pre>
+<p>보기에는 가장 직관적인 지표다.</p>
+<p>하지만 클래스 불균형이 심한 데이터에서는 문제가 있다.</p>
+<p>예를 들어 데이터가 이렇게 있다고 하자.</p>
+<pre><code class="language-text">중상: 95개
+중대: 5개
+</code></pre>
+<p>모델이 모든 데이터를 중상이라고 예측하면:</p>
+<pre><code class="language-text">중상 95개는 맞힘
+중대 5개는 모두 놓침
+Accuracy = 95%
+</code></pre>
+<p>Accuracy는 95%로 좋아 보이지만, 실제로 중요한 중대재해는 하나도 잡지 못했다.</p>
+<p>그래서 이 프로젝트에서는 Accuracy만 보면 안 된다.</p>
+<hr>
+<h2>Precision이란?</h2>
+<p>Precision은 모델이 특정 클래스로 예측한 것 중 실제로 맞은 비율이다.</p>
+<pre><code class="language-text">Precision = 실제 정답인 것 / 모델이 해당 클래스로 예측한 것
+</code></pre>
+<p>예를 들어 모델이 중대재해라고 100건을 예측했는데, 실제 중대재해가 40건이라면:</p>
+<pre><code class="language-text">Precision = 40 / 100 = 0.40
+</code></pre>
+<p>Precision은 “모델의 예측이 얼마나 믿을 만한가?”를 보는 지표다.</p>
+<p>중대재해 Precision이 높다는 것은 모델이 중대재해라고 경고했을 때 실제 중대재해일 확률이 높다는 뜻이다.</p>
+<hr>
+<h2>Recall이란?</h2>
+<p>Recall은 실제 특정 클래스인 데이터 중에서 모델이 얼마나 잘 찾아냈는지를 보는 지표다.</p>
+<pre><code class="language-text">Recall = 모델이 맞힌 것 / 실제 해당 클래스 전체
+</code></pre>
+<p>예를 들어 실제 중대재해가 100건 있는데, 모델이 그중 76건을 중대재해로 맞혔다면:</p>
+<pre><code class="language-text">Recall = 76 / 100 = 0.76
+</code></pre>
+<p>이 프로젝트에서 가장 중요한 지표가 바로 중대재해 Recall이다.</p>
+<p>왜냐하면 목표가 “중대재해를 놓치지 않는 것”이기 때문이다.</p>
+<hr>
+<h2>Precision과 Recall의 차이</h2>
+<p>Precision과 Recall은 비슷해 보이지만 관점이 다르다.</p>
+<p>Precision은 예측한 것 중 얼마나 맞았는지를 본다.</p>
+<p>Recall은 실제 정답 중 얼마나 찾아냈는지를 본다.</p>
+<p>산업재해 예측에서는 Recall이 특히 중요하다.</p>
+<p>예를 들어 중대재해를 예측하는 시스템이 있다고 하자.</p>
+<pre><code class="language-text">Precision이 높다:
+중대재해라고 예측한 것들은 꽤 정확하다
+
+Recall이 높다:
+실제 중대재해를 많이 놓치지 않는다
+</code></pre>
+<p>정책 목적에서는 보통 Recall이 더 중요할 수 있다.</p>
+<p>중대재해를 놓치면 예방 기회를 잃기 때문이다.</p>
+<hr>
+<h2>F1-score란?</h2>
+<p>F1-score는 Precision과 Recall의 균형을 보는 지표다.</p>
+<p>Precision만 높거나 Recall만 높으면 모델을 제대로 평가하기 어렵다.</p>
+<p>F1-score는 두 값을 조화평균으로 합친다.</p>
+<pre><code class="language-text">F1-score = 2 × (Precision × Recall) / (Precision + Recall)
+</code></pre>
+<p>F1-score가 높다는 것은 Precision과 Recall이 어느 정도 균형을 이룬다는 뜻이다.</p>
+<hr>
+<h2>F1-macro란?</h2>
+<p>F1-macro는 각 클래스의 F1-score를 단순 평균낸 값이다.</p>
+<p>예를 들어 클래스가 3개라면:</p>
+<pre><code class="language-text">경상 F1
+중상 F1
+중대 F1
+</code></pre>
+<p>이 세 값을 같은 비중으로 평균낸다.</p>
+<pre><code class="language-text">F1-macro = (경상 F1 + 중상 F1 + 중대 F1) / 3
+</code></pre>
+<p>중요한 점은 각 클래스의 데이터 개수와 상관없이 같은 비중으로 평균낸다는 것이다.</p>
+<p>그래서 클래스 불균형이 있는 문제에서 유용하다.</p>
+<p>데이터가 적은 중대재해 클래스도 동일한 비중으로 평가에 반영되기 때문이다.</p>
+<hr>
+<h2>F1-weighted란?</h2>
+<p>F1-weighted는 각 클래스의 F1-score를 데이터 개수에 따라 가중평균한 값이다.</p>
+<p>즉, 데이터가 많은 클래스의 영향이 더 크다.</p>
+<pre><code class="language-text">F1-weighted = 클래스별 F1 × 클래스별 데이터 비율
+</code></pre>
+<p>이 지표는 전체 데이터 분포를 반영한 성능을 볼 때 유용하다.</p>
+<p>하지만 클래스 불균형이 심하면 다수 클래스의 영향이 커지기 때문에, 소수 클래스 성능이 가려질 수 있다.</p>
+<p>그래서 이 프로젝트에서는 F1-weighted만 보는 것보다 F1-macro와 중대재해 Recall을 함께 보는 것이 더 적절하다.</p>
+<hr>
+<h1>7. 해석 가능성: SHAP, XAI</h1>
+<h2>XAI란?</h2>
+<p>XAI는 Explainable AI의 약자다.</p>
+<p>말 그대로 설명 가능한 인공지능이라는 뜻이다.</p>
+<p>딥러닝 모델은 성능은 좋을 수 있지만, 왜 그런 예측을 했는지 설명하기 어렵다.</p>
+<p>특히 정책 결정에 쓰이는 모델이라면 단순히 “모델이 그렇게 예측했습니다”로 끝낼 수 없다.</p>
+<p>산업재해 예측에서는 이런 질문에 답해야 한다.</p>
+<pre><code class="language-text">왜 이 사례를 중대재해로 예측했는가?
+어떤 변수가 가장 큰 영향을 줬는가?
+특정 업종이 위험한가?
+발생형태가 중요한가?
+질병종류가 중요한가?
+</code></pre>
+<p>이런 설명을 가능하게 하는 것이 XAI다.</p>
+<hr>
+<h2>SHAP이란?</h2>
+<p>SHAP은 모델 예측에 각 변수가 얼마나 기여했는지를 계산하는 XAI 기법이다.</p>
+<p>쉽게 말하면, 모델의 예측 결과를 변수별로 쪼개서 설명해준다.</p>
+<p>예를 들어 어떤 재해 사례를 모델이 중대재해로 예측했다고 하자.</p>
+<p>SHAP은 이렇게 설명할 수 있다.</p>
+<pre><code class="language-text">질병종류: 중대재해 예측을 높이는 방향으로 기여
+발생형태: 중대재해 예측을 높이는 방향으로 기여
+연령: 중대재해 예측을 약간 높이는 방향으로 기여
+근무기간: 중대재해 예측을 낮추는 방향으로 기여
+</code></pre>
+<p>즉, SHAP은 모델의 판단 근거를 수치적으로 보여준다.</p>
+<hr>
+<h2>SHAP을 쓴 이유</h2>
+<p>산업재해 예측은 단순 추천 시스템이나 광고 클릭 예측과 다르다.</p>
+<p>정책, 예방, 안전 관리와 연결된다.</p>
+<p>따라서 모델이 왜 중대재해라고 판단했는지 설명할 수 있어야 한다.</p>
+<p>SHAP을 사용하면 다음과 같은 분석이 가능하다.</p>
+<pre><code class="language-text">중대재해 예측에 가장 큰 영향을 준 변수 확인
+클래스별 주요 위험 요인 비교
+특정 변수 값이 예측에 미치는 방향 확인
+정책적으로 관리해야 할 요인 도출
+</code></pre>
+<p>예를 들어 SHAP 분석 결과 질병종류와 발생형태가 중대재해 예측에 큰 영향을 준다면, 정책적으로 해당 질병군이나 발생유형을 집중 관리할 수 있다.</p>
+<p>즉, SHAP은 모델 성능을 설명하는 도구를 넘어서 정책 인사이트를 도출하는 도구로 활용될 수 있다.</p>
+<hr>
+<h1>8. 패턴 분석: Clustering</h1>
+<h2>Clustering이란?</h2>
+<p>Clustering은 군집 분석이라고도 한다.</p>
+<p>정답 라벨 없이 데이터끼리 비슷한 것들끼리 묶는 비지도학습 기법이다.</p>
+<p>분류는 정답이 있는 상태에서 학습한다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">이 데이터는 경상
+이 데이터는 중상
+이 데이터는 중대
+</code></pre>
+<p>이렇게 정답을 알려주고 모델을 학습시킨다.</p>
+<p>반면 군집 분석은 정답 없이 데이터의 패턴을 보고 비슷한 것끼리 묶는다.</p>
+<pre><code class="language-text">비슷한 재해 사례끼리 그룹화
+유사한 위험 패턴을 가진 집단 식별
+특정 그룹이 중대재해와 관련 있는지 분석
+</code></pre>
+<hr>
+<h2>Clustering을 쓴 이유</h2>
+<p>산업재해 예측에서 중요한 것은 단순히 개별 사례를 예측하는 것만이 아니다.</p>
+<p>정책적으로는 이런 질문이 더 중요할 수 있다.</p>
+<pre><code class="language-text">어떤 유형의 근로자가 위험한가?
+어떤 업종과 발생형태 조합이 위험한가?
+비슷한 사고 패턴을 가진 그룹이 있는가?
+어떤 그룹을 우선 관리해야 하는가?
+</code></pre>
+<p>군집 분석을 사용하면 유사한 재해 패턴을 가진 그룹을 찾을 수 있다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">군집 1: 특정 업종, 짧은 근무기간, 특정 발생형태가 많은 그룹
+군집 2: 고령 근로자, 특정 질병종류가 많은 그룹
+군집 3: 건설공사금액이 큰 현장 중심 그룹
+</code></pre>
+<p>이런 식으로 그룹을 나누면, 정책 타겟팅이 가능해진다.</p>
+<hr>
+<h2>Clustering과 분류 모델의 차이</h2>
+<p>분류 모델은 예측을 위한 도구다.</p>
+<pre><code class="language-text">이 사례는 경상인가, 중상인가, 중대인가?
+</code></pre>
+<p>군집 분석은 구조를 이해하기 위한 도구다.</p>
+<pre><code class="language-text">데이터 안에 어떤 유형의 그룹이 존재하는가?
+어떤 그룹이 위험한가?
+</code></pre>
+<p>따라서 이 프로젝트에서 Clustering은 모델 성능을 높이기 위한 기술이라기보다, 산업재해 데이터를 정책적으로 이해하기 위한 분석 기법에 가깝다.</p>
+<hr>
+<h1>9. 시각화: Matplotlib, Seaborn</h1>
+<h2>Matplotlib이란?</h2>
+<p>Matplotlib은 Python에서 그래프를 그릴 때 사용하는 가장 기본적인 시각화 라이브러리다.</p>
+<p>막대그래프, 선그래프, 산점도, 히스토그램 등 다양한 그래프를 그릴 수 있다.</p>
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+plt.plot([1, 2, 3], [10, 20, 30])
+plt.show()
+</code></pre>
+<p>데이터 분석에서는 숫자만 보는 것보다 그래프로 보는 것이 훨씬 직관적이다.</p>
+<p>예를 들어 클래스 분포를 확인할 때도 그래프가 유용하다.</p>
+<pre><code class="language-python">df[&quot;재해정도&quot;].value_counts().plot(kind=&quot;bar&quot;)
+plt.show()
+</code></pre>
+<p>이렇게 보면 어떤 클래스가 많은지, 어떤 클래스가 적은지 한눈에 알 수 있다.</p>
+<hr>
+<h2>Seaborn이란?</h2>
+<p>Seaborn은 Matplotlib을 기반으로 더 보기 좋은 통계 그래프를 쉽게 그릴 수 있게 해주는 라이브러리다.</p>
+<pre><code class="language-python">import seaborn as sns
+</code></pre>
+<p>Seaborn은 데이터 분포, 변수 간 관계, 상관관계 등을 시각화할 때 많이 사용한다.</p>
+<p>예를 들어 클래스별 연령 분포를 보고 싶다면:</p>
+<pre><code class="language-python">sns.boxplot(data=df, x=&quot;재해정도&quot;, y=&quot;연령&quot;)
+</code></pre>
+<p>변수 간 상관관계를 보고 싶다면:</p>
+<pre><code class="language-python">sns.heatmap(df.corr(), annot=True)
+</code></pre>
+<p>이런 식으로 사용할 수 있다.</p>
+<hr>
+<h2>시각화를 쓴 이유</h2>
+<p>산업재해 프로젝트에서 시각화는 단순히 예쁘게 그래프를 그리기 위한 것이 아니다.</p>
+<p>시각화는 문제를 발견하고 설명하기 위한 도구다.</p>
+<p>예를 들어 다음과 같은 것을 확인할 수 있다.</p>
+<pre><code class="language-text">재해정도별 데이터 분포
+클래스 불균형 정도
+업종별 재해 발생 패턴
+연령대별 중대재해 비율
+질병종류별 위험도
+모델의 Confusion Matrix
+SHAP Feature Importance
+군집 분석 결과
+</code></pre>
+<p>특히 프로젝트 보고서나 발표에서는 시각화가 중요하다.</p>
+<p>숫자로만 설명하면 이해하기 어렵지만, 그래프로 보여주면 문제 구조가 훨씬 잘 드러난다.</p>
+<hr>
+<h1>10. 전체 흐름으로 다시 정리</h1>
+<p>이 프로젝트에서 기술들은 따로따로 쓰인 게 아니라 하나의 흐름으로 연결된다.</p>
+<h2>1단계: 데이터 확인</h2>
+<pre><code class="language-text">Pandas
+NumPy
+Matplotlib
+Seaborn
+</code></pre>
+<p>먼저 산업재해 데이터를 불러오고, 클래스 분포와 변수 구조를 확인한다.</p>
+<p>이 과정에서 8단계 재해정도 분류가 복잡하고, 중대재해 데이터가 적다는 문제를 발견한다.</p>
+<hr>
+<h2>2단계: 데이터 전처리</h2>
+<pre><code class="language-text">Scikit-learn
+LabelEncoder
+StandardScaler
+</code></pre>
+<p>문자열과 범주형 변수를 숫자로 바꾸고, 수치형 변수의 스케일을 맞춘다.</p>
+<p>모델이 학습할 수 있는 형태로 데이터를 정리한다.</p>
+<hr>
+<h2>3단계: 머신러닝 baseline 실험</h2>
+<pre><code class="language-text">XGBoost
+Random Forest
+SVM
+</code></pre>
+<p>전통적인 머신러닝 모델을 먼저 실험한다.</p>
+<p>이를 통해 기본 성능을 확인하고, 클래스 불균형과 복잡한 변수 상호작용 문제로 인한 한계를 검증한다.</p>
+<hr>
+<h2>4단계: 딥러닝 모델 전환</h2>
+<pre><code class="language-text">TensorFlow
+Keras
+DCN
+Entity Embedding
+</code></pre>
+<p>범주형 변수 간 상호작용을 더 잘 학습하기 위해 DCN 모델을 적용한다.</p>
+<p>Entity Embedding을 통해 업종, 발생형태, 질병종류 같은 범주형 변수를 벡터로 표현한다.</p>
+<hr>
+<h2>5단계: 불균형 문제 대응</h2>
+<pre><code class="language-text">Focal Loss
+Threshold Tuning
+</code></pre>
+<p>중대재해처럼 중요한 소수 클래스를 더 잘 학습하도록 Focal Loss를 적용한다.</p>
+<p>또한 Threshold를 조정해서 중대재해 Recall을 높인다.</p>
+<hr>
+<h2>6단계: 평가 지표 재설계</h2>
+<pre><code class="language-text">Precision
+Recall
+F1-macro
+F1-weighted
+</code></pre>
+<p>Accuracy만 보는 것이 아니라, 중대재해 Recall과 F1-macro를 중심으로 모델을 평가한다.</p>
+<p>정책 시스템에서는 전체 정확도보다 중대재해를 놓치지 않는 것이 더 중요하기 때문이다.</p>
+<hr>
+<h2>7단계: 해석 가능성 확보</h2>
+<pre><code class="language-text">SHAP
+XAI
+</code></pre>
+<p>모델이 왜 특정 사례를 중대재해로 예측했는지 설명한다.</p>
+<p>이를 통해 정책적으로 의미 있는 위험 요인을 도출한다.</p>
+<hr>
+<h2>8단계: 위험 그룹 분석</h2>
+<pre><code class="language-text">Clustering
+</code></pre>
+<p>유사한 재해 패턴을 가진 그룹을 찾고, 위험 그룹을 식별한다.</p>
+<p>이는 예방 정책의 타겟팅에 활용될 수 있다.</p>
+<hr>
+<h1>11. 이 프로젝트를 기술적으로 한 문장으로 설명하면</h1>
+<p>이 프로젝트는 Pandas와 NumPy로 산업재해 데이터를 분석하고, Scikit-learn 기반 전처리와 머신러닝 baseline 실험을 수행한 뒤, TensorFlow/Keras 기반 DCN 모델과 Entity Embedding, Focal Loss를 적용하여 클래스 불균형이 있는 재해 심각도 분류 문제를 해결한 프로젝트다. 또한 Threshold Tuning을 통해 중대재해 Recall을 개선하고, SHAP 기반 XAI와 Clustering 분석을 통해 모델 해석 가능성과 정책 활용 가능성을 확보했다.</p>
+<hr>
+<h1>12. 포트폴리오용 기술 설명</h1>
+<p>포트폴리오에 적는다면 이렇게 정리할 수 있다.</p>
+<pre><code class="language-text">산업재해 심각도 예측을 위해 Pandas와 NumPy 기반으로 데이터 탐색 및 전처리를 수행하고, Scikit-learn의 LabelEncoder와 StandardScaler를 활용해 범주형/수치형 변수를 모델 학습 가능한 형태로 변환했습니다. 초기에는 XGBoost, Random Forest, SVM을 baseline 모델로 실험하며 전통적 ML 모델의 한계를 검증했고, 이후 TensorFlow/Keras 기반 DCN(Deep &amp; Cross Network) 모델로 전환했습니다. 범주형 변수 간 복잡한 상호작용을 학습하기 위해 Entity Embedding을 적용했으며, 클래스 불균형 문제를 완화하기 위해 Focal Loss와 Threshold Tuning을 활용했습니다. 모델 평가는 Accuracy 중심이 아닌 Precision, Recall, F1-macro, F1-weighted를 기준으로 수행했으며, 특히 중대재해 Recall 개선에 집중했습니다. 또한 SHAP 기반 XAI 분석을 통해 예측 근거를 해석하고, Clustering 분석을 통해 위험 그룹을 식별함으로써 정책 의사결정에 활용 가능한 인사이트를 도출했습니다.
+</code></pre>
+<hr>
+<h1>13. 면접에서 말하기 좋은 버전</h1>
+<p>면접에서는 너무 길게 말하기보다 이렇게 말하면 좋다.</p>
+<pre><code class="language-text">이 프로젝트에서는 산업재해 데이터를 기반으로 재해 심각도를 예측했습니다. Pandas와 NumPy로 데이터를 분석하고, Scikit-learn을 활용해 인코딩과 스케일링 전처리를 수행했습니다. 초기에는 XGBoost, Random Forest, SVM 같은 전통적인 ML 모델을 baseline으로 실험했지만, 클래스 불균형과 범주형 변수 간 상호작용을 포착하는 데 한계가 있어 TensorFlow/Keras 기반 DCN 모델로 전환했습니다. DCN과 Entity Embedding을 통해 범주형 변수 조합을 학습했고, Focal Loss와 Threshold Tuning을 통해 중대재해 Recall을 높였습니다. 또한 SHAP을 사용해 모델 예측 근거를 해석하고, Clustering으로 위험 그룹을 분리해 정책적으로 활용 가능한 인사이트를 도출했습니다.
+</code></pre>
+<hr>
+<h1>14. 핵심은 “기술을 썼다”가 아니라 “왜 썼는가”</h1>
+<p>이 프로젝트에서 중요한 건 단순히 많은 기술을 나열하는 것이 아니다.</p>
+<p>진짜 중요한 흐름은 이거다.</p>
+<pre><code class="language-text">데이터를 보니 클래스 불균형이 있었다
+Accuracy로는 제대로 평가할 수 없었다
+8단계 라벨은 실무적으로 복잡했다
+그래서 3단계 라벨로 재정의했다
+전통 ML 모델을 실험했지만 한계가 있었다
+범주형 변수 간 상호작용을 잡기 위해 DCN을 썼다
+소수 클래스 학습을 강화하기 위해 Focal Loss를 썼다
+중대재해를 놓치지 않기 위해 Threshold를 조정했다
+정책 활용을 위해 SHAP으로 설명 가능성을 확보했다
+위험 그룹을 찾기 위해 Clustering을 수행했다
+</code></pre>
+<p>즉, 이 프로젝트는 단순히 모델 성능을 높이기 위한 프로젝트가 아니라, <strong>현실 데이터의 문제를 발견하고, 그 문제에 맞는 기술을 선택해 해결한 프로젝트</strong>라고 볼 수 있다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[RAG-MLOps]-내가-만든-운영형-RAG-시스템은-무엇을-해결하려고-했나.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[RAG/MLOps] 내가 만든 운영형 RAG 시스템은 무엇을 해결하려고 했나</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <span class="post-nav-link next disabled" aria-hidden="true"></span>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

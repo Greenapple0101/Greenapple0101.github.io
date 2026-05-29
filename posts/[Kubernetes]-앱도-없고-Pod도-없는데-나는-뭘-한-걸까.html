@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[KUBERNETES] 앱도 없고 Pod도 없는데 나는 뭘 한 걸까? | Greenapple0101</title>
+  <meta name="description" content="Ingress 실습을 하다 보면 이런 순간이 온다. 처음에는 헷갈린다. “나는 뭘 만든 거지?” “앱도 없고 Pod도 없는데 왜 Ingress를 만든 거지?” “Service에는 앱이 들어가는 건가?” “Helm으로 설치했으면 다 된 거 아닌가?” 결론부터 말하면, 이 상태는 앱은 없…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[KUBERNETES] 앱도 없고 Pod도 없는데 나는 뭘 한 걸까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-13T05:41:42.596Z">2026.05.13</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/KUBERNETES-앱도-없고-Pod도-없는데-나는-뭘-한-걸까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Ingress 실습을 하다 보면 이런 순간이 온다.</p>
+<pre><code class="language-text">Helm으로 ingress-nginx도 설치했다.
+Ingress YAML도 만들었다.
+localhost로 접속도 해봤다.
+그런데 503이 떴다.
+</code></pre>
+<p>처음에는 헷갈린다.</p>
+<p>“나는 뭘 만든 거지?”
+“앱도 없고 Pod도 없는데 왜 Ingress를 만든 거지?”
+“Service에는 앱이 들어가는 건가?”
+“Helm으로 설치했으면 다 된 거 아닌가?”</p>
+<p>결론부터 말하면, 이 상태는 <strong>앱은 없고, 입구와 라우팅 규칙만 만든 상태</strong>다.</p>
+<h2>내가 실제로 한 것</h2>
+<p>이번 실습에서 한 작업은 크게 보면 이렇다.</p>
+<pre><code class="language-text">1. k3d 클러스터 생성
+2. Helm으로 ingress-nginx Controller 설치
+3. Ingress YAML 생성
+4. localhost 요청을 nginx Service로 보내라는 규칙 생성
+</code></pre>
+<p>즉, 외부 요청을 받을 준비는 했다.</p>
+<p>하지만 아직 빠진 것이 있었다.</p>
+<pre><code class="language-text">nginx Service
+nginx Pod
+실제 nginx 애플리케이션
+</code></pre>
+<p>그래서 전체 구조로 보면 이런 상태였다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+localhost:80
+  ↓
+ingress-nginx controller   ← 설치함
+  ↓
+Ingress 규칙               ← 만듦
+  ↓
+Service                   ← 없거나 연결 안 됨
+  ↓
+Pod                       ← 없음
+  ↓
+Application               ← 없음
+</code></pre>
+<p>즉, 요청이 들어오는 앞단은 만들었는데, 정작 요청을 처리할 백엔드 앱이 없었던 것이다.</p>
+<h2>비유로 이해하기</h2>
+<p>건물로 비유하면 이런 상태다.</p>
+<pre><code class="language-text">건물 입구를 만들었다.
+안내 데스크를 만들었다.
+“손님이 오면 3층 식당으로 보내라”는 안내문도 붙였다.
+
+그런데 3층 식당이 없다.
+</code></pre>
+<p>손님은 건물 입구까지 들어올 수 있다.
+안내 데스크도 있다.
+안내문도 있다.</p>
+<p>그런데 최종 목적지인 식당이 없으니 안내 데스크는 손님을 보낼 수 없다.</p>
+<p>이때 발생하는 것이 Kubernetes Ingress 실습에서의 <code>503 Service Temporarily Unavailable</code>이다.</p>
+<pre><code class="language-text">503 Service Temporarily Unavailable
+= 요청은 ingress-nginx까지 왔지만,
+  뒤에 연결할 Service 또는 Pod가 없다.
+</code></pre>
+<h2>Helm으로 설치한 것은 앱이 아니었다</h2>
+<p>처음에 실행한 명령어는 이런 형태였다.</p>
+<pre><code class="language-sh">helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+</code></pre>
+<p>이 명령어는 nginx 웹서버 앱을 설치한 것이 아니다.</p>
+<p>정확히는 <strong>ingress-nginx Controller</strong>를 설치한 것이다.</p>
+<pre><code class="language-text">ingress-nginx Controller
+= Ingress 규칙을 읽고,
+  외부 요청을 적절한 Service로 보내주는 역할
+</code></pre>
+<p>즉, Helm으로 설치한 것은 “실제 응답할 앱”이 아니라 “요청을 받아서 라우팅해주는 시스템”이다.</p>
+<p>Helm Chart는 여러 Kubernetes 리소스를 한 번에 설치한다.</p>
+<p>예를 들어 ingress-nginx Chart는 대략 이런 것들을 만든다.</p>
+<pre><code class="language-text">Deployment
+Pod
+Service
+ServiceAccount
+ConfigMap
+ClusterRole
+ClusterRoleBinding
+IngressClass
+Webhook
+</code></pre>
+<p>그래서 Helm을 쓰면 뭔가 많이 설치된다.</p>
+<p>하지만 여기서 설치되는 Pod는 <strong>내가 테스트하려는 nginx 웹서버 Pod</strong>가 아니다.
+그건 <strong>Ingress를 처리하는 Controller Pod</strong>다.</p>
+<p>이 차이가 중요하다.</p>
+<pre><code class="language-text">ingress-nginx controller Pod
+= 요청을 라우팅하는 관리자
+
+nginx app Pod
+= 실제 웹페이지를 응답하는 애플리케이션
+</code></pre>
+<p>둘은 다르다.</p>
+<h2>Ingress YAML은 앱을 만드는 게 아니다</h2>
+<p>그다음 만든 파일이 <code>nginx-ingress.yaml</code>이었다.</p>
+<p>예를 들어 이런 형태다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 80
+</code></pre>
+<p>이 YAML은 앱을 만드는 파일이 아니다.</p>
+<p>여기서 <code>kind</code>를 보면 알 수 있다.</p>
+<pre><code class="language-yaml">kind: Ingress
+</code></pre>
+<p>즉, 이 파일은 Ingress 리소스를 만든다.</p>
+<p>Ingress의 역할은 이거다.</p>
+<pre><code class="language-text">localhost로 들어온 요청을 nginx Service의 80번 포트로 보내라
+</code></pre>
+<p>다시 말하면, 이 YAML은 “nginx 앱을 만들어라”가 아니다.</p>
+<pre><code class="language-text">nginx Service로 보내라는 라우팅 규칙을 만들어라
+</code></pre>
+<p>라는 뜻이다.</p>
+<h2>Service에는 앱이 들어가지 않는다</h2>
+<p>여기서 또 헷갈릴 수 있다.</p>
+<p>“그럼 Service 안에 앱이 들어가나?”</p>
+<p>아니다.</p>
+<p>Service 안에 앱이 들어가는 것이 아니다.
+애플리케이션은 <strong>Pod 안의 Container</strong>에서 실행된다.</p>
+<pre><code class="language-text">Pod
+ └── Container
+      └── nginx / Spring Boot / FastAPI 같은 앱 실행
+</code></pre>
+<p>Service는 앱이 들어있는 공간이 아니라, <strong>Pod로 가는 고정 입구</strong>다.</p>
+<pre><code class="language-text">Service
+= Pod를 찾아가는 고정 주소
+</code></pre>
+<p>전체 구조는 이렇게 봐야 한다.</p>
+<pre><code class="language-text">Ingress
+  ↓
+Service
+  ↓
+Pod
+  ↓
+Container
+  ↓
+Application
+</code></pre>
+<p>정확히 말하면:</p>
+<pre><code class="language-text">Application
+= 실제 프로그램
+
+Container
+= 애플리케이션 실행 공간
+
+Pod
+= 컨테이너를 감싸는 Kubernetes의 최소 실행 단위
+
+Service
+= Pod로 가는 고정 입구
+
+Ingress
+= 외부 HTTP 요청을 어느 Service로 보낼지 정하는 규칙
+</code></pre>
+<h2>왜 Service가 필요한가?</h2>
+<p>Pod는 언제든 죽었다가 다시 만들어질 수 있다.
+그러면 Pod의 IP도 바뀔 수 있다.</p>
+<p>예를 들어 처음에는 nginx Pod의 IP가 이랬다고 해보자.</p>
+<pre><code class="language-text">nginx-pod-1 → 10.42.0.12
+</code></pre>
+<p>그런데 Pod가 재시작되면 새 Pod가 만들어지고 IP가 바뀔 수 있다.</p>
+<pre><code class="language-text">nginx-pod-2 → 10.42.0.19
+</code></pre>
+<p>만약 Ingress가 Pod IP를 직접 바라본다면, Pod가 바뀔 때마다 Ingress 설정도 계속 바꿔야 한다.</p>
+<p>그래서 중간에 Service를 둔다.</p>
+<pre><code class="language-text">Ingress
+  ↓
+nginx Service
+  ↓
+현재 살아있는 nginx Pod
+</code></pre>
+<p>Service는 Pod가 바뀌어도 고정된 이름으로 접근할 수 있게 해준다.</p>
+<pre><code class="language-text">nginx Service는 계속 nginx
+뒤에 연결된 Pod만 바뀔 수 있음
+</code></pre>
+<h2>Service는 Pod를 어떻게 찾을까?</h2>
+<p>Service는 selector로 Pod를 찾는다.</p>
+<p>예를 들어 Pod에 이런 label이 붙어 있다고 하자.</p>
+<pre><code class="language-yaml">labels:
+  app: nginx
+</code></pre>
+<p>Service에는 이런 selector가 있다.</p>
+<pre><code class="language-yaml">selector:
+  app: nginx
+</code></pre>
+<p>그러면 Service는 이렇게 판단한다.</p>
+<pre><code class="language-text">app=nginx 라벨이 붙은 Pod를 내 뒤에 연결하면 되겠네
+</code></pre>
+<p>즉, Service와 Pod는 이름으로 직접 연결되는 것이 아니라, 보통 label과 selector로 연결된다.</p>
+<pre><code class="language-text">Service selector: app=nginx
+        ↓
+Pod label: app=nginx
+</code></pre>
+<p>이 둘이 맞아야 Service가 Pod를 찾는다.</p>
+<p>만약 selector와 label이 안 맞으면 Service는 Pod를 못 찾는다.</p>
+<p>이때 <code>Endpoints</code>가 비어 있게 된다.</p>
+<pre><code class="language-sh">kubectl describe svc nginx
+</code></pre>
+<p>정상이라면:</p>
+<pre><code class="language-text">Endpoints: 10.42.0.12:80
+</code></pre>
+<p>문제가 있으면:</p>
+<pre><code class="language-text">Endpoints: &lt;none&gt;
+</code></pre>
+<p><code>Endpoints: &lt;none&gt;</code>이면 Service가 연결할 Pod를 못 찾고 있다는 뜻이다.</p>
+<h2>그래서 503이 뜬 이유</h2>
+<p>이번 상태에서 503이 떴다는 건 이런 뜻이다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+localhost:80
+  ↓
+ingress-nginx controller
+</code></pre>
+<p>여기까지는 도착했다.</p>
+<p>그래서 예전처럼 <code>ERR_CONNECTION_REFUSED</code>가 아니라 nginx의 503 페이지가 나온 것이다.</p>
+<p>하지만 그 뒤가 문제였다.</p>
+<pre><code class="language-text">ingress-nginx controller
+  ↓
+Ingress 규칙
+  ↓
+nginx Service
+  ↓
+nginx Pod
+</code></pre>
+<p>여기서 Service가 없거나, Pod가 없거나, Service가 Pod를 못 찾으면 503이 난다.</p>
+<p>즉, 지금 상태는 이것이었다.</p>
+<pre><code class="language-text">Ingress Controller는 있음
+Ingress 규칙도 있음
+그런데 실제 응답할 앱이 없음
+</code></pre>
+<p>한 줄로 말하면:</p>
+<pre><code class="language-text">문지기와 안내문은 있는데, 목적지 방이 없는 상태
+</code></pre>
+<h2>그럼 무엇을 만들어야 했나?</h2>
+<p>Ingress를 테스트하려면 실제 응답할 애플리케이션이 필요하다.</p>
+<p>가장 간단한 테스트용 앱으로 nginx를 만들 수 있다.</p>
+<pre><code class="language-sh">kubectl create deployment nginx --image=nginx
+</code></pre>
+<p>이 명령어는 nginx 이미지를 사용하는 Deployment를 만든다.</p>
+<p>Deployment는 Pod를 관리한다.</p>
+<p>즉, 결과적으로 nginx 컨테이너가 들어있는 Pod가 생성된다.</p>
+<pre><code class="language-text">Deployment
+  ↓
+ReplicaSet
+  ↓
+Pod
+  ↓
+nginx Container
+</code></pre>
+<p>그다음 Service를 만들어야 한다.</p>
+<pre><code class="language-sh">kubectl expose deployment nginx --port=80 --target-port=80
+</code></pre>
+<p>이 명령어는 nginx Deployment 앞에 Service를 만든다.</p>
+<p>의미는 다음과 같다.</p>
+<pre><code class="language-text">nginx Pod로 가는 고정 입구를 만들어라
+</code></pre>
+<p>그 다음에야 Ingress가 의미를 가진다.</p>
+<pre><code class="language-sh">kubectl apply -f nginx-ingress.yaml
+</code></pre>
+<p>이제 Ingress는 <code>nginx</code> Service로 요청을 보낼 수 있고, Service는 실제 nginx Pod로 요청을 넘길 수 있다.</p>
+<h2>올바른 실습 순서</h2>
+<p>Ingress 실습은 아래 순서로 이해하면 좋다.</p>
+<pre><code class="language-text">1. ingress-nginx Controller 설치
+   → Helm 사용
+
+2. nginx 앱 실행
+   → Deployment 생성
+
+3. nginx 앱으로 가는 Service 생성
+   → Service 생성
+
+4. localhost 요청을 nginx Service로 보내는 Ingress 생성
+   → Ingress YAML apply
+</code></pre>
+<p>명령어로 보면 이렇게 된다.</p>
+<pre><code class="language-sh">helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+</code></pre>
+<pre><code class="language-sh">kubectl create deployment nginx --image=nginx
+</code></pre>
+<pre><code class="language-sh">kubectl expose deployment nginx --port=80 --target-port=80
+</code></pre>
+<pre><code class="language-sh">kubectl apply -f nginx-ingress.yaml
+</code></pre>
+<p>확인은 이렇게 한다.</p>
+<pre><code class="language-sh">kubectl get pods
+kubectl get svc
+kubectl get ingress
+</code></pre>
+<p>Service가 Pod를 잘 잡고 있는지도 확인할 수 있다.</p>
+<pre><code class="language-sh">kubectl describe svc nginx
+</code></pre>
+<h2>전체 구조 다시 보기</h2>
+<p>모든 것이 제대로 만들어지면 구조는 이렇게 된다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+localhost:80
+  ↓
+k3d LoadBalancer
+  ↓
+ingress-nginx Controller
+  ↓
+nginx-ingress
+  ↓
+nginx Service
+  ↓
+nginx Pod
+  ↓
+nginx Container
+  ↓
+nginx Application
+</code></pre>
+<p>각각의 역할은 다음과 같다.</p>
+<pre><code class="language-text">k3d LoadBalancer
+= 로컬 localhost:80 요청을 클러스터 안으로 넣어주는 입구
+
+ingress-nginx Controller
+= Ingress 규칙을 읽고 요청을 라우팅하는 담당자
+
+nginx-ingress
+= localhost 요청을 nginx Service로 보내라는 규칙
+
+nginx Service
+= nginx Pod로 가는 고정 입구
+
+nginx Pod
+= nginx 컨테이너가 실행되는 공간
+
+nginx Application
+= 실제 웹페이지를 응답하는 프로그램
+</code></pre>
+<p>이 중 하나라도 빠지면 정상적으로 접속되지 않는다.</p>
+<h2>이번 실습에서 내가 한 일 정리</h2>
+<p>이번 실습에서 처음에 만든 것은 이쪽이었다.</p>
+<pre><code class="language-text">k3d LoadBalancer
+ingress-nginx Controller
+Ingress 규칙
+</code></pre>
+<p>하지만 아직 이쪽이 없었다.</p>
+<pre><code class="language-text">nginx Service
+nginx Pod
+nginx Application
+</code></pre>
+<p>그래서 이런 상태였다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+localhost:80
+  ↓
+ingress-nginx Controller
+  ↓
+Ingress 규칙
+  ↓
+nginx Service 없음
+  ↓
+nginx Pod 없음
+  ↓
+앱 없음
+</code></pre>
+<p>그러니 503이 나는 것이 자연스러운 상황이었다.</p>
+<h2>정리</h2>
+<p>이번 실습에서 헷갈렸던 핵심은 “Ingress를 만들었다”와 “앱을 만들었다”를 같은 의미로 생각한 데 있었다. Helm으로 설치한 <code>ingress-nginx</code>는 실제 웹 애플리케이션이 아니라, Ingress 규칙을 읽고 트래픽을 라우팅하는 Controller다. 그리고 <code>kubectl apply -f nginx-ingress.yaml</code>로 만든 Ingress는 앱이 아니라 라우팅 규칙이다. 실제 응답을 하려면 nginx, Spring Boot, FastAPI 같은 애플리케이션이 Pod 안에서 실행되고 있어야 하며, 그 Pod 앞에 Service가 있어야 한다. 즉, Ingress 실습이 정상 동작하려면 <code>Ingress Controller → Ingress → Service → Pod → Application</code> 흐름이 모두 연결되어야 한다. 이번 상태는 Controller와 Ingress 규칙은 만들었지만, 뒤쪽의 Service, Pod, Application이 없어서 503이 발생한 것이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-왜-Helm으로-설치하고-다시-kubectl로-YAML을-apply-했을까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[KUBERNETES] 왜 Helm으로 설치하고, 다시 kubectl로 YAML을 apply 했을까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Kubernetes]-Helm으로-ingress-nginx-설치하고-kubectl로-nginx-앱까지-연결하기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] Helm으로 ingress-nginx 설치하고, kubectl로 nginx 앱까지 연결하기</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[NETWORK] RIP, OSPF, BGP 차이 완벽 이해 — IGP/EGP부터 거리벡터까지 | Greenapple0101</title>
+  <meta name="description" content="네트워크가 커지면 문제가 생긴다. 예를 들어 라우터가 수십 대, 수백 대가 되면:“어디로 보내야 가장 빠르지?” “어느 경로가 죽었지?” “새로운 네트워크가 생겼네?” plaintext id=&quot;j65wry&quot; Dynamic Routing Protocol plaintext id=&quot;54yq…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[NETWORK] RIP, OSPF, BGP 차이 완벽 이해 — IGP/EGP부터 거리벡터까지</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T14:28:27.117Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/NETWORK-RIP-OSPF-BGP-차이-완벽-이해-IGPEGP부터-거리벡터까지" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>네트워크가 커지면 문제가 생긴다.</p>
+<p>예를 들어 라우터가 수십 대, 수백 대가 되면:“어디로 보내야 가장 빠르지?”
+“어느 경로가 죽었지?”
+“새로운 네트워크가 생겼네?”</p>
+<pre><code>
+이런 걸 사람이 일일이 설정하기 힘들어진다.
+
+그래서 등장한 게:
+
+```plaintext id=&quot;j65wry&quot;
+Dynamic Routing Protocol
+</code></pre>
+<p>즉:</p>
+<blockquote>
+<p>라우터끼리 자동으로 길을 학습하는 기술</p>
+</blockquote>
+<p>이다.</p>
+<p>대표적으로:</p>
+<ul>
+<li>RIP</li>
+<li>OSPF</li>
+<li>BGP</li>
+</ul>
+<p>가 있다.</p>
+<hr>
+<h1>1. 먼저 큰 그림부터</h1>
+<p>라우팅 프로토콜은 크게 두 종류로 나뉜다.</p>
+<p>```plaintext id=&rdquo;54yqce&rdquo;
+IGP  → 내부 네트워크용
+EGP  → 외부 네트워크용</p>
+<pre><code>
+---
+
+# 2. IGP란?
+
+IGP는:
+
+```plaintext id=&quot;z9v6hk&quot;
+Interior Gateway Protocol
+</code></pre>
+<p>즉:</p>
+<blockquote>
+<p>하나의 조직 내부에서 사용하는 라우팅 프로토콜</p>
+</blockquote>
+<p>이다.</p>
+<p>예:</p>
+<ul>
+<li>회사 내부망</li>
+<li>AWS 내부 네트워크</li>
+<li>IDC 내부망</li>
+</ul>
+<p>대표:</p>
+<ul>
+<li>RIP</li>
+<li>OSPF</li>
+</ul>
+<hr>
+<h1>3. EGP란?</h1>
+<p>EGP는:</p>
+<p>```plaintext id=&rdquo;xgmk9w&rdquo;
+Exterior Gateway Protocol</p>
+<pre><code>
+즉:
+
+&gt; 서로 다른 조직 간 라우팅
+
+이다.
+
+대표:
+
+* BGP
+
+예:
+
+```plaintext id=&quot;8l4pjm&quot;
+KT ↔ SKT ↔ AWS ↔ Google
+</code></pre>
+<p>인터넷 전체는 사실상 BGP로 연결된다.</p>
+<hr>
+<h1>4. RIP, OSPF, BGP 한눈에 보기</h1>
+<table>
+<thead>
+<tr>
+<th>프로토콜</th>
+<th>종류</th>
+<th>방식</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RIP</td>
+<td>IGP</td>
+<td>거리 벡터</td>
+<td>단순하지만 느림</td>
+</tr>
+<tr>
+<td>OSPF</td>
+<td>IGP</td>
+<td>링크 상태</td>
+<td>빠르고 현대적</td>
+</tr>
+<tr>
+<td>BGP</td>
+<td>EGP</td>
+<td>경로 벡터</td>
+<td>인터넷 핵심</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>5. RIP란?</h1>
+<p>RIP는:</p>
+<p>```plaintext id=&rdquo;8w5sru&rdquo;
+Routing Information Protocol</p>
+<pre><code>
+이다.
+
+옛날 라우팅 프로토콜이다.
+
+---
+
+## RIP 동작 방식
+
+RIP는:
+
+&gt; 목적지까지 몇 번 거치는가?
+
+를 기준으로 계산한다.
+
+이걸:
+
+```plaintext id=&quot;w9ibx8&quot;
+Hop Count
+</code></pre>
+<p>라고 한다.</p>
+<p>예:</p>
+<p>```plaintext id=&rdquo;0n0t8o&rdquo;
+A → B → C</p>
+<pre><code>
+이면 Hop 수는 2다.
+
+---
+
+# 6. RIP는 거리 벡터 방식
+
+RIP는:
+
+```plaintext id=&quot;d1fgdc&quot;
+Distance Vector
+</code></pre>
+<p>방식을 사용한다.</p>
+<p>뜻은:</p>
+<p>```plaintext id=&rdquo;pd87xk&rdquo;
+거리(Distance) + 방향(Vector)</p>
+<pre><code>
+즉:
+
+```plaintext id=&quot;fkwzlx&quot;
+“어디까지 몇 칸이고 어느 방향이야”
+</code></pre>
+<p>만 이웃 라우터끼리 주고받는다.</p>
+<hr>
+<h1>7. RIP 특징</h1>
+<p>장점:</p>
+<ul>
+<li>설정 쉬움</li>
+<li>가벼움</li>
+</ul>
+<p>단점:</p>
+<ul>
+<li>느림</li>
+<li>최대 15 Hop 제한</li>
+<li>대규모 네트워크 부적합</li>
+</ul>
+<p>그래서 요즘 실무에서는 거의 잘 안 쓴다.</p>
+<hr>
+<h1>8. OSPF란?</h1>
+<p>OSPF는:</p>
+<p>```plaintext id=&rdquo;u2z5o0&rdquo;
+Open Shortest Path First</p>
+<pre><code>
+이다.
+
+현대 네트워크에서 매우 많이 사용된다.
+
+---
+
+# 9. OSPF는 링크 상태 방식
+
+OSPF는:
+
+```plaintext id=&quot;8pljtt&quot;
+Link State
+</code></pre>
+<p>방식을 사용한다.</p>
+<p>RIP와 다르게:</p>
+<p>```plaintext id=&rdquo;czefk0&rdquo;
+네트워크 전체 구조를 이해함</p>
+<pre><code>
+---
+
+# 10. OSPF 동작 원리
+
+각 라우터가:
+
+```plaintext id=&quot;74eb0o&quot;
+“나는 누구랑 연결되어 있어”
+</code></pre>
+<p>를 전부 공유한다.</p>
+<p>그러면 전체 네트워크 지도가 만들어진다.</p>
+<p>그리고:</p>
+<p>```plaintext id=&rdquo;e6bxvq&rdquo;
+최단 경로 계산</p>
+<pre><code>
+을 수행한다.
+
+이때 사용하는 게:
+
+```plaintext id=&quot;klzvvy&quot;
+Dijkstra 알고리즘
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>11. OSPF 특징</h1>
+<p>장점:</p>
+<ul>
+<li>빠름</li>
+<li>장애 대응 좋음</li>
+<li>대규모 가능</li>
+</ul>
+<p>단점:</p>
+<ul>
+<li>설정 복잡</li>
+<li>메모리/CPU 사용량 증가</li>
+</ul>
+<p>실무에서:</p>
+<ul>
+<li>기업망</li>
+<li>IDC</li>
+<li>클라우드</li>
+<li>대형 네트워크</li>
+</ul>
+<p>에서 매우 많이 사용된다.</p>
+<hr>
+<h1>12. BGP란?</h1>
+<p>BGP는:</p>
+<p>```plaintext id=&rdquo;t7b6u8&rdquo;
+Border Gateway Protocol</p>
+<pre><code>
+이다.
+
+인터넷의 핵심 프로토콜이다.
+
+---
+
+# 13. BGP는 왜 필요할까?
+
+인터넷은:
+
+```plaintext id=&quot;c4is6o&quot;
+수많은 회사/통신사/클라우드
+</code></pre>
+<p>가 연결된 구조다.</p>
+<p>예:</p>
+<p>```plaintext id=&rdquo;6d8q4f&rdquo;
+AWS
+Google
+KT
+SKT
+Cloudflare</p>
+<pre><code>
+이 서로 연결된다.
+
+이 조직들은 각각:
+
+```plaintext id=&quot;ot6vgk&quot;
+AS(Autonomous System)
+</code></pre>
+<p>라는 독립 네트워크를 가진다.</p>
+<p>BGP는:</p>
+<blockquote>
+<p>AS와 AS 사이를 연결</p>
+</blockquote>
+<p>한다.</p>
+<hr>
+<h1>14. BGP는 경로 벡터 방식</h1>
+<p>BGP는:</p>
+<p>```plaintext id=&rdquo;xk6i53&rdquo;
+Path Vector</p>
+<pre><code>
+방식이다.
+
+즉:
+
+```plaintext id=&quot;rq2p9s&quot;
+“어떤 경로를 거쳐왔는지”
+</code></pre>
+<p>를 저장한다.</p>
+<p>예:</p>
+<p>```plaintext id=&rdquo;gvjlwm&rdquo;
+KT → AWS → Google</p>
+<pre><code>
+이런 경로 자체를 본다.
+
+---
+
+# 15. BGP 특징
+
+장점:
+
+* 인터넷 규모 가능
+* 정책 기반 제어 가능
+* 매우 유연
+
+단점:
+
+* 설정 어려움
+* 복잡함
+* 느릴 수 있음
+
+하지만:
+
+```plaintext id=&quot;s2gjm5&quot;
+인터넷 자체가 BGP 위에서 동작
+</code></pre>
+<p>한다고 봐도 된다.</p>
+<hr>
+<h1>16. 거리 벡터 vs 링크 상태 vs 경로 벡터</h1>
+<hr>
+<h2>1) 거리 벡터</h2>
+<p>대표:</p>
+<ul>
+<li>RIP</li>
+</ul>
+<p>방식:</p>
+<p>```plaintext id=&rdquo;jlwm4n&rdquo;
+“목적지까지 몇 칸”</p>
+<pre><code>
+특징:
+
+* 단순
+* 느림
+
+---
+
+## 2) 링크 상태
+
+대표:
+
+* OSPF
+
+방식:
+
+```plaintext id=&quot;gzh3s6&quot;
+네트워크 전체 지도 생성
+</code></pre>
+<p>특징:</p>
+<ul>
+<li>빠름</li>
+<li>정확함</li>
+</ul>
+<hr>
+<h2>3) 경로 벡터</h2>
+<p>대표:</p>
+<ul>
+<li>BGP</li>
+</ul>
+<p>방식:</p>
+<p>```plaintext id=&rdquo;rdr4az&rdquo;
+어떤 AS를 거쳤는지 추적</p>
+<pre><code>
+특징:
+
+* 인터넷 규모
+* 정책 제어 가능
+
+---
+
+# 17. 쉽게 비유하면
+
+---
+
+## RIP
+
+```plaintext id=&quot;c2e3n0&quot;
+“몇 정거장 남았어?”
+</code></pre>
+<hr>
+<h2>OSPF</h2>
+<p>```plaintext id=&rdquo;u2ahh8&rdquo;
+“전체 지도 보고 최단경로 계산”</p>
+<pre><code>
+---
+
+## BGP
+
+```plaintext id=&quot;chpuxz&quot;
+“어느 나라들을 거쳐가는가?”
+</code></pre>
+<hr>
+<h1>18. 실무에서는?</h1>
+<p>실제로는:</p>
+<ul>
+<li>RIP → 거의 안 씀</li>
+<li>OSPF → 기업 내부망</li>
+<li>BGP → 인터넷/대규모 ISP/클라우드</li>
+</ul>
+<p>느낌이다.</p>
+<p>특히 클라우드/DevOps 공부하다 보면:</p>
+<ul>
+<li>AWS Direct Connect</li>
+<li>VPN</li>
+<li>Transit Gateway</li>
+<li>Kubernetes CNI</li>
+<li>IDC 네트워크</li>
+</ul>
+<p>이런 데서 BGP/OSPF 개념이 계속 등장한다.</p>
+<hr>
+<h1>19. 한줄 요약</h1>
+<p><code>plaintext id="vqpss7"
+RIP  = 단순 거리 계산
+OSPF = 전체 지도 기반 최단경로
+BGP  = 인터넷 규모의 경로 관리</code></p>
+<p>그리고 인터넷은 결국:</p>
+<blockquote>
+<p>수많은 라우터들이 서로 길을 알려주며 움직이는 거대한 네트워크 시스템</p>
+</blockquote>
+<p>이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Network]-라우팅이란-뭘까-Router-Routing-Table-Gateway까지-한번에-이해하기.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[NETWORK] 라우팅이란 뭘까? Router, Routing Table, Gateway까지 한번에 이해하기</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Network]-Subnet과-CIDR.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[NETWORK] Subnet과 CIDR</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

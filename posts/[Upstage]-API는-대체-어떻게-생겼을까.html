@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Upstage] API는 대체 어떻게 생겼을까 | Greenapple0101</title>
+  <meta name="description" content="맞아. API 문서 는 “이 API를 어떻게 호출해야 하는지 적어둔 사용 설명서”야. 코드로 비유하면, API 자체가 자판기라면 API 문서는 이런 안내문임. 개발식으로 바꾸면 API 문서에는 보통 이게 적혀 있어. 예를 들어 OCR API 문서는 이런 식으로 생길 수 있어. 이건 “…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/upstage.html">Upstage</a>
+    </nav>
+    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
+    <h1>[Upstage] API는 대체 어떻게 생겼을까</h1>
+    <div class="post-meta">
+      
+      
+    </div>
+  </header>
+  <article class="post-content">
+<p>맞아. <strong>API 문서</strong>는 “이 API를 어떻게 호출해야 하는지 적어둔 사용 설명서”야.</p>
+<p>코드로 비유하면, API 자체가 자판기라면 API 문서는 이런 안내문임.</p>
+<pre><code class="language-text">1. 돈은 어디에 넣는지
+2. 어떤 버튼을 눌러야 하는지
+3. 어떤 음료가 나오는지
+4. 잘못 누르면 어떤 에러가 나는지
+</code></pre>
+<p>개발식으로 바꾸면 API 문서에는 보통 이게 적혀 있어.</p>
+<pre><code class="language-text">1. Method
+2. URL / Endpoint
+3. Headers
+4. Request Parameters
+5. Request Body
+6. Response Body
+7. Status Code
+8. Error Code
+9. Example
+</code></pre>
+<p>예를 들어 OCR API 문서는 이런 식으로 생길 수 있어.</p>
+<pre><code class="language-text">POST /ocr
+</code></pre>
+<p>이건 “OCR 처리를 요청하는 API”라는 뜻.</p>
+<p>요청 예시는 이렇게 나옴.</p>
+<pre><code class="language-http">POST /ocr HTTP/1.1
+Host: api.example.com
+Authorization: Bearer {API_KEY}
+Content-Type: multipart/form-data
+</code></pre>
+<pre><code class="language-text">file: document.png
+language: ko
+</code></pre>
+<p>응답 예시는 이렇게 나올 수 있음.</p>
+<pre><code class="language-json">{
+  &quot;documentId&quot;: &quot;doc_123&quot;,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;pages&quot;: [
+    {
+      &quot;page&quot;: 1,
+      &quot;text&quot;: &quot;이름: 홍길동\n생년월일: 2000.01.01&quot;,
+      &quot;words&quot;: [
+        {
+          &quot;text&quot;: &quot;홍길동&quot;,
+          &quot;confidence&quot;: 0.98,
+          &quot;boundingBox&quot;: {
+            &quot;x&quot;: 120,
+            &quot;y&quot;: 80,
+            &quot;width&quot;: 70,
+            &quot;height&quot;: 24
+          }
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<p>이걸 읽는 법은 이렇게 보면 돼.</p>
+<pre><code class="language-text">POST /ocr
+→ /ocr 주소로 POST 요청을 보내야 하는구나
+
+Authorization: Bearer {API_KEY}
+→ API Key가 필요하구나
+
+Content-Type: multipart/form-data
+→ JSON만 보내는 게 아니라 파일을 업로드하는 방식이구나
+
+file: document.png
+→ 문서 이미지나 PDF 파일을 보내야 하는구나
+
+response의 pages
+→ 여러 페이지짜리 PDF도 처리할 수 있구나
+
+text
+→ OCR로 인식된 전체 텍스트구나
+
+confidence
+→ 인식 신뢰도구나
+
+boundingBox
+→ 원본 이미지에서 글자가 있던 위치구나
+</code></pre>
+<p>즉 API 문서는 “이 API를 쓰려면 이렇게 보내고, 이렇게 받는다”를 알려주는 문서야.</p>
+<p>면접에서는 이렇게 말하면 좋음.</p>
+<blockquote>
+<p>API 문서는 특정 API를 어떻게 호출해야 하는지 설명하는 사용 설명서라고 이해하고 있습니다. 보통 HTTP Method, Endpoint, Header, Request Body, Response Body, Status Code, Error Code, 예시 요청과 응답이 포함됩니다. 예를 들어 OCR API 문서라면 어떤 URL로 파일을 보내야 하는지, 인증 방식은 무엇인지, 파일 형식은 어떤 것을 지원하는지, 응답 JSON에는 인식된 텍스트·좌표·confidence score가 어떻게 들어오는지 확인하게 됩니다. 운영 관점에서는 API 문서를 보고 timeout, rate limit, error code, retry 가능 여부, 요청/응답 크기 제한도 같이 확인해야 한다고 생각합니다.</p>
+</blockquote>
+<p>API 문서 볼 때 핵심은 이거야.</p>
+<pre><code class="language-text">이 API를 호출하려면 뭘 보내야 하지?
+성공하면 뭐가 오지?
+실패하면 뭐가 오지?
+운영할 때 조심할 조건은 뭐지?
+</code></pre>
+<p>그리고 DevOps 입장에서는 특히 아래를 봐야 함.</p>
+<pre><code class="language-text">인증 방식
+요청 제한
+파일 크기 제한
+timeout
+에러 코드
+재시도 정책
+동기/비동기 처리 여부
+응답 지연 시간
+로그에 남기면 안 되는 값
+</code></pre>
+<p>그냥 개발자 입장에서는 “어떻게 호출하지?”를 보면 되고,
+DevOps 입장에서는 “이걸 운영에서 안정적으로 붙이려면 어디서 터질 수 있지?”까지 보면 돼.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Upstage]-Solar-LLM-API-문서는-어떻게-생겼을까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Upstage] Solar LLM API 문서는 어떻게 생겼을까</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Upstage]-AI-API-모니터링은-어떻게-해야-할까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Upstage] AI API 모니터링은 어떻게 해야 할까</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] 웹서버랑 웹앱서버 차이 | Greenapple0101</title>
+  <meta name="description" content="웹서버랑 웹앱서버 차이는 한 줄로 이렇게 잡으면 돼. 1. 웹서버란? 웹서버는 클라이언트의 HTTP 요청을 받는 서버다. 대표적으로: 가 있다. 웹서버는 주로 이런 일을 한다. 예를 들어 브라우저가 이런 요청을 보냈다고 해보자. 그러면 Nginx는 서버에 있는 index.html 파일…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[SPRING] 웹서버랑 웹앱서버 차이</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-14T04:00:26.898Z">2026.05.14</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-웹서버랑-웹앱서버-차이" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>웹서버랑 웹앱서버 차이는 한 줄로 이렇게 잡으면 돼.</p>
+<pre><code class="language-text">웹서버, Nginx
+= 요청을 받아서 정적 파일을 주거나, 뒤쪽 서버로 넘겨주는 서버
+
+웹앱서버, Tomcat
+= Java/Spring 애플리케이션 코드를 실행해서 동적인 응답을 만들어주는 서버
+</code></pre>
+<h1>1. 웹서버란?</h1>
+<p>웹서버는 클라이언트의 HTTP 요청을 받는 서버다.</p>
+<p>대표적으로:</p>
+<pre><code class="language-text">Nginx
+Apache HTTP Server
+</code></pre>
+<p>가 있다.</p>
+<p>웹서버는 주로 이런 일을 한다.</p>
+<pre><code class="language-text">HTML 파일 응답
+CSS 파일 응답
+JavaScript 파일 응답
+이미지 응답
+동영상 응답
+요청을 다른 서버로 전달
+HTTPS 처리
+로드밸런싱
+</code></pre>
+<p>예를 들어 브라우저가 이런 요청을 보냈다고 해보자.</p>
+<pre><code class="language-http">GET /index.html
+</code></pre>
+<p>그러면 Nginx는 서버에 있는 <code>index.html</code> 파일을 찾아서 그대로 응답할 수 있다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+Nginx
+  ↓
+index.html 응답
+</code></pre>
+<p>이런 걸 <strong>정적 파일 제공</strong>이라고 한다.</p>
+<p>정적 파일은 이미 만들어져 있는 파일이다.</p>
+<pre><code class="language-text">index.html
+style.css
+main.js
+logo.png
+</code></pre>
+<p>즉, 웹서버는 이미 존재하는 파일을 빠르게 전달하는 데 강하다.</p>
+<hr>
+<h1>2. 웹앱서버란?</h1>
+<p>웹앱서버는 말 그대로 <strong>웹 애플리케이션을 실행하는 서버</strong>다.</p>
+<p>대표적으로 Java 진영에서는:</p>
+<pre><code class="language-text">Tomcat
+Jetty
+WildFly
+</code></pre>
+<p>같은 것들이 있다.</p>
+<p>Spring Boot를 실행하면 보통 내부적으로 Tomcat이 같이 뜬다.</p>
+<p>로그에서 이런 걸 본 적 있을 거야.</p>
+<pre><code class="language-text">Tomcat started on port 8080
+</code></pre>
+<p>이 말은:</p>
+<pre><code class="language-text">Spring Boot 애플리케이션 안에 내장 Tomcat이 실행됐고,
+8080 포트에서 요청을 받을 준비가 됐다
+</code></pre>
+<p>는 뜻이다.</p>
+<hr>
+<h1>3. Tomcat은 뭘 하냐?</h1>
+<p>Tomcat은 Java 웹 애플리케이션을 실행한다.</p>
+<p>예를 들어 Spring Controller에 이런 코드가 있다고 해보자.</p>
+<pre><code class="language-java">@GetMapping(&quot;/hello&quot;)
+public String hello() {
+    return &quot;hello&quot;;
+}
+</code></pre>
+<p>브라우저가 <code>/hello</code>로 요청을 보내면 단순 파일을 주는 게 아니라, Java 코드가 실행된다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+Tomcat
+  ↓
+Spring Controller 실행
+  ↓
+&quot;hello&quot; 응답 생성
+</code></pre>
+<p>즉, Tomcat은 이런 동적인 처리를 담당한다.</p>
+<pre><code class="language-text">DB 조회
+로그인 처리
+회원가입 처리
+게시글 작성
+주문 생성
+API 응답 생성
+</code></pre>
+<p>예를 들어 게시글 목록을 요청한다고 해보자.</p>
+<pre><code class="language-http">GET /boards
+</code></pre>
+<p>이 요청은 단순히 <code>/boards.html</code> 파일을 주는 게 아닐 수 있다.</p>
+<p>Spring Boot는 DB에서 게시글 목록을 조회하고, 그 결과를 JSON이나 HTML로 만들어서 응답한다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+Tomcat
+  ↓
+Spring Controller
+  ↓
+Service
+  ↓
+Repository
+  ↓
+DB
+  ↓
+응답 생성
+</code></pre>
+<p>이런 게 <strong>동적 응답</strong>이다.</p>
+<hr>
+<h1>4. 정적 응답과 동적 응답 차이</h1>
+<h2>정적 응답</h2>
+<p>이미 만들어진 파일을 그대로 주는 것.</p>
+<pre><code class="language-text">HTML
+CSS
+JS
+이미지
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-text">사용자 요청: /logo.png
+서버 응답: logo.png 파일 그대로 반환
+</code></pre>
+<p>이런 건 Nginx가 잘한다.</p>
+<hr>
+<h2>동적 응답</h2>
+<p>요청이 들어올 때마다 서버 코드가 실행되어 결과가 달라질 수 있는 것.</p>
+<p>예시:</p>
+<pre><code class="language-text">사용자 요청: /my-page
+서버 처리:
+  1. 로그인한 사용자 확인
+  2. DB에서 사용자 정보 조회
+  3. 주문 내역 조회
+  4. 화면 또는 JSON 생성
+</code></pre>
+<p>이런 건 Tomcat 같은 웹앱서버가 담당한다.</p>
+<hr>
+<h1>5. Nginx와 Tomcat 차이 표</h1>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>Nginx</th>
+<th>Tomcat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>종류</td>
+<td>웹서버</td>
+<td>웹 애플리케이션 서버</td>
+</tr>
+<tr>
+<td>주 역할</td>
+<td>정적 파일 제공, 프록시, 로드밸런싱</td>
+<td>Java/Spring 애플리케이션 실행</td>
+</tr>
+<tr>
+<td>잘하는 일</td>
+<td>빠른 파일 응답, 요청 분배</td>
+<td>비즈니스 로직 실행</td>
+</tr>
+<tr>
+<td>대표 포트</td>
+<td>80, 443</td>
+<td>8080</td>
+</tr>
+<tr>
+<td>동적 처리</td>
+<td>직접 비즈니스 로직 처리하지 않음</td>
+<td>Controller, Service, DB 로직 실행</td>
+</tr>
+<tr>
+<td>Spring과 관계</td>
+<td>보통 앞단에 둠</td>
+<td>Spring Boot 안에 내장되는 경우 많음</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>6. 실무에서는 둘을 같이 쓴다</h1>
+<p>Spring Boot 앱은 Tomcat만 있어도 실행된다.</p>
+<pre><code class="language-bash">java -jar app.jar
+</code></pre>
+<p>그러면 내장 Tomcat이 실행되고, 보통 8080 포트에서 요청을 받는다.</p>
+<pre><code class="language-text">브라우저
+  ↓
+Spring Boot 내장 Tomcat
+  ↓
+Controller
+</code></pre>
+<p>그런데 운영 환경에서는 앞에 Nginx를 두는 경우가 많다.</p>
+<pre><code class="language-text">사용자
+  ↓
+Nginx
+  ↓
+Spring Boot / Tomcat
+  ↓
+DB
+</code></pre>
+<p>왜 굳이 Nginx를 앞에 둘까?</p>
+<hr>
+<h1>7. Nginx를 앞에 두는 이유</h1>
+<h2>1. 80, 443 포트를 받기 좋음</h2>
+<p>사용자는 보통 이렇게 접속한다.</p>
+<pre><code class="language-text">https://example.com
+</code></pre>
+<p>이때 기본 포트는 443이다.</p>
+<p>Nginx가 443 포트로 요청을 받고, 내부의 Spring Boot 8080 포트로 넘긴다.</p>
+<pre><code class="language-text">사용자
+  ↓
+https://example.com:443
+  ↓
+Nginx
+  ↓
+localhost:8080
+  ↓
+Spring Boot
+</code></pre>
+<p>사용자는 8080을 몰라도 된다.</p>
+<hr>
+<h2>2. HTTPS 인증서 처리를 맡길 수 있음</h2>
+<p>HTTPS를 쓰려면 인증서 설정이 필요하다.</p>
+<p>이걸 Spring Boot에 직접 넣을 수도 있지만, 운영에서는 Nginx에서 처리하는 경우가 많다.</p>
+<pre><code class="language-text">사용자 HTTPS 요청
+  ↓
+Nginx에서 SSL/TLS 처리
+  ↓
+Spring Boot에는 HTTP로 전달
+</code></pre>
+<p>이걸 SSL termination이라고도 한다.</p>
+<hr>
+<h2>3. 정적 파일을 빠르게 줄 수 있음</h2>
+<p>이미지, CSS, JS 같은 파일은 Spring Boot까지 보내지 않고 Nginx가 바로 줄 수 있다.</p>
+<pre><code class="language-text">/static/logo.png 요청
+  ↓
+Nginx가 바로 응답
+</code></pre>
+<p>그러면 Spring Boot는 API 처리 같은 핵심 로직에 집중할 수 있다.</p>
+<hr>
+<h2>4. 로드밸런싱 가능</h2>
+<p>Spring Boot 서버를 여러 개 띄워두고 Nginx가 요청을 나눠줄 수 있다.</p>
+<pre><code class="language-text">사용자
+  ↓
+Nginx
+  ├── Spring Boot 1
+  ├── Spring Boot 2
+  └── Spring Boot 3
+</code></pre>
+<p>이렇게 하면 한 서버에만 트래픽이 몰리지 않는다.</p>
+<hr>
+<h2>5. 리버스 프록시 역할</h2>
+<p>Nginx는 앞단에서 요청을 받아서 뒤쪽 서버로 전달한다.</p>
+<pre><code class="language-text">/api 요청 → Spring Boot로 전달
+/images 요청 → Nginx가 직접 응답
+/admin 요청 → 다른 서버로 전달
+</code></pre>
+<p>이런 식으로 경로에 따라 요청을 나눌 수 있다.</p>
+<hr>
+<h1>8. 요청 흐름으로 이해하기</h1>
+<h2>Nginx만 있는 경우</h2>
+<pre><code class="language-text">브라우저
+  ↓
+Nginx
+  ↓
+HTML, CSS, JS, 이미지 응답
+</code></pre>
+<p>정적 웹사이트라면 이걸로 충분할 수 있다.</p>
+<p>예를 들어 회사 소개 페이지, 랜딩 페이지, 정적 블로그 같은 것.</p>
+<hr>
+<h2>Tomcat만 있는 경우</h2>
+<pre><code class="language-text">브라우저
+  ↓
+Spring Boot 내장 Tomcat
+  ↓
+Controller 실행
+  ↓
+응답 생성
+</code></pre>
+<p>개발 환경에서는 이 구조가 흔하다.</p>
+<pre><code class="language-bash">./mvnw spring-boot:run
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">java -jar app.jar
+</code></pre>
+<p>이렇게 실행하면 Tomcat이 같이 뜬다.</p>
+<hr>
+<h2>Nginx + Tomcat 같이 쓰는 경우</h2>
+<pre><code class="language-text">브라우저
+  ↓
+Nginx
+  ↓
+Spring Boot 내장 Tomcat
+  ↓
+Controller / Service / DB
+</code></pre>
+<p>운영 환경에서 흔한 구조다.</p>
+<p>조금 더 자세히 보면:</p>
+<pre><code class="language-text">1. 사용자가 https://example.com/boards 접속
+2. Nginx가 443 포트에서 요청 받음
+3. Nginx가 내부의 Spring Boot 8080 포트로 전달
+4. Tomcat이 요청을 Spring Controller로 넘김
+5. Controller가 Service, Repository, DB를 거쳐 응답 생성
+6. 응답이 다시 Tomcat → Nginx → 사용자에게 전달
+</code></pre>
+<hr>
+<h1>9. 아주 쉽게 비유하면</h1>
+<pre><code class="language-text">Nginx
+= 건물 1층 안내 데스크
+
+Tomcat
+= 안쪽 사무실에서 실제 업무 처리하는 직원
+</code></pre>
+<p>사용자가 건물에 들어오면 먼저 안내 데스크를 만난다.</p>
+<p>안내 데스크는 이렇게 판단한다.</p>
+<pre><code class="language-text">이건 바로 줄 수 있는 안내문이네 → 바로 줌
+이건 담당자가 처리해야 하네 → 안쪽 사무실로 넘김
+</code></pre>
+<p>여기서 안내 데스크가 Nginx고, 실제 업무 처리자가 Tomcat이다.</p>
+<hr>
+<h1>10. 핵심 정리</h1>
+<pre><code class="language-text">웹서버, Nginx
+= HTTP 요청을 받아 정적 파일을 응답하거나,
+  뒤쪽 애플리케이션 서버로 요청을 전달하는 서버
+
+웹앱서버, Tomcat
+= Java/Spring 애플리케이션을 실행하고,
+  요청에 따라 동적인 응답을 만들어내는 서버
+</code></pre>
+<p>최종적으로 이렇게 기억하면 된다.</p>
+<pre><code class="language-text">Nginx는 앞단에서 요청을 받고 나눠주는 서버
+
+Tomcat은 뒤쪽에서 Java/Spring 코드를 실행하는 서버
+</code></pre>
+<p>Spring Boot 기준으로는:</p>
+<pre><code class="language-text">Spring Boot 앱 실행
+= 내장 Tomcat이 떠서 8080 포트에서 요청을 받음
+
+운영 환경 배포
+= 보통 Nginx가 80/443 포트에서 요청을 받고
+  Spring Boot 8080으로 프록시함
+</code></pre>
+<p>그래서 둘은 경쟁 관계라기보다 역할이 다르다.</p>
+<pre><code class="language-text">Nginx
+= 문지기, 프록시, 정적 파일 담당
+
+Tomcat
+= Java 웹 애플리케이션 실행 담당
+</code></pre>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Spring]-Spring-AI는-어떻게-Spring-Boot에-붙는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] Spring AI는 어떻게 Spring Boot에 붙는 걸까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Spring]-ddl-auto-validate에서-테이블이-없으면-왜-부팅이-실패할까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] ddl-auto: validate에서 테이블이 없으면 왜 부팅이 실패할까?</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
