@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Velog markdown → GitHub Pages static site builder."""
+"""Markdown → GitHub Pages static site builder."""
 
 from __future__ import annotations
 
@@ -293,7 +293,7 @@ INDEX_HTML = """<!DOCTYPE html>
     <p class="small-title">Greenapple0101</p>
     <h1>Dev Blog Archive</h1>
     <p class="description">
-      Velog에서 백업한 학습 기록 {count}편 — 주제 폴더를 선택해 글을 찾아보세요.
+      학습 기록 {count}편 — 주제 폴더를 선택해 글을 찾아보세요.
     </p>
     <div class="stats">
       <span class="stat"><strong>{count}</strong> posts</span>
@@ -309,7 +309,7 @@ INDEX_HTML = """<!DOCTYPE html>
   </main>
 
   <footer>
-    <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Velog backup archive</p>
+    <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Dev Blog</p>
   </footer>
 </body>
 </html>
@@ -346,7 +346,7 @@ TOPIC_HTML = """<!DOCTYPE html>
   </main>
 
   <footer>
-    <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Velog backup archive</p>
+    <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Dev Blog</p>
   </footer>
   <script src="../topic.js"></script>
 </body>
@@ -450,8 +450,6 @@ def build_post(
     tag_color = category_color(category)
     topic_meta = TOPIC_BY_ID[topic_id]
     published = meta.get("published", "")
-    source = meta.get("source", "")
-
     MD.reset()
     content_html = MD.convert(body)
 
@@ -460,10 +458,6 @@ def build_post(
         date_html = f'<time datetime="{html.escape(published)}">{format_date(published)}</time>'
 
     source_html = ""
-    if source:
-        source_html = (
-            f'<a class="velog-link" href="{html.escape(source)}" target="_blank" rel="noopener">Velog 원문</a>'
-        )
 
     description = html.escape(excerpt(body, 160))
     page = POST_HTML.format(

@@ -1,6 +1,6 @@
 # Greenapple0101.github.io
 
-Velog 백업 글을 GitHub Pages로 보여주는 정적 블로그입니다.
+개발 학습 기록을 GitHub Pages로 보여주는 정적 블로그입니다.
 
 - 사이트: https://greenapple0101.github.io/
 - 원본 글: `../git-pages/` (마크다운 원본)
