@@ -1,0 +1,695 @@
+---
+title: "[Kubernetes] kube-proxy란? Service 트래픽을 Pod로 보내주는 네트워크 관리자"
+source: "https://velog.io/@yorange50/Kubernetes-kube-proxy란-Service-트래픽을-Pod로-보내주는-네트워크-관리자"
+published: "2026-05-29T00:11:56.412Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.701980"
+---
+
+쿠버네티스에서 Service를 공부하다 보면 이런 말을 자주 듣는다.
+
+> Service는 Pod 앞에 고정된 IP를 만들어준다.
+> 클라이언트는 Pod IP를 몰라도 Service IP로 접근하면 된다.
+
+처음에는 이렇게 이해하면 된다.
+
+```text
+Client
+  ↓
+Service
+  ↓
+Pod
+```
+
+그런데 여기서 질문이 생긴다.
+
+“Service는 그냥 추상적인 객체라며?”
+“그럼 Service IP로 들어온 요청은 실제 Pod IP로 누가 보내주는 거지?”
+“Service가 진짜 서버처럼 트래픽을 받아서 넘겨주는 건가?”
+
+이때 등장하는 컴포넌트가 바로 **kube-proxy**다.
+
+---
+
+## 1. kube-proxy를 한 줄로 말하면
+
+kube-proxy는 쿠버네티스의 **Service 트래픽이 실제 Pod로 갈 수 있도록 네트워크 규칙을 만들어주는 컴포넌트**다.
+
+쉽게 말하면 이렇다.
+
+```text
+kube-proxy
+= Service IP로 들어온 요청을 실제 Pod IP로 보내기 위한 네트워크 규칙 관리자
+```
+
+쿠버네티스에서 Service는 안정적인 접근 주소를 제공한다.
+
+예를 들어 이런 Service가 있다고 하자.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+```
+
+그리고 뒤에 Pod가 3개 있다고 하자.
+
+```text
+nginx-pod-1 → 10.42.0.11
+nginx-pod-2 → 10.42.0.12
+nginx-pod-3 → 10.42.0.13
+```
+
+Service는 ClusterIP를 가진다.
+
+```text
+nginx-service → 10.43.100.50
+```
+
+클라이언트는 Pod IP를 몰라도 된다.
+
+```bash
+curl http://10.43.100.50
+```
+
+또는 DNS를 통해 이렇게 접근할 수도 있다.
+
+```bash
+curl http://nginx-service
+```
+
+그러면 요청은 결국 실제 Pod 중 하나로 가야 한다.
+
+```text
+Service IP: 10.43.100.50
+        ↓
+Pod IP: 10.42.0.11
+또는
+Pod IP: 10.42.0.12
+또는
+Pod IP: 10.42.0.13
+```
+
+이 연결이 가능하도록 각 노드에 네트워크 규칙을 만들어주는 것이 kube-proxy다.
+
+---
+
+## 2. kube-proxy는 어디에서 실행될까?
+
+kube-proxy는 보통 **각 노드마다 하나씩 실행**된다.
+
+대부분 DaemonSet 형태로 배포된다.
+
+확인해보면 보통 `kube-system` 네임스페이스에 있다.
+
+```bash
+kubectl get pod -n kube-system | grep kube-proxy
+```
+
+예시는 이런 식이다.
+
+```text
+kube-proxy-abcde   1/1   Running   worker-1
+kube-proxy-fghij   1/1   Running   worker-2
+kube-proxy-klmno   1/1   Running   worker-3
+```
+
+즉 kube-proxy는 중앙에 하나만 있는 게 아니다.
+
+각 노드에서 자기 노드의 네트워크 규칙을 관리한다.
+
+```text
+Node A → kube-proxy
+Node B → kube-proxy
+Node C → kube-proxy
+```
+
+그래서 kube-proxy는 DaemonSet과도 연결해서 이해하면 좋다.
+
+> 노드마다 네트워크 규칙을 관리해야 하니까, 각 노드마다 하나씩 떠 있는 구조
+
+라고 보면 된다.
+
+---
+
+## 3. kube-proxy가 필요한 이유
+
+쿠버네티스에서 Pod는 계속 바뀔 수 있다.
+
+Pod가 죽고 다시 만들어지면 IP도 바뀐다.
+
+```text
+기존 Pod IP: 10.42.0.11
+새 Pod IP: 10.42.1.25
+```
+
+그런데 클라이언트가 매번 Pod IP를 직접 알고 접근하면 너무 불안정하다.
+
+그래서 Service를 만든다.
+
+```text
+Service IP는 고정
+Pod IP는 바뀔 수 있음
+```
+
+문제는 여기서 끝이 아니다.
+
+Service IP로 들어온 요청을 실제 Pod IP로 보내려면 누군가가 계속 최신 상태를 알고 있어야 한다.
+
+```text
+현재 이 Service 뒤에 어떤 Pod들이 있는지
+각 Pod의 IP가 무엇인지
+어떤 Pod가 Ready 상태인지
+어떤 Pod는 제외해야 하는지
+```
+
+kube-proxy는 API Server를 통해 Service와 Endpoint 정보를 보고, 그에 맞는 네트워크 규칙을 노드에 설정한다.
+
+```text
+API Server
+   ↓
+Service / Endpoint 정보 확인
+   ↓
+kube-proxy
+   ↓
+iptables 또는 IPVS 규칙 생성
+   ↓
+Service IP 요청을 Pod IP로 전달
+```
+
+즉 kube-proxy는 Service와 Pod 사이를 이어주는 네트워크 관리자다.
+
+---
+
+## 4. 전체 흐름으로 보면
+
+예를 들어 클라이언트가 Service로 요청을 보낸다고 하자.
+
+```bash
+curl http://nginx-service
+```
+
+DNS를 통해 `nginx-service`는 Service의 ClusterIP로 해석된다.
+
+```text
+nginx-service
+   ↓
+10.43.100.50
+```
+
+그다음 요청은 Service IP로 향한다.
+
+```text
+Client Pod
+   ↓
+Service IP: 10.43.100.50
+```
+
+이때 노드에 설정된 네트워크 규칙이 동작한다.
+
+```text
+Service IP로 들어온 요청
+   ↓
+kube-proxy가 만들어둔 iptables/IPVS 규칙
+   ↓
+실제 Pod IP 중 하나로 전달
+   ↓
+nginx Pod
+```
+
+중요한 점은 kube-proxy가 매 요청마다 직접 프록시 서버처럼 받아서 넘기는 구조만 있는 게 아니라는 것이다.
+
+현재 많이 쓰이는 방식에서는 kube-proxy가 **규칙을 만들어두고**, 실제 패킷 처리는 커널의 iptables나 IPVS가 담당한다.
+
+---
+
+## 5. kube-proxy mode란?
+
+kube-proxy에는 동작 방식이 여러 가지 있다.
+
+대표적으로 다음 세 가지가 있다.
+
+```text
+userspace
+iptables
+IPVS
+```
+
+각 모드는 Service 트래픽을 Pod로 보내는 방식이 다르다.
+
+---
+
+## 6. userspace mode
+
+userspace mode는 쿠버네티스 초기에 사용되던 방식이다.
+
+흐름은 대략 이렇다.
+
+```text
+Client 요청
+   ↓
+iptables
+   ↓
+kube-proxy 프로세스
+   ↓
+Pod로 전달
+```
+
+즉 클라이언트의 Service 요청을 kube-proxy 프로세스가 직접 받아서 적절한 Pod로 연결해주는 방식이다.
+
+쉽게 말하면 kube-proxy가 진짜 프록시처럼 중간에서 트래픽을 받아 넘겨준다.
+
+```text
+클라이언트
+   ↓
+kube-proxy
+   ↓
+Pod
+```
+
+하지만 이 방식은 성능상 불리하다.
+
+패킷이 커널에서 바로 처리되는 것이 아니라 사용자 공간의 kube-proxy 프로세스를 거치기 때문이다.
+
+그래서 쿠버네티스 초기 버전에서 잠깐 사용되었고, 이후에는 거의 사용하지 않는 방식으로 보면 된다.
+
+---
+
+## 7. iptables mode
+
+iptables mode는 오랫동안 기본적으로 많이 사용된 방식이다.
+
+iptables는 리눅스 커널의 패킷 필터링 및 NAT 규칙을 다루는 도구다.
+
+kube-proxy는 Service가 생성되거나 변경될 때 iptables rule을 만든다.
+
+```text
+Service 생성
+   ↓
+kube-proxy가 API Server에서 Service 정보 확인
+   ↓
+Service에 연결된 Endpoint 확인
+   ↓
+iptables rule 생성
+```
+
+그러면 클라이언트 요청은 kube-proxy 프로세스를 직접 거치지 않고, 노드의 iptables 규칙을 통해 Pod로 전달된다.
+
+```text
+Client 요청
+   ↓
+Service IP
+   ↓
+iptables rule
+   ↓
+Pod IP
+```
+
+이 방식에서 kube-proxy는 매번 트래픽을 직접 전달하는 게 아니다.
+
+kube-proxy는 규칙을 만든다.
+실제 패킷 처리는 리눅스 커널의 iptables가 한다.
+
+이 차이가 중요하다.
+
+```text
+kube-proxy
+= 규칙 생성 담당
+
+iptables
+= 실제 패킷 처리 담당
+```
+
+---
+
+## 8. iptables mode 흐름 예시
+
+Service가 있다고 하자.
+
+```text
+Service IP: 10.43.100.50
+```
+
+뒤에 Pod가 3개 있다.
+
+```text
+Pod A: 10.42.0.11
+Pod B: 10.42.0.12
+Pod C: 10.42.0.13
+```
+
+kube-proxy는 이런 식의 iptables 규칙을 만든다.
+
+```text
+10.43.100.50으로 온 요청은
+10.42.0.11 또는 10.42.0.12 또는 10.42.0.13 중 하나로 보내라
+```
+
+그러면 클라이언트는 그냥 Service IP로 요청한다.
+
+```bash
+curl http://10.43.100.50
+```
+
+실제로는 iptables 규칙에 따라 Pod 중 하나로 전달된다.
+
+```text
+Client
+  ↓
+Service IP
+  ↓
+iptables rule
+  ↓
+Pod A / Pod B / Pod C
+```
+
+그래서 Service는 마치 로드밸런서처럼 동작한다.
+
+---
+
+## 9. IPVS mode
+
+IPVS는 **IP Virtual Server**의 줄임말이다.
+
+리눅스 커널이 지원하는 L4 로드밸런싱 기술이다.
+
+iptables mode도 Service 트래픽을 Pod로 보낼 수 있지만, Service와 Endpoint가 많아질수록 규칙이 많아진다.
+
+IPVS는 로드밸런싱에 특화된 커널 기능을 사용하기 때문에 대규모 서비스 환경에서 더 효율적으로 동작할 수 있다.
+
+흐름은 비슷하다.
+
+```text
+Client 요청
+   ↓
+Service IP
+   ↓
+IPVS 로드밸런싱
+   ↓
+Pod IP
+```
+
+여기서도 kube-proxy가 직접 모든 트래픽을 전달하는 것이 아니다.
+
+kube-proxy는 IPVS 설정을 구성하고, 실제 패킷 처리는 커널의 IPVS가 담당한다.
+
+```text
+kube-proxy
+= IPVS 설정 관리
+
+IPVS
+= 실제 L4 로드밸런싱 처리
+```
+
+---
+
+## 10. IPVS에서 지원하는 알고리즘
+
+IPVS는 여러 로드밸런싱 알고리즘을 지원한다.
+
+대표적으로 이런 것들이 있다.
+
+| 알고리즘 | 의미                                           |
+| ---- | -------------------------------------------- |
+| rr   | Round Robin, 순서대로 분산                         |
+| lc   | Least Connection, 연결 수가 가장 적은 곳으로 분산         |
+| dh   | Destination Hashing, 목적지 주소 기반 해싱            |
+| sh   | Source Hashing, 출발지 주소 기반 해싱                 |
+| sed  | Shortest Expected Delay, 예상 지연이 가장 짧은 곳으로 분산 |
+| nq   | Never Queue, 큐를 최대한 만들지 않는 방식                |
+
+가장 기본적으로 이해해야 하는 건 `rr`과 `lc` 정도다.
+
+```text
+rr
+= Pod A → Pod B → Pod C 순서로 번갈아 보냄
+
+lc
+= 현재 연결이 가장 적은 Pod로 보냄
+```
+
+즉 IPVS mode는 커널 레벨의 L4 로드밸런서를 쓰는 방식이라고 보면 된다.
+
+---
+
+## 11. userspace, iptables, IPVS 차이
+
+세 가지를 비교하면 이렇다.
+
+| 모드        | 동작 방식                                    | 특징            |
+| --------- | ---------------------------------------- | ------------- |
+| userspace | kube-proxy가 직접 트래픽을 받아 Pod로 전달           | 초기 방식, 성능상 불리 |
+| iptables  | kube-proxy가 iptables rule을 만들고 커널이 패킷 처리 | 많이 사용된 기본 방식  |
+| IPVS      | kube-proxy가 IPVS 설정을 만들고 커널 L4 로드밸런서가 처리 | 대규모 환경에 유리    |
+
+핵심 차이는 이것이다.
+
+```text
+userspace
+= kube-proxy가 직접 트래픽을 받음
+
+iptables
+= kube-proxy가 iptables rule을 만들고 커널이 처리
+
+IPVS
+= kube-proxy가 IPVS 설정을 만들고 커널 L4 로드밸런서가 처리
+```
+
+---
+
+## 12. kube-proxy와 Service의 관계
+
+Service는 “내가 어떤 Pod들을 묶을지”를 정의한다.
+
+예를 들어 Service에는 selector가 있다.
+
+```yaml
+selector:
+  app: nginx
+```
+
+이 selector와 맞는 Pod들이 Service의 Endpoint가 된다.
+
+```text
+Service
+   ↓
+selector: app=nginx
+   ↓
+nginx Pod들
+```
+
+kube-proxy는 이 정보를 보고 네트워크 규칙을 만든다.
+
+```text
+Service 정보
+Endpoint 정보
+   ↓
+kube-proxy
+   ↓
+iptables/IPVS 규칙
+```
+
+그래서 Service와 kube-proxy의 관계를 이렇게 이해하면 좋다.
+
+```text
+Service
+= 어떤 Pod들을 하나의 접근점으로 묶을지 정의
+
+kube-proxy
+= 그 접근점으로 들어온 트래픽이 실제 Pod로 가게 네트워크 규칙 생성
+```
+
+---
+
+## 13. kube-proxy가 없으면 어떻게 될까?
+
+kube-proxy가 제대로 동작하지 않으면 Service 기반 통신이 깨질 수 있다.
+
+예를 들어 Pod는 정상이고 Service도 존재하는데, Service IP로 접속이 안 될 수 있다.
+
+```bash
+curl http://nginx-service
+```
+
+에러가 나거나 timeout이 발생한다.
+
+이때 문제 원인은 여러 가지일 수 있다.
+
+```text
+Service selector가 Pod label과 안 맞음
+Endpoint가 없음
+CoreDNS 문제
+NetworkPolicy 문제
+kube-proxy 문제
+iptables/IPVS 규칙 문제
+```
+
+kube-proxy 문제라면 각 노드의 kube-proxy 상태와 로그를 확인해야 한다.
+
+```bash
+kubectl get pod -n kube-system | grep kube-proxy
+kubectl logs -n kube-system <kube-proxy-pod-name>
+```
+
+DaemonSet으로 배포되어 있다면 이렇게 볼 수도 있다.
+
+```bash
+kubectl get ds -n kube-system kube-proxy
+```
+
+---
+
+## 14. 확인 명령어
+
+kube-proxy Pod 확인
+
+```bash
+kubectl get pod -n kube-system | grep kube-proxy
+```
+
+kube-proxy DaemonSet 확인
+
+```bash
+kubectl get ds -n kube-system kube-proxy
+```
+
+kube-proxy 로그 확인
+
+```bash
+kubectl logs -n kube-system <kube-proxy-pod-name>
+```
+
+Service 확인
+
+```bash
+kubectl get svc
+```
+
+Endpoint 확인
+
+```bash
+kubectl get endpoints
+```
+
+EndpointSlice 확인
+
+```bash
+kubectl get endpointslice
+```
+
+Service 상세 확인
+
+```bash
+kubectl describe svc <service-name>
+```
+
+Pod label 확인
+
+```bash
+kubectl get pod --show-labels
+```
+
+특정 Service가 어느 Pod를 바라보는지 확인할 때는 보통 이 순서가 좋다.
+
+```text
+1. Service가 있는지 확인
+2. Service selector 확인
+3. Pod label 확인
+4. Endpoint가 잡혔는지 확인
+5. kube-proxy 상태 확인
+6. 필요하면 CoreDNS도 확인
+```
+
+---
+
+## 15. 그림으로 정리
+
+전체 흐름은 이렇게 보면 된다.
+
+```text
+[Client Pod]
+    |
+    | curl http://nginx-service
+    v
+[CoreDNS]
+    |
+    | nginx-service → Service ClusterIP
+    v
+[Service IP]
+    |
+    | iptables/IPVS rule
+    v
+[Pod A / Pod B / Pod C]
+```
+
+조금 더 kube-proxy 중심으로 보면 이렇다.
+
+```text
+[API Server]
+    |
+    | Service / Endpoint 정보
+    v
+[kube-proxy]
+    |
+    | iptables rule 또는 IPVS 설정 생성
+    v
+[Linux Kernel]
+    |
+    | 실제 패킷 전달
+    v
+[Pod]
+```
+
+즉 kube-proxy는 Service 트래픽 경로를 만들어주는 역할이고, 실제 패킷 처리는 주로 커널 레벨에서 일어난다.
+
+---
+
+## 16. 한 번에 정리
+
+kube-proxy는 쿠버네티스 Service 트래픽이 실제 Pod로 갈 수 있도록 네트워크 규칙을 관리하는 컴포넌트다.
+
+핵심만 정리하면 이렇다.
+
+```text
+Service
+= Pod들을 묶어주는 안정적인 접근점
+
+Endpoint
+= Service 뒤에 실제로 연결된 Pod IP 목록
+
+kube-proxy
+= Service IP로 들어온 요청이 Endpoint Pod로 가도록 규칙 생성
+
+iptables/IPVS
+= 실제 패킷을 처리하는 리눅스 커널 기능
+```
+
+kube-proxy mode는 대표적으로 세 가지가 있다.
+
+```text
+userspace
+= kube-proxy가 직접 트래픽을 받아 처리하던 초기 방식
+
+iptables
+= kube-proxy가 iptables rule을 만들고 커널이 패킷 처리
+
+IPVS
+= kube-proxy가 IPVS 설정을 만들고 커널 L4 로드밸런서가 처리
+```
+
+쿠버네티스에서 Service를 이해할 때는 이렇게 생각하면 된다.
+
+```text
+Service는 입구를 만든다.
+CoreDNS는 이름을 Service IP로 바꿔준다.
+kube-proxy는 Service IP 요청이 실제 Pod로 가도록 길을 만든다.
+```
+
+결국 kube-proxy는 쿠버네티스 네트워크에서 “Service와 Pod 사이의 길을 만들어주는 관리자”라고 보면 된다.

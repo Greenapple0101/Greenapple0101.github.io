@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] this로 Service랑 Controller를 연결한다는 게 무슨 뜻일까? | Greenapple0101</title>
+  <meta name="description" content="스프링을 공부하다 보면 이런 코드를 보게 된다. 처음 보면 여기서 막힌다. “this가 뭐지?” --- this는 “지금 이 객체 자신”이다 핵심은 이거 하나다. this = 지금 생성된 객체 자기 자신 --- 변수 이름이 같은 이유 때문에 this가 필요하다 코드를 자세히 보면 같은…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #16a34a">SPRING</span>
+    <h1>[SPRING] this로 Service랑 Controller를 연결한다는 게 무슨 뜻일까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-28T09:54:01.145Z">2026.04.28</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-this로-Service랑-Controller를-연결한다는-게-무슨-뜻일까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링을 공부하다 보면 이런 코드를 보게 된다.</p>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+}
+</code></pre>
+<p>처음 보면 여기서 막힌다.</p>
+<p>“this가 뭐지?”</p>
+<hr>
+<h3>this는 “지금 이 객체 자신”이다</h3>
+<p>핵심은 이거 하나다.</p>
+<p><strong>this = 지금 생성된 객체 자기 자신</strong></p>
+<hr>
+<h3>변수 이름이 같은 이유 때문에 this가 필요하다</h3>
+<p>코드를 자세히 보면 같은 이름이 두 개 있다.</p>
+<pre><code class="language-java">private final BoardService boardService;   // 클래스 안 변수
+</code></pre>
+<pre><code class="language-java">public BoardController(BoardService boardService) // 파라미터
+</code></pre>
+<p>둘 다 이름이 <code>boardService</code>다.</p>
+<p>이 상태에서</p>
+<pre><code class="language-java">boardService = boardService;
+</code></pre>
+<p>이렇게 쓰면 누구한테 누구를 넣는 건지 모른다.</p>
+<hr>
+<h3>그래서 this가 등장한다</h3>
+<pre><code class="language-java">this.boardService = boardService;
+</code></pre>
+<p>이걸 풀어서 보면 이렇게 된다.</p>
+<ul>
+<li>this.boardService → “이 객체 안에 있는 변수”</li>
+<li>boardService → “외부에서 들어온 값”</li>
+</ul>
+<p>즉,</p>
+<p><strong>“외부에서 받은 boardService를, 이 객체 안에 넣겠다”</strong></p>
+<hr>
+<h3>여기서 진짜 중요한 포인트</h3>
+<p>이건 단순한 대입이 아니다.</p>
+<p><strong>Service와 Controller를 연결하는 순간이다</strong></p>
+<hr>
+<h3>흐름을 보면 이해된다</h3>
+<pre><code class="language-text">[스프링]
+   ↓
+BoardService 객체 생성 (Bean)
+   ↓
+BoardController 생성할 때 전달
+   ↓
+this.boardService = boardService
+   ↓
+Controller 안에 Service가 들어옴
+</code></pre>
+<hr>
+<h3>그래서 컨트롤러에서 서비스 사용이 가능해진다</h3>
+<pre><code class="language-java">@GetMapping(&quot;/boards&quot;)
+public List&lt;String&gt; getBoards() {
+    return boardService.getBoards();
+}
+</code></pre>
+<p>이 코드가 가능한 이유는 하나다.</p>
+<p><strong>이미 this로 연결되어 있기 때문</strong></p>
+<hr>
+<h3>왜 굳이 이렇게 연결할까?</h3>
+<p>만약 이게 없으면</p>
+<ul>
+<li>컨트롤러는 서비스 기능을 못 쓴다</li>
+<li>객체끼리 완전히 분리됨</li>
+</ul>
+<p>그래서</p>
+<p><strong>Controller → Service 연결이 반드시 필요하다</strong></p>
+<hr>
+<h3>스프링이 대신 해주는 부분</h3>
+<p>여기서 중요한 점 하나 더</p>
+<pre><code class="language-java">public BoardController(BoardService boardService)
+</code></pre>
+<p>이건 내가 넣은 게 아니다.</p>
+<p><strong>스프링이 Bean을 꺼내서 넣어준다</strong></p>
+<p>그래서 우리는 new를 안 써도 된다.</p>
+<hr>
+<h3>비유로 보면</h3>
+<p>Controller = 직원
+Service = 전문가</p>
+<ul>
+<li>직원이 혼자 일 못함</li>
+<li>전문가를 옆에 붙여줌</li>
+<li>그 연결이 this</li>
+</ul>
+<hr>
+<h3>한 줄 결론</h3>
+<p><strong>this는 “내 객체 안에 외부 객체를 연결해서 사용할 수 있게 만드는 것”이다</strong></p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

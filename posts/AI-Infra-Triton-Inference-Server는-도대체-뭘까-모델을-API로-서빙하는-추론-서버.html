@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[AI Infra] Triton Inference Server는 도대체 뭘까? 모델을 API로 서빙하는 추론 서버 | Greenapple0101</title>
+  <meta name="description" content="지금까지 흐름을 보면 이렇게 이어진다. 여기서 TensorRT 까지는 주로 모델 하나를 NVIDIA GPU에서 빠르게 돌리는 최적화 엔진 에 가깝다. 그런데 실제 서비스에서는 이런 문제가 남는다. 이때 등장하는 것이 Triton Inference Server 다. --- 1. Trit…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #db2777">AI</span>
+    <h1>[AI Infra] Triton Inference Server는 도대체 뭘까? 모델을 API로 서빙하는 추론 서버</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-07T07:23:30.720Z">2026.05.07</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/AI-Infra-Triton-Inference-Server는-도대체-뭘까-모델을-API로-서빙하는-추론-서버" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>지금까지 흐름을 보면 이렇게 이어진다.</p>
+<pre><code class="language-text">PyTorch
+CUDA
+Inference
+Batch
+Latency
+Throughput
+ONNX
+TensorRT
+Quantization
+</code></pre>
+<p>여기서 <code>TensorRT</code>까지는 주로 <strong>모델 하나를 NVIDIA GPU에서 빠르게 돌리는 최적화 엔진</strong>에 가깝다.</p>
+<p>그런데 실제 서비스에서는 이런 문제가 남는다.</p>
+<pre><code class="language-text">모델을 API로 어떻게 띄우지?
+여러 모델을 한 서버에서 어떻게 관리하지?
+HTTP/gRPC 요청은 누가 받아주지?
+batching은 누가 해주지?
+모델 버전 관리는 어떻게 하지?
+GPU 여러 장에 모델을 어떻게 올리지?
+latency, throughput은 어떻게 측정하지?
+</code></pre>
+<p>이때 등장하는 것이 <strong>Triton Inference Server</strong>다.</p>
+<hr>
+<h2>1. Triton Inference Server 한 줄 정의</h2>
+<p>Triton Inference Server는 NVIDIA에서 만든 <strong>AI 모델 추론 서빙 서버</strong>다.</p>
+<p>한 줄로 말하면 이렇다.</p>
+<pre><code class="language-text">Triton Inference Server
+= 학습된 AI 모델을 HTTP/gRPC API로 서빙할 수 있게 해주는 inference server
+</code></pre>
+<p>NVIDIA 공식 문서 기준으로 Triton은 TensorRT, PyTorch, ONNX, OpenVINO, Python 등 여러 프레임워크의 모델을 배포할 수 있고, NVIDIA GPU뿐 아니라 x86/ARM CPU, AWS Inferentia 같은 환경에서도 inference를 지원한다. (<a href="https://github.com/triton-inference-server/server?utm_source=chatgpt.com" title="The Triton Inference Server provides an optimized cloud ...">GitHub</a>)</p>
+<p>쉽게 말하면 Triton은 이런 역할이다.</p>
+<pre><code class="language-text">모델 파일을 정해진 폴더 구조에 넣는다
+↓
+Triton 서버를 실행한다
+↓
+클라이언트가 HTTP/gRPC로 요청한다
+↓
+Triton이 적절한 모델로 요청을 보낸다
+↓
+inference 결과를 반환한다
+</code></pre>
+<hr>
+<h2>2. TensorRT와 Triton은 다르다</h2>
+<p>이 둘을 헷갈리기 쉽다.</p>
+<pre><code class="language-text">TensorRT = 모델 최적화 엔진
+Triton = 모델 서빙 서버
+</code></pre>
+<p>조금 더 구체적으로 보면 이렇다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>TensorRT</th>
+<th>Triton Inference Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>역할</td>
+<td>모델을 NVIDIA GPU에 맞게 최적화</td>
+<td>모델을 API 서버로 배포</td>
+</tr>
+<tr>
+<td>관심사</td>
+<td>latency, throughput, engine 최적화</td>
+<td>요청 처리, 모델 관리, batching, serving</td>
+</tr>
+<tr>
+<td>입력</td>
+<td>ONNX, network definition 등</td>
+<td>모델 repository</td>
+</tr>
+<tr>
+<td>결과물</td>
+<td>TensorRT engine</td>
+<td>HTTP/gRPC inference API</td>
+</tr>
+<tr>
+<td>위치</td>
+<td>모델 실행 엔진</td>
+<td>서비스 서버</td>
+</tr>
+</tbody>
+</table>
+<p>관계는 보통 이렇게 된다.</p>
+<pre><code class="language-text">PyTorch
+↓
+ONNX
+↓
+TensorRT Engine
+↓
+Triton에 올림
+↓
+HTTP/gRPC API로 inference serving
+</code></pre>
+<p>즉, TensorRT가 “엔진”이라면 Triton은 “서버”다.</p>
+<hr>
+<h2>3. 왜 Triton이 필요할까?</h2>
+<p>PyTorch + FastAPI로도 inference API는 만들 수 있다.</p>
+<pre><code class="language-python">@app.post(&quot;/predict&quot;)
+def predict(data):
+    x = preprocess(data)
+
+    with torch.inference_mode():
+        output = model(x)
+
+    return postprocess(output)
+</code></pre>
+<p>이 방식은 처음 배우기에는 좋다.</p>
+<p>하지만 운영으로 가면 직접 챙겨야 할 것이 많아진다.</p>
+<pre><code class="language-text">모델 로딩
+GPU 할당
+동시 요청 처리
+batching
+모델 버전 관리
+모델별 설정 관리
+HTTP/gRPC API
+성능 측정
+모니터링
+여러 모델 서빙
+모델 앙상블
+</code></pre>
+<p>Triton은 이런 inference serving 공통 기능을 서버 차원에서 제공한다.</p>
+<p>NVIDIA 문서에 따르면 Triton은 모델 repository에 있는 모델들을 로드하고, HTTP/REST, gRPC, C API로 들어온 요청을 모델별 scheduler로 라우팅하며, 모델별로 scheduling과 batching 알고리즘을 설정할 수 있다. (<a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html?utm_source=chatgpt.com" title="NVIDIA Triton Inference Server">NVIDIA Docs</a>)</p>
+<hr>
+<h2>4. Triton의 핵심 구조</h2>
+<p>Triton을 이해할 때 가장 중요한 구조는 이것이다.</p>
+<pre><code class="language-text">Client
+↓ HTTP / gRPC
+Triton Inference Server
+↓
+Model Scheduler
+↓
+Backend
+↓
+Model
+↓
+GPU / CPU
+</code></pre>
+<p>조금 풀어보면 이렇다.</p>
+<pre><code class="language-text">Client
+= 요청을 보내는 애플리케이션
+
+Triton Server
+= inference 요청을 받는 서버
+
+Model Repository
+= 모델 파일과 설정이 들어 있는 폴더
+
+Scheduler
+= 요청을 어떤 방식으로 처리할지 결정
+
+Backend
+= TensorRT, PyTorch, ONNX Runtime, Python 등 실제 실행 방식
+
+Model Instance
+= GPU/CPU 위에 올라간 모델 실행 단위
+</code></pre>
+<hr>
+<h2>5. Model Repository란?</h2>
+<p>Triton에서 모델을 배포하려면 <strong>model repository</strong>라는 폴더 구조를 만든다.</p>
+<p>NVIDIA 공식 문서도 model repository를 Triton이 inference에 사용할 모델들을 담는 파일 시스템 기반 저장소라고 설명한다. (<a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html?utm_source=chatgpt.com" title="NVIDIA Triton Inference Server">NVIDIA Docs</a>)</p>
+<p>기본 구조는 보통 이렇게 생겼다.</p>
+<pre><code class="language-text">model_repository/
+└── my_model/
+    ├── config.pbtxt
+    └── 1/
+        └── model.onnx
+</code></pre>
+<p>여기서 중요한 것은 세 가지다.</p>
+<pre><code class="language-text">my_model
+= 모델 이름
+
+config.pbtxt
+= 모델 설정 파일
+
+1/
+= 모델 버전 폴더
+</code></pre>
+<p>즉, Triton은 그냥 아무 파일이나 실행하는 것이 아니라 정해진 repository 구조를 읽어서 모델을 서빙한다.</p>
+<hr>
+<h2>6. 모델 버전 관리</h2>
+<p>Triton model repository에서는 버전 폴더를 둘 수 있다.</p>
+<pre><code class="language-text">model_repository/
+└── resnet50/
+    ├── config.pbtxt
+    ├── 1/
+    │   └── model.onnx
+    └── 2/
+        └── model.onnx
+</code></pre>
+<p>이렇게 하면 <code>resnet50</code>이라는 모델 아래에 버전 1과 버전 2가 있는 구조다.</p>
+<pre><code class="language-text">resnet50 version 1
+resnet50 version 2
+</code></pre>
+<p>운영에서는 모델이 계속 개선될 수 있다.</p>
+<pre><code class="language-text">기존 모델
+↓
+새 데이터로 재학습
+↓
+새 모델 배포
+↓
+문제 있으면 롤백
+</code></pre>
+<p>Triton의 버전 폴더 구조는 이런 모델 운영 흐름과 잘 맞는다.</p>
+<hr>
+<h2>7. config.pbtxt란?</h2>
+<p><code>config.pbtxt</code>는 Triton에게 이 모델을 어떻게 서빙할지 알려주는 설정 파일이다.</p>
+<p>예를 들어 ONNX 모델을 서빙한다면 대략 이런 느낌이다.</p>
+<pre><code class="language-text">name: &quot;my_model&quot;
+platform: &quot;onnxruntime_onnx&quot;
+max_batch_size: 8
+
+input [
+  {
+    name: &quot;input&quot;
+    data_type: TYPE_FP32
+    dims: [3, 224, 224]
+  }
+]
+
+output [
+  {
+    name: &quot;output&quot;
+    data_type: TYPE_FP32
+    dims: [1000]
+  }
+]
+</code></pre>
+<p>여기에는 이런 정보가 들어간다.</p>
+<pre><code class="language-text">모델 이름
+backend 또는 platform
+입력 이름
+입력 데이터 타입
+입력 shape
+출력 이름
+출력 데이터 타입
+출력 shape
+max batch size
+dynamic batching 설정
+instance group 설정
+</code></pre>
+<p>즉, <code>config.pbtxt</code>는 모델의 “서빙 설명서”다.</p>
+<hr>
+<h2>8. Triton Backend란?</h2>
+<p>Triton은 여러 종류의 모델을 지원한다.</p>
+<p>그 이유는 backend 구조를 가지고 있기 때문이다.</p>
+<pre><code class="language-text">TensorRT backend
+ONNX Runtime backend
+PyTorch backend
+TensorFlow backend
+Python backend
+OpenVINO backend
+</code></pre>
+<p>NVIDIA Triton GitHub 설명에서도 Triton은 TensorRT, PyTorch, ONNX, OpenVINO, Python 등 여러 프레임워크의 모델을 배포할 수 있다고 설명한다. (<a href="https://github.com/triton-inference-server/server?utm_source=chatgpt.com" title="The Triton Inference Server provides an optimized cloud ...">GitHub</a>)</p>
+<p>즉, Triton은 특정 모델 포맷 하나만 돌리는 서버가 아니다.</p>
+<pre><code class="language-text">TensorRT engine도 올릴 수 있고
+ONNX model도 올릴 수 있고
+PyTorch TorchScript model도 올릴 수 있고
+Python backend로 커스텀 로직도 만들 수 있다
+</code></pre>
+<p>그래서 여러 모델을 한 서빙 서버에서 관리하기 좋다.</p>
+<hr>
+<h2>9. Triton 실행 흐름</h2>
+<p>예를 들어 ONNX 모델을 Triton에 올린다고 하자.</p>
+<p>전체 흐름은 이렇다.</p>
+<pre><code class="language-text">1. PyTorch로 모델 학습
+2. ONNX로 export
+3. model_repository 구조 생성
+4. config.pbtxt 작성
+5. Triton Docker 컨테이너 실행
+6. HTTP/gRPC로 inference 요청
+7. latency, throughput 측정
+</code></pre>
+<p>Docker로 실행하면 대략 이런 형태다.</p>
+<pre><code class="language-bash">docker run --gpus all --rm \
+  -p 8000:8000 \
+  -p 8001:8001 \
+  -p 8002:8002 \
+  -v $(pwd)/model_repository:/models \
+  nvcr.io/nvidia/tritonserver:latest \
+  tritonserver --model-repository=/models
+</code></pre>
+<p>포트는 보통 이렇게 이해하면 된다.</p>
+<pre><code class="language-text">8000 = HTTP endpoint
+8001 = gRPC endpoint
+8002 = metrics endpoint
+</code></pre>
+<p>실무에서는 <code>latest</code> 대신 명시적인 버전 태그를 쓰는 편이 더 안전하다.</p>
+<hr>
+<h2>10. Triton에서 요청은 어떻게 들어갈까?</h2>
+<p>Triton은 HTTP/REST와 gRPC를 지원한다. NVIDIA 공식 문서도 inference 요청이 HTTP/REST, gRPC 또는 C API를 통해 서버에 도착한다고 설명한다. (<a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/index.html?utm_source=chatgpt.com" title="NVIDIA Triton Inference Server">NVIDIA Docs</a>)</p>
+<p>개념적으로는 이런 요청이다.</p>
+<pre><code class="language-text">POST /v2/models/my_model/infer
+</code></pre>
+<p>요청에는 이런 정보가 들어간다.</p>
+<pre><code class="language-text">모델 이름
+입력 tensor 이름
+입력 shape
+입력 datatype
+입력 data
+</code></pre>
+<p>Triton은 이 요청을 받아서 해당 모델 backend로 넘기고, 결과 tensor를 응답으로 돌려준다.</p>
+<hr>
+<h2>11. Dynamic Batching이란?</h2>
+<p>Triton에서 정말 중요한 기능 중 하나가 <strong>dynamic batching</strong>이다.</p>
+<p>Dynamic batching은 실시간으로 들어오는 여러 inference 요청을 서버가 자동으로 묶어서 batch로 처리하는 기능이다.</p>
+<p>NVIDIA 문서에서도 dynamic batching은 inference 요청을 서버가 결합해 동적으로 batch를 만들 수 있게 하는 기능이며, 일반적으로 batch를 만들면 throughput이 증가한다고 설명한다. (<a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/batcher.html?utm_source=chatgpt.com" title="Batchers — NVIDIA Triton Inference Server">NVIDIA Docs</a>)</p>
+<p>예를 들어 요청이 이렇게 들어온다고 하자.</p>
+<pre><code class="language-text">0ms  요청 A 도착
+1ms  요청 B 도착
+2ms  요청 C 도착
+3ms  요청 D 도착
+</code></pre>
+<p>Triton은 이 요청들을 묶어서 한 번에 모델에 넣을 수 있다.</p>
+<pre><code class="language-text">[A, B, C, D]
+↓
+batch inference
+↓
+결과 4개 반환
+</code></pre>
+<p>이렇게 하면 GPU를 더 잘 활용할 수 있다.</p>
+<pre><code class="language-text">batch size 1로 4번 실행
+보다
+batch size 4로 1번 실행
+이 더 효율적일 수 있음
+</code></pre>
+<hr>
+<h2>12. Dynamic Batching 설정 예시</h2>
+<p><code>config.pbtxt</code>에 이런 식으로 설정할 수 있다.</p>
+<pre><code class="language-text">max_batch_size: 8
+
+dynamic_batching {
+  preferred_batch_size: [4, 8]
+  max_queue_delay_microseconds: 1000
+}
+</code></pre>
+<p>의미는 이렇다.</p>
+<pre><code class="language-text">max_batch_size: 8
+= 최대 batch size는 8
+
+preferred_batch_size: [4, 8]
+= 가능하면 batch 4나 8로 처리하고 싶음
+
+max_queue_delay_microseconds: 1000
+= batch를 만들기 위해 최대 1000마이크로초 정도 기다림
+</code></pre>
+<p>여기서 중요한 trade-off가 있다.</p>
+<pre><code class="language-text">대기 시간을 늘리면
+→ batch가 잘 만들어짐
+→ throughput 증가 가능
+→ latency 증가 가능
+
+대기 시간을 줄이면
+→ 바로 처리함
+→ latency 감소 가능
+→ throughput 감소 가능
+</code></pre>
+<p>즉, dynamic batching은 throughput과 latency 사이의 균형을 잡는 기능이다.</p>
+<hr>
+<h2>13. Instance Group이란?</h2>
+<p>Triton에서는 같은 모델을 여러 instance로 띄울 수 있다.</p>
+<p>예를 들어 GPU 하나에 모델 instance를 2개 띄울 수 있다.</p>
+<pre><code class="language-text">instance_group [
+  {
+    count: 2
+    kind: KIND_GPU
+  }
+]
+</code></pre>
+<p>의미는 이렇다.</p>
+<pre><code class="language-text">이 모델을 GPU 위에 2개 instance로 실행하겠다
+</code></pre>
+<p>왜 이렇게 할까?</p>
+<p>모델 하나가 GPU를 충분히 활용하지 못할 때, 여러 instance를 띄우면 동시 처리량이 좋아질 수 있다.</p>
+<p>하지만 무조건 좋은 것은 아니다.</p>
+<pre><code class="language-text">instance 너무 적음
+= GPU 활용률 낮을 수 있음
+
+instance 너무 많음
+= GPU 메모리 부족
+= context switching 증가
+= latency 악화 가능
+</code></pre>
+<p>그래서 instance count도 실제 benchmark를 보면서 조정해야 한다.</p>
+<hr>
+<h2>14. Ensemble Model이란?</h2>
+<p>Triton은 여러 모델이나 전처리/후처리 단계를 하나의 pipeline처럼 묶을 수 있다.</p>
+<p>이걸 ensemble model이라고 한다.</p>
+<p>예를 들어 이미지 OCR 서비스를 생각해보자.</p>
+<pre><code class="language-text">이미지 입력
+↓
+텍스트 영역 탐지 모델
+↓
+crop
+↓
+문자 인식 모델
+↓
+결과 반환
+</code></pre>
+<p>이런 과정을 Triton ensemble로 묶을 수 있다.</p>
+<p>NVIDIA 문서에 따르면 ensemble model은 여러 composing model 사이에서 데이터를 라우팅하는 방식이며, ensemble을 구성하는 모델들도 dynamic batching을 사용할 수 있다. (<a href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/ensemble_models.html?utm_source=chatgpt.com" title="Ensemble Models — NVIDIA Triton Inference Server">NVIDIA Docs</a>)</p>
+<p>즉, ensemble은 이런 상황에서 유용하다.</p>
+<pre><code class="language-text">전처리 모델 + 본 모델 + 후처리 모델
+탐지 모델 + 분류 모델
+retriever + reranker + generator 일부 구성
+여러 단계 모델 pipeline
+</code></pre>
+<p>다만 복잡한 비즈니스 로직까지 전부 Triton 안에 넣는 것이 항상 좋은 것은 아니다.</p>
+<p>운영에서는 API 서버와 Triton의 역할을 나누는 경우도 많다.</p>
+<hr>
+<h2>15. Triton과 FastAPI의 관계</h2>
+<p>FastAPI와 Triton은 경쟁 관계라기보다 역할이 다르다.</p>
+<pre><code class="language-text">FastAPI
+= 비즈니스 API 서버
+
+Triton
+= 모델 inference 서버
+</code></pre>
+<p>예를 들어 서비스 구조는 이렇게 만들 수 있다.</p>
+<pre><code class="language-text">Client
+↓
+FastAPI
+↓
+전처리 / 인증 / DB 조회 / 비즈니스 로직
+↓
+Triton Inference Server
+↓
+GPU inference
+↓
+FastAPI
+↓
+후처리 / 응답 가공
+↓
+Client
+</code></pre>
+<p>FastAPI에서 모델을 직접 로드할 수도 있다.</p>
+<pre><code class="language-text">FastAPI + PyTorch 직접 inference
+</code></pre>
+<p>하지만 모델 서빙이 커지면 Triton을 따로 두는 구조가 더 관리하기 좋을 수 있다.</p>
+<pre><code class="language-text">FastAPI = 서비스 로직
+Triton = 모델 추론
+Prometheus/Grafana = 모니터링
+Kubernetes = 배포/스케일링
+</code></pre>
+<hr>
+<h2>16. Triton과 Kubernetes</h2>
+<p>AI DevOps 관점에서는 Triton을 Kubernetes에 올리는 그림이 자주 나온다.</p>
+<pre><code class="language-text">Kubernetes
+└── Triton Pod
+    ├── model repository mount
+    ├── GPU resource request
+    ├── HTTP/gRPC service
+    └── metrics endpoint
+</code></pre>
+<p>Kubernetes에서는 GPU 리소스를 요청할 수 있다.</p>
+<pre><code class="language-yaml">resources:
+  limits:
+    nvidia.com/gpu: 1
+</code></pre>
+<p>그리고 Triton Pod를 띄운 뒤 Service로 노출한다.</p>
+<pre><code class="language-text">FastAPI Pod
+↓
+Triton Service
+↓
+Triton Pod
+↓
+GPU
+</code></pre>
+<p>이 구조는 운영형 AI inference serving에서 많이 쓰이는 형태다.</p>
+<hr>
+<h2>17. Triton에서 모니터링</h2>
+<p>Triton은 metrics endpoint를 제공한다.</p>
+<p>보통 8002 포트에서 Prometheus가 scrape할 수 있다.</p>
+<pre><code class="language-text">http://triton-server:8002/metrics
+</code></pre>
+<p>여기서 볼 수 있는 지표는 이런 것들이다.</p>
+<pre><code class="language-text">inference request count
+inference latency
+queue time
+compute time
+model load status
+GPU utilization
+GPU memory usage
+</code></pre>
+<p>실무에서는 이걸 Prometheus와 Grafana에 붙인다.</p>
+<pre><code class="language-text">Triton metrics
+↓
+Prometheus scrape
+↓
+Grafana dashboard
+↓
+latency / throughput / GPU memory 확인
+</code></pre>
+<p>이전의 RAG MLOps나 FastAPI + Prometheus 구성과도 같은 관점으로 이어진다.</p>
+<hr>
+<h2>18. Triton에서 중요한 성능 지표</h2>
+<p>Triton을 운영할 때 보는 지표는 다음과 같다.</p>
+<pre><code class="language-text">latency
+throughput
+queue time
+compute time
+p50 / p95 / p99 latency
+GPU utilization
+GPU memory usage
+request error rate
+model load time
+</code></pre>
+<p>여기서 특히 queue time과 compute time을 나눠서 보는 게 중요하다.</p>
+<pre><code class="language-text">queue time
+= 요청이 처리되기 전에 대기한 시간
+
+compute time
+= 실제 모델 inference 계산 시간
+</code></pre>
+<p>예를 들어 latency가 높다고 하자.</p>
+<p>원인이 queue time이면 요청이 밀리는 것이다.</p>
+<pre><code class="language-text">queue time 높음
+= 서버가 바빠서 대기열이 쌓임
+= instance 수, batch 설정, scaling 확인
+</code></pre>
+<p>원인이 compute time이면 모델 계산 자체가 느린 것이다.</p>
+<pre><code class="language-text">compute time 높음
+= 모델 최적화 필요
+= TensorRT, FP16, INT8, batch size 확인
+</code></pre>
+<hr>
+<h2>19. Triton을 쓰면 무조건 좋은가?</h2>
+<p>아니다.</p>
+<p>Triton은 강력하지만, 항상 필요한 것은 아니다.</p>
+<p>좋은 상황은 이렇다.</p>
+<pre><code class="language-text">모델을 운영 서버로 안정적으로 배포해야 함
+여러 모델을 동시에 서빙해야 함
+HTTP/gRPC inference API가 필요함
+dynamic batching이 필요함
+TensorRT/ONNX/PyTorch 모델을 섞어서 관리해야 함
+GPU utilization을 높이고 싶음
+모니터링과 모델 버전 관리가 필요함
+</code></pre>
+<p>반대로 이런 경우에는 오히려 복잡할 수 있다.</p>
+<pre><code class="language-text">작은 PoC 단계
+모델 하나만 간단히 테스트
+트래픽이 거의 없음
+GPU 최적화가 아직 중요하지 않음
+전처리/후처리가 매우 복잡하고 모델보다 비즈니스 로직이 중심
+팀이 Triton 운영 경험이 없음
+</code></pre>
+<p>이럴 때는 먼저 FastAPI + PyTorch로 시작하고, 병목이 보이면 Triton으로 옮겨도 된다.</p>
+<hr>
+<h2>20. FastAPI 직접 서빙 vs Triton 서빙</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>FastAPI + PyTorch</th>
+<th>Triton Inference Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>장점</td>
+<td>단순함, 개발 빠름</td>
+<td>고성능 inference serving 기능</td>
+</tr>
+<tr>
+<td>모델 로딩</td>
+<td>직접 코드 작성</td>
+<td>model repository 기반</td>
+</tr>
+<tr>
+<td>batching</td>
+<td>직접 구현 필요</td>
+<td>dynamic batching 지원</td>
+</tr>
+<tr>
+<td>여러 backend</td>
+<td>직접 관리 필요</td>
+<td>TensorRT, ONNX, PyTorch 등 지원</td>
+</tr>
+<tr>
+<td>모니터링</td>
+<td>직접 붙여야 함</td>
+<td>metrics endpoint 제공</td>
+</tr>
+<tr>
+<td>운영 복잡도</td>
+<td>낮음</td>
+<td>상대적으로 높음</td>
+</tr>
+<tr>
+<td>적합한 상황</td>
+<td>PoC, 단일 모델, 작은 서비스</td>
+<td>운영형 모델 서빙, 고성능 GPU inference</td>
+</tr>
+</tbody>
+</table>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">처음 개발
+= FastAPI + PyTorch가 편함
+
+운영 최적화
+= Triton + TensorRT/ONNX가 유리할 수 있음
+</code></pre>
+<hr>
+<h2>21. 전체 AI Inference Serving 그림</h2>
+<p>지금까지 공부한 개념을 하나로 연결하면 이렇게 된다.</p>
+<pre><code class="language-text">[Training]
+PyTorch
+loss.backward()
+optimizer.step()
+model.pth 저장
+
+        ↓
+
+[Export]
+ONNX
+프레임워크 독립 모델 포맷
+
+        ↓
+
+[Optimization]
+TensorRT
+FP16 / INT8
+Layer Fusion
+Engine 생성
+
+        ↓
+
+[Serving]
+Triton Inference Server
+HTTP / gRPC
+Dynamic Batching
+Model Repository
+Model Versioning
+Metrics
+
+        ↓
+
+[Operation]
+Kubernetes
+Prometheus
+Grafana
+Autoscaling
+Latency / Throughput Monitoring
+</code></pre>
+<p>즉, Triton은 이 전체 흐름에서 <strong>Serving 단계</strong>를 담당한다.</p>
+<hr>
+<h2>22. 최종 정리</h2>
+<p>Triton Inference Server는 학습된 모델을 실제 서비스에서 API로 제공하기 위한 inference server다.</p>
+<pre><code class="language-text">Triton
+= 모델을 로드하고
+= HTTP/gRPC 요청을 받고
+= 적절한 backend로 inference를 실행하고
+= 결과를 반환하는 서버
+</code></pre>
+<p>TensorRT와 비교하면 이렇게 정리할 수 있다.</p>
+<pre><code class="language-text">TensorRT
+= 모델 하나를 NVIDIA GPU에 맞게 빠르게 최적화하는 엔진
+
+Triton
+= 최적화된 모델 또는 여러 backend 모델을 API로 서빙하는 서버
+</code></pre>
+<p>Triton의 핵심 기능은 다음과 같다.</p>
+<pre><code class="language-text">model repository
+model versioning
+HTTP/gRPC API
+dynamic batching
+multiple backend support
+model ensemble
+metrics endpoint
+GPU/CPU inference serving
+</code></pre>
+<p>한 문장으로 정리하면 이렇다.</p>
+<pre><code class="language-text">Triton Inference Server는 AI 모델을 운영 환경에서 빠르고 안정적으로 서빙하기 위한 모델 전용 서버다.
+</code></pre>
+<p>AI DevOps 관점에서는 Triton을 단순히 “NVIDIA 도구”로 보면 안 된다.</p>
+<pre><code class="language-text">PyTorch로 만든 모델을
+ONNX/TensorRT로 최적화하고
+Triton으로 API 서빙하며
+Prometheus/Grafana로 관측하고
+Kubernetes에서 운영하는 흐름
+</code></pre>
+<p>이 전체가 GPU inference serving의 실무 그림에 가깝다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

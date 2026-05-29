@@ -1,0 +1,592 @@
+---
+title: "[Kubernetes] Ingress란 뭘까? 외부에서 Pod에 접속하는 방법 이해하기"
+source: "https://velog.io/@yorange50/Kubernetes-Ingress%EB%9E%80-%EB%AD%98%EA%B9%8C-%EC%99%B8%EB%B6%80%EC%97%90%EC%84%9C-Pod%EC%97%90-%EC%A0%91%EC%86%8D%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0"
+published: "Wed, 27 May 2026 19:18:02 GMT"
+backup_date: "2026-05-29T14:51:00.488820"
+---
+
+Kubernetes에서 Pod와 Service를 만들었는데 이런 생각이 든다.
+    
+    
+    어? Pod는 떠 있는데
+    브라우저에서는 어떻게 접속하지?
+
+Kubernetes 안에 nginx나 apache 같은 웹 서버를 띄워도, 그냥 바로 외부에서 접속되는 건 아니다. 클러스터 안에 있는 서비스를 외부로 열어주는 입구가 필요하다.
+
+이때 사용하는 것이 바로 **Ingress** 다.
+
+* * *
+
+## 1\. Ingress는 왜 필요할까?
+
+Kubernetes 안에 nginx Pod가 있다고 해보자.
+    
+    
+    nginx Pod
+
+그리고 그 Pod 앞에 Service를 붙인다.
+    
+    
+    Service → nginx Pod
+
+Service는 Pod로 트래픽을 보내주는 역할을 한다.
+
+그런데 보통 `ClusterIP` 타입 Service는 클러스터 내부에서만 접근할 수 있다.
+    
+    
+    클러스터 내부에서는 접근 가능
+    외부 브라우저에서는 바로 접근 어려움
+
+그래서 외부 요청을 받아서 내부 Service로 보내주는 장치가 필요하다.
+    
+    
+    외부 사용자
+       ↓
+    Ingress
+       ↓
+    Service
+       ↓
+    Pod
+
+즉 Ingress는 외부에서 들어온 HTTP/HTTPS 요청을 Kubernetes 내부 Service로 보내주는 규칙이다.
+
+* * *
+
+## 2\. Ingress와 Ingress Controller는 다르다
+
+여기서 헷갈리기 쉬운 게 있다.
+    
+    
+    Ingress
+    Ingress Controller
+
+둘은 다르다.
+
+Ingress는 **규칙** 이다.
+    
+    
+    /nginx로 오면 nginx-service로 보내라
+    /apache로 오면 apache-service로 보내라
+
+Ingress Controller는 그 규칙을 실제로 실행하는 애다.
+    
+    
+    외부 요청을 직접 받고
+    Ingress 규칙을 읽고
+    맞는 Service로 보내주는 실행 주체
+
+즉 이렇게 보면 된다.
+    
+    
+    Ingress = 지도
+    Ingress Controller = 지도를 보고 운전하는 기사
+
+lecture-3에서는 nginx Ingress Controller를 기준으로 실습했고, RKE2 환경에서는 기본적으로 nginx ingress controller가 설치되어 있다고 설명되어 있다. 확인 명령어로는 `k get pod -n kube-system | grep ingress-nginx-controller`, `k get svc -n kube-system | grep ingress-nginx-controller`를 사용했다. 
+
+* * *
+
+## 3\. 실습에서 만든 구조
+
+lecture-3에서는 외부 접속 테스트를 위해 nginx와 apache/httpd를 배포했다.
+
+구성은 대략 이렇다.
+    
+    
+    nginx Deployment
+    nginx Service
+    
+    httpd Deployment
+    httpd Service
+
+nginx 쪽은:
+    
+    
+    nginx-deployment
+    nginx-svc
+
+apache/httpd 쪽은:
+    
+    
+    httpd
+    httpd-svc
+
+그리고 이 두 서비스를 Ingress로 외부에 노출했다. lecture-3의 `nginx-apache.yaml`에는 nginx와 httpd의 Service, Deployment가 함께 정의되어 있다. 
+
+전체 구조는 이렇게 보면 된다.
+    
+    
+    외부 사용자
+       ↓
+    Ingress Controller
+       ↓
+    Ingress Rule
+       ↓
+    nginx-svc 또는 httpd-svc
+       ↓
+    nginx Pod 또는 httpd Pod
+
+* * *
+
+## 4\. Path 기반 라우팅
+
+첫 번째로 배운 것은 **path 기반 라우팅** 이다.
+
+path는 URL 뒤에 붙는 경로다.
+
+예를 들면:
+    
+    
+    http://192.168.164.4/nginx
+    http://192.168.164.4/apache
+
+여기서 `/nginx`, `/apache`가 path다.
+
+Ingress에서는 이런 식으로 설정했다.
+    
+    
+    rules:
+    - http:
+        paths:
+        - path: /nginx
+          pathType: Prefix
+          backend:
+            service:
+              name: nginx-svc
+              port:
+                number: 80
+        - path: /apache
+          pathType: Prefix
+          backend:
+            service:
+              name: httpd-svc
+              port:
+                number: 80
+
+뜻은 이거다.
+    
+    
+    /nginx로 들어오면 nginx-svc로 보내라
+    /apache로 들어오면 httpd-svc로 보내라
+
+실습에서는 다음처럼 접속했다.
+    
+    
+    curl http://192.168.164.4/nginx
+    curl http://192.168.164.4/apache
+
+즉 같은 IP로 들어와도 경로에 따라 서로 다른 서비스로 보낼 수 있다. lecture-3에서는 `/nginx` 요청은 `nginx-svc`로, `/apache` 요청은 `httpd-svc`로 보내는 Ingress Rule을 작성했다. 
+
+* * *
+
+## 5\. path 기반 라우팅 흐름
+
+`/nginx`로 접속하면 흐름은 이렇다.
+    
+    
+    curl http://192.168.164.4/nginx
+       ↓
+    Ingress Controller가 요청을 받음
+       ↓
+    Ingress Rule 확인
+       ↓
+    path가 /nginx임
+       ↓
+    nginx-svc로 전달
+       ↓
+    nginx Pod 응답
+
+`/apache`로 접속하면 이렇게 된다.
+    
+    
+    curl http://192.168.164.4/apache
+       ↓
+    Ingress Controller가 요청을 받음
+       ↓
+    Ingress Rule 확인
+       ↓
+    path가 /apache임
+       ↓
+    httpd-svc로 전달
+       ↓
+    httpd Pod 응답
+
+정리하면:
+    
+    
+    Path 기반 라우팅
+    = URL 경로를 보고 어느 Service로 보낼지 결정하는 방식
+
+* * *
+
+## 6\. rewrite-target은 왜 나올까?
+
+path 기반 라우팅에서 이런 annotation이 있었다.
+    
+    
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+이건 요청 경로를 바꿔서 백엔드 서비스에 전달하는 설정이다.
+
+예를 들어 외부에서는 이렇게 접속한다.
+    
+    
+    http://192.168.164.4/nginx
+
+그런데 실제 nginx 서버는 `/nginx`라는 경로를 모를 수 있다. nginx 기본 페이지는 보통 `/`로 접속해야 잘 나온다.
+
+그래서 Ingress가 중간에서 경로를 바꿔준다.
+    
+    
+    외부 요청: /nginx
+    백엔드 전달: /
+
+즉 `rewrite-target: /`는 이렇게 이해하면 된다.
+    
+    
+    외부에서는 /nginx로 구분하고
+    내부 서비스에는 / 로 바꿔서 전달
+
+* * *
+
+## 7\. Host 기반 라우팅
+
+두 번째로 배운 것은 **Host 기반 라우팅** 이다.
+
+이번에는 path가 아니라 도메인 이름을 보고 서비스를 구분한다.
+
+예를 들어:
+    
+    
+    nginx.192.168.164.4.sslip.io
+    apache.192.168.164.4.sslip.io
+
+Ingress 설정은 이런 식이었다.
+    
+    
+    rules:
+    - host: "nginx.192.168.164.4.sslip.io"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: nginx-svc
+              port:
+                number: 80
+    - host: "apache.192.168.164.4.sslip.io"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: httpd-svc
+              port:
+                number: 80
+
+뜻은 이거다.
+    
+    
+    nginx.192.168.164.4.sslip.io로 오면 nginx-svc로 보내라
+    apache.192.168.164.4.sslip.io로 오면 httpd-svc로 보내라
+
+실습에서는 다음처럼 접속했다.
+    
+    
+    curl http://nginx.192.168.164.4.sslip.io/
+    curl http://apache.192.168.164.4.sslip.io/
+
+lecture-3에서는 Host 기반 Ingress Rule을 통해 `nginx.192.168.164.4.sslip.io`는 `nginx-svc`로, `apache.192.168.164.4.sslip.io`는 `httpd-svc`로 연결했다. 
+
+* * *
+
+## 8\. sslip.io는 왜 썼을까?
+
+Host 기반 라우팅을 하려면 도메인 이름이 필요하다.
+
+그런데 실습할 때 진짜 도메인을 사서 DNS 설정까지 하기는 번거롭다.
+
+그래서 `sslip.io`를 사용한다.
+    
+    
+    nginx.192.168.164.4.sslip.io
+    apache.192.168.164.4.sslip.io
+
+`sslip.io`는 주소 안에 들어 있는 IP를 실제 접속 IP로 해석해준다.
+    
+    
+    192.168.164.4.sslip.io
+    → 192.168.164.4
+
+앞에 `nginx`나 `apache`가 붙어도 결국 같은 IP로 간다.
+    
+    
+    nginx.192.168.164.4.sslip.io
+    → 192.168.164.4
+    
+    apache.192.168.164.4.sslip.io
+    → 192.168.164.4
+
+그런데 요청의 Host 값은 다르게 남는다.
+    
+    
+    Host: nginx.192.168.164.4.sslip.io
+    Host: apache.192.168.164.4.sslip.io
+
+Ingress는 이 Host 값을 보고 라우팅한다.
+
+정리하면:
+    
+    
+    sslip.io
+    = 실제 도메인 구매 없이
+      IP를 도메인처럼 쓰게 해주는 실습용 DNS 서비스
+
+* * *
+
+## 9\. Path 기반 vs Host 기반
+
+둘의 차이는 이렇게 보면 된다.
+
+구분 | Path 기반 라우팅 | Host 기반 라우팅  
+---|---|---  
+구분 기준 | URL 경로 | 도메인 이름  
+예시 | `/nginx`, `/apache` | `nginx.xxx`, `apache.xxx`  
+접속 예시 | `192.168.164.4/nginx` | `nginx.192.168.164.4.sslip.io`  
+장점 | 도메인 하나로 여러 서비스 구분 가능 | 서비스별 도메인처럼 관리 가능  
+주의점 | rewrite 설정이 필요할 수 있음 | DNS/Host 개념이 필요함  
+  
+쉽게 말하면:
+    
+    
+    Path 기반
+    = 같은 집 주소 안에서 방 번호로 구분
+    
+    Host 기반
+    = 아예 다른 집 주소처럼 구분
+
+* * *
+
+## 10\. HTTPS와 TLS 실습
+
+lecture-3 후반부에서는 HTTPS도 붙였다.
+
+HTTPS를 쓰려면 인증서가 필요하다.
+
+실습에서는 self-signed 인증서를 직접 만들었다.
+    
+    
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+      -keyout tls.key \
+      -out tls.crt \
+      -subj "/CN=nginxsvc/O=nginxsvc"
+
+여기서 생성되는 파일은 두 개다.
+    
+    
+    tls.crt
+    → 인증서
+    
+    tls.key
+    → 개인키
+
+그다음 이 파일들을 Kubernetes Secret으로 만들었다.
+    
+    
+    kubectl create secret tls nginx-tls-secret --key tls.key --cert tls.crt
+
+이 Secret은 Ingress가 HTTPS 요청을 처리할 때 사용한다.
+
+lecture-3에서는 `openssl`로 self-signed 인증서를 만들고, `kubectl create secret tls nginx-tls-secret --key tls.key --cert tls.crt` 명령으로 TLS Secret을 생성했다. 
+
+* * *
+
+## 11\. Ingress에 TLS 붙이기
+
+TLS Secret을 만든 뒤에는 Ingress에 연결한다.
+    
+    
+    spec:
+      ingressClassName: nginx
+      tls:
+      - secretName: nginx-tls-secret
+      rules:
+      - host: "nginx.192.168.164.4.sslip.io"
+        http:
+          paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-svc
+                port:
+                  number: 80
+
+중요한 부분은 이거다.
+    
+    
+    tls:
+    - secretName: nginx-tls-secret
+
+뜻은:
+    
+    
+    HTTPS 요청이 들어오면
+    nginx-tls-secret 안의 인증서와 개인키를 사용한다
+
+이제 사용자는 다음처럼 접속할 수 있다.
+    
+    
+    https://nginx.192.168.164.4.sslip.io
+
+단, HTTPS는 보통 443 포트를 사용하므로 방화벽에서 443 포트가 열려 있어야 한다. lecture-3에도 HTTPS 접속을 위해 AWS Lightsail 방화벽에서 443 포트를 추가하는 내용이 나온다. 
+
+* * *
+
+## 12\. TLS Termination이란?
+
+TLS Termination은 HTTPS 암호화를 Ingress Controller에서 처리하는 것이다.
+
+흐름은 이렇다.
+    
+    
+    브라우저
+       ↓ HTTPS
+    Ingress Controller
+       ↓ HTTP
+    Service
+       ↓
+    Pod
+
+즉 외부 사용자는 HTTPS로 안전하게 접속한다.
+    
+    
+    사용자 → Ingress Controller
+    = HTTPS
+
+Ingress Controller는 인증서를 사용해서 HTTPS 요청을 처리한다. 그리고 내부 Service로는 보통 HTTP로 넘긴다.
+    
+    
+    Ingress Controller → Service → Pod
+    = HTTP
+
+이렇게 하면 좋은 점이 있다.
+    
+    
+    인증서를 Pod마다 넣지 않아도 된다
+    HTTPS 처리를 Ingress 한 곳에서 관리할 수 있다
+    외부 보안 설정을 중앙화할 수 있다
+
+정리하면:
+    
+    
+    TLS Termination
+    = HTTPS 처리를 Ingress Controller에서 끝내고
+      내부 서비스로 요청을 전달하는 방식
+
+* * *
+
+## 13\. HTTP를 HTTPS로 강제하기
+
+운영 환경에서는 사용자가 `http://`로 접속해도 `https://`로 보내고 싶은 경우가 많다.
+
+이때 사용하는 annotation이 이것이다.
+    
+    
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+이 설정을 넣으면:
+    
+    
+    http://nginx.192.168.164.4.sslip.io
+
+로 들어온 요청을:
+    
+    
+    https://nginx.192.168.164.4.sslip.io
+
+로 강제 리다이렉트할 수 있다.
+
+lecture-3에서는 `nginx.ingress.kubernetes.io/force-ssl-redirect: "true"` annotation으로 HTTP 요청을 HTTPS로 강제하는 설정도 다뤘다. 
+
+* * *
+
+## 14\. lecture-3 전체 흐름 정리
+
+lecture-3에서 배운 흐름은 이렇게 정리할 수 있다.
+    
+    
+    1. Ingress Controller 확인
+    
+    2. nginx/httpd Deployment와 Service 생성
+    
+    3. path 기반 Ingress 작성
+       /nginx  → nginx-svc
+       /apache → httpd-svc
+    
+    4. host 기반 Ingress 작성
+       nginx.192.168.164.4.sslip.io  → nginx-svc
+       apache.192.168.164.4.sslip.io → httpd-svc
+    
+    5. sslip.io를 이용해 실습용 도메인 사용
+    
+    6. openssl로 self-signed 인증서 생성
+    
+    7. TLS Secret 생성
+    
+    8. Ingress에 TLS 설정 추가
+    
+    9. HTTPS 접속 테스트
+    
+    10. force-ssl-redirect로 HTTP → HTTPS 강제
+
+* * *
+
+## 15\. 꼭 기억할 개념
+    
+    
+    Service
+    → Pod로 트래픽을 보내주는 내부 입구
+    
+    Ingress
+    → 외부 HTTP/HTTPS 요청을 Service로 보내는 규칙
+    
+    Ingress Controller
+    → Ingress 규칙을 실제로 실행하는 컨트롤러
+    
+    Path 기반 라우팅
+    → /nginx, /apache 같은 경로로 서비스 구분
+    
+    Host 기반 라우팅
+    → nginx.xxx, apache.xxx 같은 도메인으로 서비스 구분
+    
+    sslip.io
+    → IP를 도메인처럼 쓰게 해주는 실습용 DNS
+    
+    TLS Secret
+    → 인증서와 개인키를 Kubernetes Secret으로 저장한 것
+    
+    TLS Termination
+    → Ingress에서 HTTPS를 처리하고 내부로 전달하는 방식
+
+* * *
+
+## 16\. 한 줄 정리
+
+lecture-3은 **Kubernetes 내부에 있는 nginx/httpd 서비스를 Ingress로 외부에 노출하고, path/host 기반 라우팅과 HTTPS 적용까지 실습한 내용** 이다.
+
+진짜 핵심 흐름은 이것만 기억하면 된다.
+    
+    
+    외부 사용자
+       ↓
+    Ingress Controller
+       ↓
+    Ingress Rule 확인
+       ↓
+    Service 선택
+       ↓
+    Pod로 전달
+
+즉 lecture-3은 Kubernetes에서 **외부 요청이 클러스터 안의 Pod까지 들어오는 길** 을 배운 강의라고 보면 된다.

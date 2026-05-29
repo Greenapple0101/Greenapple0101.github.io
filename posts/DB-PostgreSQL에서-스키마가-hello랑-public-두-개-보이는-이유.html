@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유 | Greenapple0101</title>
+  <meta name="description" content="! https://velog.velcdn.com/images/yorange50/post/01404878-9a94-45ac-a55d-cd34602097bc/image.png ! https://velog.velcdn.com/images/yorange50/post/08bb43df-fdc7-…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #64748b">DB</span>
+    <h1>[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-13T04:38:37.173Z">2026.05.13</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/DB-PostgreSQL에서-스키마가-hello랑-public-두-개-보이는-이유" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p><img alt="" src="https://velog.velcdn.com/images/yorange50/post/01404878-9a94-45ac-a55d-cd34602097bc/image.png"></p>
+<p><img alt="" src="https://velog.velcdn.com/images/yorange50/post/08bb43df-fdc7-4d2c-96c4-3215322576e8/image.png"></p>
+<p>PostgreSQL을 Docker로 띄우고 DBeaver에서 확인하다 보면 이런 구조를 볼 수 있다.</p>
+<pre><code class="language-text">hellodb
+└── Schemas
+    ├── hello
+    └── public
+</code></pre>
+<p>처음 보면 헷갈린다.</p>
+<blockquote>
+<p>왜 스키마가 두 개지?
+public은 뭐고 hello는 뭐지?
+테이블은 어디에 만들어지는 거지?</p>
+</blockquote>
+<p>결론부터 말하면 이상한 상황이 아니다.</p>
+<p><code>public</code>은 PostgreSQL이 기본으로 가지고 있는 스키마이고, <code>hello</code>는 내가 직접 만든 스키마다.</p>
+<hr>
+<h2>1. PostgreSQL 구조 먼저 보기</h2>
+<p>PostgreSQL은 대충 이런 구조로 생각하면 된다.</p>
+<pre><code class="language-text">PostgreSQL 서버
+└── Database
+    └── Schema
+        └── Table
+</code></pre>
+<p>예를 들어 지금 상황은 이런 느낌이다.</p>
+<pre><code class="language-text">PostgreSQL 서버
+└── hellodb
+    └── Schemas
+        ├── public
+        │   └── tables
+        │
+        └── hello
+            └── tables
+</code></pre>
+<p>즉, <code>hellodb</code>라는 데이터베이스 안에 <code>public</code> 스키마와 <code>hello</code> 스키마가 같이 존재하는 것이다.</p>
+<hr>
+<h2>2. <code>public</code> 스키마는 기본 스키마다</h2>
+<p>PostgreSQL에서 데이터베이스를 만들면 기본적으로 <code>public</code> 스키마가 존재한다.</p>
+<pre><code class="language-text">hellodb
+└── public
+</code></pre>
+<p><code>public</code>은 말 그대로 기본 작업 공간 같은 역할을 한다.</p>
+<p>내가 따로 스키마를 지정하지 않고 테이블을 만들면 보통 <code>public</code> 스키마에 테이블이 생성된다.</p>
+<p>예를 들어 아래처럼 테이블을 만들었다고 하자.</p>
+<pre><code class="language-sql">CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50)
+);
+</code></pre>
+<p>이 SQL에는 스키마 이름이 없다.</p>
+<pre><code class="language-sql">CREATE TABLE users
+</code></pre>
+<p>그러면 PostgreSQL은 현재 설정된 <code>search_path</code>를 보고 어디에 만들지 결정한다. 일반적인 기본 설정에서는 <code>public.users</code>로 만들어진다.</p>
+<pre><code class="language-text">hellodb
+└── public
+    └── users
+</code></pre>
+<p>그래서 DBeaver에서 보면 이런 위치에 보인다.</p>
+<pre><code class="language-text">Databases
+└── hellodb
+    └── Schemas
+        └── public
+            └── Tables
+                └── users
+</code></pre>
+<hr>
+<h2>3. <code>hello</code> 스키마는 직접 만든 스키마다</h2>
+<p>반면 <code>hello</code> 스키마는 PostgreSQL이 기본으로 만든 것이 아니다.</p>
+<p>보통 이런 SQL을 실행했을 때 생긴다.</p>
+<pre><code class="language-sql">CREATE SCHEMA IF NOT EXISTS hello;
+</code></pre>
+<p>이 SQL의 뜻은 다음과 같다.</p>
+<pre><code class="language-text">hello라는 스키마가 없으면 만들어라.
+이미 있으면 넘어가라.
+</code></pre>
+<p>이걸 실행하면 데이터베이스 안에 <code>hello</code>라는 스키마가 하나 추가된다.</p>
+<pre><code class="language-text">hellodb
+├── public
+└── hello
+</code></pre>
+<p>즉, <code>hello</code>는 내가 앱 전용 공간으로 따로 만든 스키마라고 보면 된다.</p>
+<hr>
+<h2>4. 스키마는 DB 안의 폴더 같은 개념이다</h2>
+<p>스키마는 쉽게 말하면 데이터베이스 안에서 테이블을 분류하는 폴더 같은 개념이다.</p>
+<p>예를 들어 모든 테이블을 <code>public</code>에 넣으면 이렇게 된다.</p>
+<pre><code class="language-text">hellodb
+└── public
+    ├── users
+    ├── posts
+    ├── comments
+    ├── app_config
+    └── greetings
+</code></pre>
+<p>작은 실습에서는 괜찮다.</p>
+<p>하지만 앱이 커지거나 여러 기능이 섞이면 테이블이 많아진다. 이때 스키마를 나누면 정리하기 좋다.</p>
+<pre><code class="language-text">hellodb
+├── public
+│   └── 기본 공간
+│
+└── hello
+    ├── app_config
+    └── greetings
+</code></pre>
+<p>이렇게 하면 <code>hello-world</code> 앱에서 사용하는 테이블을 <code>hello</code> 스키마에 따로 모아둘 수 있다.</p>
+<hr>
+<h2>5. 내가 실행한 SQL 때문에 <code>hello</code> 스키마가 생겼을 가능성</h2>
+<p>만약 예전에 이런 SQL을 실행했다면 <code>hello</code> 스키마가 생긴다.</p>
+<pre><code class="language-sql">CREATE SCHEMA IF NOT EXISTS hello;
+
+SET search_path TO hello, public;
+</code></pre>
+<p>첫 번째 줄은 <code>hello</code> 스키마를 만든다.</p>
+<pre><code class="language-sql">CREATE SCHEMA IF NOT EXISTS hello;
+</code></pre>
+<p>두 번째 줄은 PostgreSQL이 테이블을 찾거나 만들 때 참고하는 순서를 정한다.</p>
+<pre><code class="language-sql">SET search_path TO hello, public;
+</code></pre>
+<p>이 설정은 이렇게 해석하면 된다.</p>
+<pre><code class="language-text">테이블 이름만 쓰면 먼저 hello 스키마에서 찾고,
+없으면 public 스키마에서 찾아라.
+</code></pre>
+<hr>
+<h2>6. <code>search_path</code>가 뭐지?</h2>
+<p>PostgreSQL에서 테이블을 조회할 때 보통 이렇게 쓴다.</p>
+<pre><code class="language-sql">SELECT * FROM users;
+</code></pre>
+<p>그런데 사실 테이블의 정확한 이름은 스키마까지 포함하면 이런 형태다.</p>
+<pre><code class="language-sql">SELECT * FROM public.users;
+</code></pre>
+<p>또는</p>
+<pre><code class="language-sql">SELECT * FROM hello.users;
+</code></pre>
+<p>그럼 <code>SELECT * FROM users;</code>처럼 스키마 이름을 생략하면 PostgreSQL은 어떻게 찾을까?</p>
+<p>이때 사용하는 것이 <code>search_path</code>다.</p>
+<p>현재 <code>search_path</code>가 이렇게 되어 있다고 해보자.</p>
+<pre><code class="language-sql">SET search_path TO hello, public;
+</code></pre>
+<p>그러면 PostgreSQL은 <code>users</code>를 찾을 때 이런 순서로 찾는다.</p>
+<pre><code class="language-text">1. hello.users 찾기
+2. 없으면 public.users 찾기
+</code></pre>
+<p>즉, <code>search_path</code>는 스키마를 생략했을 때 PostgreSQL이 탐색하는 순서다.</p>
+<hr>
+<h2>7. 테이블이 어느 스키마에 있는지 확인하는 법</h2>
+<p>헷갈릴 때는 직접 SQL로 확인하면 된다.</p>
+<pre><code class="language-sql">SELECT table_schema, table_name
+FROM information_schema.tables
+WHERE table_name = 'users';
+</code></pre>
+<p>결과가 이렇게 나오면 <code>users</code>는 <code>public</code> 스키마에 있는 것이다.</p>
+<pre><code class="language-text">table_schema | table_name
+-------------+-----------
+public       | users
+</code></pre>
+<p>결과가 이렇게 나오면 <code>users</code>는 <code>hello</code> 스키마에 있는 것이다.</p>
+<pre><code class="language-text">table_schema | table_name
+-------------+-----------
+hello        | users
+</code></pre>
+<p>전체 테이블 목록을 보고 싶으면 이렇게 확인할 수 있다.</p>
+<pre><code class="language-sql">SELECT table_schema, table_name
+FROM information_schema.tables
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+ORDER BY table_schema, table_name;
+</code></pre>
+<p>이 SQL은 시스템 테이블을 제외하고 내가 만든 테이블 위주로 보여준다.</p>
+<hr>
+<h2>8. 스키마를 명시해서 조회하면 헷갈리지 않는다</h2>
+<p>스키마가 여러 개 있을 때는 테이블 이름 앞에 스키마 이름을 붙이면 가장 확실하다.</p>
+<p><code>public</code> 스키마의 <code>users</code>를 조회하려면 이렇게 쓴다.</p>
+<pre><code class="language-sql">SELECT * FROM public.users;
+</code></pre>
+<p><code>hello</code> 스키마의 <code>users</code>를 조회하려면 이렇게 쓴다.</p>
+<pre><code class="language-sql">SELECT * FROM hello.users;
+</code></pre>
+<p>만약 두 스키마에 같은 이름의 테이블이 있어도 스키마를 명시하면 정확히 조회할 수 있다.</p>
+<pre><code class="language-text">hellodb
+├── public
+│   └── users
+│
+└── hello
+    └── users
+</code></pre>
+<p>이런 구조에서도 아래 두 SQL은 서로 다른 테이블을 조회한다.</p>
+<pre><code class="language-sql">SELECT * FROM public.users;
+</code></pre>
+<pre><code class="language-sql">SELECT * FROM hello.users;
+</code></pre>
+<hr>
+<h2>9. 그럼 실습에서는 <code>public</code>을 써도 될까?</h2>
+<p>단순 실습이면 <code>public</code>만 써도 된다.</p>
+<p>예를 들어 Docker로 PostgreSQL 연결 확인하고, DBeaver로 테이블 생성하고, Spring Boot에서 DB 연결하는 정도라면 <code>public</code> 스키마만 써도 충분하다.</p>
+<pre><code class="language-text">hellodb
+└── public
+    └── users
+</code></pre>
+<p>이게 가장 단순하다.</p>
+<p>하지만 앱 전용 테이블을 구분하고 싶다면 <code>hello</code> 같은 스키마를 만들어도 된다.</p>
+<pre><code class="language-text">hellodb
+└── hello
+    ├── app_config
+    └── greetings
+</code></pre>
+<p>실무에서는 서비스별, 도메인별, 모듈별로 스키마를 나누기도 한다.</p>
+<pre><code class="language-text">appdb
+├── user_service
+├── order_service
+├── payment_service
+└── public
+</code></pre>
+<p>이렇게 나누면 테이블을 관리하기 편해진다.</p>
+<hr>
+<h2>10. Spring Boot에서는 어떤 스키마를 볼까?</h2>
+<p>Spring Boot가 PostgreSQL에 연결할 때도 결국 특정 데이터베이스에 접속한다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-properties">spring.datasource.url=jdbc:postgresql://localhost:5432/hellodb
+spring.datasource.username=hellouser
+spring.datasource.password=hellopass
+</code></pre>
+<p>이 설정은 <code>hellodb</code> 데이터베이스에 접속한다는 뜻이다.</p>
+<p>하지만 이 설정만으로는 <code>hello</code> 스키마를 쓸지, <code>public</code> 스키마를 쓸지 명확하지 않을 수 있다.</p>
+<p>JPA를 사용한다면 기본 스키마를 지정할 수도 있다.</p>
+<pre><code class="language-properties">spring.jpa.properties.hibernate.default_schema=hello
+</code></pre>
+<p>이렇게 하면 Hibernate가 기본적으로 <code>hello</code> 스키마를 사용하게 할 수 있다.</p>
+<p>반대로 단순 실습이고 스키마 구분이 필요 없다면 이 설정 없이 <code>public</code>을 사용해도 된다.</p>
+<hr>
+<h2>11. 현재 상황 정리</h2>
+<p>현재 DBeaver에서 스키마가 두 개 보이는 이유는 다음과 같다.</p>
+<pre><code class="language-text">public
+= PostgreSQL 데이터베이스에 기본으로 있는 스키마
+
+hello
+= 내가 직접 CREATE SCHEMA로 만든 스키마
+</code></pre>
+<p>구조로 보면 이렇게 된다.</p>
+<pre><code class="language-text">hellodb
+├── public
+│   └── 기본 스키마
+│
+└── hello
+    └── 앱 전용으로 만든 스키마
+</code></pre>
+<p>두 개가 같이 보이는 것은 오류가 아니다. PostgreSQL에서는 하나의 데이터베이스 안에 여러 스키마를 둘 수 있다.</p>
+<hr>
+<h2>12. 최종 정리</h2>
+<p>PostgreSQL에서 스키마는 데이터베이스 안에서 테이블을 분리하는 공간이다.</p>
+<p><code>public</code>은 기본 스키마다. 내가 아무것도 설정하지 않고 테이블을 만들면 보통 <code>public</code>에 만들어진다.</p>
+<p><code>hello</code>는 내가 직접 만든 스키마다.</p>
+<pre><code class="language-sql">CREATE SCHEMA IF NOT EXISTS hello;
+</code></pre>
+<p>이 SQL을 실행했기 때문에 <code>hello</code> 스키마가 생긴 것이다.</p>
+<p>그리고 <code>SET search_path TO hello, public;</code>을 사용하면 PostgreSQL은 테이블 이름만 적었을 때 먼저 <code>hello</code>에서 찾고, 없으면 <code>public</code>에서 찾는다.</p>
+<p>헷갈릴 때는 이 SQL로 확인하면 된다.</p>
+<pre><code class="language-sql">SELECT table_schema, table_name
+FROM information_schema.tables
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+ORDER BY table_schema, table_name;
+</code></pre>
+<p>핵심은 이거다.</p>
+<pre><code class="language-text">Database는 큰 방
+Schema는 그 안의 구역
+Table은 구역 안에 있는 실제 데이터 저장소
+</code></pre>
+<p>따라서 <code>hello</code>와 <code>public</code>이 같이 보이는 건 문제가 아니라, 하나의 데이터베이스 안에 기본 스키마와 내가 만든 스키마가 함께 존재하는 정상적인 상태다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

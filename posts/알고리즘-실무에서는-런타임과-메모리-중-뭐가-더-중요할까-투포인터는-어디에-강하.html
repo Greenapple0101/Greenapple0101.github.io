@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[알고리즘] 실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 투포인터는 어디에 강할까?  | Greenapple0101</title>
+  <meta name="description" content="실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 알고리즘 문제를 풀다 보면 자주 보게 되는 것: 리트코드에서는 퍼센트까지 보여준다. 그러다 보면 자연스럽게 이런 생각이 든다. “실무에서는 런타임이 더 중요할까?” “아니면 메모리가 더 중요할까?” 결론부터 말하면: 그리고 대부분은 상…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #64748b">알고리즘</span>
+    <h1>[알고리즘] 실무에서는 런타임과 메모리 중 뭐가 더 중요할까? 투포인터는 어디에 강할까? </h1>
+    <div class="post-meta">
+      <time datetime="2026-05-12T05:43:58.641Z">2026.05.12</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/알고리즘-실무에서는-런타임과-메모리-중-뭐가-더-중요할까-투포인터는-어디에-강할까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<h1>실무에서는 런타임과 메모리 중 뭐가 더 중요할까?</h1>
+<p>알고리즘 문제를 풀다 보면 자주 보게 되는 것:</p>
+<pre><code class="language-text">Runtime
+Memory
+</code></pre>
+<p>리트코드에서는 퍼센트까지 보여준다.</p>
+<pre><code class="language-text">Runtime: 77ms
+Memory: 28MB
+</code></pre>
+<p>그러다 보면 자연스럽게 이런 생각이 든다.</p>
+<blockquote>
+<p>“실무에서는 런타임이 더 중요할까?”</p>
+<p>“아니면 메모리가 더 중요할까?”</p>
+</blockquote>
+<p>결론부터 말하면:</p>
+<pre><code class="language-text">실무에서는 병목이 되는 쪽이 더 중요하다.
+</code></pre>
+<p>그리고 대부분은 상황에 따라 달라진다.</p>
+<hr>
+<h1>1. 런타임이 중요한 경우</h1>
+<p>웹 서비스나 API 서버에서는 보통 응답 속도가 굉장히 중요하다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">로그인 API → 5초
+상품 조회 → 7초
+검색 API → 10초
+</code></pre>
+<p>사용자는 바로 느낀다.</p>
+<p>서비스가 느리면:</p>
+<ul>
+<li>사용자 이탈</li>
+<li>UX 악화</li>
+<li>트래픽 감소</li>
+<li>서버 대기 증가</li>
+</ul>
+<p>등이 발생한다.</p>
+<p>그래서 실무에서는 흔히:</p>
+<pre><code class="language-text">Latency(지연시간)
+Response Time(응답속도)
+TPS/RPS(처리량)
+</code></pre>
+<p>를 매우 중요하게 본다.</p>
+<hr>
+<h1>예시</h1>
+<h2>O(n²) 때문에 느린 경우</h2>
+<pre><code class="language-python">for i in arr:
+    for j in arr:
+        ...
+</code></pre>
+<p>데이터가 커질수록 급격히 느려진다.</p>
+<p>실무에서는:</p>
+<ul>
+<li>해시 사용</li>
+<li>캐싱</li>
+<li>인덱스 최적화</li>
+<li>병렬 처리</li>
+</ul>
+<p>등으로 속도를 줄인다.</p>
+<hr>
+<h1>2. 메모리가 중요한 경우</h1>
+<p>반대로 메모리가 더 중요한 상황도 많다.</p>
+<p>특히:</p>
+<ul>
+<li>Docker</li>
+<li>Kubernetes</li>
+<li>대용량 데이터 처리</li>
+<li>AI/ML</li>
+<li>배치 시스템</li>
+</ul>
+<p>같은 환경에서는 메모리가 진짜 중요하다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">컨테이너 메모리 제한 512MB
+</code></pre>
+<p>인데 프로그램이 2GB를 먹는다?</p>
+<p>그러면:</p>
+<pre><code class="language-text">OOM (Out Of Memory)
+</code></pre>
+<p>가 발생한다.</p>
+<p>쿠버네티스에서는:</p>
+<pre><code class="language-text">OOMKilled
+</code></pre>
+<p>상태가 뜨면서 Pod가 죽는다.</p>
+<hr>
+<h1>실무에서 자주 보는 상황</h1>
+<h2>1. 느리지만 안 죽는 서비스</h2>
+<pre><code class="language-text">응답시간 3~5초
+</code></pre>
+<p>이 경우:</p>
+<pre><code class="language-text">런타임 최적화
+</code></pre>
+<p>를 먼저 한다.</p>
+<p>예시:</p>
+<ul>
+<li>쿼리 최적화</li>
+<li>캐싱</li>
+<li>알고리즘 개선</li>
+<li>비동기 처리</li>
+</ul>
+<hr>
+<h2>2. 빠르지만 메모리를 너무 먹는 서비스</h2>
+<pre><code class="language-text">서버 메모리 95%
+</code></pre>
+<p>이 경우:</p>
+<pre><code class="language-text">메모리 최적화
+</code></pre>
+<p>가 더 중요하다.</p>
+<p>예시:</p>
+<ul>
+<li>불필요한 객체 제거</li>
+<li>스트리밍 처리</li>
+<li>chunk 단위 처리</li>
+<li>GC 튜닝</li>
+<li>캐시 크기 조절</li>
+</ul>
+<hr>
+<h1>결국 중요한 것</h1>
+<p>실무에서는 단순히:</p>
+<pre><code class="language-text">몇 ms 빠르다
+</code></pre>
+<p>보다 더 중요한 게 있다.</p>
+<p>바로:</p>
+<pre><code class="language-text">실제 장애를 만드는가?
+</code></pre>
+<p>이다.</p>
+<p>예를 들어:</p>
+<h2>이건 위험하다</h2>
+<pre><code class="language-text">메모리 부족으로 서버 죽음
+</code></pre>
+<h2>이것도 위험하다</h2>
+<pre><code class="language-text">API 응답 15초
+</code></pre>
+<hr>
+<h1>코테와 실무의 차이</h1>
+<p>코테에서는:</p>
+<pre><code class="language-text">시간복잡도
+공간복잡도
+</code></pre>
+<p>를 주로 본다.</p>
+<p>예시:</p>
+<pre><code class="language-text">O(n²) → 위험
+O(n log n) → 가능
+O(n) → 좋음
+</code></pre>
+<p>하지만 실무에서는:</p>
+<pre><code class="language-text">CPU
+메모리
+네트워크
+디스크 I/O
+DB
+캐시
+동시성
+</code></pre>
+<p>전부 함께 본다.</p>
+<p>즉:</p>
+<pre><code class="language-text">알고리즘만 빠르다고 끝이 아니다.
+</code></pre>
+<hr>
+<h1>실무에서 많이 하는 판단</h1>
+<p>보통 이런 순서로 본다.</p>
+<pre><code class="language-text">1. 서비스가 죽는가?
+2. 사용자가 느린 걸 체감하는가?
+3. 서버 비용이 많이 드는가?
+4. 유지보수가 어려운가?
+</code></pre>
+<p>그리고 마지막에는 결국:</p>
+<pre><code class="language-text">읽기 쉽고 유지보수 가능한 코드
+</code></pre>
+<p>가 굉장히 중요해진다.</p>
+<hr>
+<h1>정리</h1>
+<h2>런타임이 중요한 경우</h2>
+<ul>
+<li>사용자 응답속도</li>
+<li>API 서버</li>
+<li>검색 시스템</li>
+<li>실시간 처리</li>
+</ul>
+<hr>
+<h2>메모리가 중요한 경우</h2>
+<ul>
+<li>Kubernetes/Docker</li>
+<li>대용량 처리</li>
+<li>AI/ML</li>
+<li>배치 시스템</li>
+</ul>
+<hr>
+<h1>결론</h1>
+<p>실무에서는:</p>
+<pre><code class="language-text">“더 중요한 하나”가 있는 게 아니라
+현재 병목이 무엇인지 찾는 능력이 중요하다.
+</code></pre>
+<p>그리고 대부분의 좋은 엔지니어는:</p>
+<pre><code class="language-text">시간복잡도 + 메모리 + 운영 환경
+</code></pre>
+<p>을 같이 본다.</p>
+<p>투포인터는 한마디로 말하면 <strong>메모리에 강한 편이고, 런타임도 같이 좋아지는 경우가 많다.</strong></p>
+<p>정리하면 이렇게 묶으면 돼.</p>
+<hr>
+<h1>투포인터는 런타임과 메모리 중 어디에 강할까?</h1>
+<p>투포인터는 보통 <strong>배열이나 문자열을 한 번 훑으면서</strong> 문제를 푸는 방식이다.</p>
+<pre><code class="language-text">left  → 왼쪽 포인터
+right → 오른쪽 포인터
+</code></pre>
+<p>두 개의 인덱스를 움직이면서 필요한 구간만 확인한다.</p>
+<p>그래서 투포인터의 장점은 보통 두 가지다.</p>
+<pre><code class="language-text">1. 불필요한 반복을 줄여서 런타임 개선
+2. 새 배열이나 딕셔너리를 덜 만들어서 메모리 절약
+</code></pre>
+<hr>
+<h1>1. 런타임 측면</h1>
+<p>투포인터는 보통 <code>O(n²)</code>으로 풀 수 있는 문제를 <code>O(n)</code>이나 <code>O(n log n)</code> 정도로 줄이는 데 자주 쓰인다.</p>
+<p>예를 들어 모든 쌍을 비교하면:</p>
+<pre><code class="language-python">for i in range(len(arr)):
+    for j in range(i + 1, len(arr)):
+        ...
+</code></pre>
+<p>시간복잡도는:</p>
+<pre><code class="language-text">O(n²)
+</code></pre>
+<p>하지만 투포인터를 쓰면 양쪽에서 포인터를 움직이면서 한 번만 훑을 수 있다.</p>
+<pre><code class="language-python">left = 0
+right = len(arr) - 1
+
+while left &lt; right:
+    ...
+</code></pre>
+<p>이 경우 보통:</p>
+<pre><code class="language-text">O(n)
+</code></pre>
+<p>이 된다.</p>
+<p>즉, 투포인터는 <strong>런타임 개선에도 강하다.</strong></p>
+<hr>
+<h1>2. 메모리 측면</h1>
+<p>투포인터의 더 큰 장점은 <strong>추가 자료구조를 거의 안 쓴다는 것</strong>이다.</p>
+<p>보통 필요한 건 인덱스 변수 두 개뿐이다.</p>
+<pre><code class="language-python">left = 0
+right = 1
+</code></pre>
+<p>그래서 공간복잡도는 보통:</p>
+<pre><code class="language-text">O(1)
+</code></pre>
+<p>이다.</p>
+<p>새로운 리스트를 만들거나, 딕셔너리에 값을 저장하거나, 배열을 복사하지 않아도 되는 경우가 많다.</p>
+<p>즉, 투포인터는 <strong>메모리에도 강하다.</strong></p>
+<hr>
+<h1>그럼 둘 중 어디에 더 강한가?</h1>
+<p>굳이 하나를 고르면:</p>
+<pre><code class="language-text">투포인터는 메모리 절약에 특히 강하고,
+동시에 런타임도 좋아지는 경우가 많다.
+</code></pre>
+<p>왜냐하면 투포인터의 기본 철학이 이거라서다.</p>
+<pre><code class="language-text">새 자료구조를 만들지 말고,
+원래 배열 위에서 인덱스만 움직이자.
+</code></pre>
+<p>그래서 메모리 사용량은 거의 늘어나지 않는다.</p>
+<hr>
+<h1>예시: Best Time to Buy and Sell Stock</h1>
+<pre><code class="language-python">class Solution:
+    def maxProfit(self, prices: List[int]) -&gt; int:
+        left = 0
+        right = 1
+        ans = 0
+
+        while right &lt; len(prices):
+            if prices[left] &lt; prices[right]:
+                ans = max(ans, prices[right] - prices[left])
+            else:
+                left = right
+
+            right += 1
+
+        return ans
+</code></pre>
+<p>이 코드는 배열을 한 번만 훑는다.</p>
+<pre><code class="language-text">시간복잡도: O(n)
+공간복잡도: O(1)
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">런타임도 좋고
+메모리도 거의 안 쓴다
+</code></pre>
+<hr>
+<h1>정리</h1>
+<p>투포인터는 이렇게 이해하면 된다.</p>
+<pre><code class="language-text">런타임 측면:
+불필요한 이중 반복을 줄여서 빠르게 만든다.
+
+메모리 측면:
+새 자료구조를 거의 만들지 않고 인덱스만 움직인다.
+
+결론:
+투포인터는 메모리에 특히 강하고,
+많은 경우 런타임까지 같이 좋아진다.
+</code></pre>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

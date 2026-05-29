@@ -1,0 +1,717 @@
+---
+title: "[CKA]Kubernetes 핵심 리소스 입문 정리"
+source: "https://velog.io/@yorange50/CKAKubernetes-핵심-리소스-입문-정리"
+published: "2026-05-04T04:14:31.068Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.778702"
+---
+
+## 1. Pod
+
+`Pod`는 쿠버네티스에서 컨테이너가 실제로 실행되는 가장 작은 단위다.
+
+쉽게 말하면,
+
+```text
+Pod = 컨테이너를 담는 실행 공간
+```
+
+Spring Boot 애플리케이션을 Docker 이미지로 만들었다고 하면, 쿠버네티스는 그 이미지를 바로 실행하지 않고 보통 Pod 안에서 실행한다.
+
+```text
+Spring Boot Docker Image
+        ↓
+      Pod
+        ↓
+컨테이너 실행
+```
+
+예를 들어 nginx Pod를 만들면 다음과 같다.
+
+```bash
+kubectl run nginx --image=nginx
+```
+
+이 명령어는 nginx 컨테이너가 들어 있는 Pod 하나를 생성한다.
+
+Pod는 보통 하나의 컨테이너를 담지만, 필요하면 여러 컨테이너를 같이 담을 수도 있다. 다만 입문 단계에서는 이렇게 이해하면 충분하다.
+
+```text
+Pod 하나 = 애플리케이션 실행 단위 하나
+```
+
+예를 들어 게시판 API 서버를 Pod로 띄우면 이런 느낌이다.
+
+```text
+board-api Pod
+ └── board-api container
+```
+
+---
+
+## 2. Replica
+
+`Replica`는 같은 Pod를 몇 개 띄울 것인지를 의미한다.
+
+예를 들어 게시판 API 서버를 하나만 띄우면 이렇다.
+
+```text
+board-api Pod 1개
+```
+
+그런데 사용자가 많아지면 서버 하나로 부족할 수 있다. 그래서 같은 애플리케이션 Pod를 여러 개 띄운다.
+
+```text
+board-api Pod 3개
+```
+
+이때 “Pod를 3개 유지해라”라는 개념이 replica다.
+
+```text
+replicas: 3
+```
+
+즉,
+
+```text
+Replica = 같은 Pod 복사본 개수
+```
+
+중요한 점은 replica는 단순 복사 개념이 아니라 “항상 그 개수를 유지하려는 목표 상태”라는 점이다.
+
+예를 들어 replica가 3인데 Pod 하나가 죽으면 쿠버네티스가 다시 하나를 만든다.
+
+```text
+원래 상태:
+Pod A / Pod B / Pod C
+
+Pod C 장애 발생:
+Pod A / Pod B / X
+
+쿠버네티스가 자동 복구:
+Pod A / Pod B / Pod D
+```
+
+그래서 쿠버네티스는 “현재 상태”를 “원하는 상태”에 맞추는 시스템이라고 많이 설명한다.
+
+---
+
+## 3. ReplicaSet
+
+`ReplicaSet`은 replica 개수를 실제로 유지해주는 리소스다.
+
+```text
+ReplicaSet = Pod 개수를 맞춰주는 관리자
+```
+
+예를 들어 replica가 3이면 ReplicaSet은 계속 확인한다.
+
+```text
+Pod가 3개인가?
+아니면 새로 만들자.
+너무 많으면 줄이자.
+```
+
+구조로 보면 이렇다.
+
+```text
+ReplicaSet
+ ├── Pod
+ ├── Pod
+ └── Pod
+```
+
+하지만 실무나 CKA에서는 ReplicaSet을 직접 만드는 경우는 많지 않다. 보통 Deployment를 만들면 그 안에서 ReplicaSet이 자동으로 만들어진다.
+
+그래서 입문 단계에서는 이렇게 이해하면 된다.
+
+```text
+ReplicaSet은 Pod 개수를 유지하는 역할
+하지만 보통 직접 다루기보다 Deployment가 대신 관리
+```
+
+---
+
+## 4. Deployment
+
+`Deployment`는 Pod 배포를 관리하는 리소스다.
+
+실무에서 가장 많이 쓰는 기본 배포 단위다.
+
+```text
+Deployment = 애플리케이션 배포 관리자
+```
+
+Deployment는 내부적으로 ReplicaSet을 만들고, ReplicaSet은 Pod를 만든다.
+
+구조는 이렇게 된다.
+
+```text
+Deployment
+   ↓
+ReplicaSet
+   ↓
+Pod / Pod / Pod
+```
+
+예를 들어 Spring Boot 게시판 API를 3개 띄우고 싶다면 Deployment를 사용한다.
+
+```yaml
+replicas: 3
+image: board-api:1.0
+```
+
+그러면 쿠버네티스는 다음 상태를 유지한다.
+
+```text
+board-api Pod 3개 실행
+```
+
+Deployment가 중요한 이유는 단순히 Pod를 여러 개 띄우는 것뿐만 아니라 업데이트와 롤백도 관리하기 때문이다.
+
+예를 들어 이미지를 바꾼다.
+
+```bash
+kubectl set image deployment/board-api board-api=board-api:2.0
+```
+
+그러면 쿠버네티스는 기존 Pod를 한 번에 다 죽이지 않고, 새 버전 Pod를 조금씩 띄우면서 교체한다.
+
+```text
+board-api:1.0 Pod → board-api:2.0 Pod
+```
+
+문제가 생기면 롤백도 가능하다.
+
+```bash
+kubectl rollout undo deployment/board-api
+```
+
+그래서 Deployment는 이렇게 이해하면 된다.
+
+```text
+Deployment = Pod 개수 유지 + 버전 업데이트 + 롤백 관리
+```
+
+---
+
+## 5. Service
+
+`Service`는 Pod에 안정적으로 접근하게 해주는 네트워크 주소다.
+
+Pod는 언제든 죽고 다시 만들어질 수 있다. 그러면 Pod IP도 바뀐다.
+
+예를 들어 replica가 3개면 Pod가 여러 개다.
+
+```text
+board-api Pod A: 10.0.1.11
+board-api Pod B: 10.0.1.12
+board-api Pod C: 10.0.1.13
+```
+
+사용자가 이 Pod IP를 직접 알기는 어렵다. 게다가 Pod가 재시작되면 IP가 바뀔 수 있다.
+
+그래서 Service가 필요하다.
+
+```text
+Service = 바뀌는 Pod들 앞에 고정된 접속 주소를 제공
+```
+
+구조는 이렇다.
+
+```text
+Service
+   ↓
+Pod A
+Pod B
+Pod C
+```
+
+Service는 label을 보고 연결할 Pod를 찾는다.
+
+```text
+Service selector: app=board-api
+Pod label: app=board-api
+```
+
+둘이 맞으면 Service가 해당 Pod들로 트래픽을 보낸다.
+
+CKA에서 서비스가 안 될 때 자주 보는 포인트가 바로 이것이다.
+
+```text
+Service selector와 Pod label이 맞는가?
+```
+
+Service 종류는 대표적으로 세 가지가 있다.
+
+---
+
+## 6. ClusterIP
+
+`ClusterIP`는 클러스터 내부에서만 접근 가능한 Service다.
+
+```text
+ClusterIP = 쿠버네티스 내부용 주소
+```
+
+예를 들어 Spring Boot API와 MySQL이 클러스터 안에 있을 때, API Pod가 MySQL Service에 접근할 수 있다.
+
+```text
+board-api Pod → mysql Service → mysql Pod
+```
+
+하지만 외부 사용자가 직접 ClusterIP로 접근할 수는 없다.
+
+```text
+외부 사용자 → ClusterIP 접근 불가
+```
+
+입문 단계에서는 이렇게 보면 된다.
+
+```text
+ClusterIP = 내부 통신용 Service
+```
+
+---
+
+## 7. NodePort
+
+`NodePort`는 클러스터 외부에서 노드의 포트를 통해 접근할 수 있게 해주는 Service다.
+
+```text
+NodePort = 외부에서 Node IP:Port로 접근
+```
+
+예를 들어 NodePort가 30080이면 다음처럼 접근할 수 있다.
+
+```text
+http://<Node-IP>:30080
+```
+
+흐름은 이렇다.
+
+```text
+외부 사용자
+   ↓
+Node IP:30080
+   ↓
+Service
+   ↓
+Pod
+```
+
+개발이나 테스트 환경에서 간단히 외부 접근을 열 때 자주 사용한다.
+
+다만 실무 운영 환경에서는 보통 LoadBalancer나 Ingress를 더 많이 쓴다.
+
+---
+
+## 8. LoadBalancer
+
+`LoadBalancer`는 클라우드 환경에서 외부 로드밸런서를 붙여주는 Service 타입이다.
+
+```text
+LoadBalancer = 클라우드 로드밸런서를 통한 외부 접근
+```
+
+AWS EKS 같은 환경에서 LoadBalancer 타입 Service를 만들면 AWS Load Balancer가 생성될 수 있다.
+
+흐름은 이렇다.
+
+```text
+외부 사용자
+   ↓
+Cloud Load Balancer
+   ↓
+Service
+   ↓
+Pod
+```
+
+온프레미스나 로컬 쿠버네티스에서는 바로 동작하지 않을 수 있다. 클라우드 제공자의 로드밸런서 기능이 필요하기 때문이다.
+
+---
+
+## 9. Ingress
+
+`Ingress`는 HTTP/HTTPS 요청을 여러 Service로 나눠주는 입구 역할을 한다.
+
+```text
+Ingress = HTTP/HTTPS 라우팅 규칙
+```
+
+Service가 Pod 앞의 고정 주소라면, Ingress는 여러 Service 앞의 외부 진입점이다.
+
+예를 들어 이런 요구사항이 있다고 하자.
+
+```text
+/api 로 들어오면 board-api Service로
+/admin 으로 들어오면 admin Service로
+/ 로 들어오면 frontend Service로
+```
+
+Ingress는 이런 라우팅을 담당한다.
+
+```text
+외부 사용자
+   ↓
+Ingress
+   ├── /api   → board-api Service → board-api Pod
+   ├── /admin → admin Service → admin Pod
+   └── /      → frontend Service → frontend Pod
+```
+
+또 도메인 기준으로도 나눌 수 있다.
+
+```text
+api.example.com → api Service
+www.example.com → frontend Service
+```
+
+Ingress를 사용하려면 Ingress 리소스만 만드는 것으로 끝나지 않는다. 실제로 요청을 처리하는 Ingress Controller가 필요하다.
+
+대표적으로 nginx ingress controller가 있다.
+
+```text
+Ingress = 라우팅 규칙
+Ingress Controller = 그 규칙을 실제로 처리하는 프로그램
+```
+
+이 차이가 중요하다.
+
+---
+
+## 10. ConfigMap
+
+`ConfigMap`은 애플리케이션 설정값을 저장하는 리소스다.
+
+예를 들어 Spring Boot에서 이런 설정이 있다고 하자.
+
+```text
+APP_ENV=prod
+LOG_LEVEL=info
+```
+
+이런 값을 이미지 안에 박아두면 환경마다 이미지를 다시 만들어야 한다.
+
+개발 환경:
+
+```text
+APP_ENV=dev
+```
+
+운영 환경:
+
+```text
+APP_ENV=prod
+```
+
+그래서 설정값은 ConfigMap으로 분리한다.
+
+```text
+ConfigMap = 일반 설정값 저장소
+```
+
+Pod는 ConfigMap 값을 환경변수로 가져다 쓸 수 있다.
+
+```text
+Pod → ConfigMap 값 사용
+```
+
+---
+
+## 11. Secret
+
+`Secret`은 비밀번호, 토큰, 인증서 같은 민감한 값을 저장하는 리소스다.
+
+```text
+Secret = 민감한 설정값 저장소
+```
+
+예를 들어 DB 비밀번호는 ConfigMap이 아니라 Secret에 넣는 것이 일반적이다.
+
+```text
+DB_USERNAME=admin
+DB_PASSWORD=1234
+```
+
+주의할 점은 Secret이 완전한 보안 금고라는 뜻은 아니라는 것이다. 기본적으로 base64 인코딩되어 보일 뿐이고, 클러스터 보안 설정이 중요하다.
+
+입문 단계에서는 이렇게 구분하면 된다.
+
+```text
+ConfigMap = 일반 설정값
+Secret = 민감한 설정값
+```
+
+---
+
+## 12. Volume
+
+`Volume`은 Pod 안에서 데이터를 저장하거나 공유하기 위한 공간이다.
+
+컨테이너는 기본적으로 삭제되면 내부 데이터도 같이 사라질 수 있다. 그래서 데이터를 유지해야 하면 Volume을 사용한다.
+
+```text
+Volume = Pod에 붙이는 저장 공간
+```
+
+예를 들어 nginx가 정적 파일을 읽어야 하거나, DB가 데이터를 저장해야 할 때 Volume이 필요하다.
+
+다만 Pod 자체가 사라지면 일반 Volume도 같이 사라질 수 있다. 그래서 영구 저장이 필요하면 PV/PVC를 사용한다.
+
+---
+
+## 13. PV와 PVC
+
+`PV`는 PersistentVolume, `PVC`는 PersistentVolumeClaim이다.
+
+쉽게 말하면 다음과 같다.
+
+```text
+PV = 실제 저장소
+PVC = 저장소 요청서
+```
+
+개발자가 “1Gi 저장소가 필요합니다”라고 PVC를 만들면, 쿠버네티스가 조건에 맞는 PV를 연결해준다.
+
+```text
+Pod
+ ↓
+PVC
+ ↓
+PV
+ ↓
+실제 디스크
+```
+
+예를 들어 DB Pod가 데이터를 저장해야 한다면 PVC를 통해 저장소를 요청하고, 그 저장소를 Pod에 마운트한다.
+
+입문 단계에서는 이렇게 이해하면 된다.
+
+```text
+PVC를 만들어서 Pod가 영구 저장소를 사용한다
+```
+
+---
+
+## 14. Namespace
+
+`Namespace`는 쿠버네티스 리소스를 나누는 공간이다.
+
+```text
+Namespace = 클러스터 안의 논리적 작업 공간
+```
+
+예를 들어 개발 환경과 운영 환경을 나눌 수 있다.
+
+```text
+dev namespace
+prod namespace
+```
+
+각 Namespace 안에 같은 이름의 리소스가 존재할 수도 있다.
+
+```text
+dev/nginx
+prod/nginx
+```
+
+CKA에서는 특정 Namespace에 리소스를 만들라는 문제가 자주 나오므로 `-n` 옵션에 익숙해야 한다.
+
+```bash
+kubectl get pods -n dev
+```
+
+---
+
+## 15. Node
+
+`Node`는 Pod가 실제로 실행되는 서버다.
+
+```text
+Node = 쿠버네티스 클러스터에 속한 서버
+```
+
+Node는 물리 서버일 수도 있고, VM일 수도 있고, 클라우드 인스턴스일 수도 있다.
+
+구조는 이렇게 볼 수 있다.
+
+```text
+Cluster
+ ├── Node 1
+ │    ├── Pod
+ │    └── Pod
+ ├── Node 2
+ │    ├── Pod
+ │    └── Pod
+ └── Node 3
+      └── Pod
+```
+
+쿠버네티스는 여러 Node 중 적절한 곳에 Pod를 배치한다. 이 과정을 Scheduling이라고 한다.
+
+---
+
+## 16. Control Plane
+
+`Control Plane`은 클러스터를 관리하는 두뇌 역할이다.
+
+```text
+Control Plane = 쿠버네티스 클러스터 관리자
+```
+
+Control Plane은 다음과 같은 일을 한다.
+
+```text
+API 요청 받기
+Pod를 어느 Node에 배치할지 결정
+현재 상태와 원하는 상태 비교
+장애가 나면 복구
+클러스터 상태 저장
+```
+
+대표 구성요소는 다음과 같다.
+
+```text
+kube-apiserver
+scheduler
+controller-manager
+etcd
+```
+
+입문 단계에서는 이렇게 이해하면 된다.
+
+```text
+Control Plane = 명령을 받고 전체 클러스터 상태를 관리하는 영역
+Node = 실제 애플리케이션 Pod가 실행되는 서버
+```
+
+---
+
+## 17. 전체 배포 흐름으로 이해하기
+
+Spring Boot 게시판 API를 쿠버네티스에 배포한다고 생각해보자.
+
+먼저 Docker 이미지가 있다.
+
+```text
+board-api:1.0
+```
+
+이 이미지를 Pod에서 실행한다.
+
+```text
+Pod
+ └── board-api container
+```
+
+Pod 하나만 있으면 불안정하니 Deployment로 3개를 유지한다.
+
+```text
+Deployment
+   ↓
+ReplicaSet
+   ↓
+Pod 3개
+```
+
+Pod IP는 바뀔 수 있으니 Service를 붙인다.
+
+```text
+Service
+   ↓
+board-api Pod 3개
+```
+
+외부 사용자가 접속해야 하니 Ingress를 붙인다.
+
+```text
+사용자
+ ↓
+Ingress
+ ↓
+Service
+ ↓
+Pod
+```
+
+전체 구조는 이렇게 된다.
+
+```text
+사용자
+  ↓
+Ingress
+  ↓
+Service
+  ↓
+Deployment
+  ↓
+ReplicaSet
+  ↓
+Pod
+  ↓
+Container
+```
+
+정확히 말하면 Service가 Deployment로 직접 가는 것은 아니고, Service는 label을 기준으로 Pod를 찾는다. 하지만 입문 이해용 흐름으로는 위 구조가 가장 보기 쉽다.
+
+조금 더 정확히 쓰면 다음과 같다.
+
+```text
+사용자
+  ↓
+Ingress
+  ↓
+Service
+  ↓
+Pod / Pod / Pod
+       ↑
+   ReplicaSet이 개수 유지
+       ↑
+   Deployment가 배포 관리
+```
+
+---
+
+## 18. 리소스별 한 줄 요약
+
+```text
+Pod = 컨테이너가 실행되는 최소 단위
+Replica = 같은 Pod를 몇 개 유지할지 정하는 개수
+ReplicaSet = Pod 개수를 유지하는 관리자
+Deployment = Pod 배포, 업데이트, 롤백을 관리하는 리소스
+Service = 바뀌는 Pod들 앞에 고정된 네트워크 주소를 제공
+ClusterIP = 클러스터 내부 통신용 Service
+NodePort = 외부에서 Node IP와 Port로 접근하는 Service
+LoadBalancer = 클라우드 로드밸런서를 붙이는 Service
+Ingress = HTTP/HTTPS 요청을 Service로 라우팅하는 입구
+Ingress Controller = Ingress 규칙을 실제로 처리하는 컨트롤러
+ConfigMap = 일반 설정값 저장소
+Secret = 민감한 설정값 저장소
+Volume = Pod에 붙이는 저장 공간
+PV = 실제 영구 저장소
+PVC = 영구 저장소 요청서
+Namespace = 리소스를 나누는 논리적 공간
+Node = Pod가 실제로 실행되는 서버
+Control Plane = 클러스터 전체를 관리하는 두뇌
+```
+
+---
+
+## 마무리
+
+쿠버네티스는 처음 보면 리소스 이름이 많아서 복잡해 보인다. 하지만 웹 서비스를 배포하는 흐름으로 보면 구조가 꽤 명확해진다.
+
+핵심은 다음 흐름이다.
+
+```text
+컨테이너를 Pod로 실행한다.
+Pod를 Deployment로 여러 개 안정적으로 관리한다.
+Service로 Pod에 접근할 고정 주소를 만든다.
+Ingress로 외부 HTTP 요청을 받아 Service로 보낸다.
+ConfigMap과 Secret으로 설정값을 분리한다.
+PVC로 필요한 저장소를 연결한다.
+```
+
+CKA를 준비할 때도 이 흐름을 먼저 잡아두면 명령어가 훨씬 잘 이해된다. 단순히 `kubectl create deployment`를 외우는 게 아니라, “Deployment가 Pod를 안정적으로 유지하고 업데이트하기 위해 필요하구나”라고 이해하게 되기 때문이다.

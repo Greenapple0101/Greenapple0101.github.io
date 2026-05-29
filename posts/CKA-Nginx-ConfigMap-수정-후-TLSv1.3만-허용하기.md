@@ -1,0 +1,450 @@
+---
+title: "[CKA] Nginx ConfigMap 수정 후 TLSv1.3만 허용하기"
+source: "https://velog.io/@yorange50/CKA-Nginx-ConfigMap-수정-후-TLSv1.3만-허용하기"
+published: "2026-05-20T05:08:59.559Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.718810"
+---
+
+# [CKA] Nginx ConfigMap 수정 후 TLSv1.3만 허용하기
+
+CKA 문제를 풀다 보면 이런 유형이 자주 나온다.
+
+```text
+An Nginx Deploy named nginx-static is Running in the nginx-static NS.
+It is configured using a ConfigMap named nginx-config.
+Update the nginx-config ConfigMap to allow only TLSv1.3 connections.
+re-create, restart, or scale resources as necessary.
+By using command to test the changes.
+
+[candidate@cka2025] $ curl --tls-max 1.2 https://web.k8s.local
+```
+
+처음 보면 영어가 길어서 복잡해 보이지만, 사실 문제의 핵심은 단순하다.
+
+```text
+nginx-static 네임스페이스에 Nginx Deployment가 떠 있음
+Nginx 설정은 nginx-config ConfigMap으로 관리 중
+ConfigMap을 수정해서 TLSv1.3만 허용해야 함
+수정 후 Pod가 새 설정을 읽도록 재시작해야 함
+curl --tls-max 1.2 명령어로 TLSv1.2가 막혔는지 확인해야 함
+```
+
+---
+
+## 1. 문제에서 주어진 정보 정리
+
+문제에서 이미 중요한 이름들을 다 알려준다.
+
+```text
+Namespace: nginx-static
+Deployment: nginx-static
+ConfigMap: nginx-config
+Test command: curl --tls-max 1.2 https://web.k8s.local
+```
+
+CKA에서는 리소스 이름을 틀리면 시간 날리기 쉽기 때문에, 먼저 문제에서 준 이름을 머릿속에 정리해야 한다.
+
+이 문제는 새로운 Deployment를 만드는 문제가 아니다.
+새로운 Service를 만드는 문제도 아니다.
+이미 떠 있는 Nginx의 설정을 바꾸는 문제다.
+
+즉 흐름은 이렇게 된다.
+
+```text
+ConfigMap 확인
+→ ConfigMap 수정
+→ Deployment 재시작
+→ Pod 상태 확인
+→ curl로 테스트
+```
+
+---
+
+## 2. 먼저 리소스 확인하기
+
+문제에서 이름을 알려줬더라도, 실제로 리소스가 있는지 확인하는 습관이 좋다.
+
+```bash
+kubectl get deploy,pod,cm -n nginx-static
+```
+
+또는 축약해서 쓸 수 있다.
+
+```bash
+k get deploy,pod,cm -n nginx-static
+```
+
+여기서 확인할 것들은 다음과 같다.
+
+```text
+Deployment nginx-static이 있는가
+Pod가 Running 상태인가
+ConfigMap nginx-config가 있는가
+```
+
+`-n nginx-static`은 네임스페이스를 지정하는 옵션이다.
+
+```bash
+kubectl get pod -n nginx-static
+```
+
+이 명령어는 이런 뜻이다.
+
+```text
+nginx-static 네임스페이스 안의 Pod를 조회한다
+```
+
+주의할 점은 `ns get pod`가 아니라는 것.
+
+정확한 명령어 구조는 다음과 같다.
+
+```bash
+kubectl get pod -n <namespace>
+```
+
+---
+
+## 3. ConfigMap 수정하기
+
+이 문제에서는 이미 존재하는 ConfigMap을 수정해야 한다.
+
+그래서 가장 빠른 방법은 `edit`이다.
+
+```bash
+kubectl edit cm nginx-config -n nginx-static
+```
+
+축약하면 이렇게 쓸 수 있다.
+
+```bash
+k edit cm nginx-config -n nginx-static
+```
+
+여기서 `cm`은 `configmap`의 축약형이다.
+
+```text
+cm = configmap
+```
+
+---
+
+## 4. 왜 edit을 쓰는가?
+
+이 문제에서 중요한 질문이 있다.
+
+```text
+왜 apply -f가 아니라 edit을 쓰는가?
+```
+
+이유는 간단하다.
+
+이 문제는 **이미 존재하는 ConfigMap 안의 설정 일부만 수정하는 문제**이기 때문이다.
+
+새 YAML 파일을 작성해서 리소스를 새로 만드는 상황이 아니다.
+기존 ConfigMap 안에 있는 Nginx 설정 중 TLS 관련 줄만 바꾸면 된다.
+
+CKA에서는 빠르게 수정해야 하므로, 이런 상황에서는 `kubectl edit`이 편하다.
+
+```text
+새 리소스 생성 → kubectl apply -f
+기존 리소스 일부 수정 → kubectl edit
+```
+
+물론 실무에서는 Git에 있는 YAML을 수정하고 `kubectl apply -f` 하는 방식이 더 관리하기 좋다.
+하지만 시험에서는 이미 클러스터 안에 리소스가 있고, 그 안의 한 줄을 빨리 바꿔야 하는 경우가 많다.
+
+그래서 이 문제에서는 `edit`이 적절하다.
+
+---
+
+## 5. ConfigMap 안에서 수정할 부분
+
+`kubectl edit cm nginx-config -n nginx-static`을 실행하면 YAML이 열린다.
+
+그 안에 Nginx 설정이 들어 있을 가능성이 높다.
+
+예를 들면 이런 식이다.
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: nginx-static
+data:
+  nginx.conf: |
+    server {
+        listen 443 ssl;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ...
+    }
+```
+
+여기서 봐야 할 부분은 이 줄이다.
+
+```nginx
+ssl_protocols TLSv1.2 TLSv1.3;
+```
+
+현재는 TLSv1.2와 TLSv1.3을 둘 다 허용하고 있다.
+
+문제에서는 TLSv1.3만 허용하라고 했다.
+
+따라서 이렇게 바꾼다.
+
+```nginx
+ssl_protocols TLSv1.3;
+```
+
+즉 핵심은 이것이다.
+
+```text
+TLSv1.2 제거
+TLSv1.3만 남김
+```
+
+수정 후 저장하고 나오면 ConfigMap이 업데이트된다.
+
+---
+
+## 6. ConfigMap을 수정했는데 왜 rollout restart가 필요한가?
+
+여기서 많이 헷갈린다.
+
+ConfigMap을 수정했다고 해서 실행 중인 Nginx가 무조건 바로 새 설정을 읽는 것은 아니다.
+
+ConfigMap은 설정 데이터를 저장하는 리소스다.
+하지만 Nginx 프로세스는 이미 예전 설정으로 떠 있을 수 있다.
+
+그래서 새 ConfigMap 내용을 확실히 반영하려면 Pod를 다시 띄우는 것이 안전하다.
+
+Deployment가 관리하는 Pod를 재시작하려면 다음 명령어를 쓴다.
+
+```bash
+kubectl rollout restart deploy nginx-static -n nginx-static
+```
+
+축약하면 이렇게 쓸 수 있다.
+
+```bash
+k rollout restart deploy nginx-static -n nginx-static
+```
+
+이 명령어의 의미는 다음과 같다.
+
+```text
+nginx-static Deployment가 관리하는 Pod를 새로 띄운다
+새 Pod는 수정된 ConfigMap을 읽고 시작한다
+```
+
+즉 이 문제의 핵심 흐름은 이렇게 이해하면 된다.
+
+```text
+ConfigMap 수정 = 설정 데이터 변경
+rollout restart = 실제 Nginx Pod에 새 설정 반영
+```
+
+---
+
+## 7. apply -f를 쓰면 안 되는가?
+
+이 상황에서는 보통 `kubectl apply -f`를 쓰지 않는다.
+
+왜냐하면 우리는 로컬 YAML 파일을 수정한 것이 아니라, 클러스터 안에 있는 ConfigMap을 직접 `edit`으로 수정했기 때문이다.
+
+`apply -f`는 보통 이런 상황에서 사용한다.
+
+```bash
+kubectl apply -f nginx-config.yaml
+```
+
+즉 로컬에 `nginx-config.yaml`이라는 파일이 있고, 그 파일을 기준으로 클러스터 리소스를 반영할 때 쓴다.
+
+하지만 이번 흐름은 이렇다.
+
+```bash
+kubectl edit cm nginx-config -n nginx-static
+```
+
+이 명령어로 클러스터 안의 리소스를 직접 수정했다.
+
+따라서 별도로 적용할 YAML 파일이 없다.
+
+그래서 다음 단계는 `apply -f`가 아니라 `rollout restart`다.
+
+---
+
+## 8. rollout 상태 확인하기
+
+재시작 명령어를 실행한 뒤에는 Deployment가 정상적으로 새 Pod를 띄웠는지 확인해야 한다.
+
+```bash
+kubectl rollout status deploy nginx-static -n nginx-static
+```
+
+축약하면 다음과 같다.
+
+```bash
+k rollout status deploy nginx-static -n nginx-static
+```
+
+정상이라면 Deployment가 성공적으로 롤아웃되었다는 메시지가 나온다.
+
+그 다음 Pod 상태도 확인한다.
+
+```bash
+kubectl get pod -n nginx-static
+```
+
+또는
+
+```bash
+k get pod -n nginx-static
+```
+
+새 Pod가 Running 상태인지 확인하면 된다.
+
+---
+
+## 9. curl 명령어로 테스트하기
+
+문제에서 테스트 명령어를 줬다.
+
+```bash
+curl --tls-max 1.2 https://web.k8s.local
+```
+
+이 명령어는 무슨 뜻일까?
+
+```text
+TLS 버전을 최대 1.2까지만 사용해서 접속해라
+```
+
+즉 클라이언트가 이렇게 말하는 것이다.
+
+```text
+나는 TLSv1.2까지만 쓸 수 있어
+TLSv1.3은 쓰지 않을 거야
+```
+
+그런데 우리는 서버인 Nginx를 TLSv1.3만 허용하도록 바꿨다.
+
+그러면 TLSv1.2까지만 쓰겠다는 클라이언트는 접속에 실패해야 한다.
+
+따라서 이 테스트는 성공 페이지가 뜨는지 보는 테스트가 아니다.
+
+오히려 반대다.
+
+```text
+TLSv1.2 접속이 실패해야 정상
+```
+
+즉 아래 명령어가 실패하면 설정이 제대로 적용된 것이다.
+
+```bash
+curl --tls-max 1.2 https://web.k8s.local
+```
+
+실패 메시지는 환경마다 다를 수 있지만, TLS handshake 관련 에러가 날 수 있다.
+
+중요한 것은 TLSv1.2로 접속이 되면 안 된다는 점이다.
+
+---
+
+## 10. 최종 명령어 흐름
+
+시험장에서 실제로는 이렇게 풀면 된다.
+
+```bash
+kubectl get deploy,pod,cm -n nginx-static
+```
+
+ConfigMap 수정.
+
+```bash
+kubectl edit cm nginx-config -n nginx-static
+```
+
+ConfigMap 안에서 다음과 비슷한 줄을 찾는다.
+
+```nginx
+ssl_protocols TLSv1.2 TLSv1.3;
+```
+
+이렇게 수정한다.
+
+```nginx
+ssl_protocols TLSv1.3;
+```
+
+Deployment 재시작.
+
+```bash
+kubectl rollout restart deploy nginx-static -n nginx-static
+```
+
+롤아웃 상태 확인.
+
+```bash
+kubectl rollout status deploy nginx-static -n nginx-static
+```
+
+Pod 확인.
+
+```bash
+kubectl get pod -n nginx-static
+```
+
+테스트.
+
+```bash
+curl --tls-max 1.2 https://web.k8s.local
+```
+
+---
+
+## 11. 이 문제에서 외워야 하는 포인트
+
+이 문제는 단순히 명령어를 외우는 문제라기보다, 흐름을 이해해야 한다.
+
+```text
+Nginx 설정은 ConfigMap에 들어 있다
+ConfigMap을 수정한다
+하지만 실행 중인 Pod가 자동으로 새 설정을 읽는다고 보장할 수 없다
+그래서 Deployment를 rollout restart 한다
+TLSv1.2 접속이 실패하는지 curl로 확인한다
+```
+
+명령어만 보면 다음 네 개가 핵심이다.
+
+```bash
+kubectl edit cm nginx-config -n nginx-static
+kubectl rollout restart deploy nginx-static -n nginx-static
+kubectl rollout status deploy nginx-static -n nginx-static
+kubectl get pod -n nginx-static
+```
+
+마지막 검증 명령어는 문제에서 준다.
+
+```bash
+curl --tls-max 1.2 https://web.k8s.local
+```
+
+---
+
+## 12. 한 줄 요약
+
+```text
+ConfigMap에서 ssl_protocols를 TLSv1.3만 남기고 수정한 뒤, Deployment를 rollout restart 해서 Nginx가 새 설정을 읽게 만들고, curl --tls-max 1.2가 실패하는지 확인하는 문제
+```
+
+CKA에서는 이런 문제가 나오면 이렇게 생각하면 된다.
+
+```text
+설정 파일이 ConfigMap에 있다
+→ ConfigMap edit
+→ Pod 재시작 필요
+→ rollout restart
+→ curl로 동작 확인
+```

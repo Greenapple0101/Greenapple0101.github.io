@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HA] High Availability란 무엇인가? | Greenapple0101</title>
+  <meta name="description" content="서비스를 운영할 때 가장 무서운 상황 중 하나는: 이다. 예를 들어: 쇼핑몰 서버 다운 결제 시스템 장애 게임 서버 장애 로그인 불가 DB 장애 같은 상황이 발생하면 사용자들은 바로 서비스를 떠나기 시작한다. 특히: 금융 클라우드 병원 대규모 플랫폼 같은 시스템에서는 몇 분의 장애만으…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #0891b2">HA</span>
+    <h1>[HA] High Availability란 무엇인가?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T15:08:49.489Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/HA-High-Availability란-무엇인가" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>서비스를 운영할 때 가장 무서운 상황 중 하나는:</p>
+<p>```text id=&rdquo;ry5m88&rdquo;
+서비스가 멈추는 것</p>
+<pre><code>
+이다.
+
+예를 들어:
+
+* 쇼핑몰 서버 다운
+* 결제 시스템 장애
+* 게임 서버 장애
+* 로그인 불가
+* DB 장애
+
+같은 상황이 발생하면 사용자들은 바로 서비스를 떠나기 시작한다.
+
+특히:
+
+* 금융
+* 클라우드
+* 병원
+* 대규모 플랫폼
+
+같은 시스템에서는 몇 분의 장애만으로도 큰 손실이 발생한다.
+
+그래서 현대 시스템은 단순히:
+
+```text id=&quot;a5y0o7&quot;
+“잘 동작하는 시스템”
+</code></pre>
+<p>이 아니라:</p>
+<p>```text id=&rdquo;a53m8v&rdquo;
+“죽지 않는 시스템”</p>
+<pre><code>
+을 목표로 설계한다.
+
+이 개념이 바로:
+
+```text id=&quot;f5y7ja&quot;
+High Availability (고가용성, HA)
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>High Availability란?</h1>
+<p>High Availability는 말 그대로:</p>
+<p>```text id=&rdquo;0pb77d&rdquo;
+서비스를 최대한 오래,
+끊기지 않게 유지하는 것</p>
+<pre><code>
+이다.
+
+즉:
+
+* 장애가 발생해도
+* 가능한 빠르게 복구하고
+* 서비스 중단 시간을 최소화
+
+하는 것이 목표다.
+
+---
+
+# 왜 HA가 필요한가?
+
+서버는 생각보다 자주 죽는다.
+
+원인은 다양하다.
+
+예:
+
+* 하드웨어 고장
+* 메모리 오류
+* 네트워크 장애
+* 디스크 손상
+* OS 커널 문제
+* 클라우드 AZ 장애
+* 사람이 잘못 삭제
+
+등.
+
+즉 현실에서는:
+
+```text id=&quot;9m5p8n&quot;
+“장애는 예외 상황이 아니라
+언젠가 반드시 발생하는 이벤트”
+</code></pre>
+<p>에 가깝다.</p>
+<p>그래서 시스템은:</p>
+<p>```text id=&rdquo;2z8u7n&rdquo;
+장애를 막는 것</p>
+<pre><code>
+보다:
+
+```text id=&quot;f4p4b0&quot;
+장애가 나도 버티는 것
+</code></pre>
+<p>을 목표로 바뀌기 시작했다.</p>
+<hr>
+<h1>Availability란?</h1>
+<p>Availability는 보통:</p>
+<p>```text id=&rdquo;m4x0fh&rdquo;
+서비스가 정상적으로 사용 가능한 시간 비율</p>
+<pre><code>
+을 의미한다.
+
+예를 들어:
+
+* 1년 동안 거의 안 멈춤
+* 장애 시간이 매우 짧음
+
+이면 가용성이 높은 시스템이다.
+
+보통 퍼센트로 표현한다.
+
+예:
+
+| 가용성     | 연간 허용 장애 시간 |
+| ------- | ----------- |
+| 99%     | 약 3.65일     |
+| 99.9%   | 약 8.7시간     |
+| 99.99%  | 약 52분       |
+| 99.999% | 약 5분        |
+
+여기서 많이 들어보는:
+
+```text id=&quot;tn3jx0&quot;
+Five Nines (99.999%)
+</code></pre>
+<p>같은 표현도 등장한다.</p>
+<hr>
+<h1>HA의 핵심은 “단일 장애 지점 제거”</h1>
+<p>HA에서 가장 중요한 개념 중 하나는:</p>
+<p>```text id=&rdquo;o4d6k6&rdquo;
+SPOF (Single Point Of Failure)</p>
+<pre><code>
+이다.
+
+즉:
+
+```text id=&quot;9ymb7z&quot;
+하나만 죽어도 전체가 죽는 구조
+</code></pre>
+<p>를 의미한다.</p>
+<p>예:</p>
+<p>```text id=&rdquo;kmqf3v&rdquo;
+[WEB] ── [DB]</p>
+<pre><code>
+이 구조에서 DB 하나가 죽으면 서비스 전체가 멈춘다.
+
+즉 DB가 SPOF다.
+
+그래서 HA 시스템은:
+
+```text id=&quot;w0v8g9&quot;
+“하나가 죽어도 계속 동작”
+</code></pre>
+<p>하도록 구성한다.</p>
+<hr>
+<h1>이중화(Redundancy)</h1>
+<p>HA 시스템의 핵심 전략은:</p>
+<p>```text id=&rdquo;q5y1ko&rdquo;
+이중화</p>
+<pre><code>
+다.
+
+즉 중요한 시스템을 여러 개 두는 것이다.
+
+예:
+
+* DB 2대
+* Load Balancer 2대
+* 서버 여러 대
+* Multi-AZ 구성
+
+등.
+
+예시 구조:
+
+```text id=&quot;7wd2we&quot;
+        ┌─────────────┐
+        │ LoadBalancer│
+        └──────┬──────┘
+               │
+     ┌─────────┴─────────┐
+     │                   │
+┌─────────┐       ┌─────────┐
+│ Web #1  │       │ Web #2  │
+└─────────┘       └─────────┘
+</code></pre>
+<p>여기서 서버 하나가 죽어도 나머지가 계속 처리한다.</p>
+<hr>
+<h1>Failover는 HA를 위한 기술</h1>
+<p>이전 글에서 본:</p>
+<p>```text id=&rdquo;vw7hga&rdquo;
+Failover</p>
+<pre><code>
+도 HA를 위한 기술이다.
+
+예:
+
+```text id=&quot;f0ntpm&quot;
+Primary 장애
+→ Standby 승격
+→ 서비스 지속
+</code></pre>
+<p>즉:</p>
+<p>```text id=&rdquo;9i6u1w&rdquo;
+장애 발생 시 자동 복구</p>
+<pre><code>
+를 통해 가용성을 유지한다.
+
+---
+
+# 클라우드에서의 HA
+
+현대 클라우드는 HA를 매우 중요하게 생각한다.
+
+대표적인 예가:
+
+```text id=&quot;56xqai&quot;
+Multi-AZ
+</code></pre>
+<p>구조다.</p>
+<p>AZ(Availability Zone)는:</p>
+<ul>
+<li>서로 다른 전력</li>
+<li>서로 다른 네트워크</li>
+<li>서로 다른 물리 인프라</li>
+</ul>
+<p>를 가진 데이터센터 단위다.</p>
+<p>예:</p>
+<p>```text id=&rdquo;cwlzjv&rdquo;
+서울 AZ-A
+서울 AZ-B</p>
+<pre><code>
+처럼 분리한다.
+
+즉 한 데이터센터가 죽어도:
+
+```text id=&quot;8lsz59&quot;
+다른 AZ가 서비스 유지
+</code></pre>
+<p>가능하게 만든다.</p>
+<hr>
+<h1>HA의 현실적인 트레이드오프</h1>
+<p>하지만 HA는 공짜가 아니다.</p>
+<p>문제점도 많다.</p>
+<p>예:</p>
+<ul>
+<li>비용 증가</li>
+<li>서버 수 증가</li>
+<li>운영 복잡도 증가</li>
+<li>데이터 동기화 문제</li>
+<li>장애 전환 로직 필요</li>
+</ul>
+<p>즉:</p>
+<p>```text id=&rdquo;sd8z4g&rdquo;
+가용성이 높아질수록
+시스템은 복잡해진다</p>
+<pre><code>
+는 특징이 있다.
+
+---
+
+# Kubernetes도 HA 철학
+
+Kubernetes 역시 HA 철학 위에 만들어졌다.
+
+예:
+
+* Pod 죽으면 재생성
+* 여러 Replica 유지
+* Control Plane 이중화
+* Self-Healing
+
+등.
+
+즉:
+
+```text id=&quot;x8w2g6&quot;
+“장애는 발생한다”
+</code></pre>
+<p>를 전제로 동작한다.</p>
+<hr>
+<h1>마무리</h1>
+<p>High Availability는 단순히:</p>
+<p>```text id=&rdquo;v4d3n4&rdquo;
+“서버 여러 개 띄우기”</p>
+<pre><code>
+가 아니다.
+
+실제로는:
+
+* 장애 감지
+* 자동 복구
+* 이중화
+* Failover
+* Load Balancing
+* Multi-AZ
+
+등을 모두 포함하는 운영 철학에 가깝다.
+
+현대 인프라의 핵심은:
+
+```text id=&quot;yy7k3y&quot;
+장애를 완전히 막는 것
+</code></pre>
+<p>이 아니라:</p>
+<p><code>text id="fxu4k0"
+장애가 발생해도
+서비스를 계속 유지하는 것</code></p>
+<p>에 있다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

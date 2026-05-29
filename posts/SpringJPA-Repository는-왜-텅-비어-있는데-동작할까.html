@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Spring/JPA] Repository는 왜 텅 비어 있는데 동작할까? | Greenapple0101</title>
+  <meta name="description" content="Spring Boot에서 JPA를 쓰다 보면 이런 코드를 자주 보게 된다. 처음 보면 이상하다. 안에 아무 코드도 없다. save 도 없고, findAll 도 없고, findById 도 없고, delete 도 없다. 그런데 Service에서는 이런 코드가 잘 동작한다. 왜 그럴까? 핵…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #16a34a">SpringJPA</span>
+    <h1>[Spring/JPA] Repository는 왜 텅 비어 있는데 동작할까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-07T08:56:20.988Z">2026.05.07</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SpringJPA-Repository는-왜-텅-비어-있는데-동작할까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring Boot에서 JPA를 쓰다 보면 이런 코드를 자주 보게 된다.</p>
+<pre><code class="language-java">package com.board.api.repository;
+
+import com.board.api.domain.Board;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>처음 보면 이상하다.</p>
+<p>안에 아무 코드도 없다.</p>
+<p><code>save()</code>도 없고,
+<code>findAll()</code>도 없고,
+<code>findById()</code>도 없고,
+<code>delete()</code>도 없다.</p>
+<p>그런데 Service에서는 이런 코드가 잘 동작한다.</p>
+<pre><code class="language-java">boardRepository.findAll();
+boardRepository.findById(id);
+boardRepository.save(board);
+boardRepository.deleteById(id);
+</code></pre>
+<p>왜 그럴까?</p>
+<p>핵심은 이것이다.</p>
+<blockquote>
+<p>BoardRepository가 JpaRepository를 상속받고 있기 때문이다.</p>
+</blockquote>
+<p>사용자가 올린 코드에서도 <code>BoardRepository extends JpaRepository&lt;Board, Long&gt;</code> 구조로 되어 있고, <code>JpaRepository</code> 내부에는 <code>flush</code>, <code>saveAndFlush</code>, <code>deleteAllInBatch</code>, <code>getReferenceById</code>, <code>findAll</code>, <code>findAllById</code> 같은 메서드들이 이미 정의되어 있다. 그래서 <code>BoardRepository</code> 자체가 비어 있어도 상속받은 기능을 그대로 사용할 수 있다. </p>
+<hr>
+<h1>1. Repository는 DB 접근 통로다</h1>
+<p>Repository는 말 그대로 저장소에 접근하는 계층이다.</p>
+<p>게시판 예시로 보면 역할은 이렇다.</p>
+<pre><code class="language-text">Controller
+→ Service
+→ Repository
+→ DB
+</code></pre>
+<p>Controller는 요청을 받고,
+Service는 비즈니스 로직을 처리하고,
+Repository는 DB에 접근한다.</p>
+<p>즉, Repository는 이런 일을 담당한다.</p>
+<pre><code class="language-text">게시글 저장
+게시글 전체 조회
+게시글 단건 조회
+게시글 삭제
+게시글 수정 대상 조회
+</code></pre>
+<p>그런데 이걸 매번 직접 구현하면 너무 귀찮다.</p>
+<p>예를 들어 원래라면 이런 메서드를 직접 만들어야 한다.</p>
+<pre><code class="language-java">public Board save(Board board) {
+    // DB 저장 로직
+}
+
+public List&lt;Board&gt; findAll() {
+    // DB 전체 조회 로직
+}
+
+public Optional&lt;Board&gt; findById(Long id) {
+    // DB 단건 조회 로직
+}
+</code></pre>
+<p>하지만 Spring Data JPA는 이 반복 코드를 줄여준다.</p>
+<p>그래서 우리는 인터페이스 하나만 만들면 된다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<hr>
+<h1>2. 클래스와 인터페이스의 차이</h1>
+<p>여기서 중요한 게 있다.</p>
+<p><code>BoardRepository</code>는 class가 아니라 interface다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>클래스와 인터페이스를 아주 단순하게 구분하면 이렇다.</p>
+<pre><code class="language-text">class      : 실제 동작을 가진 구현체
+interface  : 이런 기능을 가져야 한다고 약속하는 통로
+</code></pre>
+<p>클래스는 직접 객체를 만들고 동작을 구현한다.</p>
+<pre><code class="language-java">public class BoardService {
+    public void createBoard() {
+        // 실제 코드
+    }
+}
+</code></pre>
+<p>인터페이스는 “이런 메서드가 있다”는 형태를 정의한다.</p>
+<pre><code class="language-java">public interface BoardRepository {
+    Board save(Board board);
+}
+</code></pre>
+<p>그런데 Spring Data JPA에서는 우리가 인터페이스만 만들어도, Spring이 실행 시점에 구현체를 자동으로 만들어준다.</p>
+<p>그래서 우리는 이런 코드를 직접 만들지 않아도 된다.</p>
+<pre><code class="language-java">public class BoardRepositoryImpl implements BoardRepository {
+    // save, findAll, findById 직접 구현
+}
+</code></pre>
+<p>Spring Data JPA가 대신 만들어준다.</p>
+<hr>
+<h1>3. 왜 @Repository 어노테이션이 없을까?</h1>
+<p>보통 Repository라면 이렇게 써야 할 것 같다.</p>
+<pre><code class="language-java">@Repository
+public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>그런데 실제로는 이렇게만 써도 동작한다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>왜냐하면 <code>JpaRepository</code>를 상속받은 인터페이스는 Spring Data JPA가 Repository로 인식하기 때문이다.</p>
+<p>즉, <code>@Repository</code>를 직접 붙이지 않아도 Spring이 알아서 Bean으로 등록해준다.</p>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">일반 Repository 직접 구현
+→ @Repository 필요할 수 있음
+
+JpaRepository 상속
+→ Spring Data JPA가 자동으로 Repository로 인식
+</code></pre>
+<p>그래서 <code>BoardRepository</code>에 어노테이션이 없어도 정상 동작한다.</p>
+<hr>
+<h1>4. JpaRepository 안에는 이미 메서드가 많다</h1>
+<p>우리가 만든 코드는 비어 있다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>하지만 상속받은 <code>JpaRepository</code> 안으로 들어가 보면 여러 메서드가 이미 있다.</p>
+<p>예를 들면 이런 메서드들이다.</p>
+<pre><code class="language-java">void flush();
+
+&lt;S extends T&gt; S saveAndFlush(S entity);
+
+&lt;S extends T&gt; List&lt;S&gt; saveAllAndFlush(Iterable&lt;S&gt; entities);
+
+void deleteAllInBatch();
+
+T getReferenceById(ID id);
+
+List&lt;T&gt; findAll();
+
+List&lt;T&gt; findAllById(Iterable&lt;ID&gt; ids);
+</code></pre>
+<p>그리고 <code>JpaRepository</code>는 또 다른 인터페이스들을 상속받고 있다.</p>
+<pre><code class="language-java">public interface JpaRepository&lt;T, ID&gt;
+        extends ListCrudRepository&lt;T, ID&gt;,
+                ListPagingAndSortingRepository&lt;T, ID&gt;,
+                QueryByExampleExecutor&lt;T&gt; {
+}
+</code></pre>
+<p>여기서 중요한 건 이것이다.</p>
+<p><code>JpaRepository</code> 하나만 상속받은 것처럼 보이지만, 실제로는 그 안에서 여러 Repository 기능을 줄줄이 상속받고 있다.</p>
+<p>그래서 우리가 쓸 수 있는 기능이 많아지는 것이다.</p>
+<hr>
+<h1>5. BoardRepository가 비어 있어도 되는 이유</h1>
+<p>다시 이 코드를 보자.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>여기서 <code>&lt;Board, Long&gt;</code>은 의미가 있다.</p>
+<pre><code class="language-java">JpaRepository&lt;Board, Long&gt;
+</code></pre>
+<p>첫 번째 <code>Board</code>는 이 Repository가 다룰 Entity 타입이다.</p>
+<p>두 번째 <code>Long</code>은 Entity의 ID 타입이다.</p>
+<p>즉, 이 코드는 이렇게 해석할 수 있다.</p>
+<pre><code class="language-text">BoardRepository는 Board 엔티티를 다룬다.
+Board의 기본키 타입은 Long이다.
+그리고 JpaRepository가 제공하는 기본 DB 기능을 사용한다.
+</code></pre>
+<p>그래서 Service에서 이렇게 쓸 수 있다.</p>
+<pre><code class="language-java">boardRepository.save(board);
+</code></pre>
+<pre><code class="language-java">boardRepository.findAll();
+</code></pre>
+<pre><code class="language-java">boardRepository.findById(id);
+</code></pre>
+<pre><code class="language-java">boardRepository.deleteById(id);
+</code></pre>
+<p>우리가 직접 구현한 적은 없지만, JpaRepository가 이미 제공하고 있기 때문이다.</p>
+<hr>
+<h1>6. “상속을 안 받음”이 아니라 “엄청 많이 받고 있음”</h1>
+<p>처음 보면 <code>BoardRepository</code> 안이 비어 있으니까 아무것도 안 받는 것처럼 보인다.</p>
+<p>하지만 실제로는 반대다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>이 한 줄 때문에 <code>BoardRepository</code>는 JpaRepository의 기능을 모두 물려받는다.</p>
+<p>그리고 JpaRepository는 또 다른 인터페이스들을 물려받는다.</p>
+<p>흐름으로 보면 이렇다.</p>
+<pre><code class="language-text">BoardRepository
+→ JpaRepository
+→ ListCrudRepository
+→ Repository 계열 인터페이스들
+</code></pre>
+<p>그래서 <code>BoardRepository</code>는 비어 있지만, 실제로는 많은 메서드를 사용할 수 있다.</p>
+<p>비어 있는 게 아니라, 이미 상속받은 기능이 충분해서 추가로 쓸 게 없는 것이다.</p>
+<hr>
+<h1>7. 그럼 언제 Repository 안에 메서드를 추가할까?</h1>
+<p>기본 CRUD만 할 거면 비워둬도 된다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>하지만 특정 조건으로 조회하고 싶으면 메서드를 추가한다.</p>
+<p>예를 들어 작성자로 게시글을 찾고 싶다면 이렇게 쓸 수 있다.</p>
+<pre><code class="language-java">List&lt;Board&gt; findByAuthor(String author);
+</code></pre>
+<p>제목에 특정 단어가 들어간 게시글을 찾고 싶다면 이렇게 쓸 수 있다.</p>
+<pre><code class="language-java">List&lt;Board&gt; findByTitleContaining(String keyword);
+</code></pre>
+<p>그러면 전체 코드는 이렇게 된다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+
+    List&lt;Board&gt; findByAuthor(String author);
+
+    List&lt;Board&gt; findByTitleContaining(String keyword);
+}
+</code></pre>
+<p>이것도 구현 코드는 없다.</p>
+<p>Spring Data JPA가 메서드 이름을 보고 쿼리를 만들어준다.</p>
+<pre><code class="language-text">findByAuthor
+→ author 컬럼으로 조회
+
+findByTitleContaining
+→ title에 특정 문자열이 포함된 데이터 조회
+</code></pre>
+<p>이게 Spring Data JPA의 장점이다.</p>
+<hr>
+<h1>8. Repository를 직접 구현하지 않는 이유</h1>
+<p>직접 JDBC로 DB를 다룬다면 이런 코드가 필요하다.</p>
+<pre><code class="language-java">Connection connection = dataSource.getConnection();
+PreparedStatement statement = connection.prepareStatement(&quot;select * from board&quot;);
+ResultSet resultSet = statement.executeQuery();
+</code></pre>
+<p>그리고 결과를 다시 자바 객체로 바꿔야 한다.</p>
+<pre><code class="language-java">Board board = new Board();
+board.setTitle(resultSet.getString(&quot;title&quot;));
+board.setContent(resultSet.getString(&quot;content&quot;));
+</code></pre>
+<p>이런 코드는 반복이 많고 실수하기 쉽다.</p>
+<p>JPA와 Spring Data JPA를 쓰면 이런 반복을 줄일 수 있다.</p>
+<pre><code class="language-java">List&lt;Board&gt; boards = boardRepository.findAll();
+</code></pre>
+<p>한 줄이면 된다.</p>
+<p>그래서 Repository가 비어 있는 것처럼 보여도 실제로는 Spring Data JPA가 뒤에서 많은 일을 해주고 있는 것이다.</p>
+<hr>
+<h1>9. 정리</h1>
+<p>처음에는 이 코드가 이상해 보인다.</p>
+<pre><code class="language-java">public interface BoardRepository extends JpaRepository&lt;Board, Long&gt; {
+}
+</code></pre>
+<p>왜냐하면 안에 아무것도 없기 때문이다.</p>
+<p>하지만 핵심은 <code>extends JpaRepository&lt;Board, Long&gt;</code>이다.</p>
+<p>이 한 줄 때문에 <code>BoardRepository</code>는 기본적인 DB 기능을 사용할 수 있다.</p>
+<pre><code class="language-text">save()
+findAll()
+findById()
+deleteById()
+flush()
+saveAndFlush()
+findAllById()
+</code></pre>
+<p>그리고 <code>@Repository</code>가 없어도 되는 이유는 Spring Data JPA가 <code>JpaRepository</code>를 상속한 인터페이스를 자동으로 Repository Bean으로 등록해주기 때문이다.</p>
+<p>최종 정리하면 이렇다.</p>
+<pre><code class="language-text">BoardRepository는 비어 있는 게 아니다.
+JpaRepository가 제공하는 기능을 상속받고 있는 것이다.
+
+인터페이스는 DB 접근 통로 역할을 한다.
+실제 구현체는 Spring Data JPA가 자동으로 만들어준다.
+
+그래서 우리는 반복적인 CRUD 코드를 직접 만들지 않아도 된다.
+</code></pre>
+<p>한 줄로 말하면:</p>
+<blockquote>
+<p>Repository가 텅 비어 있어도 동작하는 이유는 JpaRepository를 상속받았고, Spring Data JPA가 구현체를 자동으로 만들어주기 때문이다.</p>
+</blockquote>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

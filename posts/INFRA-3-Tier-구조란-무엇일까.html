@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[INFRA] 3-Tier 구조란 무엇일까? | Greenapple0101</title>
+  <meta name="description" content="서비스 구조를 설명할 때 자주 나오는 말 중 하나가 3-Tier Architecture , 즉 3계층 구조 다. 처음 들으면 어려워 보이지만, 사실 핵심은 단순하다. 보통 다음 세 계층으로 나눈다. 웹 서비스 기준으로 쉽게 말하면 이렇다. 1. 전체 구조 3-Tier 구조를 그림으로…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #64748b">INFRA</span>
+    <h1>[INFRA] 3-Tier 구조란 무엇일까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-17T10:40:18.099Z">2026.05.17</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/INFRA-3-Tier-구조란-무엇일까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>서비스 구조를 설명할 때 자주 나오는 말 중 하나가 <strong>3-Tier Architecture</strong>, 즉 <strong>3계층 구조</strong>다.</p>
+<p>처음 들으면 어려워 보이지만, 사실 핵심은 단순하다.</p>
+<pre><code class="language-text">서비스를 역할별로 3개 층으로 나누는 구조
+</code></pre>
+<p>보통 다음 세 계층으로 나눈다.</p>
+<pre><code class="language-text">1. Presentation Tier
+   사용자에게 화면을 보여주는 계층
+
+2. Application Tier
+   비즈니스 로직을 처리하는 계층
+
+3. Data Tier
+   데이터를 저장하고 조회하는 계층
+</code></pre>
+<p>웹 서비스 기준으로 쉽게 말하면 이렇다.</p>
+<pre><code class="language-text">프론트엔드
+→ 백엔드
+→ 데이터베이스
+</code></pre>
+<h2>1. 전체 구조</h2>
+<p>3-Tier 구조를 그림으로 보면 이렇게 된다.</p>
+<pre><code class="language-text">사용자
+  ↓
+[Presentation Tier]
+프론트엔드 / 웹서버 / Nginx
+  ↓
+[Application Tier]
+백엔드 API 서버
+  ↓
+[Data Tier]
+DB 서버
+</code></pre>
+<p>예를 들어 React, Spring Boot, MySQL을 사용한 서비스라면 이렇게 볼 수 있다.</p>
+<pre><code class="language-text">사용자 브라우저
+  ↓
+React 프론트엔드
+  ↓
+Spring Boot 백엔드
+  ↓
+MySQL 데이터베이스
+</code></pre>
+<p>또는 운영 배포 관점에서는 이렇게 볼 수도 있다.</p>
+<pre><code class="language-text">사용자
+  ↓
+Nginx
+  ↓
+Spring Boot
+  ↓
+MySQL
+</code></pre>
+<p>여기서 Nginx가 프론트 정적 파일을 서빙하고, <code>/api</code> 요청을 백엔드로 넘긴다면 Nginx는 Presentation Tier의 진입점 역할을 한다.</p>
+<h2>2. Presentation Tier</h2>
+<p>Presentation Tier는 사용자가 직접 만나는 계층이다.</p>
+<p>쉽게 말하면 <strong>화면을 담당하는 계층</strong>이다.</p>
+<pre><code class="language-text">HTML
+CSS
+JavaScript
+React
+Vue
+Thymeleaf
+Nginx 정적 파일 서빙
+</code></pre>
+<p>사용자는 이 계층을 통해 버튼을 누르고, 글을 작성하고, 데이터를 조회한다.</p>
+<p>예를 들어 게시판 서비스라면 사용자는 브라우저에서 이런 화면을 본다.</p>
+<pre><code class="language-text">게시글 목록
+게시글 상세
+글쓰기 화면
+로그인 화면
+</code></pre>
+<p>이 화면을 담당하는 부분이 Presentation Tier다.</p>
+<p>프론트엔드가 React라면 React 앱이 이 역할을 한다.
+Spring Boot + Thymeleaf라면 Thymeleaf 템플릿이 이 역할을 한다.
+Nginx가 React 빌드 파일을 서빙한다면 Nginx도 이 계층의 일부로 볼 수 있다.</p>
+<p>중요한 점은 Presentation Tier는 보통 <strong>사용자와 직접 맞닿아 있는 계층</strong>이라는 것이다.</p>
+<h2>3. Application Tier</h2>
+<p>Application Tier는 서비스의 핵심 로직을 처리하는 계층이다.</p>
+<p>보통 백엔드 서버가 이 역할을 한다.</p>
+<pre><code class="language-text">Spring Boot
+Node.js Express
+Django
+FastAPI
+NestJS
+</code></pre>
+<p>게시판 서비스라면 Application Tier는 이런 일을 한다.</p>
+<pre><code class="language-text">회원가입 처리
+로그인 처리
+게시글 작성 처리
+게시글 수정 권한 확인
+댓글 저장
+좋아요 처리
+DB 조회 결과 가공
+</code></pre>
+<p>즉, 단순히 데이터를 전달하는 게 아니라 <strong>서비스 규칙을 처리하는 계층</strong>이다.</p>
+<p>예를 들어 사용자가 게시글 삭제 버튼을 눌렀다고 해보자.</p>
+<p>Presentation Tier는 삭제 요청을 보낸다.</p>
+<pre><code class="language-text">DELETE /api/posts/1
+</code></pre>
+<p>Application Tier는 이 요청을 받고 판단한다.</p>
+<pre><code class="language-text">이 사용자가 로그인했는가?
+이 게시글의 작성자인가?
+삭제 가능한 상태인가?
+DB에서 삭제해도 되는가?
+</code></pre>
+<p>그다음 Data Tier에 실제 삭제를 요청한다.</p>
+<p>그래서 Application Tier는 서비스의 두뇌에 가깝다.</p>
+<h2>4. Data Tier</h2>
+<p>Data Tier는 데이터를 저장하고 관리하는 계층이다.</p>
+<p>보통 데이터베이스가 여기에 해당한다.</p>
+<pre><code class="language-text">MySQL
+PostgreSQL
+Oracle
+MongoDB
+Redis
+</code></pre>
+<p>게시판 서비스에서는 이런 데이터를 저장한다.</p>
+<pre><code class="language-text">회원 정보
+게시글
+댓글
+좋아요
+첨부파일 메타데이터
+로그인 토큰
+</code></pre>
+<p>Application Tier는 필요할 때 Data Tier에 쿼리를 보낸다.</p>
+<pre><code class="language-sql">SELECT * FROM posts WHERE id = 1;
+</code></pre>
+<p>Data Tier는 결과를 반환한다.</p>
+<pre><code class="language-text">게시글 id, 제목, 내용, 작성자, 생성일
+</code></pre>
+<p>Data Tier는 사용자와 직접 통신하지 않는다.
+보통 Presentation Tier도 DB에 직접 접근하지 않는다.</p>
+<p>정상적인 구조에서는 백엔드가 중간에서 DB 접근을 담당한다.</p>
+<pre><code class="language-text">프론트엔드 → DB 직접 접근 X
+프론트엔드 → 백엔드 → DB 접근 O
+</code></pre>
+<h2>5. 왜 굳이 3개로 나눌까?</h2>
+<p>처음에는 이렇게 생각할 수 있다.</p>
+<pre><code class="language-text">그냥 한 서버에서 화면도 보여주고,
+로직도 처리하고,
+DB도 같이 쓰면 안 되나?
+</code></pre>
+<p>작은 프로젝트에서는 가능하다.</p>
+<p>하지만 서비스가 커지면 역할을 나누는 게 중요해진다.</p>
+<p>3-Tier로 나누면 장점이 있다.</p>
+<h2>6. 장점 1: 역할 분리가 명확해진다</h2>
+<p>각 계층이 자기 역할에 집중한다.</p>
+<pre><code class="language-text">Presentation Tier:
+사용자 화면 담당
+
+Application Tier:
+비즈니스 로직 담당
+
+Data Tier:
+데이터 저장 담당
+</code></pre>
+<p>이렇게 나누면 문제가 생겼을 때 어디를 봐야 할지 명확해진다.</p>
+<p>예를 들어 화면이 깨진다면 프론트나 Nginx 쪽을 본다.
+API 응답이 이상하면 백엔드 로직을 본다.
+데이터가 저장되지 않으면 DB 연결이나 쿼리를 본다.</p>
+<h2>7. 장점 2: 확장하기 쉽다</h2>
+<p>사용자가 많아지면 어느 계층이 병목인지에 따라 따로 확장할 수 있다.</p>
+<p>예를 들어 백엔드 API 요청이 많아지면 Application Tier를 여러 대로 늘릴 수 있다.</p>
+<pre><code class="language-text">사용자
+  ↓
+Nginx / Load Balancer
+  ↓
+Backend Server 1
+Backend Server 2
+Backend Server 3
+  ↓
+DB
+</code></pre>
+<p>DB 부하가 크면 읽기 전용 Replica를 붙일 수도 있다.</p>
+<pre><code class="language-text">Backend
+  ↓
+Primary DB
+Read Replica DB
+</code></pre>
+<p>즉, 모든 것을 한 덩어리로 키우는 게 아니라 필요한 계층만 따로 확장할 수 있다.</p>
+<h2>8. 장점 3: 보안 구조를 나누기 쉽다</h2>
+<p>3-Tier 구조에서는 외부에 노출되는 영역과 내부에 숨겨야 하는 영역을 분리할 수 있다.</p>
+<p>예를 들어 AWS에서 구성하면 이렇게 나눌 수 있다.</p>
+<pre><code class="language-text">Public Subnet
+- Nginx
+- Load Balancer
+
+Private Subnet
+- Backend Server
+
+Private DB Subnet
+- MySQL
+</code></pre>
+<p>사용자는 Public Subnet에 있는 Nginx나 Load Balancer까지만 접근한다.</p>
+<pre><code class="language-text">사용자 → Nginx/LB
+</code></pre>
+<p>백엔드 서버와 DB는 외부에서 직접 접근하지 못하게 막는다.</p>
+<pre><code class="language-text">사용자 → DB 직접 접근 X
+사용자 → Backend 직접 접근 X
+</code></pre>
+<p>이렇게 하면 보안적으로 더 안전하다.</p>
+<h2>9. 장점 4: 배포와 유지보수가 쉬워진다</h2>
+<p>프론트엔드만 수정했다면 프론트만 배포하면 된다.
+백엔드 로직만 바뀌었다면 백엔드만 배포하면 된다.
+DB 스키마 변경이 있다면 DB 마이그레이션만 따로 관리하면 된다.</p>
+<pre><code class="language-text">프론트 변경
+→ Presentation Tier 배포
+
+API 로직 변경
+→ Application Tier 배포
+
+테이블 변경
+→ Data Tier 마이그레이션
+</code></pre>
+<p>역할이 나뉘어 있으면 변경 영향 범위를 줄일 수 있다.</p>
+<h2>10. 네 프로젝트에 대입하면</h2>
+<p>네가 했던 배포 경험에 대입하면 3-Tier 구조는 이렇게 설명할 수 있어.</p>
+<pre><code class="language-text">Presentation Tier
+- 프론트엔드
+- Nginx
+- 사용자 요청 진입점
+
+Application Tier
+- 백엔드 서버
+- API 처리
+- 비즈니스 로직
+
+Data Tier
+- MySQL
+- 데이터 저장
+</code></pre>
+<p>Docker 컨테이너 기반으로 설명하면:</p>
+<pre><code class="language-text">EC2
+├─ nginx 또는 frontend 컨테이너
+│   └─ Presentation Tier
+│
+├─ backend 컨테이너
+│   └─ Application Tier
+│
+└─ mysql 컨테이너 또는 EC2 직접 설치 MySQL
+    └─ Data Tier
+</code></pre>
+<p>scp 기반 수동 배포였다고 가정하면:</p>
+<pre><code class="language-text">EC2
+├─ Nginx 직접 설치
+│   └─ Presentation Tier
+│
+├─ Java 애플리케이션 직접 실행
+│   └─ Application Tier
+│
+└─ MySQL 직접 설치
+    └─ Data Tier
+</code></pre>
+<p>즉, Docker를 썼는지 안 썼는지와 별개로 3-Tier 개념은 적용할 수 있다.</p>
+<p>중요한 건 배포 방식이 아니라 역할 분리다.</p>
+<pre><code class="language-text">화면/진입점
+→ 로직 처리
+→ 데이터 저장
+</code></pre>
+<h2>11. Nginx는 어느 계층일까?</h2>
+<p>Nginx는 상황에 따라 Presentation Tier 또는 앞단 진입점 역할로 볼 수 있다.</p>
+<p>프론트 정적 파일을 서빙한다면:</p>
+<pre><code class="language-text">Nginx
+→ Presentation Tier
+</code></pre>
+<p>API 요청을 백엔드로 넘긴다면:</p>
+<pre><code class="language-text">Nginx
+→ Presentation Tier 앞단의 reverse proxy
+</code></pre>
+<p>예를 들어 이런 구조다.</p>
+<pre><code class="language-text">사용자
+→ Nginx
+   ├─ /       → 프론트 정적 파일
+   └─ /api    → 백엔드 서버
+→ MySQL
+</code></pre>
+<p>이때 Nginx는 사용자의 첫 요청을 받는 계층이다.</p>
+<p>면접에서 “Nginx는 어디 갔나요?”라고 물어본 것도 이 흐름 때문이다.</p>
+<p>프론트와 백엔드만 말하면 외부 요청 진입점이 빠진다.</p>
+<pre><code class="language-text">사용자
+→ ?
+→ 백엔드
+→ DB
+</code></pre>
+<p>그 <code>?</code>에 해당하는 역할이 Nginx일 수 있다.</p>
+<h2>12. 2-Tier와 3-Tier 차이</h2>
+<p>2-Tier는 보통 클라이언트가 DB와 직접 연결되는 구조에 가깝다.</p>
+<pre><code class="language-text">Client
+→ DB
+</code></pre>
+<p>또는 화면과 로직이 한 덩어리이고 DB만 분리된 구조로 볼 수도 있다.</p>
+<pre><code class="language-text">Application
+→ DB
+</code></pre>
+<p>반면 3-Tier는 중간에 Application Tier가 명확히 있다.</p>
+<pre><code class="language-text">Client
+→ Application Server
+→ DB
+</code></pre>
+<p>3-Tier 구조에서는 클라이언트가 DB에 직접 접근하지 않는다.
+백엔드가 인증, 권한, 검증, 비즈니스 로직을 처리한 뒤 DB에 접근한다.</p>
+<p>이게 중요하다.</p>
+<pre><code class="language-text">프론트엔드가 DB 비밀번호를 들고 있으면 안 된다.
+DB는 백엔드를 통해서만 접근해야 한다.
+</code></pre>
+<h2>13. 면접 답변 버전</h2>
+<p>면접에서 3-Tier 구조를 물어보면 이렇게 답하면 된다.</p>
+<pre><code class="language-text">3-Tier 구조는 서비스를 Presentation, Application, Data 계층으로 분리하는 구조입니다. Presentation Tier는 사용자 화면이나 Nginx 같은 진입점을 담당하고, Application Tier는 Spring Boot나 Node.js 같은 백엔드가 비즈니스 로직을 처리하는 계층입니다. Data Tier는 MySQL 같은 DB가 데이터를 저장하는 계층입니다. 예를 들어 제가 배포한 구조에 대입하면 Nginx와 프론트엔드가 사용자 요청을 받고, 백엔드 API 서버가 로직을 처리한 뒤, MySQL에 데이터를 저장하는 흐름으로 설명할 수 있습니다.
+</code></pre>
+<p>조금 더 실무적으로 말하면:</p>
+<pre><code class="language-text">운영 환경에서는 Nginx가 80번 포트로 외부 요청을 받고, 정적 파일은 직접 서빙하거나 /api 요청은 백엔드로 reverse proxy합니다. 백엔드는 비즈니스 로직을 처리하고 DB에 접근하며, MySQL은 외부에 직접 노출하지 않고 내부에서만 접근하도록 구성하는 식으로 3-Tier를 나눌 수 있습니다.
+</code></pre>
+<h2>14. 한 줄 정리</h2>
+<p>3-Tier 구조는 서비스를 세 역할로 나누는 구조다.</p>
+<pre><code class="language-text">Presentation Tier
+→ 사용자 화면/요청 진입점
+
+Application Tier
+→ 백엔드 로직 처리
+
+Data Tier
+→ 데이터 저장
+</code></pre>
+<p>웹 서비스에 대입하면 이렇게 된다.</p>
+<pre><code class="language-text">Nginx/Frontend
+→ Backend API
+→ MySQL
+</code></pre>
+<p>한 줄로 정리하면 다음과 같다.</p>
+<pre><code class="language-text">3-Tier 구조는 화면, 로직, 데이터를 분리해서 서비스의 확장성, 유지보수성, 보안성을 높이는 구조다.
+</code></pre>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

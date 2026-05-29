@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[DATABASE] DynamoDB는 왜 쓰는가 | Greenapple0101</title>
+  <meta name="description" content="AWS를 공부하다 보면 꼭 등장하는 DB가 있다. 그리고 보통 같이 나온다. 처음엔 이런 생각이 든다. 근데 대규모 서비스에서는 관계형 DB만으로 버티기 어려운 상황이 자주 나온다. 오늘은: 왜 DynamoDB 같은 NoSQL이 등장했는가 를 흐름으로 이해해보자. --- 1. 관계형…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #0891b2">DATABASE</span>
+    <h1>[DATABASE] DynamoDB는 왜 쓰는가</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T14:57:21.674Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/DATABASE-DynamoDB는-왜-쓰는가" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>AWS를 공부하다 보면 꼭 등장하는 DB가 있다.</p>
+<p>```text id=&rdquo;p2x8vk&rdquo;
+DynamoDB</p>
+<pre><code>
+그리고 보통 같이 나온다.
+
+```text id=&quot;q7m1zr&quot;
+NoSQL
+Auto Scaling
+고가용성
+Partition Key
+Eventually Consistent
+</code></pre>
+<p>처음엔 이런 생각이 든다.</p>
+<p>```text id=&rdquo;r4v9jt&rdquo;
+&ldquo;MySQL 쓰면 되는 거 아닌가?&rdquo;</p>
+<pre><code>
+근데 대규모 서비스에서는 관계형 DB만으로 버티기 어려운 상황이 자주 나온다.
+
+오늘은:
+
+&gt; 왜 DynamoDB 같은 NoSQL이 등장했는가
+
+를 흐름으로 이해해보자.
+
+---
+
+# 1. 관계형 DB(RDB)의 장점
+
+우리가 흔히 쓰는 DB:
+
+* MySQL
+* PostgreSQL
+* Oracle
+
+등은 관계형 DB다.
+
+---
+
+## 장점
+
+```text id=&quot;s1k6pw&quot;
+정확한 데이터 관리
+JOIN
+트랜잭션
+강한 정합성
+</code></pre>
+<p>이 매우 좋다.</p>
+<hr>
+<h1>2. 근데 문제가 생긴다</h1>
+<p>서비스가 엄청 커지면:</p>
+<p>```text id=&rdquo;t8m3qx&rdquo;
+수억 사용자
+엄청난 트래픽
+전 세계 요청</p>
+<pre><code>
+을 처리해야 한다.
+
+이때 관계형 DB는 점점 어려워진다.
+
+---
+
+# 3. 왜 어려운가?
+
+대표적으로:
+
+```text id=&quot;u5n0zr&quot;
+Scale Out 어려움
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>4. 관계형 DB는 보통 Scale Up 중심</h1>
+<p>예를 들어:</p>
+<p>```text id=&rdquo;v2q7xt&rdquo;
+CPU 증가
+RAM 증가</p>
+<pre><code>
+로 버틴다.
+
+근데 결국:
+
+```text id=&quot;w9m4pk&quot;
+장비 한계
+비용 폭증
+</code></pre>
+<p>문제가 생긴다.</p>
+<hr>
+<h1>5. 그래서 등장한 게 NoSQL</h1>
+<p>NoSQL은:</p>
+<blockquote>
+<p>대규모 분산 환경에 맞게 설계된 DB 계열</p>
+</blockquote>
+<p>이다.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;x6n1qv&rdquo;
+확장성 우선</p>
+<pre><code>
+철학이 강하다.
+
+---
+
+# 6. DynamoDB란?
+
+DynamoDB는 AWS의:
+
+```text id=&quot;y3m8zr&quot;
+완전관리형(NoSQL) DB
+</code></pre>
+<p>다.</p>
+<p>AWS가 서버 관리까지 해준다.</p>
+<p>즉 사용자는:</p>
+<p>```text id=&rdquo;z0q5xt&rdquo;
+DB 서버 운영
+패치
+백업
+샤딩</p>
+<pre><code>
+등을 직접 덜 신경 써도 된다.
+
+---
+
+# 7. DynamoDB 핵심 특징
+
+핵심은 크게:
+
+```text id=&quot;a7n2qv&quot;
+1. 엄청난 확장성
+2. 고가용성
+3. 빠른 응답
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>8. 관계형 DB와 가장 큰 차이</h1>
+<p>RDB는 보통:</p>
+<p>```text id=&rdquo;b4m9zr&rdquo;
+테이블 관계
+JOIN
+정규화</p>
+<pre><code>
+중심이다.
+
+---
+
+## DynamoDB는?
+
+DynamoDB는:
+
+```text id=&quot;c1q6xt&quot;
+Key-Value 기반
+</code></pre>
+<p>철학이 강하다.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;d8n3qv&rdquo;
+빠른 조회</p>
+<pre><code>
+를 매우 중요하게 본다.
+
+---
+
+# 9. DynamoDB 기본 구조
+
+예:
+
+```text id=&quot;e5m0zr&quot;
+UserID → 사용자 데이터
+</code></pre>
+<p>형태.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;f2q7xt&rdquo;
+Key 기반 조회</p>
+<pre><code>
+에 매우 최적화되어 있다.
+
+---
+
+# 10. Partition Key란?
+
+DynamoDB에서 가장 중요한 개념 중 하나.
+
+---
+
+## 역할
+
+데이터를:
+
+```text id=&quot;g9n4qv&quot;
+어느 서버(파티션)에 저장할지 결정
+</code></pre>
+<p>한다.</p>
+<hr>
+<h1>11. 왜 중요할까?</h1>
+<p>DynamoDB는 내부적으로:</p>
+<p>```text id=&rdquo;h6m1zr&rdquo;
+수많은 서버에 데이터 분산 저장</p>
+<pre><code>
+한다.
+
+즉:
+
+```text id=&quot;i3q8xt&quot;
+Partition Key
+↓
+데이터 위치 결정
+</code></pre>
+<p>구조다.</p>
+<hr>
+<h1>12. 그래서 잘못 설계하면?</h1>
+<p>예를 들어 모든 요청이:</p>
+<p>```text id=&rdquo;j0n5qv&rdquo;
+같은 Partition Key</p>
+<pre><code>
+로 몰리면?
+
+한 서버만 과부하된다.
+
+이걸:
+
+```text id=&quot;k7m2zr&quot;
+Hot Partition
+</code></pre>
+<p>문제라고 한다.</p>
+<hr>
+<h1>13. DynamoDB가 빠른 이유</h1>
+<p>핵심은:</p>
+<p>```text id=&rdquo;l4q9xt&rdquo;
+분산 구조</p>
+<pre><code>
+다.
+
+즉 데이터를 여러 서버에 나눠 저장해서:
+
+```text id=&quot;m1n6qv&quot;
+병렬 처리
+</code></pre>
+<p>가능하다.</p>
+<hr>
+<h1>14. Auto Scaling</h1>
+<p>DynamoDB는 자동 확장도 지원한다.</p>
+<p>예:</p>
+<p>```text id=&rdquo;n8m3zr&rdquo;
+트래픽 증가
+↓
+자동으로 처리량 증가</p>
+<pre><code>
+즉 운영자가 직접:
+
+```text id=&quot;o5q0xt&quot;
+DB 서버 추가
+샤딩
+</code></pre>
+<p>같은 걸 덜 신경 써도 된다.</p>
+<hr>
+<h1>15. 고가용성(HA)</h1>
+<p>DynamoDB는 기본적으로:</p>
+<p>```text id=&rdquo;p2n7qv&rdquo;
+여러 AZ(가용영역)</p>
+<pre><code>
+에 데이터를 복제한다.
+
+즉 서버 일부가 죽어도:
+
+```text id=&quot;q9m4zr&quot;
+서비스 계속 가능
+</code></pre>
+<p>하다.</p>
+<hr>
+<h1>16. Consistency 문제</h1>
+<p>근데 여기서 중요한 트레이드오프가 나온다.</p>
+<hr>
+<h1>17. DynamoDB 기본은 Eventually Consistent</h1>
+<p>즉:</p>
+<p>```text id=&rdquo;r6q1xt&rdquo;
+쓰기 직후
+잠깐 오래된 데이터 조회 가능</p>
+<pre><code>
+하다.
+
+---
+
+# 18. 왜 이런 선택을 할까?
+
+이유는:
+
+```text id=&quot;s3n8qv&quot;
+성능
+확장성
+가용성
+</code></pre>
+<p>때문이다.</p>
+<p>분산 시스템에서:</p>
+<p>```text id=&rdquo;t0m5zr&rdquo;
+Strong Consistency</p>
+<pre><code>
+를 항상 유지하려면 비용이 크다.
+
+---
+
+# 19. Strongly Consistent Read도 가능
+
+옵션으로:
+
+```text id=&quot;u7q2xt&quot;
+Strongly Consistent Read
+</code></pre>
+<p>도 가능.</p>
+<p>하지만:</p>
+<p>```text id=&rdquo;v4n9qv&rdquo;
+더 느리고 비용 증가</p>
+<pre><code>
+가능성이 있다.
+
+---
+
+# 20. DynamoDB가 잘 맞는 서비스
+
+예:
+
+* 게임 랭킹
+* 세션 저장
+* 사용자 프로필
+* IoT 데이터
+* 대규모 API
+
+같이:
+
+```text id=&quot;w1m6zr&quot;
+엄청난 트래픽
+</code></pre>
+<p>을 처리하는 서비스.</p>
+<hr>
+<h1>21. DynamoDB가 애매한 경우</h1>
+<p>반대로:</p>
+<p>```text id=&rdquo;x8q3xt&rdquo;
+복잡한 JOIN
+강한 트랜잭션
+복잡한 관계형 데이터</p>
+<pre><code>
+가 중요하면 RDB가 더 적합할 수 있다.
+
+---
+
+# 22. 실무에서 자주 나오는 질문
+
+---
+
+## &quot;왜 DynamoDB를 쓰나요?&quot;
+
+→ 확장성 + 운영 편의성
+
+---
+
+## &quot;왜 빠른가요?&quot;
+
+→ 분산 구조 + Key 기반 조회
+
+---
+
+## &quot;왜 Eventually Consistent 기본인가요?&quot;
+
+→ 성능/확장성 때문
+
+---
+
+## &quot;왜 Partition Key가 중요하죠?&quot;
+
+→ 데이터 분산 결정
+
+---
+
+# 23. RDB vs DynamoDB 느낌 비교
+
+| 항목   | RDB      | DynamoDB  |
+| ---- | -------- | --------- |
+| 구조   | 관계형      | Key-Value |
+| 강점   | 정합성      | 확장성       |
+| JOIN | 강함       | 제한적       |
+| 확장   | 어려움      | 쉬움        |
+| 운영   | 직접 관리 많음 | AWS 관리형   |
+
+---
+
+# 24. 정리
+
+## DynamoDB
+
+AWS의 NoSQL DB
+
+---
+
+## 핵심 특징
+
+```text id=&quot;y5n0qv&quot;
+확장성
+고가용성
+빠른 조회
+</code></pre>
+<hr>
+<h2>Partition Key</h2>
+<p>데이터 분산 기준</p>
+<hr>
+<h2>기본 Consistency</h2>
+<p>```text id=&rdquo;z2m7zr&rdquo;
+Eventually Consistent</p>
+<pre><code>
+---
+
+## 장점
+
+```text id=&quot;a9q4xt&quot;
+Auto Scaling
+운영 편의성
+분산 처리
+</code></pre>
+<hr>
+<h2>단점</h2>
+<p>```text id=&rdquo;b6n1qv&rdquo;
+복잡한 관계형 처리 어려움</p>
+<pre><code>
+---
+
+## 핵심 철학
+
+```text id=&quot;c3m8zr&quot;
+정합성 일부를 양보하고,
+엄청난 확장성을 얻는다.
+</code></pre>
+<hr>
+<h1>한 줄 핵심</h1>
+<p><code>text id="d0q5xt"
+DynamoDB는 대규모 트래픽을 빠르게 처리하기 위해,
+분산과 확장성에 최적화된 AWS NoSQL 데이터베이스다.</code></p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

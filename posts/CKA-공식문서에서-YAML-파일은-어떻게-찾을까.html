@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CKA] 공식문서에서 YAML 파일은 어떻게 찾을까? | Greenapple0101</title>
+  <meta name="description" content="CKA를 준비하다 보면 이런 생각이 든다. 결론부터 말하면, YAML을 전부 외우는 시험이 아니다. 더 중요한 건: 이다. --- 1. YAML을 찾는 기본 감각 쿠버네티스 공식문서에서 YAML을 찾을 때는 보통 두 가지 방식이 있다. 예를 들어 Deployment YAML이 필요하면…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">CKA</span>
+    <h1>[CKA] 공식문서에서 YAML 파일은 어떻게 찾을까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-20T04:05:07.181Z">2026.05.20</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/CKA-공식문서에서-YAML-파일은-어떻게-찾을까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>CKA를 준비하다 보면 이런 생각이 든다.</p>
+<pre><code class="language-text">“이 YAML을 내가 다 외워야 하나?”
+“Deployment YAML은 어디서 찾지?”
+“Service 예시는 공식문서 어디에 있지?”
+“Gateway API YAML은 어떻게 찾지?”
+</code></pre>
+<p>결론부터 말하면, YAML을 전부 외우는 시험이 아니다.</p>
+<p>더 중요한 건:</p>
+<pre><code class="language-text">공식문서에서 예제 YAML을 빠르게 찾고
+내 문제 조건에 맞게 고치는 능력
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>1. YAML을 찾는 기본 감각</h1>
+<p>쿠버네티스 공식문서에서 YAML을 찾을 때는 보통 두 가지 방식이 있다.</p>
+<pre><code class="language-text">1. 리소스 이름으로 검색
+2. 기능 이름으로 검색
+</code></pre>
+<p>예를 들어 Deployment YAML이 필요하면:</p>
+<pre><code class="language-text">Deployment
+</code></pre>
+<p>Service YAML이 필요하면:</p>
+<pre><code class="language-text">Service
+</code></pre>
+<p>ConfigMap YAML이 필요하면:</p>
+<pre><code class="language-text">ConfigMap
+</code></pre>
+<p>Ingress YAML이 필요하면:</p>
+<pre><code class="language-text">Ingress
+</code></pre>
+<p>이렇게 검색한다.</p>
+<p>근데 CKA에서는 단순히 “개념 설명”보다 “예제 YAML”이 있는 페이지를 빨리 찾는 게 중요하다.</p>
+<hr>
+<h1>2. 공식문서 검색창에 칠 키워드</h1>
+<p>공식문서 검색창에서 이런 식으로 검색하면 된다.</p>
+<pre><code class="language-text">deployment
+</code></pre>
+<pre><code class="language-text">service
+</code></pre>
+<pre><code class="language-text">configmap
+</code></pre>
+<pre><code class="language-text">secret
+</code></pre>
+<pre><code class="language-text">persistent volume
+</code></pre>
+<pre><code class="language-text">pod
+</code></pre>
+<pre><code class="language-text">ingress
+</code></pre>
+<pre><code class="language-text">gateway api
+</code></pre>
+<pre><code class="language-text">network policy
+</code></pre>
+<p>여기서 중요한 건 너무 길게 검색하지 않는 것이다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">how to create deployment yaml file
+</code></pre>
+<p>이렇게 길게 치는 것보다</p>
+<pre><code class="language-text">deployment
+</code></pre>
+<p>이렇게 치는 게 더 잘 잡힌다.</p>
+<hr>
+<h1>3. 페이지 안에서는 <code>Ctrl + F</code>를 쓴다</h1>
+<p>공식문서 페이지에 들어갔으면 이제 브라우저 검색을 쓴다.</p>
+<p>Windows/Linux:</p>
+<pre><code class="language-text">Ctrl + F
+</code></pre>
+<p>Mac:</p>
+<pre><code class="language-text">Command + F
+</code></pre>
+<p>그리고 이런 단어를 찾는다.</p>
+<pre><code class="language-text">apiVersion
+</code></pre>
+<pre><code class="language-text">kind:
+</code></pre>
+<pre><code class="language-text">yaml
+</code></pre>
+<pre><code class="language-text">example
+</code></pre>
+<pre><code class="language-text">manifest
+</code></pre>
+<p>왜냐면 YAML 예시는 보통 이런 형태로 시작하기 때문이다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+</code></pre>
+<p>즉 페이지 안에서 <code>apiVersion</code>을 검색하면 예제 YAML 위치로 바로 이동할 수 있다.</p>
+<hr>
+<h1>4. 제일 강한 검색어는 <code>apiVersion</code></h1>
+<p>쿠버네티스 YAML은 거의 항상 이렇게 시작한다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+</code></pre>
+<p>그래서 공식문서 페이지 안에서:</p>
+<pre><code class="language-text">apiVersion
+</code></pre>
+<p>을 검색하면 YAML 예제를 빠르게 찾을 수 있다.</p>
+<p>이건 진짜 유용하다.</p>
+<p>문서가 아무리 길어도 <code>apiVersion</code>을 치면 예제 매니페스트 근처로 바로 간다.</p>
+<hr>
+<h1>5. 리소스별로 자주 찾는 위치</h1>
+<h2>Pod</h2>
+<p>검색어:</p>
+<pre><code class="language-text">pod
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">apiVersion
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+</code></pre>
+<hr>
+<h2>Deployment</h2>
+<p>검색어:</p>
+<pre><code class="language-text">deployment
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">apiVersion
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+</code></pre>
+<p>Deployment는 특히 구조가 길다.</p>
+<p>그래서 처음부터 다 외우기보다 공식문서 예제를 복사해서 고치는 방식이 훨씬 현실적이다.</p>
+<hr>
+<h2>Service</h2>
+<p>검색어:</p>
+<pre><code class="language-text">service
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">type:
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-text">NodePort
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: NodePort
+  selector:
+    app: MyApp
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30007
+</code></pre>
+<p>Service는 문제 조건에 따라 <code>type</code>이 중요하다.</p>
+<pre><code class="language-text">ClusterIP
+NodePort
+LoadBalancer
+</code></pre>
+<p>이 부분만 잘 바꿔주면 된다.</p>
+<hr>
+<h2>ConfigMap</h2>
+<p>검색어:</p>
+<pre><code class="language-text">configmap
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">data:
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: game-demo
+data:
+  player_initial_lives: &quot;3&quot;
+  ui_properties_file_name: &quot;user-interface.properties&quot;
+</code></pre>
+<p>ConfigMap은 보통 <code>data:</code> 아래에 값을 넣는다.</p>
+<hr>
+<h2>Secret</h2>
+<p>검색어:</p>
+<pre><code class="language-text">secret
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">stringData
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-text">data:
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+stringData:
+  username: admin
+  password: password
+</code></pre>
+<p>Secret은 <code>data</code>와 <code>stringData</code> 차이를 알아두면 좋다.</p>
+<p>시험에서는 사람이 읽기 편한 <code>stringData</code>를 쓰는 경우도 많다.</p>
+<hr>
+<h2>Ingress</h2>
+<p>검색어:</p>
+<pre><code class="language-text">ingress
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">rules:
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-text">path:
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /testpath
+        pathType: Prefix
+        backend:
+          service:
+            name: test
+            port:
+              number: 80
+</code></pre>
+<p>Ingress는 구조가 길어서 공식문서 복붙 후 수정하는 게 거의 정석이다.</p>
+<hr>
+<h2>NetworkPolicy</h2>
+<p>검색어:</p>
+<pre><code class="language-text">network policy
+</code></pre>
+<p>페이지 안 검색:</p>
+<pre><code class="language-text">podSelector
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-text">ingress:
+</code></pre>
+<p>예시 형태:</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+</code></pre>
+<p>NetworkPolicy는 YAML 모양보다 조건 해석이 더 어렵다.</p>
+<p>그래서 예제를 가져온 다음:</p>
+<pre><code class="language-text">podSelector
+ingress
+egress
+from
+to
+ports
+</code></pre>
+<p>만 문제 조건에 맞게 바꾸는 식으로 접근하면 된다.</p>
+<hr>
+<h1>6. 공식문서에서 YAML 찾는 실전 루틴</h1>
+<p>CKA 시험장에서 이렇게 움직이면 된다.</p>
+<pre><code class="language-text">1. 문제에서 리소스 이름 확인
+2. 공식문서 검색창에 리소스 이름 검색
+3. 예제 페이지 진입
+4. Ctrl + F로 apiVersion 검색
+5. YAML 예제 복사
+6. 문제 조건에 맞게 name, namespace, image, port 수정
+7. kubectl apply -f
+8. kubectl get / describe / curl 등으로 검증
+</code></pre>
+<p>흐름으로 보면:</p>
+<pre><code class="language-text">문제 조건
+  ↓
+공식문서 검색
+  ↓
+YAML 예제 복사
+  ↓
+내 조건으로 수정
+  ↓
+적용
+  ↓
+검증
+</code></pre>
+<hr>
+<h1>7. 검색어를 너무 문장처럼 치지 말기</h1>
+<p>공식문서 검색창에서는 긴 문장보다 짧은 키워드가 좋다.</p>
+<p>별로인 검색:</p>
+<pre><code class="language-text">how to create yaml file for nginx deployment in kubernetes
+</code></pre>
+<p>좋은 검색:</p>
+<pre><code class="language-text">deployment
+</code></pre>
+<pre><code class="language-text">nginx deployment
+</code></pre>
+<pre><code class="language-text">service nodeport
+</code></pre>
+<pre><code class="language-text">configmap
+</code></pre>
+<pre><code class="language-text">network policy
+</code></pre>
+<p>공식문서는 블로그 검색이 아니라 레퍼런스 문서 검색이기 때문에, 핵심 명사 위주로 치는 게 빠르다.</p>
+<hr>
+<h1>8. <code>kubectl explain</code>도 같이 쓰면 좋다</h1>
+<p>공식문서에서 예제 YAML을 찾은 뒤, 필드 의미가 헷갈리면 터미널에서 이렇게 볼 수 있다.</p>
+<pre><code class="language-bash">kubectl explain deployment.spec
+</code></pre>
+<p>더 깊게 보고 싶으면:</p>
+<pre><code class="language-bash">kubectl explain deployment.spec.template.spec.containers
+</code></pre>
+<p>Service라면:</p>
+<pre><code class="language-bash">kubectl explain service.spec
+</code></pre>
+<p>NetworkPolicy라면:</p>
+<pre><code class="language-bash">kubectl explain networkpolicy.spec
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">공식문서 = 예제 YAML 찾기
+kubectl explain = 필드 구조 확인하기
+</code></pre>
+<p>이렇게 역할을 나누면 좋다.</p>
+<hr>
+<h1>9. 자동생성과 공식문서 복붙을 같이 쓴다</h1>
+<p>YAML을 만드는 방법은 크게 두 가지다.</p>
+<pre><code class="language-text">1. kubectl --dry-run=client -o yaml 로 자동생성
+2. 공식문서에서 예제 YAML 복사
+</code></pre>
+<p>둘 중 하나만 쓰는 게 아니다.</p>
+<p>보통은 이렇게 나뉜다.</p>
+<h2>자동생성이 편한 것</h2>
+<pre><code class="language-text">Pod
+Deployment
+Service
+ConfigMap
+Secret
+Job
+CronJob
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-bash">kubectl create deployment web \
+  --image=nginx \
+  --dry-run=client \
+  -o yaml &gt; deploy.yaml
+</code></pre>
+<hr>
+<h2>공식문서 복붙이 편한 것</h2>
+<pre><code class="language-text">Ingress
+Gateway API
+NetworkPolicy
+PersistentVolume
+PersistentVolumeClaim
+RBAC
+</code></pre>
+<p>이런 것들은 구조가 길거나 조건이 복잡해서, 공식문서 예제를 가져와 수정하는 게 편하다.</p>
+<hr>
+<h1>10. 외우는 게 아니라 찾는 속도를 훈련해야 한다</h1>
+<p>CKA에서 중요한 건 YAML 전체 암기가 아니다.</p>
+<p>진짜 중요한 건 이거다.</p>
+<pre><code class="language-text">“이 YAML은 공식문서 어디쯤에 있겠다”
+</code></pre>
+<p>라는 감각이다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">트래픽 라우팅 문제 → Ingress / Gateway API
+접근 제한 문제 → NetworkPolicy
+권한 문제 → RBAC
+저장소 문제 → PV / PVC
+설정 주입 문제 → ConfigMap / Secret
+배포 문제 → Deployment
+노출 문제 → Service
+</code></pre>
+<p>이 연결이 머리에 있으면 공식문서에서 빠르게 찾을 수 있다.</p>
+<hr>
+<h1>마무리</h1>
+<p>YAML을 전부 외우려고 하면 쿠버네티스가 너무 버거워진다.</p>
+<p>대신 이렇게 생각하면 된다.</p>
+<pre><code class="language-text">자주 쓰는 건 자동생성
+복잡한 건 공식문서 예제 복붙
+헷갈리는 필드는 kubectl explain
+</code></pre>
+<p>그리고 공식문서에서 YAML을 찾을 때는:</p>
+<pre><code class="language-text">리소스 이름 검색
+→ 페이지 안에서 apiVersion 검색
+→ 예제 YAML 복사
+→ 조건에 맞게 수정
+</code></pre>
+<p>이 흐름만 익히면 된다.</p>
+<p>CKA는 YAML 암기 시험이 아니라, 필요한 리소스를 빠르게 찾고 정확히 적용하는 시험에 가깝다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

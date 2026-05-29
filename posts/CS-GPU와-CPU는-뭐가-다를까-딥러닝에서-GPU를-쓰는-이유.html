@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CS] GPU와 CPU는 뭐가 다를까? 딥러닝에서 GPU를 쓰는 이유 | Greenapple0101</title>
+  <meta name="description" content="딥러닝을 공부하다 보면 거의 무조건 나오는 말이 있다. “학습은 GPU로 돌려야 해.” 처음 들으면 이런 생각이 든다. CPU도 컴퓨터의 두뇌라면서? 그럼 CPU가 더 중요한 거 아닌가? 왜 딥러닝은 GPU를 써야 하지? 이번 글에서는 CPU와 GPU의 차이 , 그리고 딥러닝에서 GP…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #db2777">CS</span>
+    <h1>[CS] GPU와 CPU는 뭐가 다를까? 딥러닝에서 GPU를 쓰는 이유</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-07T05:16:02.344Z">2026.05.07</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/CS-GPU와-CPU는-뭐가-다를까-딥러닝에서-GPU를-쓰는-이유" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>딥러닝을 공부하다 보면 거의 무조건 나오는 말이 있다.</p>
+<blockquote>
+<p>“학습은 GPU로 돌려야 해.”</p>
+</blockquote>
+<p>처음 들으면 이런 생각이 든다.</p>
+<blockquote>
+<p>CPU도 컴퓨터의 두뇌라면서?
+그럼 CPU가 더 중요한 거 아닌가?
+왜 딥러닝은 GPU를 써야 하지?</p>
+</blockquote>
+<p>이번 글에서는 <strong>CPU와 GPU의 차이</strong>, 그리고 <strong>딥러닝에서 GPU가 왜 중요한지</strong>를 정리해보려고 한다.</p>
+<hr>
+<h2>1. CPU란?</h2>
+<p>CPU는 <strong>Central Processing Unit</strong>의 약자다.</p>
+<p>한국어로는 보통 <strong>중앙처리장치</strong>라고 한다.</p>
+<p>컴퓨터에서 CPU는 전체 작업을 조율하고, 복잡한 명령을 처리하는 역할을 한다.</p>
+<p>쉽게 말하면 CPU는 컴퓨터의 <strong>총괄 관리자</strong>에 가깝다.</p>
+<p>예를 들어 우리가 컴퓨터에서 하는 작업을 보면 다음과 같다.</p>
+<pre><code class="language-text">브라우저 실행
+파일 열기
+마우스 클릭 처리
+운영체제 관리
+프로그램 실행
+네트워크 요청 처리
+</code></pre>
+<p>이런 작업들은 각각 성격이 다르다.</p>
+<p>어떤 작업은 계산이고, 어떤 작업은 입력 처리이고, 어떤 작업은 파일 접근이고, 어떤 작업은 프로그램 제어다.</p>
+<p>CPU는 이런 다양한 작업을 빠르게 판단하고 처리하는 데 강하다.</p>
+<hr>
+<h2>2. CPU의 특징</h2>
+<p>CPU의 핵심 특징은 다음과 같다.</p>
+<pre><code class="language-text">복잡한 작업을 잘 처리함
+순차적인 작업에 강함
+코어 수는 상대적으로 적음
+각 코어의 성능이 강함
+범용적인 작업에 적합함
+</code></pre>
+<p>CPU는 보통 코어 수가 많아도 수십 개 정도다.</p>
+<p>하지만 각각의 코어가 매우 강력하다.</p>
+<p>그래서 CPU는 복잡한 조건문, 운영체제 제어, 프로그램 실행 흐름 관리처럼 <strong>다양하고 복잡한 작업</strong>에 적합하다.</p>
+<p>예를 들어 이런 코드는 CPU가 잘 처리한다.</p>
+<pre><code class="language-python">if user.is_admin:
+    open_admin_page()
+else:
+    open_user_page()
+</code></pre>
+<p>조건을 판단하고, 흐름을 바꾸고, 여러 종류의 작업을 처리하는 데 CPU가 강하다.</p>
+<hr>
+<h2>3. GPU란?</h2>
+<p>GPU는 <strong>Graphics Processing Unit</strong>의 약자다.</p>
+<p>처음에는 이름 그대로 <strong>그래픽 처리 장치</strong>였다.</p>
+<p>게임 화면, 영상, 3D 그래픽처럼 수많은 픽셀을 동시에 계산하기 위해 만들어졌다.</p>
+<p>예를 들어 게임 화면을 생각해보자.</p>
+<p>화면에는 엄청나게 많은 픽셀이 있다.</p>
+<pre><code class="language-text">1920 x 1080 화면 = 약 207만 개 픽셀
+</code></pre>
+<p>각 픽셀마다 색상, 밝기, 그림자, 위치 등을 계산해야 한다.</p>
+<p>이걸 하나씩 순서대로 처리하면 너무 느리다.</p>
+<p>그래서 GPU는 많은 계산을 동시에 처리하도록 설계되었다.</p>
+<hr>
+<h2>4. GPU의 특징</h2>
+<p>GPU의 핵심 특징은 다음과 같다.</p>
+<pre><code class="language-text">단순한 계산을 대량으로 동시에 처리함
+병렬 처리에 강함
+코어 수가 매우 많음
+각 코어는 CPU보다 단순함
+행렬 연산, 벡터 연산에 강함
+</code></pre>
+<p>CPU가 소수의 강한 일꾼이라면, GPU는 수천 명의 단순 작업자가 한꺼번에 일하는 구조에 가깝다.</p>
+<p>비유하면 이렇다.</p>
+<pre><code class="language-text">CPU = 똑똑한 관리자 몇 명
+GPU = 단순 계산을 동시에 하는 작업자 수천 명
+</code></pre>
+<p>CPU는 복잡한 판단을 잘하고, GPU는 같은 종류의 계산을 엄청 많이 반복하는 데 강하다.</p>
+<hr>
+<h2>5. CPU vs GPU 한눈에 비교</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>CPU</th>
+<th>GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>역할</td>
+<td>범용 연산, 프로그램 제어</td>
+<td>대규모 병렬 연산</td>
+</tr>
+<tr>
+<td>강점</td>
+<td>복잡한 작업 처리</td>
+<td>단순 계산 대량 처리</td>
+</tr>
+<tr>
+<td>코어 수</td>
+<td>적음</td>
+<td>많음</td>
+</tr>
+<tr>
+<td>코어 성격</td>
+<td>강력하고 복잡함</td>
+<td>단순하지만 많음</td>
+</tr>
+<tr>
+<td>처리 방식</td>
+<td>순차 처리에 강함</td>
+<td>병렬 처리에 강함</td>
+</tr>
+<tr>
+<td>대표 사용처</td>
+<td>OS, 서버, 일반 프로그램</td>
+<td>그래픽, 딥러닝, 행렬 연산</td>
+</tr>
+<tr>
+<td>비유</td>
+<td>관리자</td>
+<td>대규모 작업자</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>6. 딥러닝은 왜 GPU를 좋아할까?</h2>
+<p>딥러닝의 핵심은 결국 <strong>행렬 연산</strong>이다.</p>
+<p>신경망은 입력값에 가중치를 곱하고, 더하고, 활성화 함수를 적용하는 과정을 반복한다.</p>
+<p>아주 단순화하면 이런 형태다.</p>
+<pre><code class="language-text">출력 = 입력 행렬 × 가중치 행렬 + bias
+</code></pre>
+<p>실제로 딥러닝 모델 내부에서는 이런 연산이 엄청나게 많이 일어난다.</p>
+<pre><code class="language-text">행렬 곱셈
+벡터 연산
+텐서 연산
+미분 계산
+가중치 업데이트
+</code></pre>
+<p>문제는 이 계산들이 한두 번이 아니라는 것이다.</p>
+<p>이미지 한 장만 해도 픽셀 수가 많고, 모델의 레이어도 많고, 파라미터도 많다.</p>
+<p>그래서 학습 과정에서는 수많은 숫자 계산이 반복된다.</p>
+<p>이때 GPU가 강점을 발휘한다.</p>
+<hr>
+<h2>7. 딥러닝 학습 과정에서 GPU가 하는 일</h2>
+<p>딥러닝 학습은 대략 이런 흐름으로 진행된다.</p>
+<pre><code class="language-text">1. 데이터를 모델에 넣음
+2. 모델이 예측값을 계산함
+3. 정답과 비교해서 오차를 구함
+4. 오차를 줄이기 위해 가중치를 업데이트함
+5. 이 과정을 수천, 수만 번 반복함
+</code></pre>
+<p>여기서 중요한 부분은 대부분이 숫자 계산이라는 점이다.</p>
+<p>특히 다음 연산들이 많이 나온다.</p>
+<pre><code class="language-text">행렬 곱셈
+합성곱 연산
+벡터 내적
+gradient 계산
+파라미터 업데이트
+</code></pre>
+<p>이런 연산들은 서로 독립적인 계산이 많다.</p>
+<p>즉, 동시에 처리하기 좋다.</p>
+<p>그래서 GPU를 사용하면 CPU보다 훨씬 빠르게 학습할 수 있다.</p>
+<hr>
+<h2>8. 예시로 이해하기</h2>
+<p>예를 들어 숫자 100만 개에 각각 2를 곱해야 한다고 해보자.</p>
+<p>CPU는 강력하지만 상대적으로 적은 코어로 작업을 나눠서 처리한다.</p>
+<pre><code class="language-text">CPU 방식:
+강한 일꾼 몇 명이 100만 개 계산을 나눠서 처리
+</code></pre>
+<p>GPU는 수많은 코어가 동시에 계산한다.</p>
+<pre><code class="language-text">GPU 방식:
+수천 명의 일꾼이 동시에 각자 계산
+</code></pre>
+<p>작업이 단순하고 반복적일수록 GPU가 훨씬 유리하다.</p>
+<p>딥러닝의 행렬 연산은 바로 이런 성격을 가진다.</p>
+<hr>
+<h2>9. 그럼 CPU는 딥러닝에서 필요 없을까?</h2>
+<p>그렇지는 않다.</p>
+<p>딥러닝에서도 CPU는 여전히 중요하다.</p>
+<p>GPU가 계산을 담당한다면, CPU는 전체 흐름을 관리한다.</p>
+<p>예를 들어 CPU는 이런 일을 한다.</p>
+<pre><code class="language-text">데이터 로딩
+전처리
+파일 읽기
+학습 코드 실행 흐름 관리
+GPU에 작업 전달
+운영체제와 프로세스 관리
+</code></pre>
+<p>즉, 딥러닝 시스템에서는 CPU와 GPU가 같이 움직인다.</p>
+<pre><code class="language-text">CPU = 전체 작업 지휘
+GPU = 대규모 계산 수행
+</code></pre>
+<p>GPU만 좋다고 모든 것이 빨라지는 것도 아니다.</p>
+<p>데이터 로딩이 느리거나, CPU 전처리가 병목이면 GPU가 놀게 된다.</p>
+<p>그래서 실제 머신러닝 엔지니어링에서는 GPU뿐만 아니라 데이터 파이프라인, 메모리, 스토리지, 네트워크도 중요해진다.</p>
+<hr>
+<h2>10. 딥러닝에서 자주 나오는 CUDA는 뭐야?</h2>
+<p>GPU 이야기를 하다 보면 CUDA라는 말도 자주 나온다.</p>
+<p>CUDA는 NVIDIA GPU에서 병렬 연산을 할 수 있게 해주는 플랫폼이다.</p>
+<p>쉽게 말하면 파이썬 코드가 GPU를 잘 쓸 수 있도록 연결해주는 기술이라고 볼 수 있다.</p>
+<p>우리가 PyTorch에서 이런 코드를 쓰는 것도 CUDA와 관련이 있다.</p>
+<pre><code class="language-python">device = &quot;cuda&quot;
+model.to(device)
+x = x.to(device)
+</code></pre>
+<p>이 코드는 모델과 데이터를 GPU 메모리로 옮기는 코드다.</p>
+<p>즉, CPU에서만 계산하지 말고 GPU에서 계산하라는 의미다.</p>
+<hr>
+<h2>11. PyTorch에서 CPU와 GPU 차이</h2>
+<p>PyTorch에서는 텐서가 어디에 올라가 있는지가 중요하다.</p>
+<pre><code class="language-python">import torch
+
+x = torch.tensor([1, 2, 3])
+print(x.device)
+</code></pre>
+<p>기본적으로는 CPU에 있다.</p>
+<pre><code class="language-text">cpu
+</code></pre>
+<p>GPU를 사용하려면 CUDA 장치로 옮겨야 한다.</p>
+<pre><code class="language-python">x = x.to(&quot;cuda&quot;)
+print(x.device)
+</code></pre>
+<p>그러면 GPU 메모리에 올라간다.</p>
+<pre><code class="language-text">cuda:0
+</code></pre>
+<p>모델도 마찬가지다.</p>
+<pre><code class="language-python">model = model.to(&quot;cuda&quot;)
+</code></pre>
+<p>데이터와 모델이 같은 장치에 있어야 연산할 수 있다.</p>
+<p>즉, 이런 상황은 에러가 난다.</p>
+<pre><code class="language-text">모델은 GPU에 있음
+데이터는 CPU에 있음
+</code></pre>
+<p>그래서 보통 학습 코드에서 이런 형태가 자주 나온다.</p>
+<pre><code class="language-python">device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
+
+model = model.to(device)
+
+for x, y in train_loader:
+    x = x.to(device)
+    y = y.to(device)
+
+    output = model(x)
+</code></pre>
+<p>이 코드는 GPU가 있으면 GPU를 쓰고, 없으면 CPU를 쓰겠다는 의미다.</p>
+<hr>
+<h2>12. GPU가 무조건 빠른 건 아니다</h2>
+<p>GPU가 항상 CPU보다 빠른 것은 아니다.</p>
+<p>GPU가 빠른 상황은 따로 있다.</p>
+<pre><code class="language-text">계산량이 많을 때
+같은 종류의 연산이 반복될 때
+병렬 처리가 가능한 작업일 때
+데이터를 한 번에 많이 처리할 때
+</code></pre>
+<p>반대로 이런 경우에는 GPU의 장점이 덜하다.</p>
+<pre><code class="language-text">계산량이 너무 작을 때
+조건 분기가 많은 작업일 때
+GPU로 데이터를 옮기는 비용이 더 클 때
+병렬화가 어려운 작업일 때
+</code></pre>
+<p>예를 들어 숫자 몇 개 더하는 정도의 작업이라면 굳이 GPU를 쓸 필요가 없다.</p>
+<p>CPU에서 처리하는 게 더 단순하고 빠를 수 있다.</p>
+<p>GPU는 데이터를 GPU 메모리로 옮기고, 연산하고, 다시 가져오는 과정이 있기 때문이다.</p>
+<p>그래서 GPU는 “작은 계산”보다 “큰 계산”에서 진짜 힘을 발휘한다.</p>
+<hr>
+<h2>13. 딥러닝 추론에서는 GPU가 왜 중요할까?</h2>
+<p>딥러닝에서는 학습뿐만 아니라 추론에서도 GPU가 중요하다.</p>
+<p>추론은 학습된 모델에 입력을 넣고 결과를 뽑는 과정이다.</p>
+<p>예를 들면 다음과 같다.</p>
+<pre><code class="language-text">이미지를 넣고 고양이인지 강아지인지 예측
+문장을 넣고 다음 토큰 예측
+음성을 넣고 텍스트로 변환
+질문을 넣고 답변 생성
+</code></pre>
+<p>특히 LLM 같은 대형 모델은 추론할 때도 계산량이 매우 크다.</p>
+<p>사용자 한 명만 쓰는 것이 아니라 여러 사용자가 동시에 요청하면 GPU의 병렬 처리 능력이 중요해진다.</p>
+<p>그래서 실제 AI 서비스에서는 단순히 모델을 실행하는 것뿐만 아니라 다음 요소들이 중요해진다.</p>
+<pre><code class="language-text">GPU 메모리 관리
+배치 처리
+모델 경량화
+양자화
+TensorRT 같은 추론 최적화
+서빙 서버 구조
+요청 큐 관리
+모니터링
+</code></pre>
+<p>여기서부터는 단순 딥러닝을 넘어 AI DevOps, MLOps, GPU Serving 영역으로 이어진다.</p>
+<hr>
+<h2>14. CPU와 GPU를 아주 짧게 정리하면</h2>
+<p>CPU는 복잡한 일을 잘한다.</p>
+<p>GPU는 단순한 계산을 대량으로 동시에 잘한다.</p>
+<p>딥러닝은 행렬 연산과 텐서 연산이 많다.</p>
+<p>그래서 GPU가 딥러닝 학습과 추론에 잘 맞는다.</p>
+<p>정리하면 다음과 같다.</p>
+<pre><code class="language-text">CPU:
+복잡한 프로그램 흐름 제어
+운영체제 관리
+데이터 로딩
+전처리
+일반적인 서버 작업
+
+GPU:
+행렬 연산
+텐서 연산
+딥러닝 학습
+대규모 추론
+병렬 계산
+</code></pre>
+<hr>
+<h2>15. 마무리</h2>
+<p>CPU와 GPU의 차이는 단순히 “CPU는 느리고 GPU는 빠르다”가 아니다.</p>
+<p>정확히는 역할이 다르다.</p>
+<p>CPU는 복잡하고 다양한 작업을 처리하는 데 강하고, GPU는 같은 종류의 계산을 대량으로 동시에 처리하는 데 강하다.</p>
+<p>딥러닝은 수많은 행렬 연산과 텐서 연산으로 이루어져 있기 때문에 GPU와 궁합이 좋다.</p>
+<p>그래서 딥러닝을 공부하다 보면 GPU, CUDA, TensorRT, 추론 최적화 같은 키워드가 계속 등장한다.</p>
+<p>결국 핵심은 이것이다.</p>
+<pre><code class="language-text">딥러닝 모델은 거대한 숫자 계산기다.
+GPU는 그 숫자 계산을 병렬로 빠르게 처리하는 장치다.
+CPU는 전체 프로그램과 시스템 흐름을 관리한다.
+</code></pre>
+<p>이 관점으로 보면 GPU와 CPU의 차이가 훨씬 자연스럽게 이해된다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리 | Greenapple0101</title>
+  <meta name="description" content="Kubernetes를 공부하다 보면 ReplicaSet 문제에서 자주 만나는 상황이 있다. 예를 들면 이런 문제다. 처음 보면 헷갈린다. 이번 글에서는 ReplicaSet과 Pod의 관계, 이미지 수정 흐름, 왜 Pod를 다시 만들어야 하는지까지 같이 정리해본다. --- Replica…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">CKA</span>
+    <h1>[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-07T01:51:53.724Z">2026.05.07</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/CKA-ReplicaSet-이미지-수정과-Pod-재생성-흐름-정리" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Kubernetes를 공부하다 보면 ReplicaSet 문제에서 자주 만나는 상황이 있다.</p>
+<p>```text id=&rdquo;vwjz4q&rdquo;
+ReplicaSet은 존재하는데,
+Pod 이미지가 잘못되었다.</p>
+<pre><code>
+예를 들면 이런 문제다.
+
+```text id=&quot;n7itk2&quot;
+Fix the original replica set new-replica-set to use the correct image with name as busybox.
+
+Either delete and recreate the ReplicaSet or update the existing ReplicaSet and then delete all PODs, so new ones with the correct image will be created.
+</code></pre>
+<p>처음 보면 헷갈린다.</p>
+<p>```text id=&rdquo;3d26pf&rdquo;
+ReplicaSet만 수정하면 끝 아닌가?
+왜 Pod까지 삭제하라는 거지?</p>
+<pre><code>
+이번 글에서는 ReplicaSet과 Pod의 관계, 이미지 수정 흐름, 왜 Pod를 다시 만들어야 하는지까지 같이 정리해본다.
+
+---
+
+# ReplicaSet이란?
+
+ReplicaSet은 쉽게 말하면 다음 역할을 한다.
+
+```text id=&quot;jlwmqf&quot;
+&quot;Pod 개수를 원하는 만큼 유지해주는 관리자&quot;
+</code></pre>
+<p>예를 들어 replicas가 4라면:</p>
+<p>```yaml id=&rdquo;gxnlva&rdquo;
+spec:
+  replicas: 4</p>
+<pre><code>
+ReplicaSet은 항상 Pod가 4개 유지되도록 감시한다.
+
+현재 구조를 단순하게 보면 이렇다.
+
+```text id=&quot;m5op7g&quot;
+ReplicaSet
+ ├── Pod
+ ├── Pod
+ ├── Pod
+ └── Pod
+</code></pre>
+<p>Pod 하나가 죽으면 ReplicaSet이 새 Pod를 자동으로 만든다.</p>
+<hr>
+<h1>왜 ReplicaSet을 쓰는가?</h1>
+<p>Pod만 직접 만들면 문제가 있다.</p>
+<p>```text id=&rdquo;vyjlwm&rdquo;
+Pod가 죽으면 끝이다.
+자동 복구가 없다.</p>
+<pre><code>
+예를 들어:
+
+```bash id=&quot;wstml2&quot;
+kubectl delete pod nginx
+</code></pre>
+<p>직접 만든 단일 Pod라면 그냥 사라진다.</p>
+<p>하지만 ReplicaSet이 관리 중이면 다르다.</p>
+<p>```text id=&rdquo;4m4ec6&rdquo;
+Pod 삭제
+→ ReplicaSet 감지
+→ 새 Pod 자동 생성</p>
+<pre><code>
+즉 ReplicaSet은 Kubernetes의 기본적인 Self-Healing 기능을 담당한다.
+
+---
+
+# 현재 ReplicaSet 확인하기
+
+ReplicaSet 목록 확인:
+
+```bash id=&quot;k1fuhh&quot;
+kubectl get rs
+</code></pre>
+<p>또는:</p>
+<p>```bash id=&rdquo;ofrm3n&rdquo;
+kubectl get replicasets</p>
+<pre><code>
+출력 예시:
+
+```bash id=&quot;2wz5mn&quot;
+NAME              DESIRED   CURRENT   READY   AGE
+new-replica-set   4         4         0       10m
+</code></pre>
+<p>컬럼 의미:</p>
+<table>
+<thead>
+<tr>
+<th>컬럼</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DESIRED</td>
+<td>원하는 Pod 개수</td>
+</tr>
+<tr>
+<td>CURRENT</td>
+<td>현재 존재하는 Pod 개수</td>
+</tr>
+<tr>
+<td>READY</td>
+<td>Ready 상태 Pod 개수</td>
+</tr>
+<tr>
+<td>AGE</td>
+<td>생성된 지 얼마나 지났는지</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>ReplicaSet이 만든 Pod 확인하기</h1>
+<p>```bash id=&rdquo;0qjwbe&rdquo;
+kubectl get pods</p>
+<pre><code>
+예시:
+
+```bash id=&quot;fru1bw&quot;
+NAME                        READY   STATUS             AGE
+new-replica-set-m7ctj       0/1     ImagePullBackOff  2m
+new-replica-set-qrk9x       0/1     ImagePullBackOff  2m
+new-replica-set-jnnf7       0/1     ErrImagePull      2m
+new-replica-set-9wlx9       0/1     ImagePullBackOff  2m
+</code></pre>
+<p>여기서 이름을 보면:</p>
+<p>```text id=&rdquo;9xg9k6&rdquo;
+new-replica-set-xxxxx</p>
+<pre><code>
+형태다.
+
+즉 ReplicaSet 이름 뒤에 랜덤 문자열이 붙는다.
+
+---
+
+# ImagePullBackOff가 뜨는 이유
+
+ReplicaSet 문제에서 자주 보이는 상태:
+
+```text id=&quot;mjlwmx&quot;
+ImagePullBackOff
+ErrImagePull
+</code></pre>
+<p>이 뜻은:</p>
+<p>```text id=&rdquo;umyycy&rdquo;
+컨테이너 이미지를 가져오지 못했다.</p>
+<pre><code>
+예를 들어 이미지 이름을 잘못 적으면:
+
+```yaml id=&quot;6stbo9&quot;
+image: nginxx
+</code></pre>
+<p>Kubernetes는 Docker Hub에서 <code>nginxx</code> 이미지를 찾으려 한다.</p>
+<p>하지만 존재하지 않으므로 실패한다.</p>
+<p>```text id=&rdquo;e8j0ft&rdquo;
+ErrImagePull
+→ 이미지 다운로드 실패</p>
+<p>ImagePullBackOff
+→ 재시도 중</p>
+<pre><code>
+---
+
+# ReplicaSet 상세 보기
+
+ReplicaSet 정보 확인:
+
+```bash id=&quot;g9u4mf&quot;
+kubectl describe rs new-replica-set
+</code></pre>
+<p>또는:</p>
+<p>```bash id=&rdquo;l4e3ml&rdquo;
+kubectl describe replicaset new-replica-set</p>
+<pre><code>
+확인 가능한 것:
+
+| 항목           | 설명            |
+| ------------ | ------------- |
+| Replicas     | 원하는 Pod 개수    |
+| Selector     | 어떤 Pod를 관리하는지 |
+| Pod Template | 새 Pod 생성 템플릿  |
+| Events       | 생성/삭제 이벤트     |
+
+특히 중요한 건 Pod Template다.
+
+ReplicaSet은 이 템플릿을 기반으로 새 Pod를 만든다.
+
+---
+
+# ReplicaSet YAML 구조 이해하기
+
+ReplicaSet YAML 기본 구조:
+
+```yaml id=&quot;x6h8eh&quot;
+apiVersion: apps/v1
+kind: ReplicaSet
+
+metadata:
+  name: new-replica-set
+
+spec:
+  replicas: 4
+
+  selector:
+    matchLabels:
+      app: myapp
+
+  template:
+    metadata:
+      labels:
+        app: myapp
+
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+</code></pre>
+<p>핵심은:</p>
+<p>```yaml id=&rdquo;3owp71&rdquo;
+template:</p>
+<pre><code>
+부분이다.
+
+ReplicaSet은 이 template을 복사해서 Pod를 만든다.
+
+즉:
+
+```text id=&quot;hvr3l1&quot;
+ReplicaSet = Pod 공장
+template = Pod 설계도
+</code></pre>
+<hr>
+<h1>왜 ReplicaSet 수정만 하면 안 되는가?</h1>
+<p>여기서 가장 많이 헷갈린다.</p>
+<p>예를 들어 ReplicaSet을 이렇게 수정했다고 하자.</p>
+<p>```yaml id=&rdquo;zhq7cs&rdquo;
+image: busybox</p>
+<pre><code>
+그러면 왜 기존 Pod 이미지가 자동으로 안 바뀔까?
+
+이유는 ReplicaSet이 하는 역할 때문이다.
+
+ReplicaSet은:
+
+```text id=&quot;m4nml0&quot;
+&quot;Pod 개수 유지&quot;
+</code></pre>
+<p>를 담당한다.</p>
+<p>하지만:</p>
+<p>```text id=&rdquo;glt3w0&rdquo;
+기존 Pod 내용을 업데이트하는 역할은 아니다.</p>
+<pre><code>
+즉 ReplicaSet은:
+
+```text id=&quot;wfgpsq&quot;
+현재 Pod가 살아 있는지만 본다.
+</code></pre>
+<p>이미 존재하는 Pod의 컨테이너 이미지를 교체하지 않는다.</p>
+<p>그래서 흐름이 이렇게 된다.</p>
+<p>```text id=&rdquo;f3l77n&rdquo;
+ReplicaSet 수정
+→ 기존 Pod는 그대로
+→ 기존 Pod 삭제
+→ ReplicaSet이 새 Pod 생성
+→ 새 Pod는 수정된 이미지 사용</p>
+<pre><code>
+---
+
+# ReplicaSet 수정하기
+
+ReplicaSet 직접 수정:
+
+```bash id=&quot;zk3f75&quot;
+kubectl edit rs new-replica-set
+</code></pre>
+<p>또는:</p>
+<p>```bash id=&rdquo;gkzqnm&rdquo;
+k edit rs new-replica-set</p>
+<pre><code>
+편집기가 열리면:
+
+```yaml id=&quot;y2i35d&quot;
+containers:
+- image: 잘못된이미지
+</code></pre>
+<p>이 부분을 찾는다.</p>
+<p>예를 들어:</p>
+<p>```yaml id=&rdquo;0jk4pb&rdquo;
+image: nginxx</p>
+<pre><code>
+이렇게 되어 있다면:
+
+```yaml id=&quot;3l2w5v&quot;
+image: busybox
+</code></pre>
+<p>로 수정한다.</p>
+<p>최종 형태:</p>
+<p>```yaml id=&rdquo;6gdx0v&rdquo;
+containers:
+- name: busybox
+  image: busybox</p>
+<pre><code>
+---
+
+# vi 편집기 저장 방법
+
+수정 후 저장:
+
+```text id=&quot;0clc7x&quot;
+Esc
+:wq
+Enter
+</code></pre>
+<p>vi 종료:</p>
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>i</td>
+<td>입력 모드</td>
+</tr>
+<tr>
+<td>Esc</td>
+<td>명령 모드</td>
+</tr>
+<tr>
+<td>:wq</td>
+<td>저장 후 종료</td>
+</tr>
+<tr>
+<td>:q!</td>
+<td>저장 없이 종료</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>기존 Pod 삭제하기</h1>
+<p>ReplicaSet 수정 후 기존 Pod를 삭제해야 한다.</p>
+<p>현재 Pod 확인:</p>
+<p>```bash id=&rdquo;j6ym0l&rdquo;
+kubectl get pods</p>
+<pre><code>
+예시:
+
+```bash id=&quot;6vuxzw&quot;
+new-replica-set-m7ctj
+new-replica-set-qrk9x
+new-replica-set-jnnf7
+new-replica-set-9wlx9
+</code></pre>
+<p>삭제:</p>
+<p>```bash id=&rdquo;vhvh2z&rdquo;
+kubectl delete pod new-replica-set-m7ctj</p>
+<pre><code>
+또는 여러 개:
+
+```bash id=&quot;e1kqkh&quot;
+kubectl delete pod new-replica-set-m7ctj new-replica-set-qrk9x
+</code></pre>
+<p>전체 삭제:</p>
+<p>```bash id=&rdquo;1lr5ka&rdquo;
+kubectl delete pod &ndash;all</p>
+<pre><code>
+하지만 실습 초반에는 하나씩 삭제하는 게 더 안전하다.
+
+---
+
+# Pod 삭제 후 무슨 일이 일어나는가?
+
+삭제 직후:
+
+```bash id=&quot;z6e1n6&quot;
+kubectl get pods
+</code></pre>
+<p>잠깐 후:</p>
+<p>```text id=&rdquo;mjlwmw&rdquo;
+새로운 이름의 Pod 생성</p>
+<pre><code>
+예시:
+
+```bash id=&quot;1v1kz8&quot;
+NAME                        READY   STATUS
+new-replica-set-abc12       1/1     Running
+new-replica-set-def34       1/1     Running
+</code></pre>
+<p>ReplicaSet이 자동으로 새 Pod를 만든 것이다.</p>
+<hr>
+<h1>새 Pod 이미지 확인하기</h1>
+<p>새 Pod가 정말 busybox 이미지인지 확인:</p>
+<p>```bash id=&rdquo;9vppj6&rdquo;
+kubectl describe pod <pod-name></p>
+<pre><code>
+또는:
+
+```bash id=&quot;h6t66u&quot;
+kubectl get pod &lt;pod-name&gt; -o jsonpath='{.spec.containers[*].image}'
+</code></pre>
+<p>출력:</p>
+<p>```bash id=&rdquo;fjlwmw&rdquo;
+busybox</p>
+<pre><code>
+이면 성공이다.
+
+---
+
+# ReplicaSet 삭제 후 재생성 방법
+
+문제에서는 이런 방법도 허용한다.
+
+```text id=&quot;0otew2&quot;
+ReplicaSet 삭제 후 다시 생성
+</code></pre>
+<p>기존 ReplicaSet 삭제:</p>
+<p>```bash id=&rdquo;jlwmz0&rdquo;
+kubectl delete rs new-replica-set</p>
+<pre><code>
+파일 수정:
+
+```bash id=&quot;ndjdzj&quot;
+vi /root/new-replica-set.yaml
+</code></pre>
+<p>image 수정:</p>
+<p>```yaml id=&rdquo;uk3p8t&rdquo;
+image: busybox</p>
+<pre><code>
+저장 후:
+
+```bash id=&quot;i84m7o&quot;
+kubectl create -f /root/new-replica-set.yaml
+</code></pre>
+<hr>
+<h1>ReplicaSet 삭제 시 Pod도 같이 삭제되는 이유</h1>
+<p>ReplicaSet이 관리 중인 Pod는 보통 같이 삭제된다.</p>
+<p>이유는 ReplicaSet이 owner reference를 가지고 있기 때문이다.</p>
+<p>구조적으로 보면:</p>
+<p>```text id=&rdquo;5h6b91&rdquo;
+ReplicaSet
+ └── Pod</p>
+<pre><code>
+Pod는 ReplicaSet 소유로 등록된다.
+
+그래서 ReplicaSet 삭제 시:
+
+```text id=&quot;bzwkz8&quot;
+ReplicaSet 삭제
+→ 관리하던 Pod도 삭제
+</code></pre>
+<p>가 발생한다.</p>
+<hr>
+<h1>Pod와 ReplicaSet 관계 정리</h1>
+<table>
+<thead>
+<tr>
+<th>리소스</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pod</td>
+<td>실제 컨테이너 실행</td>
+</tr>
+<tr>
+<td>ReplicaSet</td>
+<td>Pod 개수 유지</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>ReplicaSet 업데이트 관리</td>
+</tr>
+</tbody>
+</table>
+<p>ReplicaSet은 Pod 관리용이다.</p>
+<p>Deployment는 ReplicaSet을 관리한다.</p>
+<p>실무에서는 Deployment를 훨씬 많이 쓴다.</p>
+<hr>
+<h1>왜 실무에서는 Deployment를 더 쓰는가?</h1>
+<p>ReplicaSet만 쓰면:</p>
+<p>```text id=&rdquo;h1h9ym&rdquo;
+이미지 수정
+→ 기존 Pod 삭제 필요</p>
+<pre><code>
+같은 번거로움이 있다.
+
+Deployment는 Rolling Update 기능이 있어서:
+
+```text id=&quot;jlwmwn&quot;
+새 Pod 생성
+→ 기존 Pod 순차 교체
+→ 무중단 업데이트
+</code></pre>
+<p>를 지원한다.</p>
+<p>즉 ReplicaSet보다 한 단계 더 높은 관리 리소스다.</p>
+<hr>
+<h1>자주 쓰는 ReplicaSet 명령어</h1>
+<h2>ReplicaSet 목록 보기</h2>
+<p>```bash id=&rdquo;8rpnv5&rdquo;
+kubectl get rs</p>
+<pre><code>
+---
+
+## ReplicaSet 자세히 보기
+
+```bash id=&quot;1t0c13&quot;
+kubectl describe rs new-replica-set
+</code></pre>
+<hr>
+<h2>ReplicaSet YAML 보기</h2>
+<p>```bash id=&rdquo;7z3lv4&rdquo;
+kubectl get rs new-replica-set -o yaml</p>
+<pre><code>
+---
+
+## ReplicaSet 수정
+
+```bash id=&quot;yjlwm2&quot;
+kubectl edit rs new-replica-set
+</code></pre>
+<hr>
+<h2>ReplicaSet 삭제</h2>
+<p>```bash id=&rdquo;6vjlwm&rdquo;
+kubectl delete rs new-replica-set</p>
+<pre><code>
+---
+
+## Pod 목록 확인
+
+```bash id=&quot;cjlwm3&quot;
+kubectl get pods
+</code></pre>
+<hr>
+<h2>Pod 삭제</h2>
+<p>```bash id=&rdquo;jlwmw4&rdquo;
+kubectl delete pod <pod-name></p>
+<pre><code>
+---
+
+## Pod 이미지 확인
+
+```bash id=&quot;njlwm5&quot;
+kubectl describe pod &lt;pod-name&gt;
+</code></pre>
+<p>또는:</p>
+<p>```bash id=&rdquo;mjlwm6&rdquo;
+kubectl get pod <pod-name> -o jsonpath=&rsquo;{.spec.containers[*].image}&rsquo;</p>
+<pre><code>
+---
+
+# 실습 흐름 전체 정리
+
+이번 문제의 핵심 흐름은 다음이다.
+
+## 1. ReplicaSet 수정
+
+```bash id=&quot;qjlwm7&quot;
+kubectl edit rs new-replica-set
+</code></pre>
+<hr>
+<h2>2. image 수정</h2>
+<p>```yaml id=&rdquo;zjlwm8&rdquo;
+image: busybox</p>
+<pre><code>
+---
+
+## 3. 기존 Pod 확인
+
+```bash id=&quot;xjlwm9&quot;
+kubectl get pods
+</code></pre>
+<hr>
+<h2>4. 기존 Pod 삭제</h2>
+<p>```bash id=&rdquo;yjlwm0&rdquo;
+kubectl delete pod <pod-name></p>
+<pre><code>
+---
+
+## 5. ReplicaSet이 새 Pod 생성
+
+```text id=&quot;ajlwm1&quot;
+새 Pod 자동 생성
+</code></pre>
+<hr>
+<h2>6. 새 Pod 이미지 확인</h2>
+<p>```bash id=&rdquo;bjlwm2&rdquo;
+kubectl describe pod <pod-name></p>
+<pre><code>
+또는:
+
+```bash id=&quot;cjlwm3&quot;
+kubectl get pod &lt;pod-name&gt; -o jsonpath='{.spec.containers[*].image}'
+</code></pre>
+<hr>
+<h1>핵심 개념 한 줄 정리</h1>
+<p>```text id=&rdquo;djlwm4&rdquo;
+ReplicaSet은 Pod 개수를 유지한다.</p>
+<pre><code>
+```text id=&quot;ejlwm5&quot;
+ReplicaSet 수정만으로 기존 Pod는 바뀌지 않는다.
+</code></pre>
+<p>```text id=&rdquo;fjlwm6&rdquo;
+기존 Pod를 삭제해야 새 이미지가 적용된 Pod가 다시 생성된다.</p>
+<pre><code>
+---
+
+# 마무리
+
+ReplicaSet 문제를 처음 풀 때 가장 헷갈리는 부분은 이거다.
+
+```text id=&quot;gjlwm7&quot;
+왜 ReplicaSet 수정했는데 Pod가 안 바뀌지?
+</code></pre>
+<p>이유는 ReplicaSet 역할이:</p>
+<p>```text id=&rdquo;hjlwm8&rdquo;
+&ldquo;Pod 개수 유지&rdquo;</p>
+<pre><code>
+이지,
+
+```text id=&quot;ijjlwm9&quot;
+&quot;Pod 업데이트&quot;
+</code></pre>
+<p>가 아니기 때문이다.</p>
+<p>그래서 실제 흐름은 항상 다음과 같다.</p>
+<p><code>text id="jjlwm0"
+ReplicaSet 수정
+→ 기존 Pod 삭제
+→ ReplicaSet이 새 Pod 생성
+→ 새 이미지 적용</code></p>
+<p>이 흐름을 이해하면 Kubernetes의 Self-Healing 구조와 ReplicaSet의 역할이 훨씬 명확해진다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

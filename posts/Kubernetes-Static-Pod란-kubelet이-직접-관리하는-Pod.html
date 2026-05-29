@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] Static Pod란? kubelet이 직접 관리하는 Pod | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스에서 Pod는 보통 kubectl apply 로 만든다. 그러면 일반적인 Pod 생성 흐름은 이렇게 된다. 그런데 Static Pod 는 이 흐름과 조금 다르다. Static Pod는 한 줄로 말하면 이거다. --- 1. 일반 Pod는 어떻게 만들어질까? 보통 Pod를 만들…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] Static Pod란? kubelet이 직접 관리하는 Pod</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-27T15:22:57.566Z">2026.05.27</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-Static-Pod란-kubelet이-직접-관리하는-Pod" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스에서 Pod는 보통 <code>kubectl apply</code>로 만든다.</p>
+<pre><code class="language-bash">kubectl apply -f pod.yaml
+</code></pre>
+<p>그러면 일반적인 Pod 생성 흐름은 이렇게 된다.</p>
+<pre><code class="language-text">사용자
+→ API Server
+→ etcd 저장
+→ Scheduler가 노드 선택
+→ kubelet이 Pod 실행
+</code></pre>
+<p>그런데 <strong>Static Pod</strong>는 이 흐름과 조금 다르다.</p>
+<p>Static Pod는 한 줄로 말하면 이거다.</p>
+<pre><code class="language-text">Static Pod = API Server가 아니라 kubelet이 직접 실행하고 관리하는 Pod
+</code></pre>
+<hr>
+<h2>1. 일반 Pod는 어떻게 만들어질까?</h2>
+<p>보통 Pod를 만들 때는 <code>kubectl</code> 명령어를 사용한다.</p>
+<pre><code class="language-bash">kubectl apply -f nginx-pod.yaml
+</code></pre>
+<p>이 명령어를 치면 <code>kubectl</code>이 API Server에게 요청을 보낸다.</p>
+<pre><code class="language-text">API Server야, nginx Pod 하나 만들어줘
+</code></pre>
+<p>그 다음에는 이런 과정이 진행된다.</p>
+<pre><code class="language-text">API Server가 요청을 받음
+→ etcd에 Pod 정보 저장
+→ Scheduler가 어느 노드에 띄울지 결정
+→ 해당 노드의 kubelet이 Pod 실행
+</code></pre>
+<p>즉 일반 Pod는 <strong>API Server를 통해 생성되는 Pod</strong>다.</p>
+<hr>
+<h2>2. Static Pod는 뭐가 다를까?</h2>
+<p>Static Pod는 <code>kubectl apply</code>로 만드는 Pod가 아니다.</p>
+<p>노드 안의 특정 디렉토리에 YAML 파일을 넣어두면, 그 노드의 <code>kubelet</code>이 파일을 보고 직접 Pod를 실행한다.</p>
+<p>보통 그 디렉토리는 여기다.</p>
+<pre><code class="language-bash">/etc/kubernetes/manifests
+</code></pre>
+<p>여기에 Pod YAML 파일이 있으면 kubelet이 감시한다.</p>
+<pre><code class="language-text">/etc/kubernetes/manifests 안에 YAML 파일 존재
+→ kubelet이 파일을 읽음
+→ kubelet이 직접 Pod 실행
+</code></pre>
+<p>즉 Static Pod의 흐름은 이렇게 된다.</p>
+<pre><code class="language-text">kubelet
+→ 로컬 manifest 파일 감시
+→ Pod 실행
+</code></pre>
+<p>API Server가 중간에 끼지 않는다.</p>
+<hr>
+<h2>3. 왜 Static Pod가 필요할까?</h2>
+<p>여기서 중요한 질문이 나온다.</p>
+<blockquote>
+<p>API Server도 Pod로 떠 있는데, API Server는 누가 띄우지?</p>
+</blockquote>
+<p>쿠버네티스 control plane 컴포넌트들은 보통 Pod 형태로 떠 있다.</p>
+<p>예를 들면 이런 것들이다.</p>
+<pre><code class="language-text">kube-apiserver
+etcd
+kube-scheduler
+kube-controller-manager
+</code></pre>
+<p>그런데 생각해보면 이상하다.</p>
+<p>Pod를 만들려면 API Server가 필요하다.
+그런데 API Server 자기 자신도 Pod다.</p>
+<pre><code class="language-text">Pod를 만들려면 API Server가 필요함
+근데 API Server도 Pod임
+그럼 API Server는 누가 띄움?
+</code></pre>
+<p>이 문제를 해결하는 방식이 <strong>Static Pod</strong>다.</p>
+<p><code>kubelet</code>은 API Server가 없어도 로컬 파일을 보고 Pod를 실행할 수 있다.</p>
+<p>그래서 control plane 노드의 <code>/etc/kubernetes/manifests</code> 안에는 보통 이런 파일들이 있다.</p>
+<pre><code class="language-bash">ls /etc/kubernetes/manifests
+</code></pre>
+<pre><code class="language-text">etcd.yaml
+kube-apiserver.yaml
+kube-controller-manager.yaml
+kube-scheduler.yaml
+</code></pre>
+<p>이 파일들을 kubelet이 직접 읽고 control plane Pod들을 띄운다.</p>
+<hr>
+<h2>4. Static Pod 확인하기</h2>
+<p>control plane 노드에서 아래 명령어를 쳐보면 된다.</p>
+<pre><code class="language-bash">ls /etc/kubernetes/manifests
+</code></pre>
+<p>보통 이런 파일들이 있다.</p>
+<pre><code class="language-text">etcd.yaml
+kube-apiserver.yaml
+kube-controller-manager.yaml
+kube-scheduler.yaml
+</code></pre>
+<p>그리고 쿠버네티스에서 Pod 목록을 보면 이렇게 보인다.</p>
+<pre><code class="language-bash">kubectl get pod -n kube-system
+</code></pre>
+<pre><code class="language-text">etcd-controlplane
+kube-apiserver-controlplane
+kube-controller-manager-controlplane
+kube-scheduler-controlplane
+</code></pre>
+<p>여기서 중요한 점이 있다.</p>
+<p>Static Pod는 kubelet이 직접 관리하지만, <code>kubectl get pod</code>에서도 보인다.</p>
+<p>이유는 kubelet이 API Server에 <strong>Mirror Pod</strong>를 만들어서 보여주기 때문이다.</p>
+<hr>
+<h2>5. Mirror Pod란?</h2>
+<p>Static Pod는 원래 API Server가 만든 Pod가 아니다.</p>
+<p>그런데 <code>kubectl get pod</code>로 아예 안 보이면 관리하기 불편하다.</p>
+<p>그래서 kubelet이 API Server에게 이렇게 알려준다.</p>
+<pre><code class="language-text">이 노드에서 이런 Static Pod가 돌고 있어요
+</code></pre>
+<p>그러면 API Server에는 Static Pod의 복사본 같은 정보가 생긴다.</p>
+<p>이걸 <strong>Mirror Pod</strong>라고 한다.</p>
+<pre><code class="language-text">실제 관리 주체: kubelet
+kubectl에서 보이는 것: mirror pod
+</code></pre>
+<p>그래서 <code>kubectl get pod</code>로 보이긴 하지만, 실제 생성과 관리는 kubelet이 한다.</p>
+<hr>
+<h2>6. Static Pod 삭제는 어떻게 할까?</h2>
+<p>일반 Pod는 이렇게 삭제한다.</p>
+<pre><code class="language-bash">kubectl delete pod nginx
+</code></pre>
+<p>그런데 Static Pod를 이렇게 지우면 어떻게 될까?</p>
+<pre><code class="language-bash">kubectl delete pod kube-apiserver-controlplane -n kube-system
+</code></pre>
+<p>잠깐 사라졌다가 다시 살아난다.</p>
+<p>왜냐하면 kubelet이 여전히 로컬 YAML 파일을 보고 있기 때문이다.</p>
+<pre><code class="language-text">Pod 삭제됨
+→ kubelet이 /etc/kubernetes/manifests/kube-apiserver.yaml 발견
+→ 다시 Pod 생성
+</code></pre>
+<p>진짜로 없애려면 manifest 파일을 지워야 한다.</p>
+<pre><code class="language-bash">sudo rm /etc/kubernetes/manifests/kube-apiserver.yaml
+</code></pre>
+<p>그러면 kubelet이 파일이 없어진 걸 감지하고 해당 Static Pod를 내린다.</p>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">manifest 파일 있음 → Static Pod 실행
+manifest 파일 수정 → Static Pod 재생성
+manifest 파일 삭제 → Static Pod 삭제
+</code></pre>
+<hr>
+<h2>7. Static Pod 수정은 어떻게 할까?</h2>
+<p>Static Pod는 <code>kubectl edit pod</code>로 수정하는 게 핵심이 아니다.</p>
+<p>Static Pod를 수정하려면 로컬 manifest 파일을 수정해야 한다.</p>
+<p>예를 들어 etcd 설정을 바꾸고 싶으면 이 파일을 수정한다.</p>
+<pre><code class="language-bash">sudo vi /etc/kubernetes/manifests/etcd.yaml
+</code></pre>
+<p>파일을 저장하면 kubelet이 변경을 감지한다.</p>
+<pre><code class="language-text">etcd.yaml 수정
+→ kubelet이 변경 감지
+→ 기존 etcd Pod 재생성
+→ 수정된 설정으로 다시 실행
+</code></pre>
+<p>그래서 Static Pod는 <code>kubectl</code>보다 <strong>노드 안의 YAML 파일</strong>이 중요하다.</p>
+<hr>
+<h2>8. CKA에서 왜 중요할까?</h2>
+<p>Static Pod는 특히 <strong>etcd backup &amp; restore 문제</strong>에서 중요하다.</p>
+<p>etcd 복구 문제에서는 보통 snapshot을 restore한다.</p>
+<pre><code class="language-bash">sudo ETCDCTL_API=3 etcdctl snapshot restore /data/etcd-snapshot.db \
+  --data-dir=/var/lib/etcd-new
+</code></pre>
+<p>그 다음 etcd가 새 데이터 디렉토리를 보도록 설정을 바꿔야 한다.</p>
+<p>그래서 이 파일을 수정한다.</p>
+<pre><code class="language-bash">sudo vi /etc/kubernetes/manifests/etcd.yaml
+</code></pre>
+<p>안에서 etcd 데이터 경로를 바꾼다.</p>
+<pre><code class="language-yaml">volumes:
+- hostPath:
+    path: /var/lib/etcd-new
+    type: DirectoryOrCreate
+  name: etcd-data
+</code></pre>
+<p>왜 이 파일을 수정할까?</p>
+<p>etcd가 Static Pod로 떠 있기 때문이다.</p>
+<pre><code class="language-text">/etc/kubernetes/manifests/etcd.yaml 수정
+→ kubelet이 변경 감지
+→ etcd Static Pod 재시작
+→ 새 data-dir 기준으로 etcd 실행
+</code></pre>
+<p>그래서 CKA에서 etcd restore를 풀 때 Static Pod 개념을 모르면 흐름이 잘 안 잡힌다.</p>
+<hr>
+<h2>9. 일반 Pod vs Static Pod</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>일반 Pod</th>
+<th>Static Pod</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>생성 주체</td>
+<td>API Server</td>
+<td>kubelet</td>
+</tr>
+<tr>
+<td>생성 방법</td>
+<td><code>kubectl apply</code></td>
+<td>노드 로컬 manifest 파일 배치</td>
+</tr>
+<tr>
+<td>저장 위치</td>
+<td>etcd</td>
+<td>노드의 로컬 파일</td>
+</tr>
+<tr>
+<td>스케줄링</td>
+<td>Scheduler가 노드 선택</td>
+<td>해당 노드에서 바로 실행</td>
+</tr>
+<tr>
+<td>삭제 방법</td>
+<td><code>kubectl delete pod</code></td>
+<td>manifest 파일 삭제</td>
+</tr>
+<tr>
+<td>대표 예시</td>
+<td>애플리케이션 Pod</td>
+<td>control plane 컴포넌트</td>
+</tr>
+</tbody>
+</table>
+<p>핵심 차이는 이거다.</p>
+<pre><code class="language-text">일반 Pod = API Server를 통해 생성되는 Pod
+Static Pod = kubelet이 직접 생성하는 Pod
+</code></pre>
+<hr>
+<h2>10. 반드시 기억할 경로</h2>
+<p>Static Pod에서 제일 중요한 경로는 이거다.</p>
+<pre><code class="language-bash">/etc/kubernetes/manifests
+</code></pre>
+<p>여기 안에 있는 YAML 파일들을 kubelet이 감시한다.</p>
+<p>대표적으로 이런 파일들이 있다.</p>
+<pre><code class="language-text">/etc/kubernetes/manifests/etcd.yaml
+/etc/kubernetes/manifests/kube-apiserver.yaml
+/etc/kubernetes/manifests/kube-controller-manager.yaml
+/etc/kubernetes/manifests/kube-scheduler.yaml
+</code></pre>
+<p>CKA에서는 이 경로는 거의 외워두는 게 좋다.</p>
+<p>특히 etcd 문제에서 자주 만난다.</p>
+<hr>
+<h2>11. 한 줄 정리</h2>
+<pre><code class="language-text">Static Pod = kubelet이 노드 로컬 manifest 파일을 보고 직접 실행하는 Pod
+</code></pre>
+<p>조금 더 쉽게 말하면:</p>
+<pre><code class="language-text">API Server 없이도 kubelet이 직접 띄울 수 있는 Pod
+</code></pre>
+<p>실전에서는 이렇게 기억하면 된다.</p>
+<pre><code class="language-text">/etc/kubernetes/manifests 안의 YAML
+= kubelet이 감시하는 Static Pod 설정 파일
+</code></pre>
+<p>그리고 CKA에서 가장 중요한 연결은 이거다.</p>
+<pre><code class="language-text">etcd restore
+→ /etc/kubernetes/manifests/etcd.yaml 수정
+→ kubelet이 감지
+→ etcd Static Pod 재시작
+</code></pre>
+<p>Static Pod는 그냥 이론 개념이 아니라,
+<strong>control plane을 살리고 고칠 때 직접 만지는 Pod</strong>라고 보면 된다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

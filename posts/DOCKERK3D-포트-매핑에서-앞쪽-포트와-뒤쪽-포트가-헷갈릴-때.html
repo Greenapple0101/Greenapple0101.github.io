@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[DOCKER/K3D] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때 | Greenapple0101</title>
+  <meta name="description" content="Docker나 k3d를 쓰다 보면 이런 문법을 자주 본다. 또는 k3d에서는 이런 식으로 쓴다. 처음 보면 제일 헷갈리는 부분은 이거다. 포트가 두 개 나오는데, 앞쪽 포트가 뭔지, 뒤쪽 포트가 뭔지 잘 안 와닿는다. 이번 글에서는 이걸 정말 쉽게 정리해보려고 한다. 1. 제일 먼저…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #0ea5e9">DOCKERK3D</span>
+    <h1>[DOCKER/K3D] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-19T04:50:03.833Z">2026.05.19</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/DOCKERK3D-포트-매핑에서-앞쪽-포트와-뒤쪽-포트가-헷갈릴-때" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Docker나 k3d를 쓰다 보면 이런 문법을 자주 본다.</p>
+<pre><code class="language-bash">docker run -p 8080:80 nginx
+</code></pre>
+<p>또는 k3d에서는 이런 식으로 쓴다.</p>
+<pre><code class="language-bash">k3d cluster create my-cluster \
+  --servers 1 \
+  --agents 2 \
+  --port &quot;30001:30001@loadbalancer&quot;
+</code></pre>
+<p>처음 보면 제일 헷갈리는 부분은 이거다.</p>
+<pre><code class="language-text">8080:80
+30001:30001
+</code></pre>
+<p>포트가 두 개 나오는데, 앞쪽 포트가 뭔지, 뒤쪽 포트가 뭔지 잘 안 와닿는다.</p>
+<p>이번 글에서는 이걸 정말 쉽게 정리해보려고 한다.</p>
+<h2>1. 제일 먼저 외울 공식</h2>
+<p>포트 매핑은 이렇게 읽으면 된다.</p>
+<pre><code class="language-text">앞쪽 포트 : 뒤쪽 포트
+
+내가 접속하는 포트 : 실제 내부 서비스가 열려 있는 포트
+밖에서 보이는 포트 : 안에서 기다리는 포트
+Host 포트 : Container 포트
+</code></pre>
+<p>예를 들어:</p>
+<pre><code class="language-bash">docker run -p 8080:80 nginx
+</code></pre>
+<p>이건 이렇게 읽으면 된다.</p>
+<pre><code class="language-text">내 컴퓨터의 8080번 포트로 들어온 요청을
+nginx 컨테이너 안의 80번 포트로 보내라
+</code></pre>
+<p>즉, 접속은 이렇게 한다.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>하지만 실제 nginx는 컨테이너 안에서 <code>80</code>번 포트로 요청을 받고 있다.</p>
+<p>그림으로 보면 이렇다.</p>
+<pre><code class="language-text">내 Mac
+localhost:8080
+     ↓
+Docker 포트 매핑
+     ↓
+nginx 컨테이너
+80번 포트
+</code></pre>
+<h2>2. 앞쪽 포트는 내가 치는 포트다</h2>
+<p>가장 중요한 건 이거다.</p>
+<pre><code class="language-text">앞쪽 포트 = 내가 브라우저나 curl로 접속하는 포트
+</code></pre>
+<p>예를 들어:</p>
+<pre><code class="language-bash">-p 8080:80
+</code></pre>
+<p>이면 나는 이렇게 접속한다.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>앞쪽이 <code>8080</code>이니까 <code>localhost:8080</code>으로 들어간다.</p>
+<p>반대로 이렇게 쓰면:</p>
+<pre><code class="language-bash">-p 3000:80
+</code></pre>
+<p>접속은 이렇게 한다.</p>
+<pre><code class="language-bash">curl localhost:3000
+</code></pre>
+<p>앞쪽이 <code>3000</code>이기 때문이다.</p>
+<p>즉, 내가 직접 입력하는 포트는 항상 앞쪽 포트다.</p>
+<pre><code class="language-text">-p 8080:80  →  localhost:8080 으로 접속
+-p 3000:80  →  localhost:3000 으로 접속
+-p 9999:80  →  localhost:9999 으로 접속
+</code></pre>
+<h2>3. 뒤쪽 포트는 컨테이너 안에서 실제로 열려 있는 포트다</h2>
+<p>그럼 뒤쪽 포트는 뭘까?</p>
+<pre><code class="language-text">뒤쪽 포트 = 컨테이너 안에서 실제 서비스가 기다리고 있는 포트
+</code></pre>
+<p>nginx는 보통 컨테이너 안에서 <code>80</code>번 포트로 떠 있다.</p>
+<p>그래서 Docker에서 nginx를 띄울 때 보통 이렇게 쓴다.</p>
+<pre><code class="language-bash">docker run -p 8080:80 nginx
+</code></pre>
+<p>여기서 뒤쪽 <code>80</code>은 nginx가 컨테이너 내부에서 실제로 사용하고 있는 포트다.</p>
+<p>내가 밖에서 <code>8080</code>으로 들어가면 Docker가 그 요청을 컨테이너 안의 <code>80</code>으로 넘겨준다.</p>
+<pre><code class="language-text">localhost:8080
+     ↓
+container:80
+</code></pre>
+<p>즉, 밖에서는 <code>8080</code>으로 보이지만, 안에서는 <code>80</code>으로 받는 것이다.</p>
+<h2>4. 택배 비유로 이해하기</h2>
+<p>포트 매핑은 택배 주소처럼 생각하면 쉽다.</p>
+<pre><code class="language-text">앞쪽 포트 = 아파트 정문 번호
+뒤쪽 포트 = 실제 집 호수
+</code></pre>
+<p>예를 들어:</p>
+<pre><code class="language-bash">-p 8080:80
+</code></pre>
+<p>은 이런 느낌이다.</p>
+<pre><code class="language-text">택배 기사가 8080번 정문으로 들어온다.
+경비실이 그 택배를 안쪽 80번 집으로 전달한다.
+</code></pre>
+<p>외부 사람은 내부 구조를 몰라도 된다.</p>
+<p>그냥 <code>8080</code>번 문으로 들어오면 된다.</p>
+<p>그러면 Docker가 알아서 컨테이너 안의 <code>80</code>번 포트로 보내준다.</p>
+<pre><code class="language-text">외부 사람 입장 → localhost:8080만 알면 됨
+컨테이너 입장 → 나는 80번 포트에서 기다리고 있음
+</code></pre>
+<h2>5. 왜 굳이 포트를 다르게 쓰는 걸까?</h2>
+<p>이런 생각이 들 수 있다.</p>
+<blockquote>
+<p>nginx가 80번이면 그냥 80:80으로 하면 되는 거 아닌가?</p>
+</blockquote>
+<p>가능하다.</p>
+<pre><code class="language-bash">docker run -p 80:80 nginx
+</code></pre>
+<p>이렇게 하면:</p>
+<pre><code class="language-text">내 컴퓨터 80번 포트
+     ↓
+nginx 컨테이너 80번 포트
+</code></pre>
+<p>가 된다.</p>
+<p>그러면 접속은 이렇게 한다.</p>
+<pre><code class="language-bash">curl localhost
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-bash">curl localhost:80
+</code></pre>
+<p>그런데 보통 개발할 때는 <code>8080:80</code>처럼 다르게 많이 쓴다.</p>
+<p>이유는 내 컴퓨터의 80번 포트가 이미 다른 프로그램이 쓰고 있을 수도 있고, 80번 포트를 쓰려면 권한 문제가 생길 수도 있기 때문이다.</p>
+<p>그래서 밖에서는 <code>8080</code>을 쓰고, 안에서는 nginx 기본 포트인 <code>80</code>으로 연결한다.</p>
+<pre><code class="language-text">밖에서는 8080
+안에서는 80
+</code></pre>
+<p>이렇게 생각하면 된다.</p>
+<h2>6. k3d에서는 어떻게 봐야 할까?</h2>
+<p>k3d에서 이런 명령을 썼다고 하자.</p>
+<pre><code class="language-bash">k3d cluster create my-cluster \
+  --servers 1 \
+  --agents 2 \
+  --port &quot;30001:30001@loadbalancer&quot;
+</code></pre>
+<p>여기서도 원리는 똑같다.</p>
+<pre><code class="language-text">앞쪽 30001 = 내 Mac에서 접속할 포트
+뒤쪽 30001 = k3d loadbalancer 컨테이너 안으로 넘길 포트
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">Mac localhost:30001
+        ↓
+k3d loadbalancer container:30001
+        ↓
+Kubernetes NodePort 30001
+        ↓
+nginx-svc
+        ↓
+nginx Pod:80
+</code></pre>
+<p>그래서 Mac에서는 이렇게 접속한다.</p>
+<pre><code class="language-bash">curl localhost:30001
+</code></pre>
+<p>여기서도 내가 직접 치는 건 앞쪽 포트다.</p>
+<pre><code class="language-text">--port &quot;30001:30001@loadbalancer&quot;
+
+앞쪽 30001 → 내가 접속하는 포트
+뒤쪽 30001 → k3d 내부로 넘겨지는 포트
+</code></pre>
+<h2>7. 꼭 앞뒤 포트가 같아야 할까?</h2>
+<p>아니다.</p>
+<p>꼭 같을 필요는 없다.</p>
+<p>예를 들어 이렇게 써도 된다.</p>
+<pre><code class="language-bash">k3d cluster create my-cluster \
+  --servers 1 \
+  --agents 2 \
+  --port &quot;8080:30001@loadbalancer&quot;
+</code></pre>
+<p>이건 이렇게 읽는다.</p>
+<pre><code class="language-text">내 Mac의 8080번 포트로 들어온 요청을
+k3d 내부의 30001번 포트로 보내라
+</code></pre>
+<p>그러면 접속은 이렇게 해야 한다.</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<p>왜냐하면 앞쪽 포트가 <code>8080</code>이기 때문이다.</p>
+<p>전체 흐름은 이렇게 된다.</p>
+<pre><code class="language-text">Mac localhost:8080
+        ↓
+k3d 내부 30001
+        ↓
+Kubernetes NodePort 30001
+        ↓
+nginx-svc
+        ↓
+nginx Pod:80
+</code></pre>
+<p>즉, 뒤쪽 포트는 실제 내부에서 열려 있는 포트와 맞아야 한다.</p>
+<p>하지만 앞쪽 포트는 내가 편한 포트로 바꿀 수 있다.</p>
+<pre><code class="language-text">--port &quot;30001:30001@loadbalancer&quot;
+→ localhost:30001로 접속
+
+--port &quot;8080:30001@loadbalancer&quot;
+→ localhost:8080으로 접속
+
+--port &quot;9999:30001@loadbalancer&quot;
+→ localhost:9999로 접속
+</code></pre>
+<h2>8. NodePort와 포트 매핑을 같이 보면 더 헷갈린다</h2>
+<p>Kubernetes Service를 보면 이런 식으로 나온다.</p>
+<pre><code class="language-bash">kubectl get svc nginx-svc
+</code></pre>
+<pre><code class="language-text">NAME        TYPE       CLUSTER-IP      PORT(S)
+nginx-svc   NodePort   10.43.188.207   80:30001/TCP
+</code></pre>
+<p>여기서도 포트가 두 개 나온다.</p>
+<pre><code class="language-text">80:30001
+</code></pre>
+<p>이건 Docker 포트 매핑의 <code>앞:뒤</code>랑 같은 의미로 보면 안 된다.</p>
+<p>Kubernetes Service에서:</p>
+<pre><code class="language-text">80:30001/TCP
+</code></pre>
+<p>은 보통 이렇게 이해하면 된다.</p>
+<pre><code class="language-text">Service 내부 포트 = 80
+NodePort 외부 포트 = 30001
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">클러스터 안에서는 nginx-svc:80
+클러스터 밖에서는 NodeIP:30001
+</code></pre>
+<p>그런데 k3d에서는 Node IP로 바로 접근이 어려울 수 있으니까, 추가로 k3d 포트 매핑을 해준다.</p>
+<pre><code class="language-bash">--port &quot;30001:30001@loadbalancer&quot;
+</code></pre>
+<p>그러면 최종적으로 Mac에서 이렇게 접근할 수 있다.</p>
+<pre><code class="language-bash">curl localhost:30001
+</code></pre>
+<p>전체 흐름을 한 번에 보면 이렇다.</p>
+<pre><code class="language-text">Mac localhost:30001
+        ↓
+k3d 포트 매핑
+        ↓
+k3d loadbalancer:30001
+        ↓
+Kubernetes NodePort:30001
+        ↓
+nginx-svc Service:80
+        ↓
+nginx Pod:80
+</code></pre>
+<h2>9. 가장 헷갈리는 포인트 정리</h2>
+<h3>Docker 포트 매핑</h3>
+<pre><code class="language-bash">-p 8080:80
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">localhost:8080 → container:80
+</code></pre>
+<p>접속:</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<h3>k3d 포트 매핑</h3>
+<pre><code class="language-bash">--port &quot;8080:30001@loadbalancer&quot;
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">localhost:8080 → k3d 내부 30001
+</code></pre>
+<p>접속:</p>
+<pre><code class="language-bash">curl localhost:8080
+</code></pre>
+<h3>Kubernetes NodePort</h3>
+<pre><code class="language-text">80:30001/TCP
+</code></pre>
+<p>의미:</p>
+<pre><code class="language-text">Service 80번 포트가 NodePort 30001번으로 외부에 노출됨
+</code></pre>
+<p>접속 방식:</p>
+<pre><code class="language-bash">curl NodeIP:30001
+</code></pre>
+<p>단, k3d에서는 Node IP가 Docker 내부 IP라서 Mac에서 바로 안 될 수 있다.</p>
+<p>그래서:</p>
+<pre><code class="language-bash">--port &quot;30001:30001@loadbalancer&quot;
+</code></pre>
+<p>로 열고:</p>
+<pre><code class="language-bash">curl localhost:30001
+</code></pre>
+<p>로 접근한다.</p>
+<h2>10. 진짜 쉽게 외우기</h2>
+<p>포트 매핑에서 이것만 기억하면 된다.</p>
+<pre><code class="language-text">앞쪽 포트는 내가 치는 포트
+뒤쪽 포트는 안에서 실제로 열려 있는 포트
+</code></pre>
+<p>예를 들어:</p>
+<pre><code class="language-bash">-p 8080:80
+</code></pre>
+<p>이면:</p>
+<pre><code class="language-text">나는 localhost:8080으로 접속한다.
+Docker는 그걸 container:80으로 보내준다.
+</code></pre>
+<pre><code class="language-bash">--port &quot;8080:30001@loadbalancer&quot;
+</code></pre>
+<p>이면:</p>
+<pre><code class="language-text">나는 localhost:8080으로 접속한다.
+k3d는 그걸 내부 30001로 보내준다.
+</code></pre>
+<pre><code class="language-bash">--port &quot;30001:30001@loadbalancer&quot;
+</code></pre>
+<p>이면:</p>
+<pre><code class="language-text">나는 localhost:30001로 접속한다.
+k3d도 내부 30001로 보내준다.
+</code></pre>
+<h2>11. 정리</h2>
+<p>포트 매핑은 외부 포트와 내부 포트를 연결하는 작업이다.</p>
+<pre><code class="language-text">외부 포트:내부 포트
+</code></pre>
+<p>Docker에서는:</p>
+<pre><code class="language-bash">-p 8080:80
+</code></pre>
+<pre><code class="language-text">내 컴퓨터 8080 → 컨테이너 80
+</code></pre>
+<p>k3d에서는:</p>
+<pre><code class="language-bash">--port &quot;30001:30001@loadbalancer&quot;
+</code></pre>
+<pre><code class="language-text">내 Mac 30001 → k3d 내부 30001
+</code></pre>
+<p>Kubernetes NodePort까지 같이 보면 최종 흐름은 이렇게 된다.</p>
+<pre><code class="language-text">Mac localhost:30001
+        ↓
+k3d 포트 매핑
+        ↓
+k3d loadbalancer:30001
+        ↓
+Kubernetes NodePort:30001
+        ↓
+nginx-svc Service:80
+        ↓
+nginx Pod:80
+</code></pre>
+<p>한 문장으로 정리하면 다음과 같다.</p>
+<pre><code class="language-text">앞쪽 포트는 내가 밖에서 접속하는 문이고, 뒤쪽 포트는 안에서 실제 서비스가 기다리고 있는 문이다.
+</code></pre>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[NETWORK] TLS/HTTPS는 왜 안전한가 | Greenapple0101</title>
+  <meta name="description" content="우리는 매일: 같은 사이트에 접속한다. 근데 왜: 고 하는 걸까? 오늘은: TLS HTTPS 인증서 공개키 Handshake 흐름을 한 번에 이해해보자. --- 1. HTTP는 왜 위험한가? 원래 웹은: 를 사용했다. 문제는: 이라는 것이다. 즉: 사이 데이터를 중간에서 보면: 전부…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #ea580c">NETWORK</span>
+    <h1>[NETWORK] TLS/HTTPS는 왜 안전한가</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T14:44:24.620Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/NETWORK-TLSHTTPS는-왜-안전한가" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>우리는 매일:</p>
+<p>```text id=&rdquo;l9i9vx&rdquo;
+https://google.com
+https://github.com
+https://aws.amazon.com</p>
+<pre><code>
+같은 사이트에 접속한다.
+
+근데 왜:
+
+```text id=&quot;9knjmv&quot;
+HTTPS는 안전하다
+</code></pre>
+<p>고 하는 걸까?</p>
+<p>오늘은:</p>
+<ul>
+<li>TLS</li>
+<li>HTTPS</li>
+<li>인증서</li>
+<li>공개키</li>
+<li>Handshake</li>
+</ul>
+<p>흐름을 한 번에 이해해보자.</p>
+<hr>
+<h1>1. HTTP는 왜 위험한가?</h1>
+<p>원래 웹은:</p>
+<p>```text id=&rdquo;9v66zf&rdquo;
+HTTP</p>
+<pre><code>
+를 사용했다.
+
+문제는:
+
+```text id=&quot;j1krqt&quot;
+암호화가 없음
+</code></pre>
+<p>이라는 것이다.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;ltcy3d&rdquo;
+브라우저
+↓
+인터넷
+↓
+서버</p>
+<pre><code>
+사이 데이터를 중간에서 보면:
+
+```text id=&quot;oq0mns&quot;
+아이디
+비밀번호
+쿠키
+</code></pre>
+<p>전부 그대로 보일 수 있었다.</p>
+<hr>
+<h1>2. HTTPS란?</h1>
+<p>HTTPS는:</p>
+<p>```text id=&rdquo;l62b3y&rdquo;
+HTTP + TLS</p>
+<pre><code>
+이다.
+
+즉:
+
+```text id=&quot;ykay5l&quot;
+HTTP를 TLS로 보호한 것
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>3. TLS란?</h1>
+<p>TLS는:</p>
+<p>```text id=&rdquo;mq0v0n&rdquo;
+Transport Layer Security</p>
+<pre><code>
+의 약자다.
+
+쉽게 말하면:
+
+&gt; 인터넷 통신을 암호화하는 보안 프로토콜
+
+이다.
+
+예전에는 SSL이라고 불렀는데,
+현재는 대부분 TLS를 사용한다.
+
+---
+
+# 4. TLS가 해결하는 것
+
+TLS는 크게 3가지를 해결한다.
+
+---
+
+## 1) 암호화
+
+중간에서 내용을 봐도 해석 불가.
+
+---
+
+## 2) 무결성
+
+데이터가 중간에서 변조되지 않았는지 확인.
+
+---
+
+## 3) 인증
+
+접속한 서버가 진짜인지 확인.
+
+---
+
+# 5. HTTPS의 핵심 문제
+
+근데 여기서 문제가 생긴다.
+
+```text id=&quot;e2y0f7&quot;
+암호화는 어떻게 시작할 건데?
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>6. 대칭키의 문제</h1>
+<p>대칭키는 빠르다.</p>
+<p>하지만:</p>
+<p>```text id=&rdquo;lv9yb3&rdquo;
+키를 안전하게 전달하기 어렵다</p>
+<pre><code>
+라는 문제가 있다.
+
+---
+
+# 7. 그래서 TLS는 공개키를 사용한다
+
+TLS는 처음 연결할 때:
+
+```text id=&quot;j7y0yc&quot;
+공개키 암호화(RSA 등)
+</code></pre>
+<p>를 사용한다.</p>
+<p>그리고:</p>
+<p>```text id=&rdquo;8w7xj6&rdquo;
+대칭키를 안전하게 교환</p>
+<pre><code>
+한다.
+
+---
+
+# 8. 이후는 대칭키 사용
+
+대칭키는 빠르기 때문에:
+
+```text id=&quot;g2r0pw&quot;
+실제 데이터 통신
+</code></pre>
+<p>은 대칭키로 한다.</p>
+<p>즉 TLS는:</p>
+<p>```text id=&rdquo;0e8ldg&rdquo;
+공개키 = 키 교환
+대칭키 = 실제 통신</p>
+<pre><code>
+구조다.
+
+---
+
+# 9. HTTPS 연결 흐름
+
+실제 브라우저는 대략 이렇게 동작한다.
+
+---
+
+# 10. 1단계 — 브라우저 접속
+
+사용자가:
+
+```text id=&quot;m2cz06&quot;
+https://google.com
+</code></pre>
+<p>접속.</p>
+<hr>
+<h1>11. 2단계 — 서버 인증서 전달</h1>
+<p>서버는 브라우저에게:</p>
+<p>```text id=&rdquo;7g16a2&rdquo;
+인증서(Certificate)</p>
+<pre><code>
+를 보낸다.
+
+여기 안에는:
+
+```text id=&quot;u8h1ot&quot;
+서버 공개키
+도메인 정보
+인증기관 정보
+</code></pre>
+<p>등이 들어있다.</p>
+<hr>
+<h1>12. 3단계 — 브라우저가 인증서 검증</h1>
+<p>브라우저는:</p>
+<p>```text id=&rdquo;4h00v8&rdquo;
+&ldquo;이 인증서 진짜인가?&rdquo;</p>
+<pre><code>
+를 확인한다.
+
+---
+
+# 13. CA(Certificate Authority)
+
+이때 등장하는 게:
+
+```text id=&quot;ls2y6t&quot;
+CA
+</code></pre>
+<p>다.</p>
+<p>대표적으로:</p>
+<ul>
+<li>DigiCert</li>
+<li>GlobalSign</li>
+<li>Let&rsquo;s Encrypt</li>
+</ul>
+<p>같은 기관.</p>
+<hr>
+<h1>14. CA 역할</h1>
+<p>CA는:</p>
+<blockquote>
+<p>“이 공개키는 진짜 이 서버 것입니다”</p>
+</blockquote>
+<p>를 증명한다.</p>
+<p>즉 브라우저는:</p>
+<p>```text id=&rdquo;b1s7v6&rdquo;
+CA를 신뢰
+↓
+CA가 서명한 인증서도 신뢰</p>
+<pre><code>
+하게 된다.
+
+---
+
+# 15. 4단계 — 대칭키 생성
+
+브라우저는:
+
+```text id=&quot;jlwmz4&quot;
+세션용 대칭키
+</code></pre>
+<p>를 만든다.</p>
+<hr>
+<h1>16. 5단계 — 공개키로 암호화</h1>
+<p>브라우저는 서버 공개키로:</p>
+<p>```text id=&rdquo;ww1y2m&rdquo;
+대칭키 암호화</p>
+<pre><code>
+후 서버로 전달한다.
+
+---
+
+# 17. 6단계 — 서버 복호화
+
+서버는 자기 개인키로:
+
+```text id=&quot;zyl2f4&quot;
+대칭키 복호화
+</code></pre>
+<p>한다.</p>
+<p>이제:</p>
+<p>```text id=&rdquo;2x0n7x&rdquo;
+브라우저와 서버만
+같은 대칭키 공유</p>
+<pre><code>
+상태가 된다.
+
+---
+
+# 18. 7단계 — 실제 HTTPS 통신
+
+이후부터는:
+
+```text id=&quot;5bdjzq&quot;
+대칭키 기반 암호화 통신
+</code></pre>
+<p>을 한다.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;pkm3z0&rdquo;
+로그인 정보
+쿠키
+API 요청</p>
+<pre><code>
+등이 암호화된다.
+
+---
+
+# 19. 왜 안전한가?
+
+중간 공격자가 패킷을 봐도:
+
+```text id=&quot;6hdy6k&quot;
+대칭키 없음
+</code></pre>
+<p>이라 복호화 불가능하다.</p>
+<p>또 서버 개인키도 모르기 때문에:</p>
+<p>```text id=&rdquo;a1nq0z&rdquo;
+대칭키 탈취 불가</p>
+<pre><code>
+하다.
+
+---
+
+# 20. Handshake란?
+
+TLS에서:
+
+```text id=&quot;s0cgvl&quot;
+처음 보안 연결 만드는 과정
+</code></pre>
+<p>을:</p>
+<p>```text id=&rdquo;k6xovq&rdquo;
+TLS Handshake</p>
+<pre><code>
+라고 한다.
+
+즉:
+
+```text id=&quot;r5xq6f&quot;
+인증서 교환
+키 교환
+암호화 설정 협상
+</code></pre>
+<p>과정 전체다.</p>
+<hr>
+<h1>21. 자물쇠 아이콘 의미</h1>
+<p>브라우저 주소창의:</p>
+<p>```text id=&rdquo;e0lgdz&rdquo;
+자물쇠 아이콘</p>
+<pre><code>
+은:
+
+```text id=&quot;m3vrhy&quot;
+TLS 연결 성공
+</code></pre>
+<p>의 의미다.</p>
+<p>즉:</p>
+<p>```text id=&rdquo;jdh8qf&rdquo;
+HTTPS 통신 중</p>
+<pre><code>
+이라는 뜻이다.
+
+---
+
+# 22. HTTPS 없으면 위험한가?
+
+매우 위험하다.
+
+HTTP라면 중간에서:
+
+* 로그인 탈취
+* 쿠키 탈취
+* 패킷 변조
+
+가능하다.
+
+그래서 현대 서비스는 거의 전부 HTTPS를 강제한다.
+
+---
+
+# 23. HTTPS와 실무
+
+실무에서는:
+
+* Nginx
+* ALB
+* Ingress
+* CloudFront
+
+등에서 TLS 종료(TLS Termination)를 자주 한다.
+
+예:
+
+```text id=&quot;s3o89q&quot;
+사용자
+↓ HTTPS
+ALB/Nginx
+↓ HTTP
+내부 API 서버
+</code></pre>
+<p>구조.</p>
+<hr>
+<h1>24. 정리</h1>
+<h2>HTTP</h2>
+<p>암호화 없음</p>
+<hr>
+<h2>HTTPS</h2>
+<p>```text id=&rdquo;xgrg3s&rdquo;
+HTTP + TLS</p>
+<pre><code>
+---
+
+## TLS 역할
+
+```text id=&quot;qocljc&quot;
+암호화
+무결성
+인증
+</code></pre>
+<hr>
+<h2>공개키 역할</h2>
+<p>안전한 대칭키 교환</p>
+<hr>
+<h2>대칭키 역할</h2>
+<p>실제 데이터 암호화</p>
+<hr>
+<h2>인증서</h2>
+<p>서버 공개키 증명</p>
+<hr>
+<h2>CA</h2>
+<p>인증서 신뢰 기관</p>
+<hr>
+<h2>Handshake</h2>
+<p>보안 연결 생성 과정</p>
+<hr>
+<h1>한 줄 핵심</h1>
+<p><code>text id="e9vx84"
+HTTPS는 TLS를 이용해
+서버를 검증하고,
+안전하게 암호화 통신을 만드는 기술이다.</code></p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

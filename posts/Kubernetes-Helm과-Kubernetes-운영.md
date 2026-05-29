@@ -1,0 +1,695 @@
+---
+title: "[Kubernetes] Helm과 Kubernetes 운영"
+source: "https://velog.io/@yorange50/Kubernetes-Helm과-Kubernetes-운영"
+published: "2026-05-14T07:59:25.686Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.739854"
+---
+
+
+
+Kubernetes를 공부하다 보면 처음에는 `kubectl`로 직접 리소스를 만든다.
+
+```bash
+kubectl create deployment nginx --image=nginx
+kubectl expose deployment nginx --port=80 --target-port=80
+```
+
+이 단계에서는 괜찮다.
+Pod 하나 만들고, Service 하나 만들고, Ingress 하나 만드는 정도는 직접 해도 된다.
+
+그런데 실제 운영 환경으로 가면 리소스가 하나가 아니다.
+
+```text
+Deployment
+Service
+ConfigMap
+Secret
+Ingress
+ServiceAccount
+Role
+RoleBinding
+HorizontalPodAutoscaler
+Namespace
+```
+
+이런 리소스들을 매번 YAML로 직접 작성하고, 순서 맞춰서 설치하고, 버전 관리하고, 업데이트하고, 삭제하는 건 꽤 번거롭다.
+
+그래서 Kubernetes에서는 Helm이 많이 쓰인다. 실습 메모에서도 “솔루션을 설치하든 뭘 하든 Helm은 아주 인기 있는 툴”이라고 정리되어 있고, ingress-nginx 설치 흐름에서도 Helm이 함께 언급된다. 
+
+---
+
+# [HELM] Helm은 왜 쿠버네티스에서 인기가 많을까?
+
+## 1. Helm은 Kubernetes의 패키지 매니저다
+
+Helm은 쉽게 말하면 **Kubernetes용 패키지 매니저**다.
+
+Ubuntu에서 패키지를 설치할 때 `apt`를 쓰고,
+
+```bash
+apt install nginx
+```
+
+macOS에서 패키지를 설치할 때 `brew`를 쓰듯이,
+
+```bash
+brew install nginx
+```
+
+Kubernetes에서는 여러 리소스를 묶어서 설치할 때 Helm을 쓴다.
+
+```bash
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+
+즉, Helm은 Kubernetes 리소스들을 패키지처럼 설치하고 관리하게 해주는 도구다.
+
+---
+
+## 2. Kubernetes에서 설치가 복잡한 이유
+
+Kubernetes에서 어떤 솔루션 하나를 설치한다고 해보자.
+
+예를 들어 Ingress Controller를 설치한다고 하면 단순히 Pod 하나만 필요한 게 아니다.
+
+보통 이런 리소스들이 함께 필요하다.
+
+```text
+Namespace
+Deployment
+Service
+ConfigMap
+ServiceAccount
+ClusterRole
+ClusterRoleBinding
+Admission Webhook
+IngressClass
+```
+
+이걸 전부 직접 YAML로 작성해서 적용하려면 꽤 복잡하다.
+
+```bash
+kubectl apply -f namespace.yaml
+kubectl apply -f serviceaccount.yaml
+kubectl apply -f configmap.yaml
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f ingressclass.yaml
+```
+
+처음에는 할 수 있어도 운영에서는 관리가 힘들어진다.
+
+그래서 Helm은 이런 리소스 묶음을 하나의 패키지로 제공한다.
+
+---
+
+## 3. Chart란 무엇인가?
+
+Helm에서 가장 중요한 개념이 **Chart**다.
+
+Chart는 Kubernetes 리소스를 설치하기 위한 패키지다.
+
+쉽게 말하면 다음과 같다.
+
+```text
+Helm Chart
+= Kubernetes YAML 파일 묶음
+= 설치 방법이 정리된 패키지
+= 설정값을 바꿔서 재사용할 수 있는 템플릿
+```
+
+Chart 안에는 보통 이런 것들이 들어 있다.
+
+```text
+Chart.yaml
+values.yaml
+templates/
+  deployment.yaml
+  service.yaml
+  ingress.yaml
+  configmap.yaml
+```
+
+각각의 의미는 이렇다.
+
+```text
+Chart.yaml
+= Chart 이름, 버전, 설명 같은 메타정보
+
+values.yaml
+= 사용자가 바꿀 수 있는 설정값
+
+templates/
+= 실제 Kubernetes YAML 템플릿들
+```
+
+즉, Chart는 단순 YAML 모음이 아니라, 설정값을 받아서 Kubernetes 리소스를 생성하는 템플릿 패키지다.
+
+---
+
+## 4. Helm은 설치 자동화를 해준다
+
+Helm을 쓰면 여러 Kubernetes 리소스를 한 번에 설치할 수 있다.
+
+예를 들어 ingress-nginx를 설치할 때 다음 명령어를 쓴다.
+
+```bash
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+```
+
+이 명령어는 단순히 Pod 하나를 만드는 게 아니다.
+
+Helm Chart 안에 정의된 여러 리소스를 한 번에 생성한다.
+
+```text
+ingress-nginx namespace 생성
+ingress-nginx-controller Deployment 생성
+Service 생성
+ConfigMap 생성
+ServiceAccount 생성
+RBAC 권한 생성
+IngressClass 생성
+```
+
+그래서 사용자는 복잡한 YAML을 전부 직접 작성하지 않아도 된다.
+
+---
+
+## 5. nginx ingress 설치 예시로 이해하기
+
+Ingress를 사용하려면 Ingress 리소스만 만들면 끝이 아니다.
+
+Ingress 규칙을 실제로 읽고 처리하는 Ingress Controller가 필요하다.
+
+이때 많이 쓰는 것이 `ingress-nginx`다.
+
+직접 설치하려면 필요한 리소스가 많다.
+하지만 Helm을 쓰면 명령어 몇 줄로 설치할 수 있다.
+
+```bash
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+```
+
+설치 후 확인은 이렇게 한다.
+
+```bash
+kubectl get pods -n ingress-nginx
+```
+
+그러면 보통 이런 Pod가 보인다.
+
+```text
+ingress-nginx-controller-xxxxx
+```
+
+이 Pod가 실제로 Ingress 규칙을 읽고 외부 요청을 Service로 보내는 역할을 한다.
+
+정리하면 다음 흐름이다.
+
+```text
+1. Helm으로 ingress-nginx Chart 설치
+2. ingress-nginx-controller Pod 생성
+3. 사용자가 Ingress 리소스 생성
+4. Controller가 Ingress 규칙 감시
+5. 외부 HTTP 요청을 내부 Service로 라우팅
+```
+
+---
+
+## 6. Helm이 인기 있는 이유
+
+Helm이 인기 있는 이유는 단순하다.
+운영이 편해진다.
+
+```text
+복잡한 Kubernetes 리소스를 패키지처럼 설치 가능
+설정값을 values.yaml로 관리 가능
+설치, 업그레이드, 삭제가 편함
+버전 관리가 가능함
+운영 환경별 설정 분리가 쉬움
+공식/커뮤니티 Chart를 활용할 수 있음
+```
+
+예를 들어 Prometheus, Grafana, ingress-nginx, cert-manager 같은 도구들은 직접 YAML로 설치할 수도 있지만 Helm으로 설치하는 경우가 많다.
+
+왜냐하면 이런 도구들은 필요한 Kubernetes 리소스가 많고, 설정도 복잡하기 때문이다.
+
+---
+
+# [HELM] kubectl과 Helm의 차이
+
+## 1. kubectl은 Kubernetes와 직접 대화하는 도구다
+
+`kubectl`은 Kubernetes API Server와 직접 통신하는 CLI 도구다.
+
+예를 들어 Pod를 확인할 때 쓴다.
+
+```bash
+kubectl get pods
+```
+
+Deployment를 만들 때도 쓴다.
+
+```bash
+kubectl apply -f deployment.yaml
+```
+
+Service를 확인할 때도 쓴다.
+
+```bash
+kubectl get svc
+```
+
+즉, `kubectl`은 Kubernetes 리소스를 직접 만들고, 조회하고, 수정하고, 삭제하는 기본 도구다.
+
+```text
+kubectl
+= Kubernetes 리소스를 직접 다루는 CLI
+```
+
+---
+
+## 2. Helm은 여러 YAML을 패키지로 관리하는 도구다
+
+Helm은 Kubernetes 리소스를 직접 하나씩 다루기보다는, 여러 리소스를 하나의 Chart로 묶어서 관리한다.
+
+```text
+Helm
+= Kubernetes 리소스 묶음을 패키지로 설치/관리하는 도구
+```
+
+예를 들어 `kubectl` 방식은 이런 느낌이다.
+
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f configmap.yaml
+kubectl apply -f ingress.yaml
+```
+
+Helm 방식은 이런 느낌이다.
+
+```bash
+helm install my-app ./my-chart
+```
+
+즉, Helm은 여러 YAML을 한 번에 다루기 쉽게 해준다.
+
+---
+
+## 3. YAML 직접 관리 방식
+
+`kubectl apply -f` 방식은 가장 기본적이고 명확하다.
+
+예를 들어 직접 Deployment YAML을 작성한다.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+```
+
+그리고 적용한다.
+
+```bash
+kubectl apply -f deployment.yaml
+```
+
+이 방식의 장점은 눈에 보이는 그대로 적용된다는 것이다.
+
+```text
+장점
+= 단순하다
+= Kubernetes 기본 원리를 익히기 좋다
+= 어떤 리소스가 만들어지는지 직접 확인 가능하다
+```
+
+하지만 단점도 있다.
+
+```text
+단점
+= 리소스가 많아지면 관리가 어렵다
+= 환경별 설정 분리가 번거롭다
+= 업그레이드와 롤백 관리가 불편하다
+= 같은 구조를 여러 번 재사용하기 어렵다
+```
+
+처음 공부할 때는 YAML 직접 관리가 좋다.
+하지만 운영으로 갈수록 Helm 같은 도구가 필요해진다.
+
+---
+
+## 4. Helm Chart 기반 설치 방식
+
+Helm은 Chart를 기반으로 설치한다.
+
+예를 들어 내 애플리케이션을 Helm Chart로 만들면 이런 구조가 된다.
+
+```text
+my-app-chart/
+├── Chart.yaml
+├── values.yaml
+└── templates/
+    ├── deployment.yaml
+    ├── service.yaml
+    └── ingress.yaml
+```
+
+`values.yaml`에는 바꿀 수 있는 값을 넣는다.
+
+```yaml
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: latest
+
+service:
+  port: 80
+```
+
+그리고 template 파일에서는 이 값을 참조한다.
+
+```yaml
+containers:
+- name: nginx
+  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+```
+
+이렇게 하면 환경별로 설정만 바꿔서 설치할 수 있다.
+
+```bash
+helm install my-app ./my-app-chart -f values-dev.yaml
+helm install my-app ./my-app-chart -f values-prod.yaml
+```
+
+즉, Helm은 같은 구조의 Kubernetes 리소스를 여러 환경에 맞게 재사용하기 좋다.
+
+---
+
+## 5. 운영 편의성 차이
+
+`kubectl`과 Helm의 차이는 운영에서 더 크게 느껴진다.
+
+예를 들어 버전을 올려야 한다고 하자.
+
+### kubectl 방식
+
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f configmap.yaml
+```
+
+어떤 파일이 바뀌었는지, 어떤 버전이 적용됐는지 직접 관리해야 한다.
+
+### Helm 방식
+
+```bash
+helm upgrade my-app ./my-app-chart
+```
+
+Helm은 release 단위로 설치 이력을 관리한다.
+
+설치된 목록도 확인할 수 있다.
+
+```bash
+helm list
+```
+
+업그레이드 기록도 볼 수 있다.
+
+```bash
+helm history my-app
+```
+
+문제가 생기면 롤백도 할 수 있다.
+
+```bash
+helm rollback my-app 1
+```
+
+이런 점 때문에 Helm은 운영 편의성이 높다.
+
+---
+
+## 6. kubectl과 Helm 비교
+
+| 구분     | kubectl              | Helm                  |
+| ------ | -------------------- | --------------------- |
+| 역할     | Kubernetes 리소스 직접 관리 | Kubernetes 리소스 패키지 관리 |
+| 단위     | YAML 파일, 개별 리소스      | Chart, Release        |
+| 설치 방식  | `kubectl apply -f`   | `helm install`        |
+| 업데이트   | YAML 수정 후 apply      | `helm upgrade`        |
+| 롤백     | 직접 관리 필요             | `helm rollback` 가능    |
+| 환경 분리  | 파일을 따로 관리해야 함        | values 파일로 분리 가능      |
+| 적합한 상황 | 학습, 단순 리소스, 디버깅      | 운영, 복잡한 솔루션 설치, 반복 배포 |
+
+---
+
+## 7. 언제 kubectl을 쓰는가?
+
+`kubectl`은 Kubernetes의 기본 도구이기 때문에 항상 필요하다.
+
+특히 다음 상황에서는 `kubectl`을 많이 쓴다.
+
+```text
+Pod 상태 확인
+Deployment 상태 확인
+Service 확인
+Event 확인
+로그 확인
+간단한 리소스 생성
+YAML 직접 적용
+디버깅
+```
+
+예를 들어 장애가 났을 때는 Helm보다 `kubectl`을 먼저 쓰는 경우가 많다.
+
+```bash
+kubectl get pods -A
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+kubectl get events
+```
+
+즉, `kubectl`은 Kubernetes를 직접 들여다보는 기본 도구다.
+
+---
+
+## 8. 언제 Helm을 쓰는가?
+
+Helm은 여러 리소스를 묶어서 설치하거나 운영할 때 좋다.
+
+대표적인 예시는 다음과 같다.
+
+```text
+ingress-nginx 설치
+Prometheus/Grafana 설치
+cert-manager 설치
+Argo CD 설치
+Loki 설치
+복잡한 애플리케이션 배포
+환경별 설정 분리
+반복 배포 자동화
+```
+
+특히 외부 오픈소스 솔루션을 Kubernetes에 설치할 때 Helm을 많이 쓴다.
+
+예를 들어 ingress-nginx를 설치할 때 직접 모든 YAML을 작성하기보다 Helm Chart를 쓰는 게 훨씬 편하다.
+
+```bash
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+```
+
+이런 식으로 Helm은 복잡한 Kubernetes 설치를 자동화해준다.
+
+---
+
+# kubectl과 Helm은 경쟁 관계가 아니다
+
+중요한 것은 `kubectl`과 Helm이 서로 대체 관계만은 아니라는 점이다.
+
+실제 운영에서는 둘 다 쓴다.
+
+```text
+Helm
+= 설치와 업그레이드 자동화
+
+kubectl
+= 상태 확인, 디버깅, 직접 조회
+```
+
+예를 들어 ingress-nginx를 Helm으로 설치한 뒤,
+
+```bash
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+```
+
+설치된 Pod는 `kubectl`로 확인한다.
+
+```bash
+kubectl get pods -n ingress-nginx
+```
+
+Service도 `kubectl`로 본다.
+
+```bash
+kubectl get svc -n ingress-nginx
+```
+
+문제가 생기면 describe도 한다.
+
+```bash
+kubectl describe pod <pod-name> -n ingress-nginx
+```
+
+즉, Helm은 설치를 편하게 해주고, kubectl은 실제 클러스터 상태를 확인하게 해준다.
+
+---
+
+# 전체 흐름 정리
+
+```text
+kubectl
+= Kubernetes 리소스를 직접 다루는 기본 도구
+
+Helm
+= Kubernetes 리소스 묶음을 패키지처럼 설치하고 관리하는 도구
+
+Chart
+= Helm 패키지
+
+Release
+= Chart를 클러스터에 설치한 결과물
+
+values.yaml
+= 설치할 때 바꿀 수 있는 설정값
+
+helm install
+= Chart 설치
+
+helm upgrade
+= 설치된 Release 업데이트
+
+helm rollback
+= 이전 버전으로 되돌리기
+
+helm uninstall
+= 설치된 Release 삭제
+```
+
+---
+
+# 실습 명령어 정리
+
+Helm repo 추가:
+
+```bash
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+```
+
+repo 정보 업데이트:
+
+```bash
+helm repo update
+```
+
+ingress-nginx 설치:
+
+```bash
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace
+```
+
+설치된 Helm release 확인:
+
+```bash
+helm list -A
+```
+
+특정 namespace의 Pod 확인:
+
+```bash
+kubectl get pods -n ingress-nginx
+```
+
+Service 확인:
+
+```bash
+kubectl get svc -n ingress-nginx
+```
+
+Helm release 업그레이드:
+
+```bash
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx
+```
+
+Helm history 확인:
+
+```bash
+helm history ingress-nginx -n ingress-nginx
+```
+
+Helm rollback:
+
+```bash
+helm rollback ingress-nginx 1 -n ingress-nginx
+```
+
+Helm 삭제:
+
+```bash
+helm uninstall ingress-nginx -n ingress-nginx
+```
+
+---
+
+# 정리
+
+Helm은 Kubernetes에서 여러 리소스를 패키지처럼 설치하고 관리하게 해주는 도구다. Kubernetes 리소스가 많아질수록 YAML을 직접 하나씩 관리하기 어려워지기 때문에 Helm이 인기가 많다.
+
+`kubectl`은 Kubernetes 리소스를 직접 다루는 기본 CLI이고, Helm은 여러 YAML을 Chart라는 패키지로 묶어서 설치, 업그레이드, 롤백할 수 있게 해준다.
+
+처음 공부할 때는 `kubectl apply -f`로 YAML을 직접 다뤄보는 것이 좋다. 그래야 Pod, Service, Deployment, Ingress가 어떻게 생겼는지 알 수 있다. 하지만 ingress-nginx, Prometheus, Grafana 같은 복잡한 솔루션을 설치할 때는 Helm을 쓰는 것이 훨씬 편하다.
+
+핵심은 이거다.
+
+```text
+kubectl은 Kubernetes 리소스를 직접 조작하는 도구고,
+Helm은 Kubernetes 리소스 묶음을 패키지처럼 운영하는 도구다.
+```
+
+그래서 실제 운영에서는 둘 다 쓴다.
+Helm으로 설치하고, kubectl로 확인하고, 문제가 생기면 describe와 logs로 추적한다.

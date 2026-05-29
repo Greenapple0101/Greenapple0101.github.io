@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Spring] Thymeleaf는 Bootstrap 같은 게 아니다 — Spring Boot에서 화면을 만드는 방법 | Greenapple0101</title>
+  <meta name="description" content="Spring Boot로 게시판 API를 만들다가 “프론트엔드를 Spring Boot에서 하라”, “HTML은 Thymeleaf로 하라”는 말을 들었다. 처음에는 Thymeleaf가 Bootstrap 같은 디자인 프레임워크인가 싶었다. 하지만 Thymeleaf는 Bootstrap과 역할…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #16a34a">Spring</span>
+    <h1>[Spring] Thymeleaf는 Bootstrap 같은 게 아니다 — Spring Boot에서 화면을 만드는 방법</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-03T11:03:20.389Z">2026.05.03</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Thymeleaf는-Bootstrap-같은-게-아니다-Spring-Boot에서-화면을-만드는-방법" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring Boot로 게시판 API를 만들다가 “프론트엔드를 Spring Boot에서 하라”, “HTML은 Thymeleaf로 하라”는 말을 들었다. 처음에는 Thymeleaf가 Bootstrap 같은 디자인 프레임워크인가 싶었다. 하지만 Thymeleaf는 Bootstrap과 역할이 완전히 다르다. Bootstrap이 화면을 예쁘게 꾸미는 CSS 프레임워크라면, Thymeleaf는 Spring Boot 서버에서 HTML에 데이터를 넣어 완성된 화면을 만들어주는 서버 사이드 템플릿 엔진이다.</p>
+<h2>1. Thymeleaf와 Bootstrap의 차이</h2>
+<p>먼저 역할을 구분하면 이해가 쉽다.</p>
+<pre><code class="language-text">Bootstrap = 버튼, 테이블, 카드 같은 화면을 예쁘게 꾸미는 CSS 프레임워크
+Thymeleaf = Spring Boot 데이터를 HTML에 넣어주는 템플릿 엔진
+React = 브라우저에서 JavaScript로 화면을 동적으로 만드는 프론트엔드 라이브러리
+</code></pre>
+<p>예를 들어 Bootstrap은 버튼을 이렇게 예쁘게 만든다.</p>
+<pre><code class="language-html">&lt;button class=&quot;btn btn-primary&quot;&gt;등록&lt;/button&gt;
+</code></pre>
+<p>여기서 <code>btn</code>, <code>btn-primary</code> 같은 클래스가 Bootstrap 문법이다. 즉, Bootstrap은 디자인 담당이다.</p>
+<p>반면 Thymeleaf는 서버에서 넘어온 데이터를 HTML에 출력한다.</p>
+<pre><code class="language-html">&lt;p th:text=&quot;${board.title}&quot;&gt;&lt;/p&gt;
+</code></pre>
+<p>이 코드는 <code>board.title</code> 값을 <code>&lt;p&gt;</code> 태그 안에 넣으라는 뜻이다. 즉, Thymeleaf는 데이터 출력 담당이다.</p>
+<p>정리하면 Bootstrap은 옷이고, Thymeleaf는 서버 데이터를 HTML에 꽂아주는 도구다.</p>
+<h2>2. Thymeleaf를 쓰는 이유</h2>
+<p>React를 사용할 때는 보통 이런 구조가 된다.</p>
+<pre><code class="language-text">브라우저에서 React 실행
+→ API 호출
+→ JSON 데이터 받음
+→ React가 화면을 그림
+</code></pre>
+<p>하지만 Thymeleaf를 쓰면 구조가 다르다.</p>
+<pre><code class="language-text">브라우저가 페이지 요청
+→ Spring Boot Controller 실행
+→ 서버에서 데이터를 Model에 담음
+→ Thymeleaf HTML에 데이터 삽입
+→ 완성된 HTML을 브라우저에 전달
+</code></pre>
+<p>즉, React는 브라우저에서 화면을 만들고, Thymeleaf는 서버에서 화면을 만들어서 브라우저에 보내준다.</p>
+<p>그래서 “프론트를 Spring Boot에서 하라”는 요구사항은 보통 별도의 React/Vue 프로젝트를 두지 말고, Spring Boot 프로젝트 안에서 HTML 화면까지 처리하라는 의미에 가깝다.</p>
+<h2>3. Spring Boot에서 Thymeleaf 파일 위치</h2>
+<p>Spring Boot에서 Thymeleaf HTML 파일은 아래 위치에 둔다.</p>
+<pre><code class="language-text">src/main/resources/templates/
+</code></pre>
+<p>예를 들어 홈페이지를 만들고 싶다면 다음과 같이 파일을 만든다.</p>
+<pre><code class="language-text">src/main/resources/templates/index.html
+</code></pre>
+<p>CSS나 JavaScript 같은 정적 파일은 <code>templates</code>가 아니라 <code>static</code> 아래에 둔다.</p>
+<pre><code class="language-text">src/main/resources/static/css/style.css
+src/main/resources/static/js/board.js
+</code></pre>
+<p>즉, 구조는 이렇게 된다.</p>
+<pre><code class="language-text">src/main/resources/
+├─ templates/
+│  ├─ index.html
+│  └─ boards.html
+│
+└─ static/
+   ├─ css/
+   │  └─ style.css
+   └─ js/
+      └─ board.js
+</code></pre>
+<h2>4. Thymeleaf 의존성 추가</h2>
+<p>Maven 프로젝트라면 <code>pom.xml</code>에 Thymeleaf 의존성을 추가해야 한다.</p>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>이 의존성이 있어야 Spring Boot가 <code>templates</code> 폴더 안의 HTML 파일을 Thymeleaf 템플릿으로 처리할 수 있다.</p>
+<h2>5. <code>@RestController</code>와 <code>@Controller</code>의 차이</h2>
+<p>Thymeleaf를 쓸 때 가장 헷갈리는 부분이 <code>@RestController</code>와 <code>@Controller</code>의 차이다.</p>
+<p>JSON API를 만들 때는 <code>@RestController</code>를 사용한다.</p>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    @GetMapping(&quot;/boards&quot;)
+    public List&lt;Board&gt; getBoards() {
+        return boardService.getBoards();
+    }
+}
+</code></pre>
+<p>이 경우 <code>/boards</code>로 요청하면 게시글 목록이 JSON으로 반환된다.</p>
+<p>반면 HTML 화면을 보여줄 때는 <code>@Controller</code>를 사용한다.</p>
+<pre><code class="language-java">@Controller
+public class HomeController {
+
+    @GetMapping(&quot;/&quot;)
+    public String home() {
+        return &quot;index&quot;;
+    }
+}
+</code></pre>
+<p>여기서 <code>return "index";</code>는 문자열 <code>index</code>를 브라우저에 그대로 출력하라는 뜻이 아니다. <code>src/main/resources/templates/index.html</code> 파일을 찾아서 화면으로 보여주라는 뜻이다.</p>
+<p>정리하면 다음과 같다.</p>
+<pre><code class="language-text">@RestController → 데이터를 그대로 반환함. 주로 JSON API용
+@Controller → HTML 템플릿 이름을 반환함. 주로 Thymeleaf 화면용
+</code></pre>
+<h2>6. 기본 홈페이지 만들기</h2>
+<p>먼저 <code>templates/index.html</code> 파일을 만든다.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Board Home&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;게시판 홈&lt;/h1&gt;
+&lt;p&gt;Spring Boot + Thymeleaf로 만든 게시판입니다.&lt;/p&gt;
+
+&lt;a th:href=&quot;@{/boards-page}&quot;&gt;게시글 목록 보기&lt;/a&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>그리고 이 HTML을 보여줄 컨트롤러를 만든다.</p>
+<pre><code class="language-java">package com.board.api.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping(&quot;/&quot;)
+    public String home() {
+        return &quot;index&quot;;
+    }
+}
+</code></pre>
+<p>이제 Spring Boot를 실행하고 브라우저에서 아래 주소로 접속하면 된다.</p>
+<pre><code class="language-text">http://localhost:8080/
+</code></pre>
+<p>정상적으로 설정되어 있다면 Whitelabel Error Page가 아니라 <code>index.html</code> 화면이 보인다.</p>
+<h2>7. Controller에서 HTML로 데이터 넘기기</h2>
+<p>게시글 목록을 화면에 보여주려면 서버에서 데이터를 HTML로 넘겨야 한다. 이때 사용하는 것이 <code>Model</code>이다.</p>
+<pre><code class="language-java">package com.board.api.controller;
+
+import com.board.api.service.BoardService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class BoardPageController {
+
+    private final BoardService boardService;
+
+    public BoardPageController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
+    @GetMapping(&quot;/boards-page&quot;)
+    public String boardsPage(Model model) {
+        model.addAttribute(&quot;boards&quot;, boardService.getBoards());
+        return &quot;boards&quot;;
+    }
+}
+</code></pre>
+<p>여기서 핵심은 이 코드다.</p>
+<pre><code class="language-java">model.addAttribute(&quot;boards&quot;, boardService.getBoards());
+</code></pre>
+<p>이 뜻은 <code>boardService.getBoards()</code>로 가져온 게시글 목록을 <code>boards</code>라는 이름으로 HTML에서 사용할 수 있게 넘겨준다는 의미다.</p>
+<p>그리고 마지막의 <code>return "boards";</code>는 <code>templates/boards.html</code> 파일을 보여주겠다는 뜻이다.</p>
+<h2>8. HTML에서 서버 데이터 출력하기</h2>
+<p>이제 <code>templates/boards.html</code> 파일을 만든다.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;게시글 목록&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;게시글 목록&lt;/h1&gt;
+
+&lt;a th:href=&quot;@{/}&quot;&gt;홈으로&lt;/a&gt;
+&lt;a th:href=&quot;@{/boards-write}&quot;&gt;글 작성&lt;/a&gt;
+
+&lt;table border=&quot;1&quot;&gt;
+    &lt;thead&gt;
+    &lt;tr&gt;
+        &lt;th&gt;ID&lt;/th&gt;
+        &lt;th&gt;제목&lt;/th&gt;
+        &lt;th&gt;작성자&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;/thead&gt;
+
+    &lt;tbody&gt;
+    &lt;tr th:each=&quot;board : ${boards}&quot;&gt;
+        &lt;td th:text=&quot;${board.id}&quot;&gt;&lt;/td&gt;
+        &lt;td th:text=&quot;${board.title}&quot;&gt;&lt;/td&gt;
+        &lt;td th:text=&quot;${board.author}&quot;&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>여기서 중요한 Thymeleaf 문법은 두 가지다.</p>
+<h3><code>th:each</code></h3>
+<pre><code class="language-html">&lt;tr th:each=&quot;board : ${boards}&quot;&gt;
+</code></pre>
+<p>이 코드는 <code>boards</code> 목록에서 데이터를 하나씩 꺼내서 <code>board</code>라는 이름으로 사용하겠다는 뜻이다.</p>
+<p>React로 치면 아래 코드와 비슷하다.</p>
+<pre><code class="language-jsx">boards.map(board =&gt; (
+  &lt;tr&gt;
+    &lt;td&gt;{board.title}&lt;/td&gt;
+  &lt;/tr&gt;
+))
+</code></pre>
+<h3><code>th:text</code></h3>
+<pre><code class="language-html">&lt;td th:text=&quot;${board.title}&quot;&gt;&lt;/td&gt;
+</code></pre>
+<p>이 코드는 <code>board.title</code> 값을 해당 태그 안에 출력하라는 뜻이다.</p>
+<p>예를 들어 제목이 <code>첫 번째 글</code>이면 실제 브라우저에는 아래처럼 렌더링된다.</p>
+<pre><code class="language-html">&lt;td&gt;첫 번째 글&lt;/td&gt;
+</code></pre>
+<h2>9. 글 작성 폼 만들기</h2>
+<p>Thymeleaf에서는 HTML form을 이용해서 서버로 데이터를 보낼 수 있다.</p>
+<p><code>templates/write.html</code> 파일을 만든다.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th=&quot;http://www.thymeleaf.org&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;글 작성&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;글 작성&lt;/h1&gt;
+
+&lt;form action=&quot;/boards-page&quot; method=&quot;post&quot;&gt;
+    &lt;input type=&quot;text&quot; name=&quot;title&quot; placeholder=&quot;제목&quot;&gt;
+    &lt;input type=&quot;text&quot; name=&quot;author&quot; placeholder=&quot;작성자&quot;&gt;
+    &lt;textarea name=&quot;content&quot; placeholder=&quot;내용&quot;&gt;&lt;/textarea&gt;
+
+    &lt;button type=&quot;submit&quot;&gt;등록&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>이때 중요한 점은 <code>name</code> 속성이다.</p>
+<pre><code class="language-html">&lt;input name=&quot;title&quot;&gt;
+&lt;input name=&quot;author&quot;&gt;
+&lt;textarea name=&quot;content&quot;&gt;&lt;/textarea&gt;
+</code></pre>
+<p>이 이름들이 <code>Board</code> 클래스의 필드명과 같아야 한다.</p>
+<pre><code class="language-java">private String title;
+private String author;
+private String content;
+</code></pre>
+<p>그러면 Spring이 form 데이터를 자동으로 <code>Board</code> 객체에 바인딩해준다.</p>
+<p>컨트롤러는 다음과 같이 작성할 수 있다.</p>
+<pre><code class="language-java">@GetMapping(&quot;/boards-write&quot;)
+public String writeForm() {
+    return &quot;write&quot;;
+}
+
+@PostMapping(&quot;/boards-page&quot;)
+public String createBoard(Board board) {
+    boardService.createBoard(board);
+    return &quot;redirect:/boards-page&quot;;
+}
+</code></pre>
+<p>여기서 <code>redirect:/boards-page</code>는 글 작성 후 게시글 목록 페이지로 다시 이동하라는 뜻이다.</p>
+<h2>10. Thymeleaf와 Bootstrap 같이 쓰기</h2>
+<p>Thymeleaf는 디자인 도구가 아니기 때문에 Bootstrap과 같이 사용할 수 있다. 오히려 빠르게 화면을 만들 때는 <code>Spring Boot + Thymeleaf + Bootstrap</code> 조합이 많이 쓰인다.</p>
+<p>예를 들어 Bootstrap 테이블 스타일과 Thymeleaf 반복문을 함께 쓸 수 있다.</p>
+<pre><code class="language-html">&lt;table class=&quot;table table-striped&quot;&gt;
+    &lt;tr th:each=&quot;board : ${boards}&quot;&gt;
+        &lt;td th:text=&quot;${board.id}&quot;&gt;&lt;/td&gt;
+        &lt;td th:text=&quot;${board.title}&quot;&gt;&lt;/td&gt;
+        &lt;td th:text=&quot;${board.author}&quot;&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+</code></pre>
+<p>여기서 역할은 이렇게 나뉜다.</p>
+<pre><code class="language-text">class=&quot;table table-striped&quot; → Bootstrap
+th:each, th:text → Thymeleaf
+</code></pre>
+<p>즉, Bootstrap은 화면을 꾸미고 Thymeleaf는 데이터를 출력한다.</p>
+<h2>11. React로 만든 BOARD_FE 레포는 어떻게 해야 할까</h2>
+<p>이미 React로 <code>BOARD_FE</code> 레포를 만들었다면 삭제할 필요는 없다. 다만 요구사항이 Spring Boot + Thymeleaf라면 실제 구현은 <code>board_api</code> 프로젝트 안에서 진행하는 것이 맞다.</p>
+<p>구조는 이렇게 정리할 수 있다.</p>
+<pre><code class="language-text">board_api
+├─ Spring Boot REST API
+├─ Thymeleaf HTML 화면
+└─ static CSS/JS
+
+BOARD_FE
+└─ 기존 React 프론트엔드
+   → 참고용 / 백업용 / 나중에 SPA 전환용으로 보관
+</code></pre>
+<p>React에서 만든 화면 구조, CSS, API 호출 로직은 Thymeleaf 화면으로 옮길 때 참고 자료로 사용할 수 있다.</p>
+<p>README에는 다음처럼 남겨둘 수 있다.</p>
+<pre><code class="language-md"># BOARD_FE
+
+React 기반 게시판 프론트엔드 실습 레포지토리입니다.
+
+현재 프로젝트 요구사항이 Spring Boot + Thymeleaf 기반 서버사이드 렌더링 구조로 변경되어,
+실제 통합 구현은 `board_api` 레포지토리에서 진행합니다.
+
+이 레포지토리는 React 기반 UI 구현 및 API 연동 로직 참고용으로 보관합니다.
+</code></pre>
+<h2>12. 전체 구조 정리</h2>
+<p>최종적으로 게시판 프로젝트 구조는 다음과 비슷해진다.</p>
+<pre><code class="language-text">src/main/java/com/board/api/
+├─ controller/
+│  ├─ BoardController.java       // JSON API용
+│  ├─ HomeController.java        // 홈페이지 화면용
+│  └─ BoardPageController.java   // 게시글 목록/작성 화면용
+│
+├─ service/
+│  └─ BoardService.java
+│
+└─ domain/
+   └─ Board.java
+
+src/main/resources/
+├─ templates/
+│  ├─ index.html
+│  ├─ boards.html
+│  └─ write.html
+│
+└─ static/
+   ├─ css/
+   │  └─ style.css
+   └─ js/
+      └─ board.js
+</code></pre>
+<h2>13. 핵심 요약</h2>
+<p>Thymeleaf는 Bootstrap 같은 디자인 프레임워크가 아니다. Bootstrap은 화면을 예쁘게 꾸미는 도구이고, Thymeleaf는 Spring Boot 서버 데이터를 HTML에 넣어주는 템플릿 엔진이다. React가 브라우저에서 JavaScript로 화면을 그린다면, Thymeleaf는 Spring Boot 서버에서 완성된 HTML을 만들어 브라우저에 전달한다. 그래서 Spring Boot에서 프론트 화면까지 처리해야 하는 상황이라면 <code>@Controller</code>, <code>Model</code>, <code>templates/*.html</code>, <code>th:text</code>, <code>th:each</code>를 사용하면 된다. 디자인이 필요하면 Bootstrap을 함께 사용하면 된다.</p>
+<p>결국 가장 중요한 흐름은 이것이다.</p>
+<pre><code class="language-text">Controller가 데이터를 Model에 넣는다.
+Thymeleaf HTML이 Model 데이터를 꺼내 화면에 출력한다.
+브라우저는 완성된 HTML을 받는다.
+</code></pre>
+<p>이 흐름만 이해하면 Thymeleaf는 어렵지 않다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

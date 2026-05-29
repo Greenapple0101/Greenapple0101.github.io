@@ -1,0 +1,496 @@
+---
+title: "[Network] HTTP란 무엇일까?\n"
+source: "https://velog.io/@yorange50/Network-HTTP란-무엇일까"
+published: "2026-05-27T18:06:04.998Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.709699"
+---
+
+웹을 공부하다 보면 `HTTP`라는 말을 정말 자주 본다.
+
+```text
+http://example.com
+```
+
+```text
+GET /boards
+POST /login
+404 Not Found
+500 Internal Server Error
+```
+
+처음에는 다 따로따로 보이지만, 사실 전부 HTTP와 관련된 개념이다.
+
+HTTP는 한마디로 말하면 **브라우저와 서버가 웹에서 데이터를 주고받기 위한 약속**이다.
+
+---
+
+## 1. HTTP는 왜 필요할까?
+
+우리가 브라우저에서 어떤 사이트에 접속한다고 해보자.
+
+```text
+http://example.com
+```
+
+그러면 브라우저는 서버에게 이렇게 요청한다.
+
+```text
+이 웹 페이지 주세요.
+```
+
+서버는 다시 이렇게 응답한다.
+
+```text
+네, 여기 웹 페이지입니다.
+```
+
+그런데 브라우저와 서버가 아무 규칙 없이 대화하면 서로 알아들을 수 없다.
+
+그래서 정해진 대화 방식이 필요하다.
+
+그 규칙이 바로 **HTTP**다.
+
+```text
+브라우저 → 서버: 요청
+서버 → 브라우저: 응답
+```
+
+HTTP는 이 요청과 응답의 형식을 정해놓은 통신 규칙이다.
+
+---
+
+## 2. HTTP를 쉽게 비유하면
+
+HTTP는 식당의 주문 방식과 비슷하다.
+
+```text
+손님 = 브라우저
+주방 = 서버
+주문서 = HTTP 요청
+음식 = HTTP 응답
+```
+
+손님이 식당에 가서 주문서를 쓴다.
+
+```text
+김치찌개 하나 주세요.
+```
+
+주방은 주문서를 보고 음식을 만든다.
+
+```text
+김치찌개 나왔습니다.
+```
+
+웹에서도 비슷하다.
+
+브라우저가 서버에게 요청한다.
+
+```text
+메인 페이지 주세요.
+```
+
+서버가 응답한다.
+
+```text
+여기 HTML 문서입니다.
+```
+
+이때 요청과 응답을 주고받는 약속이 HTTP다.
+
+---
+
+## 3. HTTP 요청이란?
+
+HTTP 요청은 클라이언트가 서버에게 보내는 메시지다.
+
+여기서 클라이언트는 보통 브라우저다.
+
+예를 들어 사용자가 브라우저 주소창에 다음 주소를 입력했다고 해보자.
+
+```text
+http://example.com/boards
+```
+
+그러면 브라우저는 서버에게 대략 이런 요청을 보낸다.
+
+```http
+GET /boards HTTP/1.1
+Host: example.com
+```
+
+이 요청을 해석하면 다음과 같다.
+
+```text
+GET        → 데이터를 조회하고 싶다
+/boards    → boards 경로의 데이터를 원한다
+HTTP/1.1   → HTTP 1.1 방식으로 요청한다
+Host       → example.com 서버에게 보내는 요청이다
+```
+
+즉 HTTP 요청에는 보통 이런 정보들이 들어간다.
+
+```text
+어떤 동작을 할지
+어떤 경로로 요청할지
+어떤 서버에 요청할지
+추가 정보는 무엇인지
+```
+
+---
+
+## 4. HTTP 응답이란?
+
+HTTP 응답은 서버가 클라이언트에게 돌려주는 메시지다.
+
+브라우저가 요청을 보내면 서버는 그 요청을 처리한 뒤 응답을 보낸다.
+
+예를 들면 이런 식이다.
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<html>
+  <body>Hello</body>
+</html>
+```
+
+이 응답을 해석하면 다음과 같다.
+
+```text
+200 OK              → 요청 성공
+Content-Type        → 응답 데이터는 HTML 문서
+<html>...</html>    → 실제 응답 내용
+```
+
+즉 HTTP 응답에는 보통 이런 정보들이 들어간다.
+
+```text
+요청이 성공했는지 실패했는지
+응답 데이터의 종류가 무엇인지
+실제 응답 데이터
+```
+
+---
+
+## 5. HTTP Method란?
+
+HTTP 요청에는 Method라는 것이 있다.
+
+Method는 서버에게 **무슨 일을 하고 싶은지** 알려주는 동작 이름이다.
+
+대표적인 Method는 다음과 같다.
+
+```text
+GET
+POST
+PUT
+PATCH
+DELETE
+```
+
+각각의 의미는 대략 이렇다.
+
+```text
+GET     → 데이터 조회
+POST    → 데이터 생성
+PUT     → 데이터 전체 수정
+PATCH   → 데이터 일부 수정
+DELETE  → 데이터 삭제
+```
+
+게시판 API를 예로 들면 다음처럼 사용할 수 있다.
+
+```text
+GET /boards          → 게시글 목록 조회
+GET /boards/1        → 1번 게시글 조회
+POST /boards         → 게시글 작성
+PUT /boards/1        → 1번 게시글 수정
+DELETE /boards/1     → 1번 게시글 삭제
+```
+
+여기서 중요한 점은 주소만 보는 것이 아니라 **Method와 주소를 함께 봐야 한다는 것**이다.
+
+예를 들어 같은 `/boards`라도 Method에 따라 의미가 달라진다.
+
+```text
+GET /boards
+```
+
+는 게시글 목록 조회이고,
+
+```text
+POST /boards
+```
+
+는 게시글 작성이다.
+
+---
+
+## 6. HTTP 상태 코드란?
+
+서버는 응답할 때 상태 코드를 함께 보낸다.
+
+상태 코드는 요청 처리 결과를 숫자로 표현한 것이다.
+
+대표적인 상태 코드는 다음과 같다.
+
+```text
+200 OK
+201 Created
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+500 Internal Server Error
+```
+
+하나씩 보면 다음과 같다.
+
+```text
+200 OK
+→ 요청 성공
+
+201 Created
+→ 새로운 데이터 생성 성공
+
+400 Bad Request
+→ 클라이언트가 이상한 요청을 보냄
+
+401 Unauthorized
+→ 인증이 필요함
+
+403 Forbidden
+→ 권한이 없음
+
+404 Not Found
+→ 요청한 주소를 찾을 수 없음
+
+500 Internal Server Error
+→ 서버 내부에서 오류 발생
+```
+
+웹 개발을 하다 보면 가장 자주 만나는 에러 중 하나가 `404`다.
+
+```text
+404 Not Found
+```
+
+이건 서버가 꺼졌다는 뜻이 아니다.
+
+정확히는 **서버는 응답했지만, 네가 요청한 경로를 찾지 못했다**는 뜻이다.
+
+예를 들어 서버에는 `/boards`라는 주소만 있는데 사용자가 `/board`로 요청하면 404가 날 수 있다.
+
+```text
+서버에 있는 주소: /boards
+내가 요청한 주소: /board
+결과: 404 Not Found
+```
+
+---
+
+## 7. HTTP Header란?
+
+HTTP 요청과 응답에는 Header라는 추가 정보가 들어갈 수 있다.
+
+Header는 요청이나 응답에 대한 부가 정보다.
+
+예를 들면 이런 것들이 있다.
+
+```http
+Host: example.com
+Content-Type: application/json
+Authorization: Bearer token
+```
+
+각각의 의미는 다음과 같다.
+
+```text
+Host
+→ 어느 서버로 보내는 요청인지
+
+Content-Type
+→ 데이터 형식이 무엇인지
+
+Authorization
+→ 인증 정보
+```
+
+API 서버와 통신할 때 자주 보는 JSON 요청도 Header와 관련이 있다.
+
+```http
+Content-Type: application/json
+```
+
+이 뜻은 다음과 같다.
+
+```text
+내가 보내는 데이터는 JSON 형식입니다.
+```
+
+그래서 서버는 요청 body를 JSON으로 해석할 수 있다.
+
+---
+
+## 8. HTTP Body란?
+
+HTTP Body는 실제 데이터가 들어가는 부분이다.
+
+예를 들어 로그인 요청을 보낸다고 해보자.
+
+```http
+POST /login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "1234"
+}
+```
+
+여기서 아래 부분이 Body다.
+
+```json
+{
+  "email": "test@example.com",
+  "password": "1234"
+}
+```
+
+즉 Body는 서버에게 실제로 전달하고 싶은 데이터다.
+
+보통 `POST`, `PUT`, `PATCH` 요청에서 Body를 많이 사용한다.
+
+반대로 `GET` 요청은 보통 Body를 사용하지 않고, URL 경로나 쿼리 파라미터로 정보를 전달한다.
+
+```text
+GET /boards?page=1&size=10
+```
+
+---
+
+## 9. HTTP와 HTTPS의 차이
+
+웹 주소를 보면 `http` 말고 `https`도 자주 보인다.
+
+```text
+http://example.com
+https://example.com
+```
+
+둘의 가장 큰 차이는 **암호화 여부**다.
+
+```text
+HTTP
+→ 데이터를 평문으로 주고받음
+
+HTTPS
+→ 데이터를 암호화해서 주고받음
+```
+
+예를 들어 로그인 비밀번호를 보낸다고 해보자.
+
+HTTP로 보내면 중간에서 누군가 데이터를 훔쳐볼 위험이 크다.
+
+HTTPS는 데이터를 암호화해서 보내기 때문에 훨씬 안전하다.
+
+그래서 실제 서비스에서는 대부분 HTTPS를 사용한다.
+
+정리하면 다음과 같다.
+
+```text
+HTTP  = 기본 웹 통신 규칙
+HTTPS = HTTP + 보안 암호화
+```
+
+---
+
+## 10. HTTP 흐름 정리
+
+전체 흐름을 간단히 정리하면 다음과 같다.
+
+```text
+1. 사용자가 브라우저에 주소 입력
+
+2. 브라우저가 서버에게 HTTP 요청 전송
+
+3. 서버가 요청을 해석
+
+4. 서버가 필요한 데이터 처리
+
+5. 서버가 HTTP 응답 전송
+
+6. 브라우저가 응답을 화면에 표시
+```
+
+그림으로 보면 이렇다.
+
+```text
+Browser
+   |
+   | HTTP Request
+   v
+Server
+   |
+   | HTTP Response
+   v
+Browser
+```
+
+조금 더 구체적으로는 이렇다.
+
+```text
+브라우저: GET /boards 요청
+        ↓
+서버: 게시글 목록 조회
+        ↓
+서버: 200 OK와 게시글 데이터 응답
+        ↓
+브라우저: 화면에 게시글 목록 표시
+```
+
+---
+
+## 11. 정리
+
+HTTP는 웹에서 클라이언트와 서버가 데이터를 주고받기 위한 통신 규칙이다.
+
+브라우저는 HTTP 요청을 보내고, 서버는 HTTP 응답을 돌려준다.
+
+HTTP 요청에는 Method, Path, Header, Body 같은 정보가 들어갈 수 있다.
+
+HTTP 응답에는 Status Code, Header, Body 같은 정보가 들어간다.
+
+정리하면 다음과 같다.
+
+```text
+HTTP
+→ 웹에서 브라우저와 서버가 대화하기 위한 약속
+
+Request
+→ 클라이언트가 서버에게 보내는 요청
+
+Response
+→ 서버가 클라이언트에게 돌려주는 응답
+
+Method
+→ 어떤 동작을 할지 나타내는 이름
+
+Status Code
+→ 요청 처리 결과를 나타내는 숫자
+
+Header
+→ 요청/응답에 대한 부가 정보
+
+Body
+→ 실제로 주고받는 데이터
+```
+
+한 줄로 끝내면 이렇다.
+
+```text
+HTTP는 브라우저와 서버가 “무엇을 요청하고, 무엇을 응답할지” 정해놓은 웹의 기본 대화 규칙이다.
+```

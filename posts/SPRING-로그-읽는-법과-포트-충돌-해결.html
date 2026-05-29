@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] 로그 읽는 법과 포트 충돌 해결 | Greenapple0101</title>
+  <meta name="description" content="스프링 실행이 실패하면 마지막에 보통 이렇게 나온다. 근데 이건 결과 일 뿐이다. 진짜 원인은 항상 그 위에 있다. --- 1. 로그에서 제일 먼저 볼 곳 아래 문구를 찾으면 된다. 그 아래에 보통 원인이 나온다. 이번 로그에서는 이게 핵심이었다. 뜻은 단순하다. 스프링 서버를 808…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #16a34a">SPRING</span>
+    <h1>[SPRING] 로그 읽는 법과 포트 충돌 해결</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-28T23:38:48.449Z">2026.04.28</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-로그-읽는-법과-포트-충돌-해결" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>스프링 실행이 실패하면 마지막에 보통 이렇게 나온다.</p>
+<pre><code class="language-text">BUILD FAILED
+</code></pre>
+<p>근데 이건 <strong>결과</strong>일 뿐이다.
+진짜 원인은 항상 그 위에 있다.</p>
+<hr>
+<h2>1. 로그에서 제일 먼저 볼 곳</h2>
+<p>아래 문구를 찾으면 된다.</p>
+<pre><code class="language-text">APPLICATION FAILED TO START
+</code></pre>
+<p>그 아래에 보통 원인이 나온다.</p>
+<p>이번 로그에서는 이게 핵심이었다.</p>
+<pre><code class="language-text">Web server failed to start. Port 8080 was already in use.
+</code></pre>
+<p>뜻은 단순하다.</p>
+<p><strong>스프링 서버를 8080번 포트로 띄우려 했는데, 이미 다른 프로그램이 8080번을 쓰고 있다.</strong></p>
+<hr>
+<h2>2. 포트가 뭐냐</h2>
+<p>포트는 컴퓨터 안에서 프로그램이 통신하는 문 번호라고 보면 된다.</p>
+<pre><code class="language-text">localhost:8080
+</code></pre>
+<p>이 말은:</p>
+<pre><code class="language-text">내 컴퓨터의 8080번 문으로 들어가겠다
+</code></pre>
+<p>는 뜻이다.</p>
+<p>스프링부트는 기본적으로 8080번 포트를 사용한다.</p>
+<hr>
+<h2>3. 누가 8080을 쓰는지 확인</h2>
+<p>맥 터미널에서 입력한다.</p>
+<pre><code class="language-bash">lsof -i :8080
+</code></pre>
+<p>그러면 이런 식으로 나온다.</p>
+<pre><code class="language-text">java  30527  baegseoyeon  ...
+</code></pre>
+<p>여기서 중요한 건 PID다.</p>
+<pre><code class="language-text">30527
+</code></pre>
+<p>PID는 실행 중인 프로그램의 번호다.</p>
+<hr>
+<h2>4. 포트 쓰는 프로그램 종료</h2>
+<pre><code class="language-bash">kill -9 30527
+</code></pre>
+<p>뜻은:</p>
+<pre><code class="language-text">30527번 프로세스를 강제로 종료해라
+</code></pre>
+<p>그 다음 다시 확인한다.</p>
+<pre><code class="language-bash">lsof -i :8080
+</code></pre>
+<p>아무것도 안 나오면 성공이다.</p>
+<hr>
+<h2>5. 다시 스프링 실행</h2>
+<pre><code class="language-bash">./gradlew bootRun
+</code></pre>
+<p>성공하면 이런 로그가 나온다.</p>
+<pre><code class="language-text">Tomcat started on port 8080
+Started BoardApiApplication
+</code></pre>
+<p>이러면 서버가 켜진 상태다.</p>
+<hr>
+<h2>6. 한 번에 죽이는 명령어</h2>
+<p>8080을 쓰는 프로세스를 바로 죽이고 싶으면:</p>
+<pre><code class="language-bash">kill -9 $(lsof -t -i:8080)
+</code></pre>
+<p>다만 처음에는 이 방식보다 아래 순서를 추천한다.</p>
+<pre><code class="language-bash">lsof -i :8080
+kill -9 PID
+</code></pre>
+<p>직접 보고 죽이는 습관이 로그 읽는 감각을 키워준다.</p>
+<hr>
+<h2>한 줄 정리</h2>
+<pre><code class="language-text">BUILD FAILED만 보지 말고,
+APPLICATION FAILED TO START 아래의 Description을 봐라.
+Port 8080 was already in use면 lsof로 PID 찾고 kill 하면 된다.
+</code></pre>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

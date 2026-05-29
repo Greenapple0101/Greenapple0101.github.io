@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] LivenessProbe로 Self-Healing 이해하기 | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스를 공부하다 보면 자주 나오는 말이 있다. 쿠버네티스는 Self-Healing을 지원한다. 처음 들으면 뭔가 엄청 대단한 기능처럼 느껴진다. “쿠버네티스가 알아서 장애를 고쳐준다고?” “그럼 서버가 죽어도 자동으로 살아나는 건가?” 반은 맞고, 반은 조심해서 이해해야 한다.…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">[Kubernetes]</span>
+    <h1>[Kubernetes] LivenessProbe로 Self-Healing 이해하기</h1>
+    <div class="post-meta">
+      <time datetime="Thu, 28 May 2026 23:55:20 GMT">Thu, 28 Ma</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-LivenessProbe%EB%A1%9C-Self-Healing-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스를 공부하다 보면 자주 나오는 말이 있다.</p>
+<blockquote>
+<p>쿠버네티스는 Self-Healing을 지원한다.</p>
+</blockquote>
+<p>처음 들으면 뭔가 엄청 대단한 기능처럼 느껴진다.</p>
+<p>“쿠버네티스가 알아서 장애를 고쳐준다고?” “그럼 서버가 죽어도 자동으로 살아나는 건가?”</p>
+<p>반은 맞고, 반은 조심해서 이해해야 한다.</p>
+<p>쿠버네티스가 마법처럼 모든 장애를 해결해주는 건 아니다. 대신 <strong>컨테이너가 비정상 상태라고 판단되면 다시 실행해주는 구조</strong> 를 가지고 있다.</p>
+<p>이때 가장 기본적으로 쓰이는 기능이 바로 <strong>LivenessProbe</strong> 다.</p>
+<hr>
+<h2>1. Self-Healing이란?</h2>
+<p>Self-Healing은 말 그대로 <strong>스스로 회복하는 기능</strong> 이다.</p>
+<p>예를 들어 애플리케이션에 문제가 생겼다고 해보자.</p>
+<pre><code>Spring Boot 서버가 멈춤
+Node.js 프로세스가 죽음
+Python API 서버가 응답하지 않음
+Nginx가 비정상 상태가 됨
+</code></pre>
+<p>이런 상황에서 예전 방식이라면 사람이 직접 서버에 들어가야 했다.</p>
+<pre><code>서버 접속
+프로세스 확인
+로그 확인
+재시작 명령 실행
+</code></pre>
+<p>하지만 쿠버네티스는 컨테이너 상태를 계속 확인하다가 문제가 있다고 판단하면 컨테이너를 다시 실행할 수 있다.</p>
+<p>흐름은 단순하다.</p>
+<pre><code>애플리케이션 이상 발생
+        ↓
+쿠버네티스가 감지
+        ↓
+컨테이너 재시작
+        ↓
+서비스 복구
+</code></pre>
+<p>이게 쿠버네티스에서 말하는 Self-Healing이다.</p>
+<hr>
+<h2>2. 쿠버네티스는 어떻게 이상을 감지할까?</h2>
+<p>컨테이너가 완전히 죽으면 쿠버네티스는 쉽게 알 수 있다.</p>
+<p>컨테이너 안의 메인 프로세스가 종료되면 컨테이너도 종료된다.</p>
+<pre><code>메인 프로세스 종료
+        ↓
+컨테이너 종료
+        ↓
+kubelet이 감지
+        ↓
+컨테이너 재시작
+</code></pre>
+<p>여기까지는 쉽다.</p>
+<p>그런데 문제는 애매한 상황이다.</p>
+<pre><code>프로세스는 살아 있음
+하지만 요청 처리는 안 됨
+
+포트는 열려 있음
+하지만 내부적으로 deadlock 상태
+
+서버는 떠 있음
+하지만 /healthz가 500을 반환함
+</code></pre>
+<p>이런 경우 컨테이너는 죽지 않았다. 그래서 쿠버네티스 입장에서는 겉으로 봤을 때 정상처럼 보일 수 있다.</p>
+<p>그래서 필요한 게 <strong>Probe</strong> 다.</p>
+<hr>
+<h2>3. Probe란?</h2>
+<p>Probe는 쿠버네티스가 컨테이너 상태를 확인하기 위해 주기적으로 보내는 검사다.</p>
+<p>쉽게 말하면 kubelet이 컨테이너에게 계속 물어보는 것이다.</p>
+<pre><code>너 살아있어?
+너 요청 받을 수 있어?
+너 시작 완료됐어?
+</code></pre>
+<p>쿠버네티스에는 대표적으로 세 가지 Probe가 있다.</p>
+<table>
+<thead>
+<tr>
+<th>Probe</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LivenessProbe</td>
+<td>컨테이너가 살아 있는지 확인</td>
+</tr>
+<tr>
+<td>ReadinessProbe</td>
+<td>트래픽을 받을 준비가 됐는지 확인</td>
+</tr>
+<tr>
+<td>StartupProbe</td>
+<td>애플리케이션 시작이 끝났는지 확인</td>
+</tr>
+</tbody>
+</table>
+<p>이 중에서 Self-Healing과 가장 직접적으로 연결되는 것이 <strong>LivenessProbe</strong> 다.</p>
+<hr>
+<h2>4. LivenessProbe란?</h2>
+<p>LivenessProbe는 컨테이너가 살아 있는지 확인하는 검사다.</p>
+<p>검사에 계속 실패하면 kubelet은 이렇게 판단한다.</p>
+<pre><code>이 컨테이너는 살아 있는 척하고 있지만 실제로는 비정상이다.
+재시작해야 한다.
+</code></pre>
+<p>그러면 kubelet이 컨테이너를 종료하고 다시 실행한다.</p>
+<pre><code>LivenessProbe 실패
+        ↓
+kubelet이 비정상 판단
+        ↓
+컨테이너 종료
+        ↓
+restartPolicy에 따라 재시작
+</code></pre>
+<p>즉 LivenessProbe는 Self-Healing을 위한 <strong>감지 장치</strong> 라고 보면 된다.</p>
+<hr>
+<h2>5. HTTP 방식 LivenessProbe 예시</h2>
+<p>가장 흔한 방식은 HTTP 요청으로 상태를 확인하는 방식이다.</p>
+<p>예를 들어 애플리케이션이 <code>/healthz</code> 경로를 제공한다고 하자.</p>
+<pre><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-demo
+spec:
+  containers:
+    - name: app
+      image: nginx
+      ports:
+        - containerPort: 80
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 80
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 3
+</code></pre>
+<p>이 설정은 이런 뜻이다.</p>
+<pre><code>컨테이너 시작 후 10초 기다림
+5초마다 /healthz로 HTTP 요청
+3번 연속 실패하면 비정상으로 판단
+컨테이너 재시작
+</code></pre>
+<p>다만 기본 nginx 이미지는 <code>/healthz</code> 경로가 없을 수 있다. 그러면 404가 반환되고 Probe가 실패한다.</p>
+<p>HTTP Probe는 응답 코드가 <strong>200 이상 400 미만</strong> 이면 성공으로 본다. 404는 실패다.</p>
+<p>그래서 nginx로 간단히 테스트할 때는 <code>/</code> 경로를 쓰는 게 더 편하다.</p>
+<pre><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-liveness
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 3
+</code></pre>
+<p>이 경우 kubelet은 주기적으로 nginx의 <code>/</code> 경로를 확인한다.</p>
+<pre><code>GET /
+응답 정상
+→ 컨테이너 유지
+
+GET /
+응답 실패
+→ 실패 횟수 증가
+
+3번 연속 실패
+→ 컨테이너 재시작
+</code></pre>
+<hr>
+<h2>6. LivenessProbe 동작 흐름</h2>
+<p>전체 흐름은 이렇게 볼 수 있다.</p>
+<pre><code>Pod 실행
+   ↓
+컨테이너 시작
+   ↓
+initialDelaySeconds만큼 대기
+   ↓
+kubelet이 LivenessProbe 실행
+   ↓
+성공?
+   ├─ 성공 → 컨테이너 유지
+   └─ 실패 → 실패 횟수 증가
+              ↓
+        failureThreshold 초과?
+              ↓
+        컨테이너 재시작
+</code></pre>
+<p>여기서 중요한 주체는 <strong>kubelet</strong> 이다.</p>
+<p>API Server가 직접 컨테이너를 검사하는 것이 아니다. 각 노드의 kubelet이 자기 노드에 있는 컨테이너를 검사한다.</p>
+<hr>
+<h2>7. exec 방식 LivenessProbe</h2>
+<p>HTTP 서버가 아니어도 LivenessProbe를 사용할 수 있다.</p>
+<p>컨테이너 내부에서 명령어를 실행해서 상태를 확인할 수도 있다.</p>
+<pre><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: exec-liveness
+spec:
+  containers:
+    - name: app
+      image: busybox
+      command:
+        - sh
+        - -c
+        - "touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 3600"
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5
+        periodSeconds: 5
+</code></pre>
+<p>이 예시는 처음에는 <code>/tmp/healthy</code> 파일이 존재한다.</p>
+<pre><code>cat /tmp/healthy 성공
+→ 정상
+</code></pre>
+<p>그런데 30초 뒤 파일이 삭제된다.</p>
+<pre><code>cat /tmp/healthy 실패
+→ LivenessProbe 실패
+→ 컨테이너 재시작
+</code></pre>
+<p>즉 HTTP 요청이 아니어도 컨테이너 안에서 명령어를 실행해서 상태를 확인할 수 있다.</p>
+<hr>
+<h2>8. TCP 방식 LivenessProbe</h2>
+<p>포트가 열려 있는지만 확인할 수도 있다.</p>
+<pre><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: tcp-liveness
+spec:
+  containers:
+    - name: redis
+      image: redis
+      ports:
+        - containerPort: 6379
+      livenessProbe:
+        tcpSocket:
+          port: 6379
+        initialDelaySeconds: 10
+        periodSeconds: 5
+</code></pre>
+<p>이 설정은 Redis의 6379 포트가 열려 있는지 확인한다.</p>
+<pre><code>6379 포트 연결 성공
+→ 정상
+
+6379 포트 연결 실패
+→ 비정상
+</code></pre>
+<p>다만 TCP 방식은 깊은 상태 점검에는 한계가 있다.</p>
+<p>포트는 열려 있지만 내부 로직이 망가진 경우에도 정상으로 판단할 수 있기 때문이다.</p>
+<hr>
+<h2>9. LivenessProbe 주요 옵션</h2>
+<p>자주 보는 옵션은 아래와 같다.</p>
+<table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>initialDelaySeconds</td>
+<td>컨테이너 시작 후 첫 검사까지 기다리는 시간</td>
+</tr>
+<tr>
+<td>periodSeconds</td>
+<td>몇 초마다 검사할지</td>
+</tr>
+<tr>
+<td>timeoutSeconds</td>
+<td>검사 응답을 몇 초까지 기다릴지</td>
+</tr>
+<tr>
+<td>failureThreshold</td>
+<td>몇 번 실패하면 비정상으로 볼지</td>
+</tr>
+<tr>
+<td>successThreshold</td>
+<td>몇 번 성공해야 정상으로 볼지</td>
+</tr>
+</tbody>
+</table>
+<p>예시는 다음과 같다.</p>
+<pre><code>livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+</code></pre>
+<p>뜻은 이렇다.</p>
+<pre><code>시작 후 30초 기다림
+10초마다 검사
+응답은 3초까지 기다림
+3번 연속 실패하면 재시작
+</code></pre>
+<hr>
+<h2>10. LivenessProbe와 ReadinessProbe 차이</h2>
+<p>여기서 많이 헷갈린다.</p>
+<p>둘 다 상태 체크처럼 보인다. 하지만 실패했을 때 결과가 다르다.</p>
+<pre><code>LivenessProbe 실패
+→ 컨테이너 재시작
+
+ReadinessProbe 실패
+→ Service 트래픽 대상에서 제외
+</code></pre>
+<p>비교하면 이렇다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>LivenessProbe</th>
+<th>ReadinessProbe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>질문</td>
+<td>살아 있나?</td>
+<td>요청 받을 준비가 됐나?</td>
+</tr>
+<tr>
+<td>실패 시</td>
+<td>컨테이너 재시작</td>
+<td>Service Endpoint에서 제외</td>
+</tr>
+<tr>
+<td>목적</td>
+<td>Self-Healing</td>
+<td>트래픽 보호</td>
+</tr>
+<tr>
+<td>예시</td>
+<td>deadlock, 무한 대기</td>
+<td>DB 연결 전, 캐시 로딩 중</td>
+</tr>
+</tbody>
+</table>
+<p>핵심은 이거다.</p>
+<blockquote>
+<p>LivenessProbe는 죽이는 검사고, ReadinessProbe는 트래픽을 빼는 검사다.</p>
+</blockquote>
+<p>그래서 준비가 잠깐 안 된 상태를 LivenessProbe 실패로 처리하면 위험하다.</p>
+<p>예를 들어 앱이 뜨는 데 1분 걸리는데 LivenessProbe가 10초 뒤부터 검사한다고 하자.</p>
+<pre><code>앱 시작 중
+↓
+LivenessProbe 실패
+↓
+컨테이너 재시작
+↓
+다시 앱 시작 중
+↓
+또 실패
+↓
+CrashLoopBackOff
+</code></pre>
+<p>이런 상황을 피하려면 <code>initialDelaySeconds</code>를 충분히 주거나 <code>startupProbe</code>를 같이 쓰는 것이 좋다.</p>
+<hr>
+<h2>11. StartupProbe는 언제 쓸까?</h2>
+<p>애플리케이션 시작이 느린 경우에는 StartupProbe를 사용하면 좋다.</p>
+<p>StartupProbe가 성공하기 전까지는 LivenessProbe와 ReadinessProbe 검사를 미룰 수 있다.</p>
+<pre><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-startup-probe
+spec:
+  containers:
+    - name: app
+      image: my-app:1.0
+      ports:
+        - containerPort: 8080
+
+      startupProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+        failureThreshold: 30
+        periodSeconds: 2
+
+      livenessProbe:
+        httpGet:
+          path: /healthz
+          port: 8080
+        periodSeconds: 10
+        failureThreshold: 3
+
+      readinessProbe:
+        httpGet:
+          path: /ready
+          port: 8080
+        periodSeconds: 5
+        failureThreshold: 3
+</code></pre>
+<p>이 구조는 이렇게 이해하면 된다.</p>
+<pre><code>StartupProbe
+→ 처음 시작이 끝났는지 확인
+
+LivenessProbe
+→ 시작 후 살아 있는지 확인
+
+ReadinessProbe
+→ 트래픽 받을 준비가 됐는지 확인
+</code></pre>
+<hr>
+<h2>12. 실습 예시: 일부러 죽는 컨테이너 만들기</h2>
+<p>Self-Healing을 눈으로 보려면 일부러 실패하는 Pod를 만들면 된다.</p>
+<pre><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-self-healing
+spec:
+  containers:
+    - name: app
+      image: busybox
+      command:
+        - sh
+        - -c
+        - "touch /tmp/healthy; sleep 20; rm -f /tmp/healthy; sleep 3600"
+      livenessProbe:
+        exec:
+          command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        failureThreshold: 2
+</code></pre>
+<p>적용한다.</p>
+<pre><code>kubectl apply -f liveness-self-healing.yaml
+</code></pre>
+<p>상태를 계속 본다.</p>
+<pre><code>kubectl get pod liveness-self-healing -w
+</code></pre>
+<p>처음에는 정상이다.</p>
+<pre><code>liveness-self-healing   1/1   Running   0
+</code></pre>
+<p>20초 뒤 <code>/tmp/healthy</code> 파일이 삭제된다. 그러면 LivenessProbe가 실패하고 컨테이너가 재시작된다.</p>
+<p>잠시 후 재시작 횟수가 증가한다.</p>
+<pre><code>liveness-self-healing   1/1   Running   1
+</code></pre>
+<p>상세 이벤트를 보면 더 확실하다.</p>
+<pre><code>kubectl describe pod liveness-self-healing
+</code></pre>
+<p>이런 이벤트를 볼 수 있다.</p>
+<pre><code>Liveness probe failed
+Container app failed liveness probe, will be restarted
+Killing container
+Started container
+</code></pre>
+<p>이게 바로 LivenessProbe 기반 Self-Healing이다.</p>
+<hr>
+<h2>13. 주의할 점</h2>
+<p>LivenessProbe는 좋은 기능이지만 잘못 설정하면 오히려 장애를 만들 수 있다.</p>
+<h3>1. 너무 빠르게 검사하지 않기</h3>
+<p>앱이 뜨는 데 오래 걸리는데 검사 시간이 너무 빠르면 계속 재시작될 수 있다.</p>
+<pre><code>initialDelaySeconds: 3
+periodSeconds: 5
+failureThreshold: 1
+</code></pre>
+<p>이런 설정은 위험할 수 있다.</p>
+<p>앱이 아직 뜨는 중인데 실패로 판단해서 컨테이너를 계속 죽일 수 있기 때문이다.</p>
+<hr>
+<h3>2. 외부 의존성을 LivenessProbe에 강하게 넣지 않기</h3>
+<p>예를 들어 <code>/healthz</code>에서 DB까지 검사한다고 하자.</p>
+<p>DB가 잠깐 느려졌다.</p>
+<pre><code>DB 일시 장애
+↓
+/healthz 실패
+↓
+앱 컨테이너 재시작
+↓
+오히려 장애 확대
+</code></pre>
+<p>앱 자체는 살아 있는데 DB 때문에 LivenessProbe가 실패하면, 멀쩡한 앱 컨테이너까지 계속 재시작될 수 있다.</p>
+<p>그래서 보통은 이렇게 나누는 것이 좋다.</p>
+<pre><code>LivenessProbe
+→ 내 프로세스가 회복 불가능하게 망가졌는가?
+
+ReadinessProbe
+→ 지금 트래픽을 받아도 되는가?
+</code></pre>
+<p>DB, 외부 API, 메시지 큐 상태는 LivenessProbe보다 ReadinessProbe에서 다루는 경우가 많다.</p>
+<hr>
+<h3>3. LivenessProbe는 만능이 아니다</h3>
+<p>LivenessProbe는 컨테이너 재시작으로 회복 가능한 문제에 적합하다.</p>
+<p>하지만 이런 문제는 재시작만으로 해결되지 않을 수 있다.</p>
+<pre><code>잘못된 이미지
+잘못된 환경변수
+DB 자체 장애
+Secret 누락
+ConfigMap 오류
+네트워크 정책 문제
+디스크 부족
+</code></pre>
+<p>이런 경우에는 컨테이너를 계속 재시작해도 다시 실패한다.</p>
+<p>그러면 <code>CrashLoopBackOff</code> 상태에 빠질 수 있다.</p>
+<hr>
+<h2>14. 한 번에 정리</h2>
+<p>LivenessProbe는 쿠버네티스가 컨테이너의 생존 상태를 확인하는 검사다.</p>
+<p>검사에 계속 실패하면 kubelet이 컨테이너를 재시작한다.</p>
+<pre><code>LivenessProbe 실패
+↓
+컨테이너 비정상 판단
+↓
+컨테이너 재시작
+↓
+Self-Healing
+</code></pre>
+<p>Self-Healing은 이렇게 동작한다.</p>
+<pre><code>감지: LivenessProbe
+판단: kubelet
+조치: 컨테이너 재시작
+복구: 새 컨테이너 실행
+</code></pre>
+<p>마지막으로 세 가지 Probe를 정리하면 이렇다.</p>
+<pre><code>LivenessProbe
+= 살아 있는지 확인
+
+ReadinessProbe
+= 트래픽 받을 준비가 됐는지 확인
+
+StartupProbe
+= 처음 시작이 완료됐는지 확인
+</code></pre>
+<p>쿠버네티스가 알아서 회복한다는 말은, 아무 기준 없이 마법처럼 고쳐준다는 뜻이 아니다.</p>
+<p>우리가 Probe로 <strong>어떤 상태를 비정상으로 볼지</strong> 알려주면, kubelet이 그 기준에 따라 컨테이너를 재시작해주는 것이다.</p>
+<p>그래서 LivenessProbe는 쿠버네티스 Self-Healing을 이해할 때 가장 먼저 알아야 하는 기본 장치라고 보면 된다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

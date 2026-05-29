@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] 데몬이 뭐야? DaemonSet은 왜 쓰는 걸까? | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스 공부하다 보면 DaemonSet 이라는 단어가 나온다. 처음 보면 이름부터 좀 무섭다. 데몬? 악마? 뭐 하는 애임? 근데 어렵게 생각할 필요 없다. 쿠버네티스에서 말하는 데몬은 쉽게 말하면 서버 뒤에서 계속 돌아가는 프로그램 이다. --- 1. 데몬이란? Daemon 은…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] 데몬이 뭐야? DaemonSet은 왜 쓰는 걸까?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-27T11:40:04.756Z">2026.05.27</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-데몬이-뭐야-DaemonSet은-왜-쓰는-걸까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스 공부하다 보면 <code>DaemonSet</code>이라는 단어가 나온다.
+처음 보면 이름부터 좀 무섭다.</p>
+<blockquote>
+<p>데몬? 악마? 뭐 하는 애임?</p>
+</blockquote>
+<p>근데 어렵게 생각할 필요 없다.
+쿠버네티스에서 말하는 데몬은 쉽게 말하면 <strong>서버 뒤에서 계속 돌아가는 프로그램</strong>이다.</p>
+<hr>
+<h2>1. 데몬이란?</h2>
+<p><strong>Daemon</strong>은 백그라운드에서 계속 실행되는 프로그램을 말한다.</p>
+<p>우리가 직접 매번 실행하지 않아도 서버가 켜져 있는 동안 계속 떠 있으면서 자기 일을 한다.</p>
+<p>예를 들면 이런 것들이 있다.</p>
+<pre><code class="language-bash">sshd
+containerd
+kubelet
+systemd
+</code></pre>
+<p>각각 하는 일은 대충 이렇다.</p>
+<table>
+<thead>
+<tr>
+<th>데몬</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sshd</code></td>
+<td>SSH 접속을 기다림</td>
+</tr>
+<tr>
+<td><code>containerd</code></td>
+<td>컨테이너 실행 관리</td>
+</tr>
+<tr>
+<td><code>kubelet</code></td>
+<td>노드에서 Pod 상태 관리</td>
+</tr>
+<tr>
+<td><code>systemd</code></td>
+<td>리눅스 서비스 관리</td>
+</tr>
+</tbody>
+</table>
+<p>즉, 데몬은 이런 느낌이다.</p>
+<pre><code class="language-text">사용자가 직접 조작하지 않아도
+서버 뒤에서 계속 떠 있으면서
+필요한 일을 처리하는 프로그램
+</code></pre>
+<hr>
+<h2>2. 쿠버네티스에서 왜 데몬이 중요할까?</h2>
+<p>쿠버네티스 클러스터에는 여러 노드가 있다.</p>
+<pre><code class="language-text">worker-node-1
+worker-node-2
+worker-node-3
+</code></pre>
+<p>그런데 어떤 프로그램은 특정 노드 하나에만 있으면 안 된다.
+<strong>모든 노드에서 하나씩 돌아야 하는 프로그램</strong>들이 있다.</p>
+<p>예를 들면:</p>
+<pre><code class="language-text">각 노드의 로그를 수집하는 프로그램
+각 노드의 CPU/메모리 상태를 수집하는 프로그램
+각 노드의 네트워크를 담당하는 프로그램
+각 노드의 보안 상태를 확인하는 프로그램
+</code></pre>
+<p>이런 애들은 worker-node-1에만 있으면 안 된다.</p>
+<pre><code class="language-text">worker-node-1 로그만 수집
+worker-node-2 로그는 모름
+worker-node-3 로그는 모름
+</code></pre>
+<p>이러면 안 되니까 <strong>모든 노드마다 하나씩 배치</strong>해야 한다.</p>
+<p>이때 쓰는 게 바로 <code>DaemonSet</code>이다.</p>
+<hr>
+<h2>3. DaemonSet이란?</h2>
+<p><strong>DaemonSet은 모든 노드에 Pod를 하나씩 띄워주는 쿠버네티스 리소스</strong>다.</p>
+<p>한 줄로 정리하면 이거다.</p>
+<pre><code class="language-text">DaemonSet = 모든 노드마다 특정 Pod를 하나씩 실행하게 해주는 리소스
+</code></pre>
+<p>예를 들어 노드가 3개 있다고 해보자.</p>
+<pre><code class="language-text">worker-node-1
+worker-node-2
+worker-node-3
+</code></pre>
+<p>여기에 로그 수집용 Pod를 DaemonSet으로 배포하면 이렇게 된다.</p>
+<pre><code class="language-text">worker-node-1: log-agent Pod 1개
+worker-node-2: log-agent Pod 1개
+worker-node-3: log-agent Pod 1개
+</code></pre>
+<p>노드가 하나 추가되면?</p>
+<pre><code class="language-text">worker-node-4 추가
+</code></pre>
+<p>DaemonSet이 알아서 새 노드에도 Pod를 띄워준다.</p>
+<pre><code class="language-text">worker-node-4: log-agent Pod 1개 자동 생성
+</code></pre>
+<p>이게 DaemonSet의 핵심이다.</p>
+<hr>
+<h2>4. Deployment랑 뭐가 다를까?</h2>
+<p>처음에는 <code>Deployment</code>랑 헷갈린다.</p>
+<p>Deployment는 이렇게 말하는 느낌이다.</p>
+<pre><code class="language-text">Pod 3개 띄워줘
+</code></pre>
+<p>그러면 쿠버네티스가 적당히 배치한다.</p>
+<pre><code class="language-text">worker-node-1: Pod 2개
+worker-node-2: Pod 1개
+worker-node-3: Pod 0개
+</code></pre>
+<p>이렇게 될 수도 있다.</p>
+<p>Deployment는 <strong>Pod 개수</strong>가 중요하다.</p>
+<p>반면 DaemonSet은 이렇게 말하는 느낌이다.</p>
+<pre><code class="language-text">각 노드마다 Pod 하나씩 띄워줘
+</code></pre>
+<p>그러면 노드마다 하나씩 생긴다.</p>
+<pre><code class="language-text">worker-node-1: Pod 1개
+worker-node-2: Pod 1개
+worker-node-3: Pod 1개
+</code></pre>
+<p>DaemonSet은 <strong>노드마다 하나씩</strong>이 중요하다.</p>
+<hr>
+<h2>5. Deployment vs DaemonSet</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>Deployment</th>
+<th>DaemonSet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기준</td>
+<td>Pod 개수</td>
+<td>Node 개수</td>
+</tr>
+<tr>
+<td>목적</td>
+<td>원하는 개수만큼 Pod 실행</td>
+<td>모든 노드에 Pod 실행</td>
+</tr>
+<tr>
+<td>예시</td>
+<td>웹 서버, API 서버</td>
+<td>로그 수집기, 모니터링 에이전트</td>
+</tr>
+<tr>
+<td>노드 추가 시</td>
+<td>꼭 새 노드에 생기진 않음</td>
+<td>새 노드에도 자동 생성</td>
+</tr>
+<tr>
+<td>핵심</td>
+<td>replicas</td>
+<td>every node</td>
+</tr>
+</tbody>
+</table>
+<p>즉, 이렇게 보면 된다.</p>
+<pre><code class="language-text">Deployment = Pod 몇 개 띄울래?
+DaemonSet = 모든 노드에 하나씩 띄울래?
+</code></pre>
+<hr>
+<h2>6. DaemonSet은 언제 쓸까?</h2>
+<p>DaemonSet은 보통 <strong>모든 노드에서 실행되어야 하는 시스템성 프로그램</strong>에 사용한다.</p>
+<p>대표 예시는 다음과 같다.</p>
+<pre><code class="language-text">로그 수집
+모니터링
+네트워크 플러그인
+보안 에이전트
+스토리지 에이전트
+</code></pre>
+<p>실제로 쿠버네티스에서 자주 보는 DaemonSet 예시는 이런 것들이 있다.</p>
+<pre><code class="language-text">kube-proxy
+calico-node
+cilium
+fluent-bit
+fluentd
+promtail
+node-exporter
+aws-node
+</code></pre>
+<p>예를 들어 <code>node-exporter</code>는 노드의 CPU, 메모리, 디스크 정보를 수집한다.</p>
+<p>그럼 특정 노드에만 있으면 안 된다.</p>
+<pre><code class="language-text">worker-node-1의 CPU 정보만 수집
+worker-node-2는 모름
+worker-node-3은 모름
+</code></pre>
+<p>이러면 모니터링이 제대로 안 된다.</p>
+<p>그래서 모든 노드에 하나씩 떠야 한다.</p>
+<pre><code class="language-text">worker-node-1: node-exporter
+worker-node-2: node-exporter
+worker-node-3: node-exporter
+</code></pre>
+<p>이런 경우 DaemonSet을 쓴다.</p>
+<hr>
+<h2>7. DaemonSet 예시 YAML</h2>
+<p>간단한 DaemonSet 예시는 이렇게 생겼다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-agent
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: node-agent
+  template:
+    metadata:
+      labels:
+        app: node-agent
+    spec:
+      containers:
+      - name: node-agent
+        image: nginx
+</code></pre>
+<p>중요한 부분은 여기다.</p>
+<pre><code class="language-yaml">kind: DaemonSet
+</code></pre>
+<p>이 리소스는 Deployment가 아니라 DaemonSet이다.</p>
+<p>그리고 selector와 template label이 맞아야 한다.</p>
+<pre><code class="language-yaml">selector:
+  matchLabels:
+    app: node-agent
+
+template:
+  metadata:
+    labels:
+      app: node-agent
+</code></pre>
+<p>이 두 개가 안 맞으면 에러가 난다.</p>
+<hr>
+<h2>8. 확인 명령어</h2>
+<p>DaemonSet 조회는 이렇게 한다.</p>
+<pre><code class="language-bash">kubectl get daemonset
+</code></pre>
+<p>줄여서 이렇게도 가능하다.</p>
+<pre><code class="language-bash">kubectl get ds
+</code></pre>
+<p>전체 네임스페이스에서 보고 싶으면:</p>
+<pre><code class="language-bash">kubectl get ds -A
+</code></pre>
+<p>Pod가 어느 노드에 떠 있는지 보고 싶으면:</p>
+<pre><code class="language-bash">kubectl get pod -o wide
+</code></pre>
+<p>그러면 각 Pod가 어떤 노드에 배치됐는지 볼 수 있다.</p>
+<pre><code class="language-text">NAME                 READY   STATUS    NODE
+node-agent-abcde     1/1     Running   worker-node-1
+node-agent-fghij     1/1     Running   worker-node-2
+node-agent-klmno     1/1     Running   worker-node-3
+</code></pre>
+<p>이렇게 노드마다 하나씩 있으면 DaemonSet이 잘 동작하는 것이다.</p>
+<hr>
+<h2>9. CKA에서 어떻게 나올까?</h2>
+<p>CKA에서는 DaemonSet 자체를 깊게 이론으로 물어보기보다는, 보통 이런 식으로 나온다.</p>
+<pre><code class="language-text">Create a DaemonSet named fluentd in namespace logging.
+Use image fluentd.
+Ensure it runs on all nodes.
+</code></pre>
+<p>또는 기존 YAML을 수정하는 문제가 나올 수 있다.</p>
+<p>이때 핵심은 별거 없다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+</code></pre>
+<p>그리고 selector와 label 맞추기.</p>
+<pre><code class="language-yaml">selector:
+  matchLabels:
+    app: fluentd
+
+template:
+  metadata:
+    labels:
+      app: fluentd
+</code></pre>
+<p>CKA에서는 외우는 느낌보다 <strong>문서에서 DaemonSet 예시를 빨리 찾아서 수정할 줄 아는 것</strong>이 중요하다.</p>
+<hr>
+<h2>10. 한 줄 정리</h2>
+<pre><code class="language-text">Daemon = 서버 뒤에서 계속 돌아가는 프로그램
+DaemonSet = 모든 노드에 데몬 역할을 하는 Pod를 하나씩 띄우는 쿠버네티스 리소스
+</code></pre>
+<p>외울 때는 이렇게 잡으면 된다.</p>
+<pre><code class="language-text">웹 서버 여러 개 띄우기 → Deployment
+모든 노드에 하나씩 깔기 → DaemonSet
+</code></pre>
+<p>로그 수집, 모니터링, 네트워크처럼 <strong>모든 노드에서 돌아야 하는 것</strong>이 나오면 DaemonSet을 떠올리면 된다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

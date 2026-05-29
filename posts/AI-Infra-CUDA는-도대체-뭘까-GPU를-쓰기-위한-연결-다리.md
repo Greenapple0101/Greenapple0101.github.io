@@ -1,0 +1,644 @@
+---
+title: "[AI Infra] CUDA는 도대체 뭘까? GPU를 쓰기 위한 연결 다리"
+source: "https://velog.io/@yorange50/AI-Infra-CUDA는-도대체-뭘까-GPU를-쓰기-위한-연결-다리"
+published: "2026-05-07T06:11:56.867Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.772774"
+---
+
+딥러닝을 공부하다 보면 이런 코드를 자주 보게 된다.
+
+```python
+device = "cuda"
+model.to(device)
+x = x.to(device)
+```
+
+처음 보면 이런 생각이 든다.
+
+> GPU를 쓴다는 건 알겠는데,
+> 왜 GPU라고 안 하고 CUDA라고 하지?
+> CUDA는 GPU랑 같은 말인가?
+
+결론부터 말하면 **CUDA는 GPU 자체가 아니다.**
+CUDA는 **NVIDIA GPU를 계산용으로 사용할 수 있게 해주는 기술 플랫폼**이다.
+
+---
+
+## 1. CUDA 한 줄 정의
+
+CUDA는 **Compute Unified Device Architecture**의 약자다.
+
+쉽게 말하면 다음과 같다.
+
+```text
+CUDA = NVIDIA GPU에서 병렬 계산을 할 수 있게 해주는 개발 플랫폼
+```
+
+GPU는 원래 그래픽 처리를 위해 만들어졌다.
+
+게임 화면, 영상, 3D 그래픽처럼 수많은 픽셀을 동시에 계산하기 위해 존재했다.
+
+그런데 딥러닝도 결국 엄청난 양의 숫자 계산이다.
+
+```text
+행렬 곱셈
+벡터 연산
+텐서 연산
+미분 계산
+가중치 업데이트
+```
+
+이런 계산은 GPU가 잘하는 **병렬 연산**과 잘 맞는다.
+
+그래서 NVIDIA는 GPU를 그래픽뿐만 아니라 일반 계산에도 사용할 수 있게 만들었고, 그 기술이 CUDA다.
+
+---
+
+## 2. GPU와 CUDA는 다르다
+
+처음에는 이 둘을 헷갈리기 쉽다.
+
+```text
+GPU = 하드웨어
+CUDA = GPU를 계산에 쓰기 위한 소프트웨어 플랫폼
+```
+
+비유하면 이렇다.
+
+```text
+GPU = 공장
+CUDA = 공장을 움직이게 하는 작업 지시 체계
+```
+
+GPU만 있다고 해서 파이썬 코드가 자동으로 GPU에서 도는 것은 아니다.
+
+파이썬 코드, 딥러닝 프레임워크, GPU 드라이버, CUDA 런타임이 서로 연결되어야 한다.
+
+---
+
+## 3. 왜 PyTorch에서는 "cuda"라고 쓸까?
+
+PyTorch에서 GPU를 사용할 때 보통 이런 코드를 쓴다.
+
+```python
+import torch
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+
+여기서 `"cuda"`는 단순히 “GPU를 쓰겠다”는 의미처럼 보이지만, 정확히는 다음 의미에 가깝다.
+
+```text
+NVIDIA CUDA 환경을 통해 GPU 연산을 수행하겠다
+```
+
+즉, PyTorch는 CUDA를 통해 NVIDIA GPU에 계산을 맡긴다.
+
+그래서 GPU 장치를 확인하면 이런 식으로 나온다.
+
+```python
+print(torch.cuda.is_available())
+```
+
+```text
+True
+```
+
+이 말은 “CUDA를 통해 사용할 수 있는 NVIDIA GPU가 있다”는 뜻이다.
+
+---
+
+## 4. CUDA가 필요한 이유
+
+CPU는 복잡한 작업을 잘 처리한다.
+
+하지만 딥러닝 학습에서는 단순한 숫자 계산이 엄청나게 반복된다.
+
+예를 들어 신경망의 기본 계산은 대략 이런 형태다.
+
+```text
+출력 = 입력 행렬 × 가중치 행렬 + bias
+```
+
+이런 행렬 연산은 각각의 원소 계산을 병렬로 나눌 수 있다.
+
+GPU는 수천 개의 작은 코어로 이런 계산을 동시에 처리한다.
+
+그런데 개발자가 직접 GPU의 모든 코어를 제어하기는 어렵다.
+
+그래서 CUDA가 중간에서 이런 역할을 한다.
+
+```text
+GPU 메모리 관리
+GPU 연산 실행
+병렬 계산 단위 관리
+CPU와 GPU 사이 데이터 이동
+딥러닝 라이브러리와 GPU 연결
+```
+
+즉, CUDA는 GPU를 단순 그래픽 장치가 아니라 **계산 장치**로 사용할 수 있게 해준다.
+
+---
+
+## 5. CPU와 GPU 사이에서 CUDA가 하는 일
+
+딥러닝 코드를 실행하면 전체 흐름은 대략 이렇다.
+
+```text
+1. CPU가 파이썬 코드를 실행함
+2. PyTorch가 GPU에서 처리할 연산을 발견함
+3. CUDA를 통해 GPU에 작업을 전달함
+4. GPU가 병렬 연산을 수행함
+5. 결과를 다시 CPU 또는 GPU 메모리에 유지함
+```
+
+여기서 중요한 점은 CPU와 GPU가 따로 존재한다는 것이다.
+
+CPU 메모리와 GPU 메모리도 다르다.
+
+그래서 데이터를 GPU로 옮기는 과정이 필요하다.
+
+```python
+x = x.to("cuda")
+model = model.to("cuda")
+```
+
+이 코드는 단순히 이름만 바꾸는 게 아니다.
+
+실제로 데이터와 모델 파라미터를 **GPU 메모리로 옮기는 작업**이다.
+
+---
+
+## 6. CUDA를 이해할 때 중요한 개념
+
+CUDA를 너무 깊게 들어가면 커널, 스레드, 블록, 그리드 같은 개념이 나온다.
+
+처음에는 아래 정도만 잡아도 충분하다.
+
+```text
+CUDA Runtime
+CUDA Driver
+CUDA Toolkit
+cuDNN
+GPU Memory
+Kernel
+```
+
+하나씩 보면 이렇다.
+
+---
+
+## 7. CUDA Driver
+
+CUDA Driver는 운영체제와 GPU 사이를 연결하는 드라이버다.
+
+쉽게 말하면 GPU를 OS에서 제대로 인식하고 사용할 수 있게 해준다.
+
+```text
+CUDA Driver = NVIDIA GPU를 시스템에서 사용할 수 있게 해주는 드라이버
+```
+
+터미널에서 자주 보는 명령어가 있다.
+
+```bash
+nvidia-smi
+```
+
+이 명령어를 치면 GPU 정보가 나온다.
+
+```text
+GPU 이름
+드라이버 버전
+CUDA 버전
+GPU 메모리 사용량
+현재 GPU를 쓰는 프로세스
+```
+
+AI 서버에서 GPU가 잡히는지 확인할 때 가장 먼저 보는 명령어다.
+
+---
+
+## 8. CUDA Toolkit
+
+CUDA Toolkit은 개발자가 CUDA 프로그램을 만들 수 있게 해주는 도구 모음이다.
+
+```text
+CUDA Toolkit = CUDA 개발 도구 모음
+```
+
+여기에는 컴파일러, 라이브러리, 헤더 파일 등이 포함된다.
+
+CUDA C/C++ 코드를 직접 작성한다면 CUDA Toolkit이 중요하다.
+
+하지만 PyTorch만 사용하는 입장에서는 CUDA Toolkit을 직접 만질 일이 상대적으로 적다.
+
+왜냐하면 PyTorch 설치 패키지가 필요한 CUDA 런타임을 함께 포함하는 경우가 많기 때문이다.
+
+---
+
+## 9. cuDNN
+
+딥러닝을 하다 보면 cuDNN이라는 말도 나온다.
+
+cuDNN은 NVIDIA가 제공하는 딥러닝 전용 GPU 가속 라이브러리다.
+
+```text
+cuDNN = 딥러닝 연산을 GPU에서 빠르게 처리하기 위한 라이브러리
+```
+
+특히 이런 연산을 최적화한다.
+
+```text
+합성곱 연산
+RNN 연산
+정규화 연산
+활성화 함수
+Pooling
+```
+
+즉, CUDA가 GPU 계산을 위한 기반이라면, cuDNN은 딥러닝에 자주 쓰이는 연산을 더 빠르게 해주는 라이브러리다.
+
+비유하면 이렇다.
+
+```text
+CUDA = GPU를 쓰게 해주는 도로
+cuDNN = 딥러닝 연산 전용 고속도로
+```
+
+---
+
+## 10. CUDA Kernel이란?
+
+CUDA에서 kernel은 GPU에서 실행되는 함수다.
+
+CPU에서 일반 함수를 호출하듯이, GPU에서 병렬로 실행할 함수를 kernel이라고 부른다.
+
+일반 함수는 보통 한 흐름으로 실행된다.
+
+```python
+def add(a, b):
+    return a + b
+```
+
+하지만 CUDA Kernel은 많은 스레드가 동시에 실행한다.
+
+예를 들어 배열의 모든 원소에 1을 더하는 작업이 있다고 하자.
+
+```text
+[1, 2, 3, 4, 5] → [2, 3, 4, 5, 6]
+```
+
+CPU는 이걸 반복문으로 처리할 수 있다.
+
+```python
+for i in range(len(arr)):
+    arr[i] += 1
+```
+
+GPU는 각 원소를 여러 스레드가 동시에 처리한다.
+
+```text
+스레드 1 → arr[0] 처리
+스레드 2 → arr[1] 처리
+스레드 3 → arr[2] 처리
+스레드 4 → arr[3] 처리
+스레드 5 → arr[4] 처리
+```
+
+이런 식으로 같은 연산을 대량의 데이터에 병렬로 적용한다.
+
+---
+
+## 11. Thread, Block, Grid
+
+CUDA의 병렬 실행 구조는 크게 세 단계로 이해하면 된다.
+
+```text
+Thread
+Block
+Grid
+```
+
+가장 작은 실행 단위는 Thread다.
+
+여러 Thread가 모이면 Block이 된다.
+
+여러 Block이 모이면 Grid가 된다.
+
+```text
+Grid
+ ├─ Block 1
+ │   ├─ Thread 1
+ │   ├─ Thread 2
+ │   └─ Thread 3
+ ├─ Block 2
+ │   ├─ Thread 1
+ │   ├─ Thread 2
+ │   └─ Thread 3
+```
+
+쉽게 말하면 이렇다.
+
+```text
+Thread = 실제 계산을 하는 작업자
+Block = 작업자 묶음
+Grid = 전체 작업장
+```
+
+GPU는 이 많은 스레드를 이용해서 계산을 병렬로 처리한다.
+
+딥러닝 프레임워크를 쓰는 입장에서는 이 구조를 직접 작성하지 않아도 된다.
+
+하지만 내부적으로는 이런 구조로 연산이 돌아간다.
+
+---
+
+## 12. PyTorch에서 CUDA 사용 흐름
+
+PyTorch에서 CUDA를 사용하는 기본 흐름은 다음과 같다.
+
+```python
+import torch
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+x = torch.tensor([1.0, 2.0, 3.0]).to(device)
+
+print(x)
+print(x.device)
+```
+
+GPU가 사용 가능하다면 출력은 대략 이렇게 나온다.
+
+```text
+tensor([1., 2., 3.], device='cuda:0')
+cuda:0
+```
+
+여기서 `cuda:0`은 첫 번째 GPU를 의미한다.
+
+GPU가 여러 개라면 다음처럼 구분할 수 있다.
+
+```text
+cuda:0
+cuda:1
+cuda:2
+cuda:3
+```
+
+즉, `cuda:0`은 0번 GPU, `cuda:1`은 1번 GPU다.
+
+---
+
+## 13. 모델과 데이터는 같은 장치에 있어야 한다
+
+PyTorch에서 자주 나는 에러가 있다.
+
+```text
+Expected all tensors to be on the same device
+```
+
+이 에러는 보통 모델은 GPU에 있는데 데이터는 CPU에 있거나, 반대 상황일 때 발생한다.
+
+예를 들어 이런 상황이다.
+
+```python
+model = model.to("cuda")
+
+x = torch.tensor([1.0, 2.0, 3.0])  # CPU에 있음
+
+output = model(x)
+```
+
+이러면 모델은 GPU에 있고, 입력 데이터는 CPU에 있기 때문에 문제가 생긴다.
+
+그래서 학습 루프에서는 보통 이렇게 한다.
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model = model.to(device)
+
+for x, y in train_loader:
+    x = x.to(device)
+    y = y.to(device)
+
+    output = model(x)
+```
+
+핵심은 이것이다.
+
+```text
+모델도 GPU
+데이터도 GPU
+정답 라벨도 GPU
+```
+
+연산에 참여하는 텐서들은 같은 장치에 있어야 한다.
+
+---
+
+## 14. CUDA 메모리
+
+GPU에는 별도의 메모리가 있다.
+
+보통 VRAM이라고 부른다.
+
+딥러닝에서 GPU 메모리는 매우 중요하다.
+
+모델이 크거나, 배치 사이즈가 크면 GPU 메모리가 부족해질 수 있다.
+
+이때 자주 보는 에러가 있다.
+
+```text
+CUDA out of memory
+```
+
+이건 GPU 메모리가 부족하다는 뜻이다.
+
+해결 방법은 여러 가지가 있다.
+
+```text
+batch size 줄이기
+모델 크기 줄이기
+입력 이미지 크기 줄이기
+불필요한 tensor 삭제
+gradient accumulation 사용
+mixed precision 사용
+```
+
+입문 단계에서는 보통 batch size를 줄이는 것이 가장 간단하다.
+
+```python
+batch_size = 32
+```
+
+에서 부족하면
+
+```python
+batch_size = 16
+```
+
+또는
+
+```python
+batch_size = 8
+```
+
+로 줄여볼 수 있다.
+
+---
+
+## 15. nvidia-smi로 GPU 상태 확인하기
+
+AI 서버나 로컬 GPU 환경에서 가장 자주 쓰는 명령어는 이것이다.
+
+```bash
+nvidia-smi
+```
+
+이 명령어를 실행하면 다음을 확인할 수 있다.
+
+```text
+GPU 이름
+GPU 사용률
+GPU 메모리 사용량
+드라이버 버전
+CUDA 버전
+현재 GPU를 사용하는 프로세스
+```
+
+예를 들어 학습 코드가 제대로 GPU를 쓰고 있다면 GPU 메모리 사용량이 올라간다.
+
+반대로 GPU 메모리가 거의 안 쓰이고 있다면 실제로는 CPU로 돌고 있을 가능성이 있다.
+
+---
+
+## 16. CUDA가 있다고 무조건 빠른 건 아니다
+
+CUDA를 쓴다고 모든 코드가 무조건 빨라지는 것은 아니다.
+
+GPU는 대량 병렬 계산에 강하다.
+
+하지만 작은 연산이나 조건 분기가 많은 작업은 CPU가 더 나을 수도 있다.
+
+또한 CPU와 GPU 사이에 데이터를 옮기는 비용도 있다.
+
+```text
+CPU 메모리 → GPU 메모리
+GPU 메모리 → CPU 메모리
+```
+
+이 이동이 너무 잦으면 오히려 느려질 수 있다.
+
+그래서 GPU를 잘 쓰려면 데이터를 한 번 GPU에 올린 뒤, 가능한 GPU 안에서 연산을 이어가는 것이 좋다.
+
+---
+
+## 17. CUDA와 AI DevOps 관점
+
+AI DevOps나 MLOps 관점에서는 CUDA를 단순히 “GPU 쓰는 코드” 정도로만 보면 안 된다.
+
+실제 운영 환경에서는 CUDA 버전과 라이브러리 호환성이 매우 중요하다.
+
+예를 들어 이런 것들이 서로 맞아야 한다.
+
+```text
+NVIDIA Driver
+CUDA Runtime
+PyTorch 버전
+cuDNN 버전
+GPU 종류
+Docker Image
+TensorRT 버전
+```
+
+운영 환경에서 자주 생기는 문제는 이런 식이다.
+
+```text
+로컬에서는 GPU가 되는데 서버에서는 안 됨
+Docker 안에서는 nvidia-smi가 안 됨
+PyTorch가 CUDA를 못 잡음
+CUDA 버전이 안 맞아서 import 에러 발생
+TensorRT와 CUDA 버전 충돌
+GPU 메모리 부족으로 추론 서버 다운
+```
+
+그래서 AI 인프라에서는 CUDA를 이해하는 것이 꽤 중요하다.
+
+단순히 모델 학습을 넘어서, GPU 서버 운영과 추론 파이프라인까지 이어지기 때문이다.
+
+---
+
+## 18. Docker에서 CUDA를 쓸 때
+
+GPU 서버에서 Docker를 사용할 때는 컨테이너가 GPU에 접근할 수 있어야 한다.
+
+보통 이런 식으로 실행한다.
+
+```bash
+docker run --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+```
+
+여기서 핵심은 `--gpus all`이다.
+
+```text
+--gpus all = 컨테이너에서 모든 GPU를 사용할 수 있게 함
+```
+
+컨테이너 안에서 `nvidia-smi`가 정상적으로 보이면 Docker 환경에서도 GPU를 사용할 준비가 된 것이다.
+
+실제 딥러닝 프로젝트에서는 CUDA가 포함된 베이스 이미지를 사용하기도 한다.
+
+```dockerfile
+FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+```
+
+이런 이미지는 CUDA와 cuDNN 런타임이 포함되어 있어 GPU 기반 딥러닝 환경을 구성할 때 사용된다.
+
+---
+
+## 19. CUDA를 공부할 때 잡아야 하는 핵심
+
+처음부터 CUDA C++ 커널을 직접 짜려고 하면 어렵다.
+
+입문 단계에서는 아래 흐름으로 이해하면 된다.
+
+```text
+1. GPU는 병렬 계산 장치다.
+2. CUDA는 NVIDIA GPU를 계산에 쓰게 해주는 플랫폼이다.
+3. PyTorch는 CUDA를 통해 GPU 연산을 수행한다.
+4. 모델과 데이터는 같은 device에 있어야 한다.
+5. GPU 메모리가 부족하면 CUDA out of memory가 난다.
+6. 운영 환경에서는 CUDA, 드라이버, PyTorch, Docker 호환성이 중요하다.
+```
+
+이 정도만 잡아도 딥러닝 코드나 AI 인프라 문서를 읽을 때 훨씬 덜 막힌다.
+
+---
+
+## 20. 마무리
+
+CUDA는 GPU 자체가 아니라, **NVIDIA GPU를 계산 장치로 사용하기 위한 기술 플랫폼**이다.
+
+딥러닝에서는 행렬 연산과 텐서 연산이 엄청나게 많이 발생한다.
+
+GPU는 이런 연산을 병렬로 빠르게 처리할 수 있고, CUDA는 그 GPU를 딥러닝 프레임워크가 사용할 수 있게 연결해준다.
+
+정리하면 다음과 같다.
+
+```text
+GPU = 병렬 계산을 잘하는 하드웨어
+CUDA = NVIDIA GPU를 계산에 쓰게 해주는 플랫폼
+PyTorch = CUDA를 통해 GPU 연산을 사용하는 딥러닝 프레임워크
+cuDNN = 딥러닝 연산을 더 빠르게 해주는 GPU 가속 라이브러리
+```
+
+결국 CUDA를 이해한다는 것은 단순히 `model.to("cuda")`를 외우는 게 아니다.
+
+내 코드가 CPU에서 도는지, GPU에서 도는지, 데이터가 어디에 있는지, GPU 메모리를 어떻게 쓰는지 이해하는 것이다.
+
+AI DevOps나 MLOps 관점에서는 여기에 Docker, NVIDIA Driver, CUDA Runtime, PyTorch 버전 호환성까지 이어진다.
+
+그래서 CUDA는 딥러닝 개발자뿐만 아니라 GPU 기반 AI 서비스를 운영하는 사람에게도 꼭 필요한 기본 개념이다.

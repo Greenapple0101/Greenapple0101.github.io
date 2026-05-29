@@ -1,0 +1,407 @@
+---
+title: "[DOCKER] 단일 스테이지 구조를 쓰면 항상 EC2 안에서 빌드해야 할까?"
+source: "https://velog.io/@yorange50/DOCKER-단일-스테이지-구조를-쓰면-항상-EC2-안에서-빌드해야-할까"
+published: "2026-05-17T09:27:34.161Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.737831"
+---
+
+Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다.
+
+```text
+단일 스테이지 구조면 항상 EC2 내부에서 ./gradlew build를 해야 하나?
+```
+
+결론부터 말하면 **반드시 EC2 안에서 빌드해야 하는 것은 아니다.**
+
+다만 단일 스테이지 구조에서는 Docker 이미지가 `JAR 파일이 이미 존재한다`는 전제를 가지고 있기 때문에, **어디선가 미리 JAR를 만들어야 한다.**
+
+그 위치가 EC2일 수도 있고, 내 로컬 PC일 수도 있고, Jenkins나 GitHub Actions 같은 CI 서버일 수도 있다.
+
+## 1. 단일 스테이지 Dockerfile의 구조
+
+단일 스테이지 Dockerfile은 보통 이렇게 생겼다.
+
+```dockerfile
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+이 Dockerfile은 굉장히 단순하다.
+
+컨테이너 안에서 Gradle 빌드를 하지 않는다.
+
+그냥 이미 만들어져 있는 `app.jar`를 이미지 안으로 복사하고 실행한다.
+
+```text
+이미 존재하는 app.jar
+↓
+Docker 이미지 안으로 COPY
+↓
+java -jar app.jar 실행
+```
+
+즉, 이 Dockerfile의 책임은 **빌드가 아니라 실행**이다.
+
+## 2. 그럼 JAR는 누가 만들어야 할까?
+
+단일 스테이지 구조에서는 Dockerfile이 JAR를 만들지 않는다.
+
+따라서 Docker 빌드 전에 누군가는 이 명령어를 실행해야 한다.
+
+```bash
+./gradlew clean build -x test
+```
+
+그러면 Spring Boot 프로젝트의 `build/libs` 아래에 JAR 파일이 생성된다.
+
+```text
+build/libs/
+├── board-api-0.0.1-SNAPSHOT.jar
+└── board-api-0.0.1-SNAPSHOT-plain.jar
+```
+
+그다음 실행 가능한 JAR를 `app.jar`로 정리할 수 있다.
+
+```bash
+JAR_FILE=$(find build/libs -name "*.jar" ! -name "*plain.jar" | head -n 1)
+cp "$JAR_FILE" app.jar
+```
+
+이제 Dockerfile은 `app.jar`를 복사할 수 있다.
+
+```bash
+docker build -t board-api .
+```
+
+정리하면 단일 스테이지 구조는 이렇게 동작한다.
+
+```text
+1. 어딘가에서 Gradle 빌드
+2. app.jar 생성
+3. docker build
+4. Dockerfile이 app.jar COPY
+5. 컨테이너 실행
+```
+
+## 3. 반드시 EC2 내부에서 빌드해야 하는 건 아님
+
+중요한 건 이것이다.
+
+```text
+단일 스테이지 = EC2 내부 빌드 필수
+```
+
+이게 아니다.
+
+정확히는 이거다.
+
+```text
+단일 스테이지 = Docker 이미지 빌드 전에 JAR가 필요함
+```
+
+JAR를 어디서 만들지는 선택이다.
+
+## 4. 방법 1: EC2 내부에서 직접 빌드하는 방식
+
+가장 단순한 방식은 EC2에 접속해서 직접 빌드하는 것이다.
+
+```bash
+cd board_api
+
+chmod +x gradlew
+
+./gradlew clean build -x test
+
+JAR_FILE=$(find build/libs -name "*.jar" ! -name "*plain.jar" | head -n 1)
+cp "$JAR_FILE" app.jar
+
+docker build -t board-api .
+
+docker rm -f board-api || true
+
+docker run -d \
+  --name board-api \
+  -p 8080:8080 \
+  board-api
+```
+
+이 방식은 이해하기 쉽다.
+
+EC2 안에서 소스코드 받고, EC2 안에서 JAR 만들고, EC2 안에서 Docker 이미지까지 만든다.
+
+```text
+EC2
+├── 소스코드
+├── Gradle 빌드
+├── app.jar 생성
+├── docker build
+└── docker run
+```
+
+하지만 단점도 있다.
+
+EC2에 JDK가 있어야 한다.
+
+Gradle이 실행되어야 한다.
+
+빌드 시간이 EC2에서 소모된다.
+
+사람이 직접 명령어를 치면 순서를 실수할 수 있다.
+
+그래서 이 방식은 공부용, 실습용, 작은 개인 프로젝트에는 괜찮지만 운영 자동화 관점에서는 조금 불안정하다.
+
+## 5. 방법 2: 로컬에서 빌드하고 EC2로 JAR를 보내는 방식
+
+두 번째 방법은 내 노트북에서 JAR를 만든 뒤 EC2로 보내는 것이다.
+
+로컬에서 먼저 빌드한다.
+
+```bash
+./gradlew clean build -x test
+
+JAR_FILE=$(find build/libs -name "*.jar" ! -name "*plain.jar" | head -n 1)
+cp "$JAR_FILE" app.jar
+```
+
+그다음 EC2로 전송한다.
+
+```bash
+scp app.jar ubuntu@EC2_PUBLIC_IP:/home/ubuntu/board_api/app.jar
+```
+
+EC2에서는 Docker 빌드만 한다.
+
+```bash
+cd /home/ubuntu/board_api
+
+docker build -t board-api .
+
+docker rm -f board-api || true
+
+docker run -d \
+  --name board-api \
+  -p 8080:8080 \
+  board-api
+```
+
+이 구조에서는 EC2가 Gradle 빌드를 하지 않는다.
+
+```text
+로컬 PC
+├── Gradle 빌드
+└── app.jar 생성
+
+EC2
+├── app.jar 받음
+├── docker build
+└── docker run
+```
+
+하지만 이 방식도 운영에서는 조심해야 한다.
+
+내 로컬 환경에서 빌드한 결과물을 서버에 올리는 방식이기 때문에, 사람 손을 많이 탄다.
+
+로컬 Java 버전, Gradle 버전, OS 차이 때문에 결과가 달라질 수도 있다.
+
+또 실수로 예전 `app.jar`를 올리면 배포가 꼬일 수 있다.
+
+## 6. 방법 3: Jenkins나 GitHub Actions에서 빌드하는 방식
+
+운영에 가장 가까운 방식은 CI 서버에서 빌드하는 것이다.
+
+예를 들어 Jenkins가 있다고 해보자.
+
+Jenkins는 다음 일을 한다.
+
+```text
+1. GitHub에서 최신 코드 pull
+2. ./gradlew clean build 실행
+3. app.jar 생성
+4. docker build 실행
+5. docker push 또는 EC2 배포
+```
+
+이 경우 EC2에서는 직접 Gradle 빌드를 하지 않아도 된다.
+
+EC2는 이미 만들어진 이미지를 받아서 실행만 하면 된다.
+
+```text
+Jenkins
+├── Gradle 빌드
+├── app.jar 생성
+├── Docker 이미지 생성
+└── Docker Hub/ECR에 push
+
+EC2
+├── docker pull
+└── docker run
+```
+
+이 구조가 더 운영 친화적이다.
+
+EC2는 애플리케이션을 실행하는 서버 역할에 집중하고, 빌드는 Jenkins 같은 CI 서버가 담당한다.
+
+## 7. 단일 스테이지와 멀티스테이지의 차이
+
+단일 스테이지와 멀티스테이지의 차이는 여기서 명확해진다.
+
+단일 스테이지는 Dockerfile 안에서 빌드하지 않는다.
+
+```dockerfile
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY app.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+그래서 Docker 빌드 전에 `app.jar`가 필요하다.
+
+반면 멀티스테이지는 Dockerfile 안에서 직접 빌드한다.
+
+```dockerfile
+FROM gradle:8.7-jdk17 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN gradle clean build -x test
+
+RUN JAR_FILE=$(find build/libs -name "*.jar" ! -name "*plain.jar" | head -n 1) && \
+    cp "$JAR_FILE" app.jar
+
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/app.jar app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+이 경우에는 Docker 빌드 명령어 하나로 JAR 생성까지 처리된다.
+
+```bash
+docker build -t board-api .
+```
+
+즉, 차이는 이렇게 볼 수 있다.
+
+| 구분                 | 단일 스테이지           | 멀티스테이지         |
+| ------------------ | ----------------- | -------------- |
+| JAR 빌드 위치          | Docker 바깥         | Docker 빌드 내부   |
+| EC2에서 Gradle 필요 여부 | EC2에서 직접 빌드한다면 필요 | 보통 불필요         |
+| Dockerfile 역할      | 실행 이미지 생성         | 빌드 + 실행 이미지 생성 |
+| 사전 app.jar 필요 여부   | 필요                | 불필요            |
+| 재현성                | 빌드 위치에 따라 달라짐     | 비교적 높음         |
+
+## 8. 그럼 단일 스테이지는 언제 쓰면 좋을까?
+
+단일 스테이지가 무조건 나쁜 것은 아니다.
+
+오히려 CI/CD 구조가 잘 잡혀 있으면 단일 스테이지도 깔끔하다.
+
+예를 들어 Jenkins가 이미 JAR를 만들고 있다면 Dockerfile이 굳이 Gradle 빌드까지 할 필요가 없을 수 있다.
+
+이때는 Dockerfile을 실행 전용으로 단순하게 유지할 수 있다.
+
+```text
+Jenkins가 빌드 담당
+Dockerfile은 실행 이미지 담당
+EC2는 컨테이너 실행 담당
+```
+
+이렇게 책임이 나뉘면 구조가 명확하다.
+
+단일 스테이지가 어울리는 경우는 다음과 같다.
+
+```text
+CI 서버에서 이미 JAR를 빌드하는 경우
+빌드 산출물을 별도로 관리하는 경우
+Docker 이미지는 실행 환경만 담고 싶은 경우
+이미지 빌드 속도를 빠르게 가져가고 싶은 경우
+EC2를 빌드 서버처럼 쓰고 싶지 않은 경우
+```
+
+## 9. 단일 스테이지를 EC2에서 직접 빌드하면 안 좋은가?
+
+안 좋은 건 아니다.
+
+다만 운영 관점에서는 추천 우선순위가 낮다.
+
+EC2에서 직접 빌드하면 EC2가 두 가지 역할을 동시에 하게 된다.
+
+```text
+빌드 서버 역할
+실행 서버 역할
+```
+
+처음에는 편하다.
+
+하지만 프로젝트가 커지면 문제가 생길 수 있다.
+
+빌드 도중 CPU와 메모리를 많이 쓴다.
+
+운영 중인 서비스와 빌드 작업이 같은 서버 자원을 공유한다.
+
+Java, Gradle, 권한, 캐시 상태에 따라 배포가 흔들릴 수 있다.
+
+누가 어떤 명령어를 쳤는지 추적하기 어렵다.
+
+그래서 실제 운영에서는 보통 이렇게 분리하는 게 좋다.
+
+```text
+빌드: Jenkins / GitHub Actions
+실행: EC2
+```
+
+## 10. 정리
+
+단일 스테이지 구조를 쓴다고 해서 항상 EC2 안에서 빌드 명령어를 쳐야 하는 것은 아니다.
+
+정확한 표현은 이거다.
+
+```text
+단일 스테이지 구조에서는 Docker 이미지 빌드 전에 app.jar가 미리 있어야 한다.
+```
+
+그 `app.jar`를 만드는 위치는 선택할 수 있다.
+
+```text
+1. EC2 내부에서 직접 빌드
+2. 로컬에서 빌드 후 EC2로 전송
+3. Jenkins/GitHub Actions에서 빌드
+```
+
+다만 운영에 가까운 구조로 갈수록 추천은 이쪽이다.
+
+```text
+Jenkins/GitHub Actions에서 빌드
+↓
+Docker 이미지 생성
+↓
+Registry에 push
+↓
+EC2에서 pull & run
+```
+
+한 줄로 정리하면 다음과 같다.
+
+```text
+단일 스테이지는 “EC2에서 꼭 빌드해야 하는 구조”가 아니라,
+“Docker 밖에서 미리 빌드된 JAR를 이미지에 담는 구조”다.
+```
+
+그래서 EC2에서 직접 `./gradlew build`를 칠 수도 있지만, 더 좋은 방향은 CI/CD에서 JAR와 이미지를 만들고 EC2는 실행만 담당하게 만드는 것이다.

@@ -1,0 +1,377 @@
+---
+title: "[KUBERNETES] ClusterIP Service는 정말 로드밸런싱을 할까?"
+source: "https://velog.io/@yorange50/KUBERNETES-ClusterIP-Service는-정말-로드밸런싱을-할까"
+published: "2026-05-19T03:47:43.397Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.727634"
+---
+
+![](https://velog.velcdn.com/images/yorange50/post/22861be3-31bf-4d24-adda-a7942ea01eb0/image.png)
+Kubernetes에서 Service를 만들면 Pod에 직접 접근하지 않고 Service를 통해 접근하게 된다. 이때 Service 뒤에 Pod가 여러 개 붙어 있다면, 요청은 여러 Pod 중 하나로 전달된다. 이번 실습에서는 `ClusterIP` 타입의 Service가 실제로 여러 nginx Pod에 트래픽을 나눠 보내는지 확인해봤다.
+
+## 1. 현재 상황
+
+먼저 nginx Deployment가 있고, 그 Deployment가 nginx Pod 3개를 띄우고 있다고 가정한다.
+
+```bash
+kubectl get pod
+```
+
+예를 들면 이런 식으로 nginx Pod 3개가 떠 있다.
+
+```text
+nginx-deployment-7456645bf-4rts6
+nginx-deployment-7456645bf-kg1gv
+nginx-deployment-7456645bf-lgzv5
+```
+
+그리고 이 Pod들을 바라보는 ClusterIP Service를 하나 만든다.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+```
+
+여기서 중요한 부분은 `selector`다.
+
+```yaml
+selector:
+  app: nginx
+```
+
+이 Service는 `app: nginx` 라벨을 가진 Pod들을 찾아서 연결한다. 즉, nginx Pod 3개가 모두 `app: nginx` 라벨을 가지고 있다면, Service는 그 3개의 Pod를 대상으로 트래픽을 전달할 수 있다.
+
+## 2. ClusterIP Service 생성
+
+Service YAML 파일을 적용한다.
+
+```bash
+kubectl apply -f clusterip-svc.yaml
+```
+
+그리고 Service를 확인한다.
+
+```bash
+kubectl get svc
+```
+
+예를 들어 다음과 같이 나온다.
+
+```text
+NAME        TYPE        CLUSTER-IP      PORT(S)
+nginx-svc   ClusterIP   10.43.188.207   80/TCP
+```
+
+여기서 `10.43.188.207`이 Service의 ClusterIP다.
+
+ClusterIP는 클러스터 내부에서만 접근 가능한 IP다. 그래서 내 로컬 PC 브라우저에서 바로 접근하는 용도가 아니라, 클러스터 내부의 Pod나 Node에서 접근하는 용도로 사용한다.
+
+## 3. 왜 Pod마다 index.html을 다르게 바꿀까?
+
+nginx는 기본적으로 `/usr/share/nginx/html/index.html` 파일을 응답한다.
+
+즉, nginx에 접속했을 때 보이는 화면은 이 파일의 내용이다.
+
+그래서 각 Pod의 `index.html` 내용을 다르게 바꿔두면, Service가 어느 Pod로 요청을 보냈는지 확인할 수 있다.
+
+예를 들어:
+
+```text
+Pod 1 → nginx-1 응답
+Pod 2 → nginx-2 응답
+Pod 3 → nginx-3 응답
+```
+
+이렇게 만들어두면, Service로 여러 번 요청했을 때 응답이 바뀌는지 확인할 수 있다.
+
+## 4. 각 nginx Pod 안에 들어가서 응답값 바꾸기
+
+먼저 nginx Pod 이름을 확인한다.
+
+```bash
+kubectl get pod
+```
+
+그다음 각 Pod에 하나씩 들어가서 `index.html` 내용을 바꾼다.
+
+첫 번째 Pod:
+
+```bash
+kubectl exec -it nginx-deployment-7456645bf-4rts6 -- bash
+```
+
+Pod 안에서:
+
+```bash
+echo nginx-1 > /usr/share/nginx/html/index.html
+exit
+```
+
+두 번째 Pod:
+
+```bash
+kubectl exec -it nginx-deployment-7456645bf-kg1gv -- bash
+```
+
+Pod 안에서:
+
+```bash
+echo nginx-2 > /usr/share/nginx/html/index.html
+exit
+```
+
+세 번째 Pod:
+
+```bash
+kubectl exec -it nginx-deployment-7456645bf-lgzv5 -- bash
+```
+
+Pod 안에서:
+
+```bash
+echo nginx-3 > /usr/share/nginx/html/index.html
+exit
+```
+
+주의할 점은 같은 Pod 안에서 아래 명령을 연속으로 치면 안 된다는 것이다.
+
+```bash
+echo nginx-1 > /usr/share/nginx/html/index.html
+echo nginx-2 > /usr/share/nginx/html/index.html
+echo nginx-3 > /usr/share/nginx/html/index.html
+```
+
+이렇게 하면 같은 파일을 계속 덮어쓰기 때문에 마지막 값인 `nginx-3`만 남는다.
+
+의도는 Pod 3개에 각각 다른 값을 넣는 것이다.
+
+```text
+Pod 1에는 nginx-1
+Pod 2에는 nginx-2
+Pod 3에는 nginx-3
+```
+
+## 5. curl-test Pod로 ClusterIP 접근하기
+
+ClusterIP는 클러스터 내부 전용 IP다. 그래서 로컬 PC에서 바로 접근하지 않고, 클러스터 내부에 테스트용 Pod를 하나 띄워서 접근한다.
+
+사용한 명령어는 다음과 같다.
+
+```bash
+kubectl run curl-test --image=curlimages/curl -it --rm -- sh
+```
+
+이 명령어는 현재 kubectl이 바라보고 있는 클러스터 안에 `curl-test`라는 임시 Pod를 만든다.
+
+옵션을 나눠보면 다음과 같다.
+
+```text
+kubectl run curl-test
+→ curl-test라는 이름의 Pod 생성
+
+--image=curlimages/curl
+→ curl이 설치된 컨테이너 이미지 사용
+
+-it
+→ 터미널로 직접 들어가기
+
+--rm
+→ shell에서 나오면 Pod 자동 삭제
+
+-- sh
+→ 컨테이너 안에서 sh 실행
+```
+
+즉, 내 로컬 PC에 curl을 설치하는 것이 아니라 Kubernetes 클러스터 내부에 curl이 설치된 테스트용 Pod를 임시로 띄우는 것이다.
+
+## 6. 현재 클러스터 확인하기
+
+`kubectl run`으로 생성되는 Pod는 현재 kubectl이 바라보고 있는 클러스터에 생성된다.
+
+현재 context는 다음 명령어로 확인할 수 있다.
+
+```bash
+kubectl config get-contexts
+```
+
+출력 예시는 다음과 같다.
+
+```text
+CURRENT   NAME
+*         k3d-my-cluster
+```
+
+여기서 `*`가 붙어 있는 context가 현재 사용 중인 클러스터다.
+
+따라서 이 상태에서 실행한:
+
+```bash
+kubectl run curl-test --image=curlimages/curl -it --rm -- sh
+```
+
+명령은 `k3d-my-cluster` 안에 `curl-test` Pod를 생성한다.
+
+K9s에서도 `curl-test` Pod가 생성된 것을 확인할 수 있다.
+
+```text
+default   curl-test
+```
+
+## 7. Service IP로 여러 번 요청 보내기
+
+이제 `curl-test` Pod 안에서 ClusterIP로 요청을 보낸다.
+
+```bash
+curl http://10.43.188.207
+```
+
+한 번만 보내지 말고 여러 번 보내본다.
+
+```bash
+curl http://10.43.188.207
+curl http://10.43.188.207
+curl http://10.43.188.207
+```
+
+실제로 다음과 같이 응답이 달라졌다.
+
+```text
+nginx-2
+nginx-1
+nginx-3
+```
+
+이 결과가 의미하는 것은 Service가 하나의 Pod에만 요청을 보내는 것이 아니라, 뒤에 연결된 여러 nginx Pod로 요청을 나눠 보내고 있다는 것이다.
+
+## 8. Service가 로드밸런싱하는 구조
+
+현재 구조를 그림으로 보면 다음과 같다.
+
+```text
+curl-test Pod
+    |
+    | curl http://10.43.188.207
+    v
+nginx-svc Service
+ClusterIP: 10.43.188.207
+    |
+    +-------------------+-------------------+
+    |                   |                   |
+    v                   v                   v
+nginx Pod 1         nginx Pod 2         nginx Pod 3
+nginx-1             nginx-2             nginx-3
+```
+
+사용자는 Service IP 하나로 요청을 보낸다.
+
+```text
+10.43.188.207
+```
+
+하지만 실제 요청은 Service 뒤에 있는 여러 Pod 중 하나로 전달된다.
+
+그래서 응답이 다음처럼 바뀔 수 있다.
+
+```text
+nginx-1
+nginx-2
+nginx-3
+```
+
+## 9. ClusterIP인데도 로드밸런싱이 되는 이유
+
+ClusterIP는 외부 공개용 Service는 아니다. 하지만 클러스터 내부에서는 Service 역할을 한다.
+
+즉, ClusterIP Service는 다음 두 가지 역할을 한다.
+
+```text
+1. 고정된 내부 접근 주소 제공
+2. selector에 매칭되는 여러 Pod로 트래픽 분산
+```
+
+Pod는 삭제되고 다시 생성될 수 있다. 그러면 Pod IP도 바뀐다.
+
+하지만 Service의 ClusterIP는 유지된다.
+
+그래서 클러스터 내부의 다른 Pod는 매번 바뀌는 Pod IP를 직접 알 필요 없이 Service IP로 접근하면 된다.
+
+```text
+직접 Pod IP 접근
+→ Pod가 바뀌면 IP도 바뀜
+
+Service 접근
+→ Service IP는 유지되고, 뒤의 Pod 목록만 변경됨
+```
+
+## 10. 중요한 포인트
+
+이번 실습에서 헷갈리기 쉬운 포인트는 세 가지다.
+
+첫 번째, ClusterIP는 외부 접속용 IP가 아니다.
+
+```text
+ClusterIP = 클러스터 내부 전용 IP
+```
+
+그래서 로컬 PC에서 바로 접근하기보다, `curl-test` 같은 임시 Pod를 클러스터 내부에 띄워서 테스트한다.
+
+두 번째, `curl-test` Pod는 현재 kubectl context의 클러스터에 생성된다.
+
+```bash
+kubectl config get-contexts
+```
+
+현재 context가 `k3d-my-cluster`라면, `curl-test`도 `k3d-my-cluster` 안에 생성된다.
+
+세 번째, 각 nginx Pod에 같은 내용을 넣으면 로드밸런싱 여부를 확인하기 어렵다.
+
+모든 Pod가 같은 `Welcome to nginx` 화면을 보여주면, 요청이 어느 Pod로 갔는지 구분할 수 없다.
+
+그래서 일부러 각 Pod의 응답을 다르게 바꾸는 것이다.
+
+```text
+Pod 1 → nginx-1
+Pod 2 → nginx-2
+Pod 3 → nginx-3
+```
+
+## 11. 정리
+
+이번 실습에서는 ClusterIP Service가 실제로 여러 Pod에 트래픽을 나눠 보내는지 확인했다.
+
+흐름은 다음과 같다.
+
+```text
+1. nginx Deployment로 Pod 3개 생성
+2. 각 Pod의 index.html 내용을 다르게 수정
+3. ClusterIP Service 생성
+4. curl-test 임시 Pod 생성
+5. curl-test Pod 안에서 Service IP로 여러 번 curl 요청
+6. nginx-1, nginx-2, nginx-3 응답이 번갈아 나오는지 확인
+```
+
+결과적으로 다음과 같은 응답을 확인했다.
+
+```text
+nginx-2
+nginx-1
+nginx-3
+```
+
+이를 통해 `nginx-svc` Service가 뒤에 있는 nginx Pod 3개로 요청을 분산하고 있음을 확인할 수 있었다.
+
+한 문장으로 정리하면 다음과 같다.
+
+```text
+ClusterIP Service는 클러스터 내부에서 고정된 접근 주소를 제공하고, selector에 매칭된 여러 Pod로 트래픽을 분산한다.
+```

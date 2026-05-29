@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[HA] Failover란 무엇인가? | Greenapple0101</title>
+  <meta name="description" content="서비스를 운영하다 보면 언젠가는 서버가 죽는다. 이건 거의 피할 수 없는 문제다. 예를 들어: DB 프로세스 종료 서버 다운 네트워크 장애 클라우드 장애 디스크 손상 같은 상황은 실제 운영 환경에서 계속 발생한다. 문제는 DB 하나만 사용하는 구조에서는: 가 되어버린다는 점이다. 즉…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #0891b2">HA</span>
+    <h1>[HA] Failover란 무엇인가?</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T15:07:50.186Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/HA-Failover란-무엇인가" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>서비스를 운영하다 보면 언젠가는 서버가 죽는다.</p>
+<p>이건 거의 피할 수 없는 문제다.</p>
+<p>예를 들어:</p>
+<ul>
+<li>DB 프로세스 종료</li>
+<li>서버 다운</li>
+<li>네트워크 장애</li>
+<li>클라우드 장애</li>
+<li>디스크 손상</li>
+</ul>
+<p>같은 상황은 실제 운영 환경에서 계속 발생한다.</p>
+<p>문제는 DB 하나만 사용하는 구조에서는:</p>
+<p>```text id=&rdquo;m7i5fj&rdquo;
+DB 장애 = 서비스 전체 장애</p>
+<pre><code>
+가 되어버린다는 점이다.
+
+즉 사용자는:
+
+* 로그인 불가
+* 게시글 조회 불가
+* 결제 실패
+* API 오류
+
+같은 문제를 겪게 된다.
+
+그래서 등장한 개념이 바로:
+
+```text id=&quot;m5sjxq&quot;
+Failover
+</code></pre>
+<p>다.</p>
+<hr>
+<h1>Failover란?</h1>
+<p>Failover는 말 그대로:</p>
+<p>```text id=&rdquo;fyl9s9&rdquo;
+장애가 발생했을 때
+대기 중인 다른 서버로 자동 전환하는 것</p>
+<pre><code>
+이다.
+
+핵심 목표는:
+
+```text id=&quot;8j6i0d&quot;
+서비스를 최대한 안 멈추게 만드는 것
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>가장 기본적인 구조</h1>
+<p>보통 이런 구조를 사용한다.</p>
+<p>```text id=&rdquo;0lv3gd&rdquo;
+         ┌─────────────┐
+         │ Primary DB  │
+         └──────┬──────┘
+                │
+          Replication
+                │
+         ┌──────▼──────┐
+         │ Standby DB  │
+         └─────────────┘</p>
+<pre><code>
+여기서:
+
+* Primary DB
+
+  * 실제 서비스 처리
+  * 쓰기/읽기 담당
+
+* Standby DB
+
+  * 대기 상태
+  * Primary 데이터를 계속 복제받음
+
+역할을 한다.
+
+---
+
+# 장애가 발생하면?
+
+만약 Primary DB가 죽으면:
+
+```text id=&quot;40bsg2&quot;
+서비스 불가능 상태
+</code></pre>
+<p>가 된다.</p>
+<p>그래서 시스템은:</p>
+<p>```text id=&rdquo;ifhjif&rdquo;
+Standby DB를 새로운 Primary로 승격(Promotion)</p>
+<pre><code>
+시킨다.
+
+즉:
+
+```text id=&quot;g5jg0k&quot;
+장애 서버 대신 다른 서버가 즉시 역할 수행
+</code></pre>
+<p>하는 것이다.</p>
+<p>이 과정 전체가 Failover다.</p>
+<hr>
+<h1>자동 Failover</h1>
+<p>실제 운영에서는 사람이 직접 바꾸면 늦다.</p>
+<p>그래서 대부분:</p>
+<p>```text id=&rdquo;gmkc5v&rdquo;
+자동 Failover</p>
+<pre><code>
+를 사용한다.
+
+동작 흐름은 보통 이렇다.
+
+```text id=&quot;8cnlfm&quot;
+1. Health Check 수행
+2. Primary 장애 감지
+3. Standby 승격
+4. 트래픽 재연결
+5. 서비스 복구
+</code></pre>
+<p>예:</p>
+<ul>
+<li>AWS RDS Multi-AZ</li>
+<li>Aurora Failover</li>
+<li>Kubernetes Self-Healing</li>
+</ul>
+<p>등도 비슷한 철학을 가진다.</p>
+<hr>
+<h1>Health Check란?</h1>
+<p>자동 Failover의 핵심은:</p>
+<p>```text id=&rdquo;7ry8a8&rdquo;
+서버가 살아있는지 계속 감시하는 것</p>
+<pre><code>
+이다.
+
+이를 `Health Check`라고 한다.
+
+예:
+
+* DB 연결 가능 여부
+* 응답 시간
+* TCP 포트 확인
+* 특정 API 응답 검사
+
+등을 계속 확인한다.
+
+그리고 일정 조건 이상 실패하면:
+
+```text id=&quot;95c2qh&quot;
+“이 서버 죽었다”
+</code></pre>
+<p>고 판단한다.</p>
+<hr>
+<h1>Active-Standby 구조</h1>
+<p>Failover는 보통:</p>
+<p>```text id=&rdquo;pp1hpn&rdquo;
+Active-Standby</p>
+<pre><code>
+구조를 많이 사용한다.
+
+즉:
+
+* Active
+
+  * 현재 서비스 처리 중
+
+* Standby
+
+  * 대기 중
+  * 장애 시 즉시 전환
+
+구조다.
+
+이 방식의 장점은:
+
+* 안정성 높음
+* 구조 단순
+* 장애 대응 쉬움
+
+이다.
+
+반면:
+
+```text id=&quot;gg2j5s&quot;
+Standby 서버가 평소엔 놀고 있음
+</code></pre>
+<p>이라는 단점도 존재한다.</p>
+<hr>
+<h1>Split Brain 문제</h1>
+<p>Failover는 생각보다 어렵다.</p>
+<p>대표적인 문제 중 하나가:</p>
+<p>```text id=&rdquo;wzkb75&rdquo;
+Split Brain</p>
+<pre><code>
+이다.
+
+예를 들어 네트워크 문제로 인해:
+
+* Primary도 살아있다고 생각
+* Standby도 자기가 Primary라고 생각
+
+하면:
+
+```text id=&quot;o91x1x&quot;
+Primary가 2개 생김
+</code></pre>
+<p>상황이 발생한다.</p>
+<p>그러면 데이터 충돌이 발생할 수 있다.</p>
+<p>그래서 실제 HA 시스템은:</p>
+<ul>
+<li>Quorum</li>
+<li>Leader Election</li>
+<li>Consensus</li>
+</ul>
+<p>같은 복잡한 기술까지 사용한다.</p>
+<hr>
+<h1>Failover와 High Availability의 관계</h1>
+<p>중요한 점은:</p>
+<p>```text id=&rdquo;5rmp2j&rdquo;
+Failover 자체가 목적은 아니다</p>
+<pre><code>
+라는 것이다.
+
+Failover는 결국:
+
+```text id=&quot;7xj7lb&quot;
+High Availability(고가용성)
+</code></pre>
+<p>을 달성하기 위한 방법 중 하나다.</p>
+<p>즉:</p>
+<ul>
+<li>장애가 나도</li>
+<li>최대한 서비스가 계속 동작하도록 만드는 것</li>
+</ul>
+<p>이 최종 목표다.</p>
+<hr>
+<h1>마무리</h1>
+<p>Failover는 단순히 “백업 서버” 개념이 아니다.</p>
+<p>실제로는:</p>
+<ul>
+<li>장애 감지</li>
+<li>자동 전환</li>
+<li>서비스 복구</li>
+<li>데이터 안정성</li>
+</ul>
+<p>까지 포함하는 핵심 운영 기술이다.</p>
+<p>현대 서비스에서는:</p>
+<p><code>text id="1e7hzt"
+“서버는 언젠가 죽는다”</code></p>
+<p>를 전제로 시스템을 설계한다.</p>
+<p>그리고 Failover는 그 현실을 버티기 위한 가장 중요한 전략 중 하나다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[AWS] Lambda + EventBridge + Slack Webhook으로 이해하는 서버리스 자동화 스택 | Greenapple0101</title>
+  <meta name="description" content="이번 글에서는 아래 기술 스택을 하나의 흐름으로 묶어서 정리한다. 이 조합은 한마디로 말하면 “서버 없이, 정해진 시간마다 자동으로 코드를 실행하고, 결과를 Slack이나 SNS로 알리는 구조” 다. 예를 들어 이런 상황에 쓸 수 있다. 즉, 백엔드 서버를 계속 켜두는 게 아니라, 필…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #64748b">AWS</span>
+    <h1>[AWS] Lambda + EventBridge + Slack Webhook으로 이해하는 서버리스 자동화 스택</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-12T19:51:22.489Z">2026.05.12</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/AWS-Lambda-EventBridge-Slack-Webhook으로-이해하는-서버리스-자동화-스택" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>이번 글에서는 아래 기술 스택을 하나의 흐름으로 묶어서 정리한다.</p>
+<pre><code class="language-text">AWS CDK (Python)
+AWS Lambda
+Amazon EventBridge Scheduler
+Amazon SNS
+Slack Webhook
+boto3
+urllib3
+</code></pre>
+<p>이 조합은 한마디로 말하면 <strong>“서버 없이, 정해진 시간마다 자동으로 코드를 실행하고, 결과를 Slack이나 SNS로 알리는 구조”</strong>다.</p>
+<p>예를 들어 이런 상황에 쓸 수 있다.</p>
+<pre><code class="language-text">매일 오전 9시에 AWS 리소스 상태 점검
+→ Lambda 실행
+→ 필요한 AWS 정보 조회
+→ 이상 있으면 Slack 알림
+→ 선택적으로 SNS로 이메일/문자 알림
+</code></pre>
+<p>즉, 백엔드 서버를 계속 켜두는 게 아니라, <strong>필요한 순간에만 Lambda가 실행되고 끝나는 자동화 구조</strong>다.</p>
+<hr>
+<h2>1. 전체 구조 먼저 보기</h2>
+<p>전체 흐름은 이렇게 볼 수 있다.</p>
+<pre><code class="language-text">AWS CDK (Python)
+        ↓
+인프라 코드로 Lambda, EventBridge, SNS 생성
+        ↓
+EventBridge Scheduler
+        ↓
+정해진 시간마다 Lambda 실행
+        ↓
+Lambda 내부 Python 코드 실행
+        ↓
+boto3로 AWS 리소스 조회
+urllib3로 Slack Webhook 호출
+        ↓
+Slack 알림 전송
+SNS 알림 전송
+</code></pre>
+<p>여기서 중요한 포인트는 역할이 분리되어 있다는 점이다.</p>
+<pre><code class="language-text">CDK = 인프라를 만드는 코드
+Lambda = 실제 로직이 실행되는 곳
+EventBridge = 언제 실행할지 정하는 스케줄러
+SNS = AWS 안에서 알림을 퍼뜨리는 서비스
+Slack Webhook = Slack 채널로 메시지를 보내는 입구
+boto3 = Python에서 AWS를 조작하는 SDK
+urllib3 = Python에서 HTTP 요청을 보내는 라이브러리
+</code></pre>
+<hr>
+<h2>2. AWS CDK란?</h2>
+<p>AWS CDK는 <strong>AWS 인프라를 코드로 정의하는 도구</strong>다.</p>
+<p>원래 AWS 리소스를 만들려면 콘솔에 들어가서 버튼을 눌러야 한다.</p>
+<pre><code class="language-text">Lambda 만들기
+IAM Role 만들기
+EventBridge 스케줄 만들기
+SNS Topic 만들기
+권한 연결하기
+환경변수 넣기
+배포하기
+</code></pre>
+<p>이걸 콘솔에서 하나씩 하면 처음에는 쉽지만, 문제가 있다.</p>
+<pre><code class="language-text">뭘 만들었는지 기록이 안 남음
+다른 환경에 똑같이 만들기 어려움
+실수로 설정이 달라질 수 있음
+리뷰하기 어려움
+자동 배포하기 어려움
+</code></pre>
+<p>그래서 CDK를 쓴다.</p>
+<p>CDK는 Python, TypeScript, Java, C# 등 일반 프로그래밍 언어로 AWS 리소스를 정의할 수 있게 해준다. AWS 공식 문서 기준으로 CDK는 일반 프로그래밍 언어를 사용해 클라우드 인프라를 정의하고, 이를 CloudFormation을 통해 배포하는 방식으로 동작한다. (<a href="https://docs.aws.amazon.com/cdk/v2/guide/home.html?utm_source=chatgpt.com" title="What is the AWS CDK?">AWS Docs</a>)</p>
+<p>예를 들면 Python CDK에서는 이런 식으로 인프라를 코드로 표현한다.</p>
+<pre><code class="language-python">lambda_fn = lambda_.Function(
+    self,
+    &quot;MyFunction&quot;,
+    runtime=lambda_.Runtime.PYTHON_3_11,
+    handler=&quot;app.handler&quot;,
+    code=lambda_.Code.from_asset(&quot;lambda&quot;)
+)
+</code></pre>
+<p>이 코드는 실제 Lambda 실행 코드가 아니라, <strong>Lambda라는 AWS 리소스를 만들기 위한 인프라 코드</strong>다.</p>
+<p>즉 CDK는 이런 느낌이다.</p>
+<pre><code class="language-text">“내 AWS 계정에 이런 Lambda 하나 만들어줘”
+“이 Lambda는 Python 3.11로 실행해줘”
+“이 폴더 안의 코드를 Lambda에 올려줘”
+“이 Lambda를 EventBridge가 주기적으로 실행하게 해줘”
+</code></pre>
+<p>CDK를 쓰면 인프라도 Git으로 관리할 수 있다.</p>
+<pre><code class="language-text">인프라 변경 사항을 코드 리뷰 가능
+dev/prod 환경을 비슷하게 유지 가능
+배포 자동화 가능
+삭제/수정 추적 가능
+</code></pre>
+<hr>
+<h2>3. AWS CDK에서 Python을 쓴다는 뜻</h2>
+<p>AWS CDK는 여러 언어를 지원하지만, 여기서는 Python을 쓴다.</p>
+<pre><code class="language-text">AWS CDK (Python)
+</code></pre>
+<p>이 말은 두 가지 의미가 있다.</p>
+<p>첫째, <strong>인프라 정의 코드를 Python으로 작성한다.</strong></p>
+<pre><code class="language-text">app.py
+stack.py
+requirements.txt
+</code></pre>
+<p>둘째, <strong>Lambda 실행 코드도 Python으로 작성할 수 있다.</strong></p>
+<pre><code class="language-text">lambda/app.py
+</code></pre>
+<p>보통 프로젝트 구조는 이런 식으로 나눌 수 있다.</p>
+<pre><code class="language-text">project/
+├── app.py
+├── infra_stack.py
+├── requirements.txt
+└── lambda/
+    └── app.py
+</code></pre>
+<p>여기서 역할은 다르다.</p>
+<pre><code class="language-text">infra_stack.py = AWS에 무엇을 만들지 정의하는 코드
+lambda/app.py = Lambda가 실행될 때 실제로 동작하는 코드
+</code></pre>
+<p>이걸 헷갈리면 안 된다.</p>
+<p>CDK 코드는 배포할 때 실행된다.</p>
+<pre><code class="language-text">cdk deploy
+</code></pre>
+<p>Lambda 코드는 이벤트가 발생할 때 실행된다.</p>
+<pre><code class="language-text">EventBridge Scheduler → Lambda Invoke
+</code></pre>
+<p>즉, 둘 다 Python이지만 실행 시점이 다르다.</p>
+<hr>
+<h2>4. AWS Lambda란?</h2>
+<p>AWS Lambda는 <strong>서버를 직접 관리하지 않고 코드를 실행하는 서비스</strong>다.</p>
+<p>보통 서버를 운영하려면 EC2 같은 인스턴스를 띄워야 한다.</p>
+<pre><code class="language-text">EC2 생성
+OS 관리
+런타임 설치
+프로세스 실행
+포트 관리
+장애 대응
+스케일링 관리
+</code></pre>
+<p>그런데 Lambda는 이런 서버 관리를 AWS에 맡긴다.</p>
+<p>개발자는 함수 코드만 작성한다.</p>
+<pre><code class="language-python">def handler(event, context):
+    print(&quot;hello lambda&quot;)
+</code></pre>
+<p>Lambda는 이벤트가 들어오면 실행된다.</p>
+<pre><code class="language-text">API Gateway 요청
+S3 파일 업로드
+SNS 메시지
+EventBridge 스케줄
+수동 호출
+</code></pre>
+<p>이번 스택에서는 Lambda를 이렇게 쓴다.</p>
+<pre><code class="language-text">EventBridge가 정해진 시간에 Lambda 실행
+→ Lambda가 AWS 상태 조회
+→ Slack으로 메시지 전송
+</code></pre>
+<p>Lambda의 장점은 명확하다.</p>
+<pre><code class="language-text">서버를 계속 켜둘 필요 없음
+실행한 만큼 과금
+짧은 자동화 작업에 적합
+AWS 서비스와 연결이 쉬움
+스케줄러, 알림, 모니터링 작업에 잘 맞음
+</code></pre>
+<p>반대로 모든 작업에 적합한 건 아니다.</p>
+<pre><code class="language-text">장시간 실행되는 서버
+계속 연결을 유지해야 하는 서비스
+복잡한 상태를 오래 들고 있어야 하는 애플리케이션
+무거운 배치 작업
+</code></pre>
+<p>이런 경우에는 ECS, EKS, EC2, Batch 같은 선택지가 더 적합할 수 있다.</p>
+<hr>
+<h2>5. Amazon EventBridge Scheduler란?</h2>
+<p>EventBridge Scheduler는 <strong>정해진 시간에 특정 AWS 작업을 실행해주는 서버리스 스케줄러</strong>다.</p>
+<p>쉽게 말하면 AWS판 cron이다.</p>
+<p>리눅스에서 cron을 쓰면 이런 일을 한다.</p>
+<pre><code class="language-text">매일 오전 9시에 스크립트 실행
+매주 월요일에 백업 실행
+5분마다 상태 점검 실행
+</code></pre>
+<p>EventBridge Scheduler도 비슷하다.</p>
+<pre><code class="language-text">매일 오전 9시에 Lambda 실행
+10분마다 Step Functions 실행
+특정 날짜에 SQS 메시지 전송
+</code></pre>
+<p>AWS 문서에서도 EventBridge Scheduler는 중앙에서 예약 작업을 생성, 실행, 관리할 수 있는 서버리스 스케줄러로 설명되며, cron/rate 표현식과 일회성 호출을 지원한다. 기존 EventBridge scheduled rule보다 더 유연한 예약 기능으로 안내된다. (<a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-run-lambda-schedule.html?utm_source=chatgpt.com" title="Tutorial: Schedule a AWS Lambda function">AWS Docs</a>)</p>
+<p>예를 들면 이런 스케줄을 만들 수 있다.</p>
+<pre><code class="language-text">rate(5 minutes)
+cron(0 0 * * ? *)
+</code></pre>
+<p>의미는 대략 이렇다.</p>
+<pre><code class="language-text">rate(5 minutes) = 5분마다 실행
+cron(0 0 * * ? *) = 매일 특정 시간 실행
+</code></pre>
+<p>이번 구조에서는 EventBridge Scheduler가 Lambda를 깨우는 역할을 한다.</p>
+<pre><code class="language-text">EventBridge Scheduler
+        ↓
+Lambda Invoke
+</code></pre>
+<p>즉, Lambda는 혼자 실행되지 않는다.</p>
+<p>누군가 Lambda를 호출해야 한다.</p>
+<p>그 호출자가 여기서는 EventBridge Scheduler다.</p>
+<hr>
+<h2>6. Amazon SNS란?</h2>
+<p>Amazon SNS는 <strong>알림을 여러 대상으로 퍼뜨리는 Pub/Sub 메시징 서비스</strong>다.</p>
+<p>SNS는 Topic을 중심으로 동작한다.</p>
+<pre><code class="language-text">Publisher → SNS Topic → Subscriber
+</code></pre>
+<p>예를 들어 Lambda가 SNS Topic에 메시지를 발행하면, SNS는 구독자들에게 메시지를 전달한다.</p>
+<pre><code class="language-text">Lambda
+  ↓ publish
+SNS Topic
+  ↓
+Email
+SMS
+Lambda
+HTTP Endpoint
+SQS
+</code></pre>
+<p>즉 SNS는 이런 역할이다.</p>
+<pre><code class="language-text">“메시지 하나를 여러 알림 채널로 퍼뜨리는 중간 허브”
+</code></pre>
+<p>이번 스택에서 SNS는 선택 사항이다.</p>
+<p>Slack Webhook만으로도 Slack 알림은 보낼 수 있다.</p>
+<pre><code class="language-text">Lambda → Slack Webhook
+</code></pre>
+<p>하지만 SNS를 추가하면 알림 구조를 더 확장할 수 있다.</p>
+<pre><code class="language-text">Lambda → SNS → Email
+             → SMS
+             → 다른 Lambda
+             → HTTP Endpoint
+</code></pre>
+<p>예를 들어 운영 알림을 Slack에도 보내고, 장애 상황은 이메일로도 보내고 싶다면 SNS를 붙일 수 있다.</p>
+<p>AWS EventBridge 문서에서도 EventBridge 규칙의 대상으로 SNS Topic을 지정해 이벤트를 전달하는 예시가 있다. 즉 EventBridge, Lambda, SNS는 AWS 이벤트 기반 구조에서 자주 함께 쓰이는 조합이다. (<a href="https://docs.aws.amazon.com/ko_kr/eventbridge/latest/userguide/event-bus-rule-get-started.html?utm_source=chatgpt.com" title="시작하기: Amazon EventBridge 이벤트 버스 규칙 생성">AWS Docs</a>)</p>
+<hr>
+<h2>7. Slack Webhook이란?</h2>
+<p>Slack Webhook은 <strong>외부 서비스가 Slack 채널로 메시지를 보낼 수 있게 해주는 URL</strong>이다.</p>
+<p>보통 Slack 앱에서 Incoming Webhook을 만들면 이런 형태의 URL이 나온다.</p>
+<pre><code class="language-text">https://hooks.slack.com/services/...
+</code></pre>
+<p>이 URL로 HTTP POST 요청을 보내면 Slack 채널에 메시지가 올라간다.</p>
+<p>예를 들어 Lambda 안에서 이런 식으로 호출할 수 있다.</p>
+<pre><code class="language-python">import json
+import urllib3
+
+http = urllib3.PoolManager()
+
+def send_slack_message(webhook_url, text):
+    payload = {
+        &quot;text&quot;: text
+    }
+
+    response = http.request(
+        &quot;POST&quot;,
+        webhook_url,
+        body=json.dumps(payload).encode(&quot;utf-8&quot;),
+        headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
+    )
+
+    return response.status
+</code></pre>
+<p>Slack Webhook의 장점은 단순함이다.</p>
+<pre><code class="language-text">복잡한 Slack API 인증 없이 메시지 전송 가능
+Lambda에서 HTTP 요청 한 번이면 알림 가능
+운영 자동화 알림에 적합
+</code></pre>
+<p>단, Webhook URL은 비밀번호처럼 다뤄야 한다.</p>
+<pre><code class="language-text">GitHub에 하드코딩 금지
+코드에 직접 박아두기 금지
+환경변수 또는 Secrets Manager 사용 권장
+</code></pre>
+<p>보통 Lambda 환경변수로 넣거나, 더 안전하게 하려면 AWS Secrets Manager나 SSM Parameter Store를 사용한다.</p>
+<hr>
+<h2>8. boto3란?</h2>
+<p>boto3는 <strong>Python에서 AWS 서비스를 조작하기 위한 공식 AWS SDK</strong>다.</p>
+<p>Lambda 코드 안에서 AWS 정보를 조회하거나 AWS 리소스를 제어할 때 사용한다.</p>
+<p>예를 들어 EC2 인스턴스 목록을 조회하고 싶다면 이런 식으로 쓴다.</p>
+<pre><code class="language-python">import boto3
+
+ec2 = boto3.client(&quot;ec2&quot;)
+
+response = ec2.describe_instances()
+</code></pre>
+<p>SNS에 메시지를 발행하고 싶다면 이렇게 쓴다.</p>
+<pre><code class="language-python">import boto3
+
+sns = boto3.client(&quot;sns&quot;)
+
+sns.publish(
+    TopicArn=&quot;arn:aws:sns:ap-northeast-2:123456789012:my-topic&quot;,
+    Message=&quot;장애 알림입니다.&quot;
+)
+</code></pre>
+<p>즉 boto3는 Lambda 내부에서 AWS와 대화하는 도구다.</p>
+<pre><code class="language-text">Lambda 코드
+  ↓ boto3
+AWS 서비스 호출
+</code></pre>
+<p>예를 들어 자동 점검 Lambda라면 boto3로 이런 작업을 할 수 있다.</p>
+<pre><code class="language-text">EC2 상태 조회
+RDS 상태 조회
+CloudWatch Metric 조회
+S3 객체 목록 조회
+SNS 메시지 발행
+DynamoDB 데이터 읽기
+</code></pre>
+<p>정리하면 boto3는 <strong>Python 코드에서 AWS API를 호출하게 해주는 라이브러리</strong>다.</p>
+<hr>
+<h2>9. urllib3란?</h2>
+<p>urllib3는 <strong>Python에서 HTTP 요청을 보내기 위한 라이브러리</strong>다.</p>
+<p>이번 스택에서는 Slack Webhook 호출에 사용한다.</p>
+<p>Slack Webhook은 결국 HTTP URL이다.</p>
+<p>따라서 Lambda가 Slack으로 메시지를 보내려면 HTTP POST 요청을 보내야 한다.</p>
+<pre><code class="language-text">Lambda
+  ↓ HTTP POST
+Slack Webhook URL
+  ↓
+Slack 채널에 메시지 표시
+</code></pre>
+<p>이때 사용할 수 있는 라이브러리가 urllib3다.</p>
+<pre><code class="language-python">import urllib3
+
+http = urllib3.PoolManager()
+</code></pre>
+<p>그리고 JSON 데이터를 POST로 보낸다.</p>
+<pre><code class="language-python">response = http.request(
+    &quot;POST&quot;,
+    webhook_url,
+    body=json.dumps({&quot;text&quot;: &quot;알림 메시지&quot;}).encode(&quot;utf-8&quot;),
+    headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
+)
+</code></pre>
+<p>여기서 boto3와 urllib3의 차이는 명확하다.</p>
+<pre><code class="language-text">boto3 = AWS 서비스 호출용
+urllib3 = 일반 HTTP 요청용
+</code></pre>
+<p>즉, SNS에 메시지를 보낼 때는 boto3를 쓴다.</p>
+<pre><code class="language-text">Lambda → boto3 → SNS
+</code></pre>
+<p>Slack Webhook에 메시지를 보낼 때는 urllib3를 쓴다.</p>
+<pre><code class="language-text">Lambda → urllib3 → Slack Webhook
+</code></pre>
+<hr>
+<h2>10. 이 스택으로 만들 수 있는 대표 예시</h2>
+<p>가장 대표적인 예시는 <strong>정기 리포트 알림 시스템</strong>이다.</p>
+<pre><code class="language-text">매일 오전 9시
+→ Lambda 실행
+→ AWS 리소스 상태 확인
+→ 결과를 Slack으로 전송
+</code></pre>
+<p>예를 들어 이런 메시지를 보낼 수 있다.</p>
+<pre><code class="language-text">[Daily AWS Check]
+
+EC2 Running: 3
+EC2 Stopped: 1
+RDS Available: 2
+Error: 없음
+</code></pre>
+<p>또 다른 예시는 <strong>비용 알림 자동화</strong>다.</p>
+<pre><code class="language-text">매일 아침
+→ Lambda 실행
+→ AWS Cost Explorer API 조회
+→ 전일 비용 계산
+→ Slack 알림
+</code></pre>
+<p>또는 <strong>배치 작업 결과 알림</strong>에도 쓸 수 있다.</p>
+<pre><code class="language-text">EventBridge Scheduler
+→ Lambda 실행
+→ S3 파일 확인
+→ 처리 결과 요약
+→ Slack/SNS 알림
+</code></pre>
+<p>즉 이 스택은 거창한 웹서버보다, 이런 자동화에 잘 맞는다.</p>
+<pre><code class="language-text">정기 점검
+비용 알림
+장애 알림
+운영 리포트
+배치 결과 알림
+리소스 상태 모니터링
+</code></pre>
+<hr>
+<h2>11. 왜 굳이 서버리스로 만드는가?</h2>
+<p>이런 자동화 작업을 EC2 서버에서 cron으로 돌릴 수도 있다.</p>
+<pre><code class="language-text">EC2 생성
+crontab 설정
+Python 스크립트 배치
+로그 관리
+서버 장애 대응
+패키지 관리
+보안 패치
+</code></pre>
+<p>하지만 간단한 정기 작업 하나 때문에 EC2를 계속 켜두는 건 부담스럽다.</p>
+<p>서버리스로 만들면 구조가 가벼워진다.</p>
+<pre><code class="language-text">서버 관리 없음
+실행할 때만 동작
+스케줄 관리 쉬움
+AWS 서비스와 연결 쉬움
+코드와 인프라를 함께 관리 가능
+</code></pre>
+<p>그래서 이런 자동화에는 Lambda + EventBridge 조합이 잘 맞는다.</p>
+<pre><code class="language-text">“항상 떠 있는 서버”가 아니라
+“필요할 때만 실행되는 함수”
+</code></pre>
+<p>이게 서버리스 자동화의 핵심이다.</p>
+<hr>
+<h2>12. 각 기술의 역할 한 번에 정리</h2>
+<table>
+<thead>
+<tr>
+<th>기술</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AWS CDK Python</td>
+<td>AWS 인프라를 Python 코드로 정의하고 배포</td>
+</tr>
+<tr>
+<td>AWS Lambda</td>
+<td>실제 자동화 로직을 실행하는 서버리스 함수</td>
+</tr>
+<tr>
+<td>EventBridge Scheduler</td>
+<td>정해진 시간마다 Lambda를 실행하는 스케줄러</td>
+</tr>
+<tr>
+<td>Amazon SNS</td>
+<td>메시지를 이메일, SMS, Lambda 등 여러 대상으로 전달하는 알림 허브</td>
+</tr>
+<tr>
+<td>Slack Webhook</td>
+<td>Slack 채널로 메시지를 보내는 외부 HTTP 입구</td>
+</tr>
+<tr>
+<td>boto3</td>
+<td>Python 코드에서 AWS 서비스를 호출하는 SDK</td>
+</tr>
+<tr>
+<td>urllib3</td>
+<td>Python 코드에서 Slack Webhook 같은 HTTP API를 호출하는 라이브러리</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>13. 전체 흐름을 코드 관점으로 보면</h2>
+<p>인프라 코드는 CDK에 있다.</p>
+<pre><code class="language-text">CDK 코드
+→ Lambda 생성
+→ EventBridge Scheduler 생성
+→ SNS Topic 생성
+→ IAM 권한 연결
+→ 환경변수 설정
+</code></pre>
+<p>실행 코드는 Lambda에 있다.</p>
+<pre><code class="language-text">Lambda 코드
+→ boto3로 AWS 정보 조회
+→ 필요하면 boto3로 SNS publish
+→ urllib3로 Slack Webhook 호출
+</code></pre>
+<p>그래서 프로젝트를 볼 때는 두 부분으로 나눠서 보면 된다.</p>
+<pre><code class="language-text">1. 인프라를 만드는 코드
+2. Lambda에서 실제 실행되는 코드
+</code></pre>
+<p>이걸 구분하면 구조가 훨씬 덜 헷갈린다.</p>
+<hr>
+<h2>14. 실무적으로 중요한 포인트</h2>
+<p>이 스택에서 제일 중요한 건 권한이다.</p>
+<p>Lambda가 AWS 리소스를 조회하거나 SNS에 메시지를 보내려면 IAM 권한이 필요하다.</p>
+<pre><code class="language-text">Lambda 실행 역할
+  ├── EC2 조회 권한
+  ├── CloudWatch 조회 권한
+  ├── SNS Publish 권한
+  └── 필요한 서비스별 권한
+</code></pre>
+<p>EventBridge Scheduler가 Lambda를 실행하려면 Scheduler 쪽에도 Lambda invoke 권한이 필요하다. AWS EventBridge Scheduler 문서에서도 Lambda 같은 대상을 호출하려면 실행 역할에 대상 API 작업을 수행할 권한을 부여해야 한다고 설명한다. (<a href="https://docs.aws.amazon.com/ko_kr/scheduler/latest/UserGuide/managing-targets-templated.html?utm_source=chatgpt.com" title="EventBridge Scheduler에서 템플릿 기반 대상 사용">AWS Docs</a>)</p>
+<p>또 하나 중요한 건 비밀값 관리다.</p>
+<p>Slack Webhook URL은 외부로 노출되면 안 된다.</p>
+<p>안 좋은 방식은 이거다.</p>
+<pre><code class="language-python">SLACK_WEBHOOK_URL = &quot;https://hooks.slack.com/services/...&quot;
+</code></pre>
+<p>좋은 방식은 이거다.</p>
+<pre><code class="language-python">import os
+
+SLACK_WEBHOOK_URL = os.environ[&quot;SLACK_WEBHOOK_URL&quot;]
+</code></pre>
+<p>더 안전하게 하려면 Secrets Manager나 SSM Parameter Store를 쓴다.</p>
+<hr>
+<h2>15. 결론</h2>
+<p>이 기술 스택은 하나의 문장으로 정리할 수 있다.</p>
+<pre><code class="language-text">AWS CDK로 인프라를 코드화하고,
+EventBridge Scheduler로 Lambda를 주기적으로 실행하고,
+Lambda가 boto3로 AWS 상태를 조회한 뒤,
+urllib3로 Slack Webhook에 알림을 보내고,
+필요하면 SNS로 알림 채널을 확장하는 구조
+</code></pre>
+<p>즉 단순히 Lambda 하나를 쓰는 게 아니라, <strong>서버리스 자동화 운영 구조</strong>를 만드는 것이다.</p>
+<p>이 구조를 이해하면 다음과 같은 일을 할 수 있다.</p>
+<pre><code class="language-text">매일 AWS 비용 리포트 보내기
+장애 발생 시 Slack 알림 보내기
+정기적으로 리소스 상태 점검하기
+S3 파일 처리 결과 알림 보내기
+운영 리포트를 자동으로 생성하고 전송하기
+</code></pre>
+<p>처음에는 기술이 많아 보여도, 역할을 나누면 단순하다.</p>
+<pre><code class="language-text">CDK = 만들기
+EventBridge = 언제 실행할지 정하기
+Lambda = 실행하기
+boto3 = AWS와 대화하기
+urllib3 = 외부 HTTP와 대화하기
+Slack Webhook = Slack으로 보내기
+SNS = 알림 확장하기
+</code></pre>
+<p>이렇게 보면 이 스택은 결국 <strong>작고 강한 운영 자동화 시스템</strong>을 만들기 위한 조합이다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

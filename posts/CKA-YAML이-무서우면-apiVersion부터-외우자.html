@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[CKA] YAML이 무서우면 apiVersion부터 외우자 | Greenapple0101</title>
+  <meta name="description" content="CKA를 공부하다 보면 YAML이 너무 많이 나온다. 처음에는 이 구조 자체가 부담스럽다. 특히 이런 생각이 든다. 근데 YAML을 전부 외우려고 하면 금방 지친다. 대신 조금 더 현실적인 방법이 있다. 즉, YAML 전체를 통째로 외우는 게 아니라 YAML의 입구를 외우는 방식 이다…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">CKA</span>
+    <h1>[CKA] YAML이 무서우면 apiVersion부터 외우자</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-22T07:29:14.646Z">2026.05.22</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/CKA-YAML이-무서우면-apiVersion부터-외우자" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>CKA를 공부하다 보면 YAML이 너무 많이 나온다.</p>
+<pre><code class="language-yaml">apiVersion:
+kind:
+metadata:
+spec:
+</code></pre>
+<p>처음에는 이 구조 자체가 부담스럽다.</p>
+<p>특히 이런 생각이 든다.</p>
+<pre><code class="language-text">이걸 다 외워야 하나?
+공식문서에서 찾아야 하나?
+시험장에서 기억 안 나면 어떡하지?
+</code></pre>
+<p>근데 YAML을 전부 외우려고 하면 금방 지친다.
+대신 조금 더 현실적인 방법이 있다.</p>
+<pre><code class="language-text">apiVersion + kind까지만 빠르게 떠올리고,
+spec 구조는 공식문서 예시를 찾아서 수정한다.
+</code></pre>
+<p>즉, YAML 전체를 통째로 외우는 게 아니라 <strong>YAML의 입구를 외우는 방식</strong>이다.</p>
+<hr>
+<h1>1. apiVersion이 뭐길래 중요할까</h1>
+<p>Kubernetes YAML은 보통 이렇게 시작한다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  ...
+</code></pre>
+<p>여기서 <code>apiVersion</code>은 이 리소스가 <strong>Kubernetes API의 어느 그룹에 속하는지</strong>를 나타낸다.</p>
+<p>예를 들어 Deployment는 앱을 배포하고 관리하는 리소스다.</p>
+<p>그래서:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+</code></pre>
+<p>이렇게 쓴다.</p>
+<p>HPA는 autoscaling 계열 리소스다.</p>
+<p>그래서:</p>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+</code></pre>
+<p>이렇게 쓴다.</p>
+<p>Gateway API는 gateway networking 계열이다.</p>
+<p>그래서:</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+</code></pre>
+<p>이렇게 쓴다.</p>
+<p>이걸 알고 있으면 공식문서 검색창에 바로 이런 식으로 칠 수 있다.</p>
+<pre><code class="language-text">autoscaling/v2
+gateway.networking.k8s.io/v1
+networking.k8s.io/v1
+</code></pre>
+<p>그러면 해당 리소스 예시 YAML을 찾기가 훨씬 쉬워진다.</p>
+<hr>
+<h1>2. CKA에서 외워두면 좋은 apiVersion</h1>
+<h2>HPA</h2>
+<pre><code class="language-text">HPA → autoscaling/v2
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+</code></pre>
+<p>HPA는 HorizontalPodAutoscaler의 줄임말이다.
+부하에 따라 Deployment 같은 리소스의 Pod 개수를 자동으로 늘리거나 줄인다.</p>
+<p>HPA 문제에서는 보통 이런 조건이 나온다.</p>
+<pre><code class="language-text">CPU 50%
+minReplicas: 1
+maxReplicas: 4
+target Deployment 지정
+scaleDown stabilizationWindowSeconds 지정
+</code></pre>
+<p>그래서 공식문서 검색창에는 이렇게 치면 좋다.</p>
+<pre><code class="language-text">autoscaling/v2
+horizontal pod autoscaler
+stabilizationWindowSeconds
+</code></pre>
+<hr>
+<h2>Gateway API</h2>
+<pre><code class="language-text">Gateway API → gateway.networking.k8s.io/v1
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+</code></pre>
+<p>Gateway API 문제는 보통 Ingress를 Gateway, HTTPRoute로 바꾸는 식으로 나온다.</p>
+<p>자주 보는 리소스는 이거다.</p>
+<pre><code class="language-text">GatewayClass
+Gateway
+HTTPRoute
+</code></pre>
+<p>검색 키워드:</p>
+<pre><code class="language-text">gateway.networking.k8s.io/v1
+gateway api
+httproute
+</code></pre>
+<p>Gateway는 입구를 만들고, HTTPRoute는 실제 라우팅 규칙을 연결한다고 보면 된다.</p>
+<pre><code class="language-text">Gateway
+= 어떤 포트와 프로토콜로 받을지 정의
+
+HTTPRoute
+= 어떤 hostname/path 요청을 어느 Service로 보낼지 정의
+</code></pre>
+<hr>
+<h2>Ingress / NetworkPolicy</h2>
+<pre><code class="language-text">Ingress/NetworkPolicy → networking.k8s.io/v1
+</code></pre>
+<p>Ingress 예시:</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+</code></pre>
+<p>NetworkPolicy 예시:</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+</code></pre>
+<p>둘 다 네트워킹 계열이라 <code>networking.k8s.io/v1</code>을 쓴다.</p>
+<p>Ingress는 외부 HTTP/HTTPS 요청을 Service로 연결하는 리소스다.</p>
+<pre><code class="language-text">외부 요청
+→ Ingress
+→ Service
+→ Pod
+</code></pre>
+<p>NetworkPolicy는 Pod 간 통신을 제한하는 리소스다.</p>
+<pre><code class="language-text">frontend Pod만 backend Pod에 접근 가능하게 하라
+특정 namespace에서만 접근 가능하게 하라
+특정 port만 허용하라
+</code></pre>
+<p>이런 문제가 나오면 NetworkPolicy다.</p>
+<p>검색 키워드:</p>
+<pre><code class="language-text">networking.k8s.io/v1
+ingress
+networkpolicy
+network policy
+</code></pre>
+<hr>
+<h2>Deployment</h2>
+<pre><code class="language-text">Deployment → apps/v1
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+</code></pre>
+<p>Deployment는 Pod를 직접 관리하기보다 ReplicaSet을 통해 Pod 개수를 유지한다.</p>
+<pre><code class="language-text">Deployment
+→ ReplicaSet
+→ Pod
+</code></pre>
+<p>자주 나오는 조건:</p>
+<pre><code class="language-text">replicas
+image
+containerPort
+selector
+template labels
+rollout
+rollback
+</code></pre>
+<p>검색 키워드:</p>
+<pre><code class="language-text">apps/v1 deployment
+deployment
+rolling update deployment
+</code></pre>
+<p>Deployment는 CKA 기본기 중 기본기라 <code>apps/v1</code>은 꼭 외우는 게 좋다.</p>
+<hr>
+<h2>Job / CronJob</h2>
+<pre><code class="language-text">Job/CronJob → batch/v1
+</code></pre>
+<p>Job 예시:</p>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: Job
+</code></pre>
+<p>CronJob 예시:</p>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: CronJob
+</code></pre>
+<p>Job은 한 번 실행하고 끝나는 작업이다.</p>
+<pre><code class="language-text">데이터 처리
+백업 작업
+일회성 스크립트 실행
+</code></pre>
+<p>CronJob은 정해진 시간마다 반복 실행하는 작업이다.</p>
+<pre><code class="language-text">매 분 실행
+매일 자정 실행
+매주 실행
+</code></pre>
+<p>검색 키워드:</p>
+<pre><code class="language-text">batch/v1
+job
+cronjob
+</code></pre>
+<p><code>batch</code>라는 단어를 보면 “아, 실행하고 끝나는 작업 계열이구나”라고 떠올리면 된다.</p>
+<hr>
+<h2>Pod / Service / ConfigMap / Secret / PVC</h2>
+<pre><code class="language-text">Pod/Service/ConfigMap/Secret/PVC → v1
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+</code></pre>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+</code></pre>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+</code></pre>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Secret
+</code></pre>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+</code></pre>
+<p>기본 리소스들은 대부분 <code>v1</code>이다.</p>
+<p>특히 CKA에서 자주 보는 것들:</p>
+<pre><code class="language-text">Pod
+Service
+ConfigMap
+Secret
+PersistentVolumeClaim
+Namespace
+ServiceAccount
+PersistentVolume
+</code></pre>
+<p>이런 건 거의 <code>v1</code>로 시작한다고 보면 된다.</p>
+<p>검색 키워드:</p>
+<pre><code class="language-text">pod
+service
+configmap
+secret
+persistent volume claim
+</code></pre>
+<hr>
+<h1>3. apiVersion 치트시트</h1>
+<table>
+<thead>
+<tr>
+<th>리소스</th>
+<th>apiVersion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HPA</td>
+<td><code>autoscaling/v2</code></td>
+</tr>
+<tr>
+<td>Gateway API</td>
+<td><code>gateway.networking.k8s.io/v1</code></td>
+</tr>
+<tr>
+<td>Gateway</td>
+<td><code>gateway.networking.k8s.io/v1</code></td>
+</tr>
+<tr>
+<td>HTTPRoute</td>
+<td><code>gateway.networking.k8s.io/v1</code></td>
+</tr>
+<tr>
+<td>Ingress</td>
+<td><code>networking.k8s.io/v1</code></td>
+</tr>
+<tr>
+<td>NetworkPolicy</td>
+<td><code>networking.k8s.io/v1</code></td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td><code>apps/v1</code></td>
+</tr>
+<tr>
+<td>Job</td>
+<td><code>batch/v1</code></td>
+</tr>
+<tr>
+<td>CronJob</td>
+<td><code>batch/v1</code></td>
+</tr>
+<tr>
+<td>Pod</td>
+<td><code>v1</code></td>
+</tr>
+<tr>
+<td>Service</td>
+<td><code>v1</code></td>
+</tr>
+<tr>
+<td>ConfigMap</td>
+<td><code>v1</code></td>
+</tr>
+<tr>
+<td>Secret</td>
+<td><code>v1</code></td>
+</tr>
+<tr>
+<td>PVC</td>
+<td><code>v1</code></td>
+</tr>
+</tbody>
+</table>
+<p>조금 더 묶어서 보면 이렇다.</p>
+<pre><code class="language-text">HPA
+→ autoscaling/v2
+
+Gateway API
+→ gateway.networking.k8s.io/v1
+
+Ingress / NetworkPolicy
+→ networking.k8s.io/v1
+
+Deployment
+→ apps/v1
+
+Job / CronJob
+→ batch/v1
+
+Pod / Service / ConfigMap / Secret / PVC
+→ v1
+</code></pre>
+<hr>
+<h1>4. 이걸 어떻게 써먹을까</h1>
+<p>예를 들어 HPA 문제가 나왔다.</p>
+<pre><code class="language-text">Create a HorizontalPodAutoscaler named apache-server.
+Target Deployment is apache-server.
+CPU target is 50%.
+minReplicas 1, maxReplicas 4.
+</code></pre>
+<p>그러면 바로 떠올린다.</p>
+<pre><code class="language-text">HPA니까 autoscaling/v2
+</code></pre>
+<p>YAML 시작:</p>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: apache-server
+</code></pre>
+<p>그다음 공식문서에서 <code>autoscaling/v2</code>를 검색해서 예시를 찾는다.</p>
+<p>그리고 문제 조건에 맞게 수정한다.</p>
+<hr>
+<p>NetworkPolicy 문제가 나왔다.</p>
+<pre><code class="language-text">Allow ingress to backend only from frontend pods.
+</code></pre>
+<p>바로 떠올린다.</p>
+<pre><code class="language-text">NetworkPolicy니까 networking.k8s.io/v1
+</code></pre>
+<p>YAML 시작:</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-frontend
+</code></pre>
+<p>그다음 공식문서에서 <code>networkpolicy</code>를 검색해서 <code>podSelector</code>, <code>ingress</code>, <code>from</code>, <code>ports</code> 구조를 가져온다.</p>
+<hr>
+<p>Gateway API 문제가 나왔다.</p>
+<pre><code class="language-text">Create a Gateway and HTTPRoute.
+</code></pre>
+<p>바로 떠올린다.</p>
+<pre><code class="language-text">Gateway API니까 gateway.networking.k8s.io/v1
+</code></pre>
+<p>YAML 시작:</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+</code></pre>
+<p>또는:</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+</code></pre>
+<p>그다음 <code>gateway api</code>, <code>httproute</code>를 검색해서 <code>listeners</code>, <code>parentRefs</code>, <code>backendRefs</code> 구조를 가져온다.</p>
+<hr>
+<h1>5. apiVersion만 외우면 충분할까?</h1>
+<p>완전히 충분하진 않다.</p>
+<p>예를 들어 이건 외울 수 있다.</p>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+</code></pre>
+<p>하지만 HPA의 진짜 핵심은 이 부분이다.</p>
+<pre><code class="language-yaml">spec:
+  scaleTargetRef:
+  minReplicas:
+  maxReplicas:
+  metrics:
+  behavior:
+</code></pre>
+<p>NetworkPolicy도 마찬가지다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+</code></pre>
+<p>여기까지는 쉽다.</p>
+<p>근데 진짜 어려운 건 여기다.</p>
+<pre><code class="language-yaml">spec:
+  podSelector:
+  policyTypes:
+  ingress:
+  - from:
+    - podSelector:
+    ports:
+</code></pre>
+<p>Gateway API도:</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+</code></pre>
+<p>여기까지보다 중요한 건:</p>
+<pre><code class="language-yaml">spec:
+  parentRefs:
+  hostnames:
+  rules:
+  - matches:
+    backendRefs:
+</code></pre>
+<p>그래서 전략은 이거다.</p>
+<pre><code class="language-text">apiVersion + kind는 외워서 시작 속도를 높인다.
+spec 구조는 공식문서 예시에서 가져온다.
+</code></pre>
+<p>이게 제일 현실적이다.</p>
+<hr>
+<h1>6. YAML 시작 템플릿</h1>
+<h2>HPA</h2>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>Gateway</h2>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>HTTPRoute</h2>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>Ingress</h2>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>NetworkPolicy</h2>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>Deployment</h2>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>Job</h2>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: Job
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>CronJob</h2>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>Pod</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>Service</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<h2>ConfigMap</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+data:
+</code></pre>
+<h2>Secret</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+type: Opaque
+stringData:
+</code></pre>
+<h2>PVC</h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: NAME
+  namespace: NAMESPACE
+spec:
+</code></pre>
+<hr>
+<h1>7. 결론</h1>
+<p>CKA에서 YAML을 전부 외우려고 하면 너무 힘들다.
+대신 이렇게 접근하면 된다.</p>
+<pre><code class="language-text">apiVersion으로 리소스의 집을 찾고,
+kind로 정확한 리소스를 지정하고,
+spec은 공식문서 예시를 보고 고친다.
+</code></pre>
+<p>제일 먼저 외울 묶음은 이거다.</p>
+<pre><code class="language-text">HPA → autoscaling/v2
+Gateway API → gateway.networking.k8s.io/v1
+Ingress/NetworkPolicy → networking.k8s.io/v1
+Deployment → apps/v1
+Job/CronJob → batch/v1
+Pod/Service/ConfigMap/Secret/PVC → v1
+</code></pre>
+<p>이걸 외우면 YAML이 조금 덜 무섭다.</p>
+<p>빈 파일을 열었을 때 최소한 이렇게 시작할 수 있기 때문이다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+</code></pre>
+<p>그리고 그다음부터는 공식문서 예시를 가져와서 문제 조건에 맞게 바꾸면 된다.</p>
+<p>CKA는 YAML 통암기 시험이 아니다.
+문제를 보고 리소스를 알아차리고, 공식문서에서 빠르게 예시를 찾아 수정하는 시험에 가깝다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

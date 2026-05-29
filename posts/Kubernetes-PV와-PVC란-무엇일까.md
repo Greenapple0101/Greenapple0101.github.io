@@ -1,0 +1,753 @@
+---
+title: "[Kubernetes] PV와 PVC란 무엇일까?"
+source: "https://velog.io/@yorange50/Kubernetes-PV와-PVC란-무엇일까"
+published: "2026-05-27T18:44:29.164Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.709188"
+---
+
+Kubernetes에서 Pod는 기본적으로 **언제든지 사라질 수 있는 존재**다.
+
+Pod가 죽었다가 다시 생성되면 내부 파일도 같이 사라질 수 있다.
+
+예를 들어 MySQL Pod를 띄웠다고 해보자.
+
+```text id="4syfzg"
+MySQL Pod 안에 데이터 저장
+        ↓
+Pod 삭제
+        ↓
+데이터도 같이 사라질 수 있음
+```
+
+이러면 데이터베이스를 Kubernetes에서 운영할 수 없다.
+
+그래서 Kubernetes에서는 Pod와 별도로 데이터를 저장할 공간이 필요하다.
+
+이때 나오는 개념이 바로 **PV**와 **PVC**다.
+
+```text id="w3epyl"
+PV  = PersistentVolume
+PVC = PersistentVolumeClaim
+```
+
+---
+
+## 1. 먼저 Volume이 왜 필요할까?
+
+Pod 안의 컨테이너는 기본적으로 일회성에 가깝다.
+
+컨테이너 안에 파일을 저장할 수는 있지만, 컨테이너가 재시작되거나 Pod가 삭제되면 데이터가 사라질 수 있다.
+
+예를 들어 게시판 서버가 있다고 해보자.
+
+```text id="4s8gne"
+게시글 이미지 업로드
+로그 파일 저장
+DB 데이터 저장
+```
+
+이런 데이터는 Pod가 사라져도 유지되어야 한다.
+
+그래서 Kubernetes에서는 Pod 외부에 저장 공간을 붙여서 사용한다.
+
+```text id="gm3x6f"
+Pod
+ ↓
+Volume
+ ↓
+외부 저장 공간
+```
+
+이 저장 공간을 Kubernetes 방식으로 관리하기 위해 PV와 PVC를 사용한다.
+
+---
+
+## 2. PV란?
+
+PV는 **PersistentVolume**의 약자다.
+
+Persistent는 “지속되는”이라는 뜻이고, Volume은 “저장 공간”이라는 뜻이다.
+
+즉 PV는 Kubernetes 클러스터 안에 등록된 **실제 저장 공간**이다.
+
+```text id="92hq8l"
+PV = 클러스터에 준비된 실제 저장소
+```
+
+예를 들어 이런 것들이 PV가 될 수 있다.
+
+```text id="jn83wu"
+NFS 저장소
+hostPath
+AWS EBS
+GCP Persistent Disk
+Azure Disk
+Ceph
+Longhorn
+```
+
+즉 PV는 “어디에 실제 데이터가 저장되는가”와 관련이 있다.
+
+예를 들면 다음과 같다.
+
+```text id="r2khww"
+이 PV는 10Gi 용량이고
+ReadWriteOnce 방식으로 접근 가능하며
+실제 데이터는 /mnt/data에 저장된다
+```
+
+PV YAML 예시는 다음과 같다.
+
+```yaml id="dzw4le"
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data
+```
+
+이 YAML은 이런 뜻이다.
+
+```text id="ehb52m"
+my-pv라는 PV를 만든다
+용량은 1Gi다
+접근 방식은 ReadWriteOnce다
+실제 저장 위치는 노드의 /mnt/data다
+```
+
+---
+
+## 3. PVC란?
+
+PVC는 **PersistentVolumeClaim**의 약자다.
+
+Claim은 “요청하다”, “청구하다”라는 뜻이다.
+
+즉 PVC는 Pod가 사용할 저장 공간을 Kubernetes에게 요청하는 것이다.
+
+```text id="htbqcz"
+PVC = 저장 공간 사용 요청서
+```
+
+Pod가 PV를 직접 고르는 것이 아니라, PVC를 통해 이렇게 요청한다.
+
+```text id="x74yfv"
+저 1Gi 정도 저장 공간이 필요해요.
+ReadWriteOnce 방식이면 됩니다.
+```
+
+PVC YAML 예시는 다음과 같다.
+
+```yaml id="dkskr2"
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+이 YAML은 이런 뜻이다.
+
+```text id="w6kiqc"
+my-pvc라는 PVC를 만든다
+1Gi 저장 공간을 요청한다
+ReadWriteOnce 방식의 볼륨을 원한다
+```
+
+---
+
+## 4. PV와 PVC 관계
+
+PV와 PVC의 관계는 “집”과 “입주 신청서”로 비유하면 쉽다.
+
+```text id="4ua96z"
+PV  = 실제 집
+PVC = 집을 빌리고 싶다는 신청서
+Pod = 그 집에 들어가서 사는 사람
+```
+
+예를 들어 클러스터에 이런 PV가 있다고 해보자.
+
+```text id="dcy4l5"
+PV: 1Gi 저장 공간
+```
+
+그리고 PVC가 이렇게 요청한다.
+
+```text id="qj1918"
+PVC: 1Gi 저장 공간 주세요
+```
+
+Kubernetes는 조건이 맞는 PV와 PVC를 연결한다.
+
+```text id="7pm1kz"
+PV ↔ PVC 바인딩
+```
+
+그다음 Pod는 PVC를 사용한다.
+
+```text id="ercvtg"
+Pod → PVC → PV → 실제 저장소
+```
+
+중요한 점은 Pod가 PV를 직접 쓰는 게 아니라는 것이다.
+
+Pod는 PVC를 참조한다.
+
+---
+
+## 5. 전체 구조
+
+PV, PVC, Pod의 관계를 그림으로 보면 이렇다.
+
+```text id="6x8ofg"
+Pod
+ |
+ | volumeMounts
+ v
+PVC
+ |
+ | bound
+ v
+PV
+ |
+ v
+실제 저장 공간
+```
+
+조금 더 풀면:
+
+```text id="s49xjo"
+1. 관리자가 PV를 만든다
+2. 사용자가 PVC로 저장 공간을 요청한다
+3. Kubernetes가 조건에 맞는 PV와 PVC를 연결한다
+4. Pod가 PVC를 mount해서 사용한다
+5. 데이터는 PV가 가리키는 실제 저장소에 저장된다
+```
+
+---
+
+## 6. Pod에서 PVC 사용하기
+
+PVC를 만든 뒤에는 Pod에서 이 PVC를 사용해야 한다.
+
+예시는 다음과 같다.
+
+```yaml id="v5jxef"
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+    - name: app
+      image: nginx
+      volumeMounts:
+        - name: my-storage
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: my-storage
+      persistentVolumeClaim:
+        claimName: my-pvc
+```
+
+여기서 중요한 부분은 두 군데다.
+
+첫 번째는 `volumes`다.
+
+```yaml id="a9h3fj"
+volumes:
+  - name: my-storage
+    persistentVolumeClaim:
+      claimName: my-pvc
+```
+
+이 뜻은:
+
+```text id="lupkde"
+my-pvc라는 PVC를 my-storage라는 이름의 볼륨으로 사용하겠다
+```
+
+두 번째는 `volumeMounts`다.
+
+```yaml id="qztp3z"
+volumeMounts:
+  - name: my-storage
+    mountPath: /usr/share/nginx/html
+```
+
+이 뜻은:
+
+```text id="ht7s5f"
+my-storage 볼륨을 컨테이너 안의 /usr/share/nginx/html 경로에 붙이겠다
+```
+
+즉 전체적으로 보면:
+
+```text id="l2gq0b"
+PVC로 받은 저장 공간을
+컨테이너 내부의 /usr/share/nginx/html 경로에 연결한다
+```
+
+---
+
+## 7. mountPath란?
+
+`mountPath`는 컨테이너 안에서 볼륨이 붙는 위치다.
+
+예를 들어:
+
+```yaml id="4hg5e1"
+mountPath: /data
+```
+
+라고 하면 컨테이너 내부의 `/data` 경로가 외부 저장 공간과 연결된다.
+
+```text id="nn7d63"
+컨테이너 내부 /data
+        ↓
+PVC
+        ↓
+PV
+        ↓
+실제 저장소
+```
+
+그래서 컨테이너 안에서 `/data/test.txt` 파일을 만들면, 그 파일은 실제로 PV가 가리키는 저장소에 저장된다.
+
+---
+
+## 8. accessModes란?
+
+PV와 PVC에서 자주 보이는 설정이 있다.
+
+```yaml id="m7xm6h"
+accessModes:
+  - ReadWriteOnce
+```
+
+`accessModes`는 볼륨을 어떤 방식으로 접근할 수 있는지를 의미한다.
+
+대표적인 값은 다음과 같다.
+
+```text id="enouge"
+ReadWriteOnce
+ReadOnlyMany
+ReadWriteMany
+```
+
+각각의 의미는 다음과 같다.
+
+```text id="i8jvl8"
+ReadWriteOnce
+→ 하나의 노드에서 읽기/쓰기 가능
+
+ReadOnlyMany
+→ 여러 노드에서 읽기 전용으로 접근 가능
+
+ReadWriteMany
+→ 여러 노드에서 읽기/쓰기 가능
+```
+
+가장 자주 보는 것은 `ReadWriteOnce`다.
+
+```text id="pueo69"
+ReadWriteOnce = 보통 하나의 노드에서만 쓰기 가능
+```
+
+주의할 점은 “하나의 Pod만 가능”이라는 뜻이 아니라, 기본 의미는 **하나의 노드에서 읽기/쓰기 가능**이라는 것이다.
+
+---
+
+## 9. Reclaim Policy란?
+
+PV에는 `persistentVolumeReclaimPolicy`라는 설정이 있다.
+
+이건 PVC가 삭제되었을 때 PV를 어떻게 처리할지 정하는 정책이다.
+
+대표적인 값은 다음과 같다.
+
+```text id="7yh24v"
+Retain
+Delete
+Recycle
+```
+
+요즘은 주로 `Retain`과 `Delete`를 본다.
+
+```text id="he56eo"
+Retain
+→ PVC가 삭제되어도 PV와 실제 데이터는 남겨둠
+
+Delete
+→ PVC가 삭제되면 PV와 실제 저장소도 삭제
+
+Recycle
+→ 오래된 방식, 거의 사용하지 않음
+```
+
+예를 들어 중요한 DB 데이터라면 함부로 삭제되면 안 된다.
+
+그럴 때는 `Retain`이 더 안전할 수 있다.
+
+```yaml id="mp9r6b"
+persistentVolumeReclaimPolicy: Retain
+```
+
+뜻은:
+
+```text id="arv76v"
+PVC가 사라져도 실제 데이터는 보존하겠다
+```
+
+---
+
+## 10. StorageClass란?
+
+PV와 PVC를 공부하다 보면 StorageClass도 같이 나온다.
+
+StorageClass는 쉽게 말하면 **PV를 자동으로 만들어주는 방식**이다.
+
+원래는 관리자가 PV를 미리 만들어야 했다.
+
+```text id="tpgvz9"
+관리자: PV 미리 생성
+사용자: PVC 생성
+Kubernetes: 맞는 PV와 PVC 연결
+```
+
+이 방식을 정적 프로비저닝이라고 한다.
+
+그런데 매번 PV를 직접 만드는 것은 귀찮다.
+
+그래서 StorageClass를 사용하면 PVC를 만들 때 필요한 PV가 자동으로 생성될 수 있다.
+
+```text id="384lr4"
+사용자: PVC 생성
+Kubernetes: StorageClass를 보고 PV 자동 생성
+```
+
+이걸 동적 프로비저닝이라고 한다.
+
+```text id="e8zwb1"
+Static Provisioning
+→ PV를 미리 만들어둠
+
+Dynamic Provisioning
+→ PVC 요청에 따라 PV를 자동 생성
+```
+
+예를 들어 클라우드 환경에서는 PVC만 만들면 AWS EBS 같은 디스크가 자동으로 생성될 수 있다.
+
+---
+
+## 11. PV와 PVC 상태 확인하기
+
+PV 확인:
+
+```bash id="m3ow4j"
+kubectl get pv
+```
+
+PVC 확인:
+
+```bash id="vr2u53"
+kubectl get pvc
+```
+
+특정 PVC 자세히 보기:
+
+```bash id="yu6flv"
+kubectl describe pvc my-pvc
+```
+
+특정 PV 자세히 보기:
+
+```bash id="1xqbk7"
+kubectl describe pv my-pv
+```
+
+정상적으로 연결되면 PVC 상태가 `Bound`로 나온다.
+
+```text id="luo7z7"
+NAME      STATUS   VOLUME   CAPACITY
+my-pvc    Bound    my-pv    1Gi
+```
+
+여기서 `Bound`는 PV와 PVC가 연결되었다는 뜻이다.
+
+---
+
+## 12. 자주 만나는 상태
+
+PVC를 조회하면 상태가 여러 가지로 나올 수 있다.
+
+```text id="snbwxq"
+Pending
+Bound
+Lost
+```
+
+대표적으로 중요한 것은 `Pending`과 `Bound`다.
+
+```text id="nwzx6e"
+Pending
+→ 아직 조건에 맞는 PV를 찾지 못함
+
+Bound
+→ PV와 PVC가 정상적으로 연결됨
+```
+
+PVC가 계속 Pending이라면 보통 이런 문제를 의심할 수 있다.
+
+```text id="570nx6"
+요청한 용량에 맞는 PV가 없음
+accessModes가 맞지 않음
+storageClassName이 맞지 않음
+동적 프로비저닝이 동작하지 않음
+```
+
+---
+
+## 13. hostPath PV 예시
+
+실습에서는 `hostPath`를 자주 쓴다.
+
+`hostPath`는 노드의 특정 경로를 Pod에 연결하는 방식이다.
+
+```yaml id="7kuxr3"
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: hostpath-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data
+```
+
+이 PV는 노드의 `/mnt/data` 경로를 저장소로 사용한다.
+
+하지만 `hostPath`는 운영 환경에서는 조심해야 한다.
+
+왜냐하면 특정 노드의 로컬 경로에 의존하기 때문이다.
+
+```text id="szmjdk"
+Pod가 다른 노드로 이동하면 같은 데이터를 못 볼 수 있음
+노드가 장애 나면 데이터 접근이 어려움
+```
+
+그래서 운영에서는 보통 NFS, 클라우드 디스크, 분산 스토리지 등을 사용한다.
+
+---
+
+## 14. PV/PVC를 왜 이렇게 나눴을까?
+
+처음 보면 그냥 Pod에서 바로 저장소를 지정하면 될 것 같다.
+
+그런데 Kubernetes는 PV와 PVC를 나눴다.
+
+이유는 역할 분리 때문이다.
+
+```text id="0xif7z"
+관리자
+→ 실제 저장소를 준비한다
+
+개발자 또는 사용자
+→ 필요한 저장소를 요청한다
+```
+
+즉 개발자는 실제 저장소가 NFS인지, EBS인지, Ceph인지 자세히 몰라도 된다.
+
+그냥 PVC로 이렇게 요청하면 된다.
+
+```text id="tl5n4u"
+1Gi 저장 공간 주세요.
+읽고 쓸 수 있어야 합니다.
+```
+
+그러면 Kubernetes가 조건에 맞는 PV를 연결해준다.
+
+이 구조 덕분에 애플리케이션 YAML은 저장소 구현 방식에서 조금 더 독립적일 수 있다.
+
+---
+
+## 15. 전체 예시 한 번에 보기
+
+PV 생성:
+
+```yaml id="74gtyx"
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data
+```
+
+PVC 생성:
+
+```yaml id="kvn5ou"
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+Pod에서 PVC 사용:
+
+```yaml id="ded0zt"
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-test-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      volumeMounts:
+        - name: storage
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: my-pvc
+```
+
+적용 순서는 보통 다음과 같다.
+
+```bash id="ulq79q"
+kubectl apply -f pv.yaml
+kubectl apply -f pvc.yaml
+kubectl apply -f pod.yaml
+```
+
+확인:
+
+```bash id="wp5hnk"
+kubectl get pv
+kubectl get pvc
+kubectl get pod
+```
+
+---
+
+## 16. 헷갈리기 쉬운 포인트
+
+### Pod는 PV를 직접 쓰지 않는다
+
+Pod는 보통 PVC를 참조한다.
+
+```text id="nsttwy"
+Pod → PVC → PV
+```
+
+### PVC는 요청서다
+
+PVC 자체가 저장 공간은 아니다.
+
+```text id="n4k9r0"
+PVC = 저장 공간 주세요
+```
+
+### PV는 실제 저장 공간이다
+
+PV는 실제 저장소와 연결된 클러스터 리소스다.
+
+```text id="qioe1d"
+PV = 여기 저장 공간 있습니다
+```
+
+### Bound가 되어야 사용 가능하다
+
+PVC가 Pending이면 아직 저장 공간을 받지 못한 상태다.
+
+```text id="i49ux1"
+PVC Pending = 아직 연결 안 됨
+PVC Bound = 연결 완료
+```
+
+### StorageClass가 있으면 PV를 자동으로 만들 수 있다
+
+PVC만 만들어도 StorageClass를 통해 PV가 자동 생성될 수 있다.
+
+```text id="tnzxre"
+PVC 요청
+  ↓
+StorageClass
+  ↓
+PV 자동 생성
+```
+
+---
+
+## 17. 정리
+
+PV와 PVC는 Kubernetes에서 데이터를 유지하기 위한 핵심 개념이다.
+
+Pod는 사라질 수 있지만 데이터는 유지되어야 한다.
+
+그래서 Pod와 별도의 저장 공간을 연결한다.
+
+정리하면 다음과 같다.
+
+```text id="7acq28"
+PV
+→ 클러스터에 준비된 실제 저장 공간
+
+PVC
+→ 사용자가 저장 공간을 요청하는 리소스
+
+Pod
+→ PVC를 참조해서 저장 공간을 사용
+
+StorageClass
+→ PVC 요청에 따라 PV를 자동 생성하는 방식
+
+Bound
+→ PV와 PVC가 연결된 상태
+```
+
+한 줄로 정리하면 이렇다.
+
+```text id="5el3m7"
+PV는 실제 저장 공간이고, PVC는 그 저장 공간을 쓰겠다는 요청서다.
+```
+
+조금 더 Kubernetes스럽게 말하면:
+
+```text id="t9kzo1"
+Pod는 PVC를 통해 PV를 사용하고, PV는 실제 스토리지와 연결된다.
+```
+
+즉 전체 구조는 이렇게 기억하면 된다.
+
+```text id="sqbkie"
+Pod → PVC → PV → 실제 저장소
+```

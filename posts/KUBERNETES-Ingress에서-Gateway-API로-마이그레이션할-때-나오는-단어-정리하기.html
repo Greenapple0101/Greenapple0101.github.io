@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[KUBERNETES] Ingress에서 Gateway API로 마이그레이션할 때 나오는 단어 정리하기 | Greenapple0101</title>
+  <meta name="description" content="Kubernetes에서 외부 사용자가 애플리케이션에 접근하게 만들 때 자주 나오는 개념이 있다. 바로 Ingress , Gateway API , Gateway , HTTPRoute , TLS , Service , Pod 같은 것들이다. 처음 보면 단어가 너무 많아서 헷갈리는데, 사실…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <h1>[KUBERNETES] Ingress에서 Gateway API로 마이그레이션할 때 나오는 단어 정리하기</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-18T05:31:51.102Z">2026.05.18</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/KUBERNETES-Ingress에서-Gateway-API로-마이그레이션할-때-나오는-단어-정리하기" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Kubernetes에서 외부 사용자가 애플리케이션에 접근하게 만들 때 자주 나오는 개념이 있다. 바로 <code>Ingress</code>, <code>Gateway API</code>, <code>Gateway</code>, <code>HTTPRoute</code>, <code>TLS</code>, <code>Service</code>, <code>Pod</code> 같은 것들이다. 처음 보면 단어가 너무 많아서 헷갈리는데, 사실 흐름은 하나다.</p>
+<pre><code class="language-text">사용자 요청
+  ↓
+외부 진입점
+  ↓
+라우팅 규칙
+  ↓
+Service
+  ↓
+Pod
+</code></pre>
+<p>Ingress 방식에서는 외부 진입점과 라우팅 규칙을 <code>Ingress</code> 하나가 많이 담당했다. Gateway API 방식에서는 이 역할을 <code>Gateway</code>와 <code>HTTPRoute</code>로 나누어 관리한다.</p>
+<hr>
+<h1>1. Ingress</h1>
+<p><code>Ingress</code>는 Kubernetes에서 외부 HTTP/HTTPS 요청을 내부 Service로 보내기 위한 리소스다.</p>
+<p>쉽게 말하면 이런 역할이다.</p>
+<pre><code class="language-text">사용자
+  ↓
+Ingress
+  ↓
+Service
+  ↓
+Pod
+</code></pre>
+<p>예를 들어 사용자가 아래 주소로 접속한다고 하자.</p>
+<pre><code class="language-bash">https://web.k8s.local
+</code></pre>
+<p>Ingress는 이 요청을 받아서 내부의 특정 Service로 보내준다.</p>
+<pre><code class="language-text">https://web.k8s.local
+  ↓
+web-service:80
+</code></pre>
+<p>Ingress가 담당하는 대표 기능은 다음과 같다.</p>
+<pre><code class="language-text">Host 기반 라우팅
+Path 기반 라우팅
+TLS termination
+Service로 트래픽 전달
+</code></pre>
+<p>예시 YAML은 이런 식이다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+spec:
+  tls:
+  - hosts:
+    - web.k8s.local
+    secretName: web-tls
+  rules:
+  - host: web.k8s.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 80
+</code></pre>
+<p>여기서 중요한 정보는 다음이다.</p>
+<pre><code class="language-text">Ingress 이름: web
+Host: web.k8s.local
+TLS Secret: web-tls
+Path: /
+Backend Service: web-service
+Backend Port: 80
+</code></pre>
+<p>Gateway API로 마이그레이션할 때는 이 정보들을 그대로 읽어서 옮겨야 한다.</p>
+<hr>
+<h1>2. Gateway API</h1>
+<p><code>Gateway API</code>는 Ingress보다 더 확장성 있게 만들어진 Kubernetes 네트워크 API다.</p>
+<p>Ingress가 하나의 리소스 안에 여러 역할을 담고 있었다면, Gateway API는 역할을 나누어 관리한다.</p>
+<pre><code class="language-text">GatewayClass
+  ↓
+Gateway
+  ↓
+HTTPRoute
+  ↓
+Service
+  ↓
+Pod
+</code></pre>
+<p>Ingress와 Gateway API를 비교하면 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>Ingress</th>
+<th>Gateway API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>외부 진입점</td>
+<td>Ingress</td>
+<td>Gateway</td>
+</tr>
+<tr>
+<td>라우팅 규칙</td>
+<td>Ingress 안의 rules</td>
+<td>HTTPRoute</td>
+</tr>
+<tr>
+<td>사용할 컨트롤러</td>
+<td>IngressClass</td>
+<td>GatewayClass</td>
+</tr>
+<tr>
+<td>TLS 설정</td>
+<td>Ingress의 tls</td>
+<td>Gateway의 listener.tls</td>
+</tr>
+<tr>
+<td>Backend 연결</td>
+<td>backend.service</td>
+<td>HTTPRoute의 backendRefs</td>
+</tr>
+</tbody>
+</table>
+<p>Gateway API는 Ingress보다 구조가 더 명확하다.</p>
+<p>Ingress에서는 하나의 리소스가 너무 많은 일을 했다면, Gateway API에서는 다음처럼 나뉜다.</p>
+<pre><code class="language-text">GatewayClass: 어떤 컨트롤러를 쓸지
+Gateway: 어떤 포트와 프로토콜로 받을지
+HTTPRoute: 어떤 요청을 어디로 보낼지
+Service: 어떤 Pod들로 연결할지
+</code></pre>
+<hr>
+<h1>3. API Gateway</h1>
+<p>문제 설명에 <code>API Gateway</code>라는 말이 나오는데, Kubernetes 문맥에서는 보통 <code>Gateway API</code>와 연결해서 이해하면 된다.</p>
+<p>API Gateway는 클라이언트 요청을 받아서 내부 서비스로 전달하는 진입점이다.</p>
+<p>단순 라우팅만 하는 게 아니라, 운영 환경에서는 다음 같은 기능도 붙을 수 있다.</p>
+<pre><code class="language-text">TLS termination
+Rate Limiting
+Throttle
+IP 차단
+인증
+인가
+쿼터 관리
+트래픽 분리
+요청 정책 적용
+</code></pre>
+<p>다만 CKA 문제에서는 너무 복잡하게 생각하면 안 된다.</p>
+<p>이 문제에서 중요한 건 이것이다.</p>
+<pre><code class="language-text">기존 Ingress의 설정을 Gateway API 방식으로 옮긴다
+</code></pre>
+<p>즉, 실제 시험에서는 Rate Limiting이나 인증 설정을 직접 구현하는 문제가 아니라, <code>Ingress → Gateway + HTTPRoute</code>로 바꾸는 문제다.</p>
+<hr>
+<h1>4. GatewayClass</h1>
+<p><code>GatewayClass</code>는 Gateway가 어떤 컨트롤러를 사용할지 지정하는 리소스다.</p>
+<p>Ingress에 <code>IngressClass</code>가 있다면, Gateway API에는 <code>GatewayClass</code>가 있다.</p>
+<p>문제에서는 이렇게 주어진다.</p>
+<pre><code class="language-text">A GatewayClass name nginx is installed in the cluster.
+</code></pre>
+<p>즉, 클러스터에 이미 <code>nginx</code>라는 GatewayClass가 존재한다는 뜻이다.</p>
+<p>확인 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">kubectl get gatewayclass
+</code></pre>
+<p>출력 예시는 다음과 비슷하다.</p>
+<pre><code class="language-text">NAME    CONTROLLER
+nginx   example.com/nginx-gateway-controller
+</code></pre>
+<p>Gateway를 만들 때는 이 GatewayClass 이름을 써야 한다.</p>
+<pre><code class="language-yaml">spec:
+  gatewayClassName: nginx
+</code></pre>
+<p>즉, 이 문제에서는 <code>gatewayClassName</code>에 다른 값을 쓰면 안 된다.</p>
+<pre><code class="language-yaml">gatewayClassName: nginx
+</code></pre>
+<hr>
+<h1>5. Gateway</h1>
+<p><code>Gateway</code>는 외부 요청을 실제로 받아들이는 진입점이다.</p>
+<p>Ingress로 치면 다음 역할과 비슷하다.</p>
+<pre><code class="language-text">어떤 hostname으로 받을지
+어떤 port로 받을지
+HTTP인지 HTTPS인지
+TLS 인증서를 쓸지
+</code></pre>
+<p>예를 들어 문제에서는 Gateway를 이렇게 만들라고 한다.</p>
+<pre><code class="language-text">Gateway name: web-gateway
+Hostname: gateway.web.k8s.local
+기존 Ingress의 TLS와 listener 설정 유지
+</code></pre>
+<p>Gateway YAML은 이런 식이다.</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: gateway.web.k8s.local
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: web-tls
+</code></pre>
+<p>Gateway에서 핵심은 <code>listeners</code>다.</p>
+<p>Gateway는 이렇게 말하는 리소스라고 보면 된다.</p>
+<pre><code class="language-text">나는 gateway.web.k8s.local 이라는 hostname으로
+443번 포트에서
+HTTPS 요청을 받을 거고
+TLS 인증서는 web-tls Secret을 사용할 거야
+</code></pre>
+<hr>
+<h1>6. Listener</h1>
+<p><code>Listener</code>는 Gateway가 어떤 요청을 받을지 정의하는 설정이다.</p>
+<p>예를 들어 다음 부분이 Listener다.</p>
+<pre><code class="language-yaml">listeners:
+- name: https
+  protocol: HTTPS
+  port: 443
+  hostname: gateway.web.k8s.local
+</code></pre>
+<p>각 필드의 의미는 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>listener 이름</td>
+</tr>
+<tr>
+<td><code>protocol</code></td>
+<td>받을 프로토콜</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>열어둘 포트</td>
+</tr>
+<tr>
+<td><code>hostname</code></td>
+<td>받을 도메인 이름</td>
+</tr>
+<tr>
+<td><code>tls</code></td>
+<td>TLS 인증서 설정</td>
+</tr>
+</tbody>
+</table>
+<p>예를 들어 이런 설정이면:</p>
+<pre><code class="language-yaml">protocol: HTTPS
+port: 443
+hostname: gateway.web.k8s.local
+</code></pre>
+<p>의미는 다음이다.</p>
+<pre><code class="language-text">gateway.web.k8s.local 주소로 들어오는 HTTPS 요청을 443번 포트에서 받겠다
+</code></pre>
+<hr>
+<h1>7. HTTPRoute</h1>
+<p><code>HTTPRoute</code>는 Gateway로 들어온 HTTP/HTTPS 요청을 어떤 Service로 보낼지 정하는 리소스다.</p>
+<p>Ingress의 <code>rules</code>와 비슷한 역할이다.</p>
+<p>Ingress에서는 라우팅 규칙이 이런 식이었다.</p>
+<pre><code class="language-yaml">rules:
+- host: web.k8s.local
+  http:
+    paths:
+    - path: /
+      pathType: Prefix
+      backend:
+        service:
+          name: web-service
+          port:
+            number: 80
+</code></pre>
+<p>Gateway API에서는 이것을 <code>HTTPRoute</code>로 분리한다.</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+spec:
+  parentRefs:
+  - name: web-gateway
+  hostnames:
+  - gateway.web.k8s.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: web-service
+      port: 80
+</code></pre>
+<p>HTTPRoute는 이렇게 말하는 리소스다.</p>
+<pre><code class="language-text">web-gateway로 들어온 요청 중에서
+hostname이 gateway.web.k8s.local이고
+path가 / 로 시작하는 요청은
+web-service의 80번 포트로 보내라
+</code></pre>
+<hr>
+<h1>8. parentRefs</h1>
+<p><code>parentRefs</code>는 이 HTTPRoute가 어떤 Gateway에 붙을지 지정하는 설정이다.</p>
+<pre><code class="language-yaml">parentRefs:
+- name: web-gateway
+</code></pre>
+<p>이 의미는 다음이다.</p>
+<pre><code class="language-text">이 HTTPRoute는 web-gateway Gateway에 연결된다
+</code></pre>
+<p>즉, Gateway와 HTTPRoute를 연결하는 다리 역할이다.</p>
+<p>구조로 보면 이렇게 된다.</p>
+<pre><code class="language-text">Gateway: web-gateway
+  ↓ parentRefs
+HTTPRoute: web-route
+</code></pre>
+<p>만약 <code>parentRefs</code>를 잘못 쓰면 HTTPRoute가 Gateway에 붙지 않는다. 그러면 라우팅도 동작하지 않는다.</p>
+<hr>
+<h1>9. hostnames</h1>
+<p><code>hostnames</code>는 HTTPRoute가 처리할 hostname을 의미한다.</p>
+<pre><code class="language-yaml">hostnames:
+- gateway.web.k8s.local
+</code></pre>
+<p>이 설정은 다음과 같은 뜻이다.</p>
+<pre><code class="language-text">Host 헤더가 gateway.web.k8s.local인 요청만 이 HTTPRoute가 처리한다
+</code></pre>
+<p>Gateway에도 <code>hostname</code>이 있고, HTTPRoute에도 <code>hostnames</code>가 있다.</p>
+<pre><code class="language-yaml">Gateway:
+  hostname: gateway.web.k8s.local
+
+HTTPRoute:
+  hostnames:
+  - gateway.web.k8s.local
+</code></pre>
+<p>둘 다 맞아야 요청이 제대로 연결된다.</p>
+<hr>
+<h1>10. rules</h1>
+<p><code>rules</code>는 HTTPRoute의 실제 라우팅 규칙이다.</p>
+<pre><code class="language-yaml">rules:
+- matches:
+  - path:
+      type: PathPrefix
+      value: /
+  backendRefs:
+  - name: web-service
+    port: 80
+</code></pre>
+<p>이 의미는 다음이다.</p>
+<pre><code class="language-text">/ 로 시작하는 요청을 web-service:80으로 보내라
+</code></pre>
+<p>rules 안에는 크게 두 가지가 있다.</p>
+<pre><code class="language-text">matches: 어떤 요청을 잡을지
+backendRefs: 어디로 보낼지
+</code></pre>
+<hr>
+<h1>11. matches</h1>
+<p><code>matches</code>는 어떤 요청을 매칭할지 정하는 조건이다.</p>
+<pre><code class="language-yaml">matches:
+- path:
+    type: PathPrefix
+    value: /
+</code></pre>
+<p>이 설정은 다음과 같은 뜻이다.</p>
+<pre><code class="language-text">path가 / 로 시작하는 요청을 매칭한다
+</code></pre>
+<p>예를 들어 <code>PathPrefix /</code>는 다음 요청들을 모두 포함한다.</p>
+<pre><code class="language-text">/
+ /login
+ /boards
+ /api/users
+</code></pre>
+<p>다만 실제 YAML에서는 공백 없이 이렇게 이해하면 된다.</p>
+<pre><code class="language-text">/
+ /login
+ /boards
+ /api/users
+</code></pre>
+<p>실제 요청 path가 <code>/boards</code>여도 <code>/</code>로 시작하기 때문에 매칭된다.</p>
+<hr>
+<h1>12. PathPrefix</h1>
+<p><code>PathPrefix</code>는 경로가 특정 값으로 시작하면 매칭하는 방식이다.</p>
+<pre><code class="language-yaml">type: PathPrefix
+value: /
+</code></pre>
+<p>의미는 다음이다.</p>
+<pre><code class="language-text">/ 로 시작하는 모든 요청
+</code></pre>
+<p>Ingress에서는 보통 이렇게 되어 있다.</p>
+<pre><code class="language-yaml">pathType: Prefix
+</code></pre>
+<p>Gateway API에서는 이것을 이렇게 바꾼다.</p>
+<pre><code class="language-yaml">type: PathPrefix
+</code></pre>
+<p>즉, 매핑하면 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>Ingress</th>
+<th>Gateway API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pathType: Prefix</code></td>
+<td><code>type: PathPrefix</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>13. backendRefs</h1>
+<p><code>backendRefs</code>는 요청을 최종적으로 보낼 Backend를 지정한다.</p>
+<p>대부분 Service를 가리킨다.</p>
+<pre><code class="language-yaml">backendRefs:
+- name: web-service
+  port: 80
+</code></pre>
+<p>이 의미는 다음이다.</p>
+<pre><code class="language-text">요청을 web-service의 80번 포트로 보내라
+</code></pre>
+<p>중요한 점은 <code>backendRefs.name</code>에는 Pod 이름이나 Deployment 이름을 넣는 게 아니라는 것이다.</p>
+<p>넣어야 하는 것은 Service 이름이다.</p>
+<pre><code class="language-text">정답: Service 이름
+오답: Pod 이름
+오답: Deployment 이름
+오답: 컨테이너 이름
+</code></pre>
+<p>확인 명령어는 다음이다.</p>
+<pre><code class="language-bash">kubectl get svc
+</code></pre>
+<p>또는 기존 Ingress에서 backend service 이름을 확인할 수 있다.</p>
+<pre><code class="language-bash">kubectl get ingress web -o jsonpath='{.spec.rules[0].http.paths[0].backend.service.name}'
+</code></pre>
+<hr>
+<h1>14. Service</h1>
+<p><code>Service</code>는 Pod 앞에 있는 고정된 네트워크 진입점이다.</p>
+<p>Pod는 생성되고 삭제되면서 IP가 바뀔 수 있다. 그래서 외부에서 Pod IP를 직접 바라보는 방식은 안정적이지 않다.</p>
+<p>Service는 이런 문제를 해결한다.</p>
+<pre><code class="language-text">Service
+  ↓
+Pod 1
+Pod 2
+Pod 3
+</code></pre>
+<p>즉, 사용자는 Service로 요청하고, Service가 뒤에 있는 Pod들로 트래픽을 보내준다.</p>
+<p>Gateway API에서도 최종 목적지는 보통 Service다.</p>
+<pre><code class="language-yaml">backendRefs:
+- name: web-service
+  port: 80
+</code></pre>
+<p>이 뜻은 다음이다.</p>
+<pre><code class="language-text">web-service라는 Service로 요청을 전달한다
+</code></pre>
+<hr>
+<h1>15. Pod</h1>
+<p><code>Pod</code>는 Kubernetes에서 애플리케이션이 실제로 실행되는 최소 단위다.</p>
+<p>컨테이너는 Pod 안에서 실행된다.</p>
+<pre><code class="language-text">Pod
+  └─ Container
+</code></pre>
+<p>웹 애플리케이션이 실제로 돌아가는 곳은 Pod다.</p>
+<p>하지만 Gateway나 Ingress는 보통 Pod를 직접 바라보지 않는다.</p>
+<p>흐름은 보통 이렇게 간다.</p>
+<pre><code class="language-text">Gateway
+  ↓
+HTTPRoute
+  ↓
+Service
+  ↓
+Pod
+</code></pre>
+<p>즉, Gateway API는 직접 Pod로 보내는 게 아니라 Service를 통해 Pod로 보낸다.</p>
+<hr>
+<h1>16. TLS</h1>
+<p><code>TLS</code>는 HTTPS 통신을 가능하게 해주는 암호화 기술이다.</p>
+<p>우리가 웹사이트에 접속할 때 주소가 <code>https://</code>로 시작하면 TLS가 사용된다.</p>
+<pre><code class="language-text">HTTP  = 암호화 없음
+HTTPS = HTTP + TLS
+</code></pre>
+<p>Kubernetes에서 HTTPS를 쓰려면 인증서가 필요하다.</p>
+<p>Ingress에서는 다음처럼 TLS 설정이 들어간다.</p>
+<pre><code class="language-yaml">tls:
+- hosts:
+  - web.k8s.local
+  secretName: web-tls
+</code></pre>
+<p>Gateway API에서는 이 설정을 Gateway의 listener 안으로 옮긴다.</p>
+<pre><code class="language-yaml">tls:
+  mode: Terminate
+  certificateRefs:
+  - kind: Secret
+    name: web-tls
+</code></pre>
+<hr>
+<h1>17. TLS termination</h1>
+<p><code>TLS termination</code>은 HTTPS 요청을 Gateway나 Ingress에서 복호화한다는 뜻이다.</p>
+<p>사용자는 HTTPS로 접속한다.</p>
+<pre><code class="language-text">사용자
+  ↓ HTTPS
+Gateway
+</code></pre>
+<p>Gateway는 TLS 인증서를 사용해서 HTTPS 요청을 풀어낸다.</p>
+<p>그 뒤 내부 Service로는 HTTP로 보낼 수도 있다.</p>
+<pre><code class="language-text">사용자
+  ↓ HTTPS
+Gateway에서 TLS 종료
+  ↓ HTTP
+Service
+  ↓
+Pod
+</code></pre>
+<p><code>tls.mode: Terminate</code>는 바로 이 의미다.</p>
+<pre><code class="language-yaml">tls:
+  mode: Terminate
+</code></pre>
+<p>즉, Gateway에서 TLS를 종료하겠다는 뜻이다.</p>
+<hr>
+<h1>18. Secret</h1>
+<p><code>Secret</code>은 Kubernetes에서 민감한 정보를 저장하는 리소스다.</p>
+<p>예를 들어 다음 같은 정보를 저장할 수 있다.</p>
+<pre><code class="language-text">TLS 인증서
+TLS 개인키
+비밀번호
+토큰
+API Key
+</code></pre>
+<p>Ingress에서 HTTPS를 사용하려면 보통 TLS 인증서가 Secret에 들어 있다.</p>
+<pre><code class="language-yaml">secretName: web-tls
+</code></pre>
+<p>Gateway API에서는 이 Secret을 <code>certificateRefs</code>로 참조한다.</p>
+<pre><code class="language-yaml">certificateRefs:
+- kind: Secret
+  name: web-tls
+</code></pre>
+<p>즉, Ingress에서 쓰던 TLS Secret을 Gateway에서도 그대로 사용하면 된다.</p>
+<hr>
+<h1>19. certificateRefs</h1>
+<p><code>certificateRefs</code>는 Gateway가 사용할 TLS 인증서 Secret을 지정하는 부분이다.</p>
+<pre><code class="language-yaml">certificateRefs:
+- kind: Secret
+  name: web-tls
+</code></pre>
+<p>의미는 다음이다.</p>
+<pre><code class="language-text">TLS 인증서는 web-tls라는 Secret에서 가져와라
+</code></pre>
+<p>Ingress에서는 이렇게 썼다.</p>
+<pre><code class="language-yaml">secretName: web-tls
+</code></pre>
+<p>Gateway에서는 이렇게 쓴다.</p>
+<pre><code class="language-yaml">certificateRefs:
+- kind: Secret
+  name: web-tls
+</code></pre>
+<p>매핑하면 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>Ingress</th>
+<th>Gateway</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>secretName: web-tls</code></td>
+<td><code>certificateRefs.name: web-tls</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>20. hostname</h1>
+<p><code>hostname</code>은 요청을 받을 도메인 이름이다.</p>
+<p>예를 들어 문제에서는 다음 hostname을 사용한다.</p>
+<pre><code class="language-text">gateway.web.k8s.local
+</code></pre>
+<p>Gateway에서는 이렇게 쓴다.</p>
+<pre><code class="language-yaml">hostname: gateway.web.k8s.local
+</code></pre>
+<p>HTTPRoute에서는 이렇게 쓴다.</p>
+<pre><code class="language-yaml">hostnames:
+- gateway.web.k8s.local
+</code></pre>
+<p>주의할 점은 기존 Ingress의 hostname이 <code>web.k8s.local</code>이어도, 문제에서 새 hostname을 <code>gateway.web.k8s.local</code>로 지정했다면 새 hostname을 써야 한다는 것이다.</p>
+<hr>
+<h1>21. protocol</h1>
+<p><code>protocol</code>은 Gateway listener가 어떤 프로토콜을 받을지 정하는 값이다.</p>
+<pre><code class="language-yaml">protocol: HTTPS
+</code></pre>
+<p>이 설정은 다음 뜻이다.</p>
+<pre><code class="language-text">HTTPS 요청을 받겠다
+</code></pre>
+<p>자주 볼 수 있는 프로토콜은 다음과 같다.</p>
+<pre><code class="language-text">HTTP
+HTTPS
+TCP
+TLS
+UDP
+</code></pre>
+<p>이 문제에서는 curl 테스트가 HTTPS이므로 <code>HTTPS</code>를 사용한다.</p>
+<pre><code class="language-bash">curl https://gateway.web.k8s.local
+</code></pre>
+<p>따라서 Gateway listener도 HTTPS여야 한다.</p>
+<pre><code class="language-yaml">protocol: HTTPS
+port: 443
+</code></pre>
+<hr>
+<h1>22. port</h1>
+<p><code>port</code>는 요청을 받을 포트 번호다.</p>
+<p>HTTPS의 기본 포트는 443이다.</p>
+<pre><code class="language-yaml">port: 443
+</code></pre>
+<p>즉, 다음 요청은 기본적으로 443 포트로 간다.</p>
+<pre><code class="language-bash">curl https://gateway.web.k8s.local
+</code></pre>
+<p>반면 HTTP의 기본 포트는 80이다.</p>
+<pre><code class="language-text">HTTP  → 80
+HTTPS → 443
+</code></pre>
+<p>Gateway에서는 외부 요청을 받을 포트를 설정하고, HTTPRoute의 <code>backendRefs.port</code>에서는 Service로 보낼 포트를 설정한다.</p>
+<pre><code class="language-yaml">Gateway listener port: 443
+HTTPRoute backendRefs port: 80
+</code></pre>
+<p>이 둘은 서로 다를 수 있다.</p>
+<pre><code class="language-text">외부에서는 HTTPS 443으로 받고
+내부 Service로는 80으로 전달
+</code></pre>
+<hr>
+<h1>23. curl</h1>
+<p><code>curl</code>은 터미널에서 HTTP/HTTPS 요청을 보내는 명령어다.</p>
+<p>이 문제에서는 Gateway API 설정이 잘 되었는지 확인할 때 사용한다.</p>
+<pre><code class="language-bash">curl https://gateway.web.k8s.local
+</code></pre>
+<p>인증서 검증 오류가 난다면 <code>-k</code> 옵션을 붙여볼 수 있다.</p>
+<pre><code class="language-bash">curl -k https://gateway.web.k8s.local
+</code></pre>
+<p><code>-k</code>는 TLS 인증서 검증을 건너뛰는 옵션이다.</p>
+<p>실습 환경에서는 self-signed 인증서를 쓰는 경우가 많아서 <code>-k</code>가 필요한 경우가 있다.</p>
+<hr>
+<h1>24. kubectl</h1>
+<p><code>kubectl</code>은 Kubernetes 클러스터를 조작하는 CLI 도구다.</p>
+<p>리소스를 조회하거나, 생성하거나, 삭제할 때 사용한다.</p>
+<p>Ingress 확인:</p>
+<pre><code class="language-bash">kubectl get ingress web -o yaml
+</code></pre>
+<p>Gateway 적용:</p>
+<pre><code class="language-bash">kubectl apply -f web-gateway.yaml
+</code></pre>
+<p>HTTPRoute 적용:</p>
+<pre><code class="language-bash">kubectl apply -f web-route.yaml
+</code></pre>
+<p>Ingress 삭제:</p>
+<pre><code class="language-bash">kubectl delete ingress web
+</code></pre>
+<p>줄여서 <code>k</code> alias를 쓰기도 한다.</p>
+<pre><code class="language-bash">alias k=kubectl
+</code></pre>
+<p>그러면 이렇게 쓸 수 있다.</p>
+<pre><code class="language-bash">k get ingress web -o yaml
+</code></pre>
+<hr>
+<h1>25. kubectl get</h1>
+<p><code>kubectl get</code>은 리소스를 조회하는 명령어다.</p>
+<pre><code class="language-bash">kubectl get ingress
+kubectl get gateway
+kubectl get httproute
+kubectl get svc
+</code></pre>
+<p>특정 리소스 하나만 볼 수도 있다.</p>
+<pre><code class="language-bash">kubectl get ingress web
+</code></pre>
+<p>YAML 형태로 자세히 보고 싶으면 <code>-o yaml</code>을 붙인다.</p>
+<pre><code class="language-bash">kubectl get ingress web -o yaml
+</code></pre>
+<hr>
+<h1>26. kubectl apply</h1>
+<p><code>kubectl apply</code>는 YAML 파일에 적힌 리소스를 클러스터에 반영하는 명령어다.</p>
+<pre><code class="language-bash">kubectl apply -f web-gateway.yaml
+kubectl apply -f web-route.yaml
+</code></pre>
+<p><code>-f</code>는 file을 의미한다.</p>
+<pre><code class="language-text">-f web-gateway.yaml
+= web-gateway.yaml 파일을 적용하겠다
+</code></pre>
+<hr>
+<h1>27. kubectl delete</h1>
+<p><code>kubectl delete</code>는 리소스를 삭제하는 명령어다.</p>
+<p>이 문제에서는 Gateway API 설정이 정상 동작하는지 확인한 뒤 기존 Ingress를 삭제해야 한다.</p>
+<pre><code class="language-bash">kubectl delete ingress web
+</code></pre>
+<p>주의할 점은 테스트 전에 삭제하면 안 된다는 것이다.</p>
+<p>순서는 이렇게 가야 한다.</p>
+<pre><code class="language-text">Gateway 생성
+HTTPRoute 생성
+curl 테스트
+Ingress 삭제
+</code></pre>
+<hr>
+<h1>28. YAML</h1>
+<p><code>YAML</code>은 Kubernetes 리소스를 정의할 때 자주 사용하는 파일 형식이다.</p>
+<p>예를 들어 Gateway는 이렇게 YAML로 작성한다.</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+spec:
+  gatewayClassName: nginx
+</code></pre>
+<p>Kubernetes YAML은 보통 네 가지 큰 구조를 가진다.</p>
+<pre><code class="language-text">apiVersion
+kind
+metadata
+spec
+</code></pre>
+<hr>
+<h1>29. apiVersion</h1>
+<p><code>apiVersion</code>은 이 리소스가 어떤 Kubernetes API 버전을 사용할지 나타낸다.</p>
+<p>Gateway API에서는 다음을 사용한다.</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+</code></pre>
+<p>Ingress에서는 보통 다음을 사용한다.</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+</code></pre>
+<p>즉, 리소스 종류에 따라 apiVersion이 다르다.</p>
+<hr>
+<h1>30. kind</h1>
+<p><code>kind</code>는 어떤 종류의 Kubernetes 리소스를 만들지 지정한다.</p>
+<p>예를 들어 Gateway를 만들려면:</p>
+<pre><code class="language-yaml">kind: Gateway
+</code></pre>
+<p>HTTPRoute를 만들려면:</p>
+<pre><code class="language-yaml">kind: HTTPRoute
+</code></pre>
+<p>Ingress를 만들려면:</p>
+<pre><code class="language-yaml">kind: Ingress
+</code></pre>
+<p>Service라면:</p>
+<pre><code class="language-yaml">kind: Service
+</code></pre>
+<hr>
+<h1>31. metadata</h1>
+<p><code>metadata</code>는 리소스의 이름, 라벨, 네임스페이스 같은 기본 정보를 담는 부분이다.</p>
+<pre><code class="language-yaml">metadata:
+  name: web-gateway
+</code></pre>
+<p>여기서 <code>name</code>은 리소스 이름이다.</p>
+<p>문제에서 Gateway 이름을 <code>web-gateway</code>라고 했으므로 이렇게 작성한다.</p>
+<pre><code class="language-yaml">metadata:
+  name: web-gateway
+</code></pre>
+<p>HTTPRoute 이름은 <code>web-route</code>다.</p>
+<pre><code class="language-yaml">metadata:
+  name: web-route
+</code></pre>
+<hr>
+<h1>32. spec</h1>
+<p><code>spec</code>은 리소스의 실제 원하는 상태를 적는 부분이다.</p>
+<p>예를 들어 Gateway의 spec은 다음과 같다.</p>
+<pre><code class="language-yaml">spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+</code></pre>
+<p>이 뜻은 다음이다.</p>
+<pre><code class="language-text">nginx GatewayClass를 사용하고
+HTTPS 443 포트 listener를 만들겠다
+</code></pre>
+<p>Kubernetes에서는 보통 <code>spec</code>에 “내가 원하는 상태”를 적는다.</p>
+<hr>
+<h1>33. backend</h1>
+<p><code>backend</code>는 요청을 최종적으로 넘겨줄 대상이다.</p>
+<p>Ingress에서는 다음처럼 쓴다.</p>
+<pre><code class="language-yaml">backend:
+  service:
+    name: web-service
+    port:
+      number: 80
+</code></pre>
+<p>Gateway API의 HTTPRoute에서는 다음처럼 쓴다.</p>
+<pre><code class="language-yaml">backendRefs:
+- name: web-service
+  port: 80
+</code></pre>
+<p>둘 다 의미는 같다.</p>
+<pre><code class="language-text">요청을 web-service의 80번 포트로 보내라
+</code></pre>
+<hr>
+<h1>34. Routing Rule</h1>
+<p><code>Routing Rule</code>은 어떤 요청을 어디로 보낼지 정하는 규칙이다.</p>
+<p>예를 들어 이런 규칙이 있다고 하자.</p>
+<pre><code class="language-text">gateway.web.k8s.local/ 로 들어온 요청
+→ web-service:80으로 전달
+</code></pre>
+<p>이게 라우팅 규칙이다.</p>
+<p>Ingress에서는 <code>rules</code> 안에 있다.</p>
+<pre><code class="language-yaml">rules:
+- host: web.k8s.local
+  http:
+    paths:
+    - path: /
+      backend:
+        service:
+          name: web-service
+</code></pre>
+<p>Gateway API에서는 HTTPRoute가 이 역할을 한다.</p>
+<pre><code class="language-yaml">rules:
+- matches:
+  - path:
+      type: PathPrefix
+      value: /
+  backendRefs:
+  - name: web-service
+    port: 80
+</code></pre>
+<hr>
+<h1>35. Host 기반 라우팅</h1>
+<p>Host 기반 라우팅은 도메인 이름을 기준으로 요청을 나누는 방식이다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">api.example.com    → api-service
+admin.example.com  → admin-service
+web.example.com    → web-service
+</code></pre>
+<p>이렇게 hostname에 따라 다른 Service로 보낼 수 있다.</p>
+<p>이 문제에서는 hostname이 다음이다.</p>
+<pre><code class="language-text">gateway.web.k8s.local
+</code></pre>
+<p>Gateway와 HTTPRoute 모두 이 hostname을 사용한다.</p>
+<hr>
+<h1>36. Path 기반 라우팅</h1>
+<p>Path 기반 라우팅은 URL 경로를 기준으로 요청을 나누는 방식이다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">/        → frontend-service
+/api     → api-service
+/admin   → admin-service
+</code></pre>
+<p>Ingress에서는 <code>path</code>와 <code>pathType</code>으로 설정한다.</p>
+<pre><code class="language-yaml">path: /
+pathType: Prefix
+</code></pre>
+<p>HTTPRoute에서는 <code>matches.path</code>로 설정한다.</p>
+<pre><code class="language-yaml">path:
+  type: PathPrefix
+  value: /
+</code></pre>
+<hr>
+<h1>37. Rate Limiting</h1>
+<p><code>Rate Limiting</code>은 일정 시간 동안 요청 수를 제한하는 기능이다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">1분에 100번까지만 요청 허용
+</code></pre>
+<p>이런 식이다.</p>
+<p>너무 많은 요청이 한 번에 들어오면 서버가 터질 수 있다. 그래서 API Gateway나 Ingress Controller에서 Rate Limiting을 설정하기도 한다.</p>
+<p>다만 이 문제에서는 직접 Rate Limiting을 구현하지 않는다. Gateway API의 장점 설명으로 알아두면 된다.</p>
+<hr>
+<h1>38. Throttle</h1>
+<p><code>Throttle</code>은 요청 속도를 조절하는 기능이다.</p>
+<p>Rate Limiting이 “일정 시간 안에 몇 번까지 허용할 것인가”에 가깝다면, Throttle은 “요청이 너무 빠르게 몰리지 않도록 속도를 늦추는 것”에 가깝다.</p>
+<p>예를 들어:</p>
+<pre><code class="language-text">초당 100개 요청까지만 처리
+그 이상은 지연 또는 차단
+</code></pre>
+<p>운영 환경에서 서버 보호를 위해 사용한다.</p>
+<hr>
+<h1>39. IP 차단</h1>
+<p><code>IP 차단</code>은 특정 IP에서 오는 요청을 막는 기능이다.</p>
+<p>예를 들어 악성 요청이 특정 IP에서 계속 들어오면 해당 IP를 차단할 수 있다.</p>
+<pre><code class="language-text">1.2.3.4 → 차단
+5.6.7.8 → 허용
+</code></pre>
+<p>Gateway API 자체보다는 Gateway Controller나 정책 리소스와 함께 구현되는 경우가 많다.</p>
+<hr>
+<h1>40. 인증과 인가</h1>
+<p><code>인증</code>은 사용자가 누구인지 확인하는 것이다.</p>
+<pre><code class="language-text">너 누구야?
+로그인했어?
+토큰 있어?
+</code></pre>
+<p><code>인가</code>는 그 사용자가 특정 작업을 할 권한이 있는지 확인하는 것이다.</p>
+<pre><code class="language-text">너 이 API 호출할 권한 있어?
+너 관리자 페이지 들어갈 수 있어?
+</code></pre>
+<p>API Gateway는 이런 인증/인가를 앞단에서 처리할 수도 있다.</p>
+<p>하지만 CKA 문제에서는 여기까지 구현하지 않는다.</p>
+<hr>
+<h1>41. 쿼터 관리</h1>
+<p><code>쿼터</code>는 사용량 제한이다.</p>
+<p>예를 들어 고객마다 API 호출량을 다르게 제한할 수 있다.</p>
+<pre><code class="language-text">무료 사용자: 하루 1,000회
+유료 사용자: 하루 100,000회
+관리자: 제한 없음
+</code></pre>
+<p>API Gateway에서 자주 언급되는 기능이다.</p>
+<hr>
+<h1>42. CKA 문제에서 진짜 중요한 매핑</h1>
+<p>이 문제는 용어가 많지만, 시험장에서 실제로 중요한 건 매핑이다.</p>
+<p>Ingress의 정보를 Gateway API로 옮겨야 한다.</p>
+<table>
+<thead>
+<tr>
+<th>기존 Ingress</th>
+<th>Gateway API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spec.tls[].secretName</code></td>
+<td><code>Gateway.spec.listeners[].tls.certificateRefs[].name</code></td>
+</tr>
+<tr>
+<td><code>spec.rules[].host</code></td>
+<td><code>Gateway.listener.hostname</code>, <code>HTTPRoute.hostnames</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td><code>HTTPRoute.rules[].matches[].path.value</code></td>
+</tr>
+<tr>
+<td><code>pathType: Prefix</code></td>
+<td><code>path.type: PathPrefix</code></td>
+</tr>
+<tr>
+<td>backend service name</td>
+<td><code>HTTPRoute.backendRefs[].name</code></td>
+</tr>
+<tr>
+<td>backend service port</td>
+<td><code>HTTPRoute.backendRefs[].port</code></td>
+</tr>
+</tbody>
+</table>
+<p>즉, 외워야 할 흐름은 이것이다.</p>
+<pre><code class="language-text">Ingress의 TLS Secret
+  → Gateway의 certificateRefs
+
+Ingress의 Host
+  → Gateway hostname / HTTPRoute hostnames
+
+Ingress의 Path
+  → HTTPRoute matches.path
+
+Ingress의 Backend Service
+  → HTTPRoute backendRefs
+</code></pre>
+<hr>
+<h1>43. 최종 구조</h1>
+<p>마이그레이션 후 구조는 다음과 같다.</p>
+<pre><code class="language-text">사용자
+  ↓
+https://gateway.web.k8s.local
+  ↓
+Gateway web-gateway
+  ↓
+HTTPRoute web-route
+  ↓
+Service web-service
+  ↓
+Pod
+</code></pre>
+<p>Ingress를 쓰던 구조는 다음과 같았다.</p>
+<pre><code class="language-text">사용자
+  ↓
+Ingress web
+  ↓
+Service web-service
+  ↓
+Pod
+</code></pre>
+<p>즉, 마이그레이션 후에는 Ingress가 빠지고 Gateway와 HTTPRoute가 그 역할을 나누어 맡는다.</p>
+<pre><code class="language-text">Before:
+Ingress 하나가 외부 진입점 + 라우팅 담당
+
+After:
+Gateway가 외부 진입점 담당
+HTTPRoute가 라우팅 담당
+</code></pre>
+<hr>
+<h1>44. 시험장에서의 풀이 순서</h1>
+<p>시험에서는 개념을 길게 설명할 필요 없이 순서를 정확히 지키면 된다.</p>
+<pre><code class="language-bash">kubectl get ingress web -o yaml
+</code></pre>
+<p>기존 Ingress에서 TLS Secret, path, service name, service port를 확인한다.</p>
+<p>Gateway를 만든다.</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: gateway.web.k8s.local
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: &lt;기존 Ingress의 TLS Secret&gt;
+</code></pre>
+<p>HTTPRoute를 만든다.</p>
+<pre><code class="language-yaml">apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-route
+spec:
+  parentRefs:
+  - name: web-gateway
+  hostnames:
+  - gateway.web.k8s.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: &lt;기존 Ingress의 path&gt;
+    backendRefs:
+    - name: &lt;기존 Ingress의 Service 이름&gt;
+      port: &lt;기존 Ingress의 Service 포트&gt;
+</code></pre>
+<p>적용한다.</p>
+<pre><code class="language-bash">kubectl apply -f web-gateway.yaml
+kubectl apply -f web-route.yaml
+</code></pre>
+<p>테스트한다.</p>
+<pre><code class="language-bash">curl -k https://gateway.web.k8s.local
+</code></pre>
+<p>정상 동작하면 기존 Ingress를 삭제한다.</p>
+<pre><code class="language-bash">kubectl delete ingress web
+</code></pre>
+<hr>
+<h1>마무리</h1>
+<p>Ingress에서 Gateway API로 마이그레이션한다는 말은 기존 웹 애플리케이션을 새로 만드는 게 아니다. 기존 Ingress가 가지고 있던 외부 진입 설정, TLS 설정, 라우팅 규칙, backend service 정보를 Gateway API 구조로 옮기는 것이다.</p>
+<p>핵심은 간단하다.</p>
+<pre><code class="language-text">Gateway = 어디서 받을지
+HTTPRoute = 어디로 보낼지
+Service = 어떤 Pod들로 연결할지
+Pod = 실제 애플리케이션 실행 위치
+</code></pre>
+<p>Ingress에서는 이 역할이 하나에 모여 있었고, Gateway API에서는 역할이 더 명확하게 분리된다.</p>
+<p>그래서 이 문제를 풀 때는 다음 한 문장만 기억하면 된다.</p>
+<pre><code class="language-text">Ingress의 TLS와 routing rule을 Gateway와 HTTPRoute로 나눠서 그대로 옮긴다.
+</code></pre>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

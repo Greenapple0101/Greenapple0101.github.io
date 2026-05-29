@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] 쿠버네티스에서 NIC는 도대체 뭘까? | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스 네트워크를 공부하다 보면 이런 단어들이 계속 나온다. Pod IP Service IP ClusterIP NodePort CNI Ingress DNS Routing 처음 보면 머리가 복잡해진다. “Pod IP는 뭐고 Service IP는 또 뭐지?” “CNI는 왜 나오고, I…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">[Kubernetes]</span>
+    <h1>[Kubernetes] 쿠버네티스에서 NIC는 도대체 뭘까?</h1>
+    <div class="post-meta">
+      <time datetime="Thu, 28 May 2026 23:57:01 GMT">Thu, 28 Ma</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4%EC%97%90%EC%84%9C-NIC%EB%8A%94-%EB%8F%84%EB%8C%80%EC%B2%B4-%EB%AD%98%EA%B9%8C" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스 네트워크를 공부하다 보면 이런 단어들이 계속 나온다.</p>
+<pre><code>Pod IP
+Service IP
+ClusterIP
+NodePort
+CNI
+Ingress
+DNS
+Routing
+</code></pre>
+<p>처음 보면 머리가 복잡해진다.</p>
+<p>“Pod IP는 뭐고 Service IP는 또 뭐지?” “CNI는 왜 나오고, Ingress는 어디에 붙는 거지?” “Pod는 가상인데 어떻게 IP를 가지는 거지?”</p>
+<p>그런데 이걸 이해하기 전에 먼저 잡고 가면 좋은 기본 개념이 있다.</p>
+<p>바로 <strong>NIC</strong> 다.</p>
+<p>NIC는 쿠버네티스 전용 용어가 아니다. 쿠버네티스보다 훨씬 아래에 있는 기본 네트워크 개념이다.</p>
+<hr>
+<h2>1. NIC란?</h2>
+<p>NIC는 <strong>Network Interface Card</strong> 의 줄임말이다.</p>
+<p>말 그대로 컴퓨터가 네트워크에 연결되기 위해 사용하는 네트워크 인터페이스다.</p>
+<p>쉽게 말하면 NIC는 이런 역할을 한다.</p>
+<pre><code>컴퓨터가 네트워크와 통신하기 위한 출입구
+</code></pre>
+<p>우리가 노트북으로 인터넷에 접속할 수 있는 것도 결국 네트워크 인터페이스가 있기 때문이다.</p>
+<p>유선 랜을 꽂으면 Ethernet 인터페이스를 사용한다. 와이파이에 연결하면 Wi-Fi 인터페이스를 사용한다.</p>
+<p>리눅스에서는 아래 명령어로 네트워크 인터페이스를 확인할 수 있다.</p>
+<pre><code>ip addr
+</code></pre>
+<p>예를 들면 이런 이름들이 나온다.</p>
+<pre><code>eth0
+ens33
+enp0s3
+wlan0
+lo
+</code></pre>
+<p>여기서 <code>eth0</code>, <code>ens33</code>, <code>enp0s3</code>, <code>wlan0</code> 같은 것들이 네트워크 인터페이스다.</p>
+<hr>
+<h2>2. NIC는 꼭 물리 장비일까?</h2>
+<p>이름에는 <code>Card</code>가 들어가서 진짜 카드 모양의 물리 장비만 떠올릴 수 있다.</p>
+<p>하지만 요즘에는 꼭 물리 장비만 의미하지 않는다.</p>
+<p>NIC는 크게 두 가지로 볼 수 있다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>물리 NIC</td>
+<td>실제 서버나 노트북에 붙어 있는 네트워크 장치</td>
+</tr>
+<tr>
+<td>가상 NIC</td>
+<td>VM, 컨테이너, Pod 등이 사용하는 가상의 네트워크 인터페이스</td>
+</tr>
+</tbody>
+</table>
+<p>물리 NIC는 이런 것들이다.</p>
+<pre><code>Ethernet 카드
+Wi-Fi 어댑터
+서버의 네트워크 포트
+</code></pre>
+<p>반면 가상 NIC는 실제 장비는 아니지만, 운영체제 안에서 네트워크 인터페이스처럼 동작한다.</p>
+<pre><code>VM의 가상 네트워크 인터페이스
+컨테이너의 eth0
+Pod 내부의 eth0
+</code></pre>
+<p>쿠버네티스에서는 특히 이 <strong>가상 NIC</strong> 개념이 중요하다.</p>
+<p>왜냐하면 Pod도 자기만의 네트워크 공간을 가지고, 그 안에서 네트워크 인터페이스를 사용하기 때문이다.</p>
+<hr>
+<h2>3. 쿠버네티스에서 NIC가 왜 중요할까?</h2>
+<p>쿠버네티스에서 애플리케이션은 보통 Pod 안에서 실행된다.</p>
+<p>그리고 Pod는 각자 IP를 가진다.</p>
+<pre><code>Pod A → 10.42.0.10
+Pod B → 10.42.0.11
+Pod C → 10.42.1.8
+</code></pre>
+<p>여기서 자연스럽게 이런 질문이 생긴다.</p>
+<pre><code>Pod는 가상인데 어떻게 IP를 가질까?
+Pod끼리는 어떻게 통신할까?
+Pod 안에서 eth0은 어디서 생긴 걸까?
+</code></pre>
+<p>이 질문의 시작점이 바로 NIC다.</p>
+<p>Pod 안에도 네트워크 인터페이스가 있다.</p>
+<p>Pod 내부에 들어가서 확인해보면 보통 <code>eth0</code> 같은 인터페이스가 보인다.</p>
+<pre><code>kubectl exec -it &lt;pod-name&gt; -- ip addr
+</code></pre>
+<p>Pod 안에서는 대략 이런 인터페이스를 볼 수 있다.</p>
+<pre><code>lo
+eth0
+</code></pre>
+<p>여기서 <code>eth0</code>이 Pod의 네트워크 출입구다.</p>
+<p>즉 Pod도 자기만의 작은 컴퓨터처럼 네트워크 인터페이스를 가지고 통신한다.</p>
+<hr>
+<h2>4. Pod의 eth0은 진짜 NIC일까?</h2>
+<p>정확히 말하면 진짜 물리 NIC는 아니다.</p>
+<p>Pod 안의 <code>eth0</code>은 <strong>가상 네트워크 인터페이스</strong> 다.</p>
+<p>쿠버네티스는 리눅스의 네트워크 네임스페이스와 CNI를 이용해서 Pod마다 독립된 네트워크 환경을 만들어준다.</p>
+<p>구조를 단순화하면 이렇게 볼 수 있다.</p>
+<pre><code>[Node]
+  ├── 물리 NIC: eth0
+  │
+  ├── Pod A
+  │    └── 가상 NIC: eth0
+  │
+  ├── Pod B
+  │    └── 가상 NIC: eth0
+  │
+  └── Pod C
+       └── 가상 NIC: eth0
+</code></pre>
+<p>노드에는 실제 물리 NIC가 있다.</p>
+<p>그리고 각 Pod 안에는 가상 NIC가 있다.</p>
+<p>Pod 입장에서는 자기 안의 <code>eth0</code>을 통해 밖으로 나간다고 느낀다.</p>
+<p>하지만 실제로는 노드의 네트워크 스택과 CNI가 그 통신을 처리해준다.</p>
+<hr>
+<h2>5. veth pair란?</h2>
+<p>Pod의 가상 NIC를 이해할 때 자주 나오는 개념이 있다.</p>
+<p>바로 <strong>veth pair</strong> 다.</p>
+<p><code>veth</code>는 <strong>virtual ethernet</strong> 의 줄임말이다.</p>
+<p>쉽게 말하면 가상 랜선 한 쌍이라고 보면 된다.</p>
+<pre><code>Pod 내부 eth0  &lt;----&gt;  Node 쪽 veth
+</code></pre>
+<p>한쪽은 Pod 안에 들어간다.</p>
+<p>다른 한쪽은 노드 네트워크 공간에 남는다.</p>
+<p>그래서 Pod가 <code>eth0</code>으로 패킷을 보내면, 그 패킷은 veth pair를 타고 노드 쪽으로 나온다.</p>
+<p>그다음 CNI 플러그인, 브릿지, 라우팅 규칙을 통해 다른 Pod나 외부 네트워크로 전달된다.</p>
+<p>흐름은 대략 이렇게 볼 수 있다.</p>
+<pre><code>Pod의 애플리케이션
+        ↓
+Pod eth0
+        ↓
+veth pair
+        ↓
+Node 네트워크 영역
+        ↓
+CNI 라우팅
+        ↓
+다른 Pod 또는 외부 네트워크
+</code></pre>
+<p>즉 Pod의 <code>eth0</code>은 혼자 존재하는 게 아니라, 노드 쪽 veth와 한 쌍으로 연결되어 있다.</p>
+<hr>
+<h2>6. CNI와 NIC의 관계</h2>
+<p>CNI는 <strong>Container Network Interface</strong> 의 줄임말이다.</p>
+<p>쿠버네티스에서 Pod 네트워크를 설정해주는 플러그인 규격이다.</p>
+<p>대표적인 CNI 플러그인은 다음과 같다.</p>
+<pre><code>Calico
+Flannel
+Cilium
+Weave Net
+</code></pre>
+<p>CNI가 하는 일은 단순히 말하면 이렇다.</p>
+<pre><code>Pod가 생성될 때 네트워크 인터페이스를 만들어준다.
+Pod에 IP를 할당한다.
+Pod가 통신할 수 있도록 라우팅을 설정한다.
+</code></pre>
+<p>즉 NIC는 네트워크 출입구이고, CNI는 그 출입구를 만들어주고 길을 연결해주는 역할에 가깝다.</p>
+<p>비유하면 이렇게 볼 수 있다.</p>
+<pre><code>NIC = 문
+IP = 문패
+CNI = 문을 설치하고 길을 연결해주는 작업자
+</code></pre>
+<p>Pod가 생성되면 CNI가 Pod 안에 <code>eth0</code> 같은 가상 NIC를 만들어주고, IP를 붙이고, 통신할 수 있도록 네트워크 경로를 잡아준다.</p>
+<hr>
+<h2>7. 노드의 NIC와 Pod의 NIC는 다르다</h2>
+<p>여기서 헷갈리기 쉬운 포인트가 있다.</p>
+<p>노드의 NIC와 Pod의 NIC는 다르다.</p>
+<p>둘 다 <code>eth0</code>처럼 보일 수 있지만, 위치가 다르다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node eth0</td>
+<td>노드 자체가 외부 네트워크와 통신하는 인터페이스</td>
+</tr>
+<tr>
+<td>Pod eth0</td>
+<td>Pod가 자기 네트워크 네임스페이스 안에서 사용하는 가상 인터페이스</td>
+</tr>
+</tbody>
+</table>
+<p>노드에서 보는 <code>eth0</code>은 노드 자체의 네트워크 출입구다.</p>
+<pre><code>Node eth0
+= 노드가 외부와 통신하는 인터페이스
+</code></pre>
+<p>Pod 안에서 보는 <code>eth0</code>은 Pod 내부의 네트워크 출입구다.</p>
+<pre><code>Pod eth0
+= Pod가 자기 네트워크 네임스페이스 안에서 사용하는 가상 인터페이스
+</code></pre>
+<p>그래서 같은 <code>eth0</code>이라는 이름이 나와도, 어디에서 본 것인지가 중요하다.</p>
+<p>노드에서 본 <code>eth0</code>인지, Pod 안에서 본 <code>eth0</code>인지에 따라 완전히 다르다.</p>
+<hr>
+<h2>8. 직접 확인해보기</h2>
+<p>노드에서 네트워크 인터페이스를 확인하려면 다음 명령어를 쓴다.</p>
+<pre><code>ip addr
+</code></pre>
+<p>Pod 내부에서 확인하려면 다음처럼 실행한다.</p>
+<pre><code>kubectl exec -it &lt;pod-name&gt; -- ip addr
+</code></pre>
+<p>Pod 내부에서 라우팅 테이블도 확인할 수 있다.</p>
+<pre><code>kubectl exec -it &lt;pod-name&gt; -- ip route
+</code></pre>
+<p>예를 들어 이런 기본 라우트가 보일 수 있다.</p>
+<pre><code>default via 10.42.0.1 dev eth0
+</code></pre>
+<p>이 말은 대충 이렇게 이해하면 된다.</p>
+<pre><code>목적지를 정확히 모르는 패킷은 eth0을 통해 기본 게이트웨이로 보낸다.
+</code></pre>
+<p>즉 Pod 내부에서도 일반 리눅스처럼 네트워크 인터페이스와 라우팅 테이블을 가지고 있다.</p>
+<hr>
+<h2>9. 쿠버네티스 네트워크 흐름으로 보면</h2>
+<p>쿠버네티스 네트워크가 어려운 이유는 여러 계층이 한꺼번에 나오기 때문이다.</p>
+<pre><code>Pod
+Service
+CNI
+Ingress
+Node
+iptables
+routing
+DNS
+</code></pre>
+<p>그런데 가장 아래에는 결국 기본 흐름이 있다.</p>
+<pre><code>애플리케이션이 패킷을 보냄
+        ↓
+Pod의 eth0으로 나감
+        ↓
+veth pair를 통해 노드로 전달됨
+        ↓
+CNI 설정에 따라 라우팅됨
+        ↓
+다른 Pod나 외부로 전달됨
+</code></pre>
+<p>즉 쿠버네티스 네트워크도 결국 “인터페이스를 통해 패킷이 이동하는 구조”다.</p>
+<p>그래서 NIC를 이해하면 Pod IP, CNI, Service, Ingress 같은 개념이 조금 덜 무섭게 느껴진다.</p>
+<hr>
+<h2>10. 한 번에 정리</h2>
+<p>NIC는 컴퓨터가 네트워크와 통신하기 위한 인터페이스다.</p>
+<p>쿠버네티스에서는 노드에도 NIC가 있고, Pod에도 가상 NIC가 있다.</p>
+<pre><code>Node NIC
+= 실제 서버가 외부 네트워크와 통신하는 인터페이스
+
+Pod NIC
+= Pod 내부에 만들어진 가상 네트워크 인터페이스
+</code></pre>
+<p>Pod 내부에서 보이는 <code>eth0</code>은 물리 장비가 아니다.</p>
+<p>CNI가 만들어준 가상 네트워크 인터페이스다.</p>
+<p>Pod의 <code>eth0</code>은 veth pair를 통해 노드 네트워크와 연결된다.</p>
+<p>그 이후 CNI 플러그인의 라우팅 규칙에 따라 다른 Pod나 외부 네트워크와 통신한다.</p>
+<p>핵심만 잡으면 이렇다.</p>
+<pre><code>Pod도 네트워크 인터페이스를 가진다.
+그 인터페이스가 eth0이다.
+eth0을 통해 패킷이 나가고 들어온다.
+CNI는 그 길을 만들어준다.
+</code></pre>
+<p>결국 NIC를 이해한다는 건 쿠버네티스 네트워크의 가장 기본 출입구를 이해하는 것이다.</p>
+<p>쿠버네티스 네트워크를 공부할 때 처음부터 Service, Ingress, CNI를 다 외우려고 하면 복잡하다.</p>
+<p>먼저 이렇게 생각하면 훨씬 편하다.</p>
+<pre><code>네트워크 통신은 결국 인터페이스를 통해 나가고 들어온다.
+Pod도 자기만의 인터페이스를 가진다.
+그 인터페이스가 Pod의 eth0이다.
+</code></pre>
+<p>이 정도만 잡고 가도 쿠버네티스 네트워크의 첫 번째 벽은 넘은 셈이다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

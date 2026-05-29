@@ -1,0 +1,422 @@
+---
+title: "[Kubernetes] apache.192.168.164.4.sslip.io에서 Apache랑 sslip.io는 뭘까?"
+source: "https://velog.io/@yorange50/Kubernetes-apache.192.168.164.4.sslip.io에서-Apache랑-sslip.io는-뭘까"
+published: "2026-05-27T18:02:14.574Z"
+tags: ""
+backup_date: "2026-05-29T14:52:52.710171"
+---
+
+
+Kubernetes Ingress 실습을 하다 보면 이런 주소를 만난다.
+
+```text
+apache.192.168.164.4.sslip.io
+```
+
+`apache`는 뭔가 서비스 이름 같고, `192.168.164.4`는 IP 주소 같고, `sslip.io`는 도메인 같은데 이게 왜 한 줄에 붙어 있는 걸까?
+
+이번 글에서는 이 주소를 기준으로 **Apache가 무엇인지**, **sslip.io가 왜 필요한지**, 그리고 **Kubernetes Ingress에서 이 주소가 어떻게 동작하는지** 정리해본다.
+
+---
+
+## 1. 먼저 주소를 쪼개보자
+
+```text
+apache.192.168.164.4.sslip.io
+```
+
+이 주소는 대충 이렇게 나눠볼 수 있다.
+
+```text
+apache / 192.168.164.4 / sslip.io
+```
+
+각각의 의미는 다음과 같다.
+
+```text
+apache            → 어떤 서비스로 보낼지 구분하는 이름
+192.168.164.4     → 실제로 접속할 IP 주소
+sslip.io          → IP를 도메인처럼 쓸 수 있게 해주는 DNS 서비스
+```
+
+즉 이 주소는 한 줄로 말하면 이렇다.
+
+```text
+192.168.164.4라는 IP로 접속하되,
+Host 이름이 apache로 시작하는 요청은 Apache 서비스로 보내기 위한 실습용 도메인
+```
+
+---
+
+## 2. Apache란?
+
+Apache는 보통 **Apache HTTP Server**를 의미한다.
+
+Apache HTTP Server는 웹 서버다. 공식 프로젝트 설명에서도 Apache httpd는 여러 운영체제에서 동작하는 빠르고 안정적인 오픈소스 웹 서버라고 설명한다. ([Apache HTTP Server][1])
+
+웹 서버는 브라우저가 요청을 보냈을 때 HTML, 이미지, CSS, JavaScript 같은 웹 리소스를 응답해주는 서버다.
+
+예를 들어 사용자가 브라우저에서 다음 주소로 접속했다고 해보자.
+
+```text
+http://example.com
+```
+
+그러면 브라우저는 서버에게 이렇게 요청한다.
+
+```text
+example.com에 해당하는 웹 페이지 주세요
+```
+
+이때 서버 쪽에서 요청을 받아서 웹 페이지를 돌려주는 역할을 하는 프로그램 중 하나가 Apache다.
+
+---
+
+## 3. Apache는 nginx랑 비슷한 역할을 한다
+
+Kubernetes 실습에서는 보통 nginx와 apache를 같이 띄워놓고 비교하는 경우가 많다.
+
+예를 들면 이런 식이다.
+
+```text
+nginx.192.168.164.4.sslip.io
+apache.192.168.164.4.sslip.io
+```
+
+둘 다 웹 서버지만, Ingress 실습에서는 보통 “서로 다른 백엔드 서비스”를 구분하기 위해 사용한다.
+
+```text
+nginx 주소로 접속하면 nginx 서비스로 이동
+apache 주소로 접속하면 apache 서비스로 이동
+```
+
+즉 여기서 중요한 건 Apache 자체의 깊은 구조가 아니라, **Apache라는 웹 서버가 하나의 백엔드 서비스로 떠 있다**는 점이다.
+
+---
+
+## 4. Kubernetes에서 Apache는 보통 Pod로 떠 있다
+
+Kubernetes에서는 Apache를 직접 서버에 설치하기보다는 보통 컨테이너 이미지로 실행한다.
+
+예를 들면 이런 구조다.
+
+```text
+Apache 컨테이너
+        ↓
+Apache Pod
+        ↓
+Apache Service
+        ↓
+Ingress
+        ↓
+브라우저 접속
+```
+
+Deployment 예시는 대충 이런 모양이다.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      containers:
+        - name: apache
+          image: httpd
+          ports:
+            - containerPort: 80
+```
+
+여기서 `httpd`가 Apache HTTP Server 이미지다.
+
+그리고 이 Pod를 외부에서 접근할 수 있게 Service를 만든다.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-service
+spec:
+  selector:
+    app: apache
+  ports:
+    - port: 80
+      targetPort: 80
+```
+
+그다음 Ingress에서 특정 도메인으로 들어온 요청을 `apache-service`로 보내게 만든다.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: apache-ingress
+spec:
+  rules:
+    - host: apache.192.168.164.4.sslip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apache-service
+                port:
+                  number: 80
+```
+
+이제 브라우저에서 아래 주소로 접속하면:
+
+```text
+apache.192.168.164.4.sslip.io
+```
+
+Ingress가 요청을 보고 이렇게 판단한다.
+
+```text
+Host가 apache.192.168.164.4.sslip.io네?
+그럼 apache-service로 보내야겠다.
+```
+
+---
+
+## 5. 그럼 sslip.io는 뭐야?
+
+`sslip.io`는 DNS 서비스다.
+
+DNS는 도메인 이름을 IP 주소로 바꿔주는 시스템이다.
+
+예를 들어 우리가 브라우저에 `google.com`을 입력하면 컴퓨터는 실제로는 구글 서버의 IP 주소를 찾아서 접속한다.
+
+```text
+google.com
+   ↓ DNS 조회
+실제 IP 주소
+```
+
+`sslip.io`도 비슷한 역할을 한다.
+
+다만 `sslip.io`는 조금 특이하다.
+
+주소 안에 IP를 넣으면, 그 IP로 자동 변환해준다. sslip.io 공식 설명에서도 hostname 안에 IP 주소가 포함되어 있으면 그 IP 주소를 반환하는 DNS 서비스라고 설명한다. ([Sslip][2])
+
+예를 들어:
+
+```text
+192.168.164.4.sslip.io
+```
+
+이 주소를 DNS에 물어보면:
+
+```text
+192.168.164.4
+```
+
+를 돌려준다.
+
+즉 따로 DNS 설정을 하지 않아도 IP를 도메인처럼 쓸 수 있다.
+
+---
+
+## 6. 왜 그냥 IP로 접속하지 않고 sslip.io를 쓸까?
+
+그냥 이렇게 접속하면 안 될까?
+
+```text
+http://192.168.164.4
+```
+
+가능할 때도 있다.
+
+하지만 Ingress 실습에서는 보통 **Host 기반 라우팅**을 한다.
+
+Host 기반 라우팅은 이런 것이다.
+
+```text
+nginx.192.168.164.4.sslip.io   → nginx-service
+apache.192.168.164.4.sslip.io  → apache-service
+grafana.192.168.164.4.sslip.io → grafana-service
+```
+
+즉 같은 IP로 들어오더라도, 앞에 붙은 도메인 이름에 따라 서로 다른 서비스로 보내는 방식이다.
+
+문제는 그냥 IP로 접속하면 Host 이름이 없다.
+
+```text
+http://192.168.164.4
+```
+
+이렇게 접속하면 Ingress 입장에서는 이런 구분을 하기 어렵다.
+
+```text
+이 요청을 nginx로 보내야 하나?
+apache로 보내야 하나?
+grafana로 보내야 하나?
+```
+
+그래서 실습에서는 도메인 형태가 필요하다.
+
+그런데 매번 실제 도메인을 사고 DNS 설정을 하기는 귀찮다.
+
+이때 `sslip.io`를 쓰면 된다.
+
+```text
+apache.192.168.164.4.sslip.io
+```
+
+이 주소는 도메인처럼 생겼지만, 실제로는 자동으로 `192.168.164.4`를 가리킨다.
+
+---
+
+## 7. 요청 흐름 정리
+
+브라우저에서 다음 주소로 접속한다고 해보자.
+
+```text
+http://apache.192.168.164.4.sslip.io
+```
+
+전체 흐름은 이렇게 된다.
+
+```text
+1. 브라우저가 apache.192.168.164.4.sslip.io로 접속 시도
+
+2. DNS가 sslip.io를 보고 IP를 해석
+
+3. apache.192.168.164.4.sslip.io → 192.168.164.4
+
+4. 요청이 192.168.164.4에 있는 Ingress Controller로 도착
+
+5. Ingress Controller가 Host 헤더 확인
+
+6. Host가 apache.192.168.164.4.sslip.io이므로 apache-service로 전달
+
+7. apache-service가 Apache Pod로 트래픽 전달
+
+8. Apache Pod가 웹 페이지 응답
+```
+
+그림처럼 보면 이렇다.
+
+```text
+Browser
+  |
+  | http://apache.192.168.164.4.sslip.io
+  v
+DNS
+  |
+  | apache.192.168.164.4.sslip.io = 192.168.164.4
+  v
+Ingress Controller
+  |
+  | Host 확인: apache.192.168.164.4.sslip.io
+  v
+apache-service
+  |
+  v
+Apache Pod
+```
+
+---
+
+## 8. apache.192.168.164.4.sslip.io를 다시 해석하면
+
+이제 이 주소를 다시 보면 덜 이상하다.
+
+```text
+apache.192.168.164.4.sslip.io
+```
+
+이건 이런 뜻이다.
+
+```text
+apache라는 이름의 서비스로 보내고 싶은 요청이다.
+실제 접속 IP는 192.168.164.4다.
+sslip.io가 이 도메인을 192.168.164.4로 해석해준다.
+```
+
+즉 `apache`는 실제 IP가 아니다.
+
+`apache`는 Ingress가 Host를 구분할 때 쓰는 이름에 가깝다.
+
+실제 IP는 이 부분이다.
+
+```text
+192.168.164.4
+```
+
+그리고 이 IP를 도메인처럼 쓸 수 있게 해주는 게 이 부분이다.
+
+```text
+sslip.io
+```
+
+---
+
+## 9. 비슷한 주소 예시
+
+Ingress 실습에서는 이런 주소들이 자주 나온다.
+
+```text
+nginx.192.168.164.4.sslip.io
+apache.192.168.164.4.sslip.io
+grafana.192.168.164.4.sslip.io
+prometheus.192.168.164.4.sslip.io
+```
+
+이 주소들은 모두 최종적으로 같은 IP를 가리킬 수 있다.
+
+```text
+192.168.164.4
+```
+
+하지만 Ingress는 Host 이름을 보고 서로 다른 서비스로 보낸다.
+
+```text
+nginx.192.168.164.4.sslip.io      → nginx-service
+apache.192.168.164.4.sslip.io     → apache-service
+grafana.192.168.164.4.sslip.io    → grafana-service
+prometheus.192.168.164.4.sslip.io → prometheus-service
+```
+
+그래서 하나의 IP로 여러 서비스를 구분해서 접속할 수 있다.
+
+---
+
+## 10. 정리
+
+Apache는 웹 서버다.
+
+브라우저가 요청을 보내면 웹 페이지를 응답해주는 서버 프로그램이다. Kubernetes에서는 보통 Apache 컨테이너를 Pod로 띄우고, Service와 Ingress를 통해 외부에서 접근하게 만든다.
+
+sslip.io는 IP를 도메인처럼 쓸 수 있게 해주는 DNS 서비스다.
+
+```text
+192.168.164.4.sslip.io
+```
+
+처럼 주소 안에 IP를 넣으면, sslip.io가 자동으로 그 IP를 반환해준다.
+
+그래서 실습 환경에서는 실제 도메인을 구매하거나 DNS 설정을 하지 않고도 Ingress Host 기반 라우팅을 테스트할 수 있다.
+
+마지막으로 이 주소를 한 문장으로 정리하면 다음과 같다.
+
+```text
+apache.192.168.164.4.sslip.io는
+192.168.164.4라는 IP로 접속하면서,
+Ingress에게 “이 요청은 apache 서비스로 보내줘”라고 알려주는 실습용 도메인이다.
+```
+
+Kubernetes Ingress를 공부할 때 이 주소 구조를 이해하면, `host`, `service`, `pod`, `dns`, `ip`가 어떻게 연결되는지 훨씬 선명하게 보인다.
+
+[1]: https://httpd.apache.org/?utm_source=chatgpt.com "Welcome! - The Apache HTTP Server Project"
+[2]: https://sslip.io/?utm_source=chatgpt.com "Welcome to nip.io / sslip.io"

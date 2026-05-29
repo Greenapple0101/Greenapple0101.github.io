@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[KUBERNETES] -f | Greenapple0101</title>
+  <meta name="description" content="지금 오류 원인은 명령어에서 -f 를 잘못 쓴 것 이야. 지금 친 명령어 이렇게 치면 Kubernetes는 rs 를 리소스 종류 로 해석하는 게 아니라, -f 옵션 뒤에 온 값이라서 파일 경로 로 해석함. 즉 Kubernetes 입장에서는 이렇게 이해함. 그래서 이런 오류가 뜬 거야.…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">KUBERNETES</span>
+    <h1>[KUBERNETES] -f</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-13T09:05:34.885Z">2026.05.13</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/KUBERNETES-f" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>지금 오류 원인은 <strong>명령어에서 <code>-f</code>를 잘못 쓴 것</strong>이야.</p>
+<h2>지금 친 명령어</h2>
+<pre><code class="language-bash">k scale -f rs new-replica-set --replicas=5
+</code></pre>
+<p>이렇게 치면 Kubernetes는 <code>rs</code>를 <strong>리소스 종류</strong>로 해석하는 게 아니라, <code>-f</code> 옵션 뒤에 온 값이라서 <strong>파일 경로</strong>로 해석함.</p>
+<p>즉 Kubernetes 입장에서는 이렇게 이해함.</p>
+<pre><code class="language-text">-f rs
+</code></pre>
+<pre><code class="language-text">rs라는 파일을 찾아서 scale 하라는 뜻인가?
+</code></pre>
+<p>그래서 이런 오류가 뜬 거야.</p>
+<pre><code class="language-text">error: the path &quot;rs&quot; does not exist
+</code></pre>
+<p>즉, <code>rs</code>라는 파일이 없다는 뜻.</p>
+<hr>
+<h2>두 번째 명령어도 같은 이유</h2>
+<pre><code class="language-bash">k scale -f new-replica-set --replicas=5
+</code></pre>
+<p>이것도 Kubernetes는 이렇게 해석함.</p>
+<pre><code class="language-text">new-replica-set이라는 파일을 찾아라
+</code></pre>
+<p>그런데 그런 파일이 없으니까:</p>
+<pre><code class="language-text">error: the path &quot;new-replica-set&quot; does not exist
+</code></pre>
+<p>라고 나온 것.</p>
+<hr>
+<h2>세 번째도 마찬가지</h2>
+<pre><code class="language-bash">k scale -f ReplicaSet --replicas=5
+</code></pre>
+<p>이것도:</p>
+<pre><code class="language-text">ReplicaSet이라는 파일을 찾아라
+</code></pre>
+<p>로 해석됨.</p>
+<p>그래서:</p>
+<pre><code class="language-text">error: the path &quot;ReplicaSet&quot; does not exist
+</code></pre>
+<hr>
+<h1>정답 명령어</h1>
+<p>이미 <code>new-replica-set</code>이라는 ReplicaSet을 만들었으니까, 파일 기준이 아니라 <strong>리소스 기준으로 scale</strong> 해야 해.</p>
+<pre><code class="language-bash">k scale rs new-replica-set --replicas=5
+</code></pre>
+<p>또는 풀네임으로:</p>
+<pre><code class="language-bash">kubectl scale replicaset new-replica-set --replicas=5
+</code></pre>
+<p>또는 이렇게도 가능:</p>
+<pre><code class="language-bash">kubectl scale rs/new-replica-set --replicas=5
+</code></pre>
+<hr>
+<h2>왜 <code>-f</code>를 빼야 하냐</h2>
+<p><code>-f</code>는 파일을 사용할 때 쓰는 옵션이야.</p>
+<p>예를 들어 YAML 파일을 수정해서 적용할 때는:</p>
+<pre><code class="language-bash">kubectl apply -f new-replica-set.yaml
+</code></pre>
+<p>이건 맞음.</p>
+<p>하지만 이미 생성된 리소스를 이름으로 조작할 때는 <code>-f</code>를 쓰면 안 됨.</p>
+<pre><code class="language-bash">kubectl scale rs new-replica-set --replicas=5
+</code></pre>
+<p>이렇게 해야 함.</p>
+<hr>
+<h2>지금 바로 할 순서</h2>
+<p>먼저 ReplicaSet 이름 확인:</p>
+<pre><code class="language-bash">k get rs
+</code></pre>
+<p>아마 이렇게 나올 거야.</p>
+<pre><code class="language-text">NAME              DESIRED   CURRENT   READY
+new-replica-set   2         2         2
+</code></pre>
+<p>그다음 scale:</p>
+<pre><code class="language-bash">k scale rs new-replica-set --replicas=5
+</code></pre>
+<p>확인:</p>
+<pre><code class="language-bash">k get rs
+</code></pre>
+<p>또는 Pod 확인:</p>
+<pre><code class="language-bash">k get pods
+</code></pre>
+<hr>
+<h2>핵심만 정리</h2>
+<pre><code class="language-bash">-f
+</code></pre>
+<p>는 <strong>파일 경로를 넘길 때</strong> 쓰는 옵션.</p>
+<pre><code class="language-bash">k scale -f rs ...
+</code></pre>
+<p>라고 치면 <code>rs</code>를 리소스 타입이 아니라 <strong>파일 이름</strong>으로 봄.</p>
+<p>그래서 정답은:</p>
+<pre><code class="language-bash">k scale rs new-replica-set --replicas=5
+</code></pre>
+<p>이거야.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

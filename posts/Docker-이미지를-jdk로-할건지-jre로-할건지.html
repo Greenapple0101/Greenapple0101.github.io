@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Docker] 이미지를 jdk로 할건지 jre로 할건지 | Greenapple0101</title>
+  <meta name="description" content="맞아. 운영 실행용 이미지는 JDK보다 JRE가 더 적절한 경우가 많다. 내가 예시에서 eclipse-temurin:17-jdk 를 쓴 건 “일단 무조건 실행되는 안전한 예시”에 가깝고, 실제 운영 이미지 최적화 관점에서는 더 가벼운 런타임 이미지를 쓰는 게 맞다. JDK와 JRE 차…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+    <h1>[Docker] 이미지를 jdk로 할건지 jre로 할건지</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-17T09:23:19.316Z">2026.05.17</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Docker-이미지를-jdk로-할건지-jre로-할건지" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>맞아. <strong>운영 실행용 이미지는 JDK보다 JRE가 더 적절한 경우가 많다.</strong>
+내가 예시에서 <code>eclipse-temurin:17-jdk</code>를 쓴 건 “일단 무조건 실행되는 안전한 예시”에 가깝고, 실제 운영 이미지 최적화 관점에서는 더 가벼운 런타임 이미지를 쓰는 게 맞다.</p>
+<h2>JDK와 JRE 차이</h2>
+<p>간단히 말하면 이거다.</p>
+<pre><code class="language-text">JDK = 개발 + 빌드 + 실행 도구 포함
+JRE = 실행에 필요한 런타임만 포함
+</code></pre>
+<p>JDK에는 이런 것들이 들어 있다.</p>
+<pre><code class="language-text">javac
+javadoc
+jar
+jlink
+개발/컴파일 관련 도구
+Java 실행 런타임
+</code></pre>
+<p>JRE 또는 runtime 이미지에는 보통 실행에 필요한 것만 있다.</p>
+<pre><code class="language-text">java 명령어
+JVM
+기본 런타임 라이브러리
+</code></pre>
+<p>Spring Boot JAR를 이미 만들어둔 상태라면 컨테이너 안에서 컴파일할 필요가 없다.</p>
+<p>그래서 실행 단계에서는 JDK가 아니라 JRE 계열 이미지를 쓰는 게 더 자연스럽다.</p>
+<h2>단일 스테이지라면 이렇게 쓰는 게 더 좋음</h2>
+<p>이미 EC2나 Jenkins에서 JAR를 빌드한 뒤 <code>app.jar</code>로 만들어둔 구조라면 Dockerfile은 이렇게 가면 된다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>이게 더 맞는 구조다.</p>
+<pre><code class="language-text">빌드: EC2 호스트 / Jenkins / GitHub Actions
+실행: Docker 컨테이너
+</code></pre>
+<p>컨테이너는 이미 완성된 JAR만 실행하니까 JDK까지 필요 없다.</p>
+<h2>멀티스테이지에서도 실행 단계는 JRE가 좋음</h2>
+<p>멀티스테이지 빌드라면 빌드 단계에서는 JDK가 필요하다.</p>
+<pre><code class="language-dockerfile">FROM gradle:8.7-jdk17 AS builder
+</code></pre>
+<p>Gradle로 Java 코드를 컴파일해야 하니까 여기서는 JDK가 필요하다.</p>
+<p>하지만 최종 실행 단계는 JRE로 충분하다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>전체로 보면 이런 식이다.</p>
+<pre><code class="language-dockerfile">FROM gradle:8.7-jdk17 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN gradle clean build -x test
+
+RUN JAR_FILE=$(find build/libs -name &quot;*.jar&quot; ! -name &quot;*plain.jar&quot; | head -n 1) &amp;&amp; \
+    cp &quot;$JAR_FILE&quot; app.jar
+
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY --from=builder /app/app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>이 구조가 더 깔끔하다.</p>
+<pre><code class="language-text">builder stage: JDK 필요
+runtime stage: JRE면 충분
+</code></pre>
+<h2>그럼 왜 사람들이 JDK 이미지를 쓰기도 하냐</h2>
+<p>운영에서는 JRE가 더 가볍고 좋지만, JDK 이미지를 쓰는 경우도 있다.</p>
+<p>첫째, 디버깅 도구가 필요할 때다.</p>
+<p>JDK 이미지에는 <code>jcmd</code>, <code>jstack</code>, <code>jmap</code>, <code>jstat</code> 같은 진단 도구가 들어 있는 경우가 많다. 운영 중 JVM 문제를 깊게 분석해야 할 때는 JDK 이미지가 편할 수 있다.</p>
+<p>둘째, 이미지 선택을 단순화하고 싶을 때다.</p>
+<p>개발, 테스트, 운영을 모두 같은 JDK 베이스로 맞추면 버전 차이 문제를 줄일 수 있다. 대신 이미지가 무거워진다.</p>
+<p>셋째, JRE 태그가 없는 배포판을 쓰는 경우도 있다.</p>
+<p>Java 9 이후로 전통적인 의미의 JRE 배포가 줄어들면서, 이미지 제공 방식이 배포판마다 조금씩 다르다. 그래서 어떤 팀은 그냥 <code>jdk</code>나 <code>jre</code>, 또는 <code>runtime</code>, <code>alpine</code>, <code>slim</code> 중에서 안정적으로 제공되는 걸 고른다.</p>
+<h2>운영 기준 추천</h2>
+<p>Spring Boot 애플리케이션을 Docker로 실행만 한다면 추천은 이거다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+</code></pre>
+<p>또는 더 줄이고 싶으면 이런 계열도 고려할 수 있다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre-alpine
+</code></pre>
+<p>다만 <code>alpine</code>은 musl libc 기반이라서 일부 네이티브 라이브러리, 폰트, 타임존, 인증서, 모니터링 에이전트 쪽에서 예상치 못한 문제가 날 수 있다. 그래서 무조건 alpine이 정답은 아니다.</p>
+<p>무난한 운영 선택지는 보통 이쪽이다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+</code></pre>
+<p>또는 Debian 기반의 slim 계열이 있으면:</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre-jammy
+</code></pre>
+<h2>결론</h2>
+<p>네 말이 맞다.</p>
+<pre><code class="language-text">JAR를 이미 빌드해둔 단일 스테이지 실행 이미지라면 JDK보다 JRE가 더 적절함
+</code></pre>
+<p>그래서 단일 스테이지 Dockerfile은 이렇게 고치는 게 좋다.</p>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+COPY app.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<p>그리고 멀티스테이지라면 이렇게 생각하면 된다.</p>
+<pre><code class="language-text">빌드 단계 = JDK
+실행 단계 = JRE
+</code></pre>
+<p>내가 앞에서 <code>jdk</code>로 든 건 실행 안정성을 우선한 단순 예시였고, 네가 지적한 것처럼 <strong>운영 이미지 최적화 관점에서는 JRE가 더 맞다.</strong></p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

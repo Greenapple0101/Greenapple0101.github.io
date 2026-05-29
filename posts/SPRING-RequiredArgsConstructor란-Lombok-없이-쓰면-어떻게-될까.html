@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[SPRING] @RequiredArgsConstructor란? (Lombok 없이 쓰면 어떻게 될까) | Greenapple0101</title>
+  <meta name="description" content="Spring 코드를 보다 보면 이런 어노테이션을 자주 보게 된다. 처음 보면 “이게 뭐지?” 싶지만, 사실은 생성자를 대신 만들어주는 도구 다. --- 1. @RequiredArgsConstructor의 역할 이 어노테이션은 final이 붙은 필드를 기준으로 생성자를 자동 생성해준다…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #16a34a">SPRING</span>
+    <h1>[SPRING] @RequiredArgsConstructor란? (Lombok 없이 쓰면 어떻게 될까)</h1>
+    <div class="post-meta">
+      <time datetime="2026-04-30T01:03:17.409Z">2026.04.30</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/SPRING-RequiredArgsConstructor란-Lombok-없이-쓰면-어떻게-될까" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>Spring 코드를 보다 보면 이런 어노테이션을 자주 보게 된다.</p>
+<pre><code class="language-java">@RequiredArgsConstructor
+@RestController
+public class BoardController {
+
+    private final BoardService boardService;
+
+}
+</code></pre>
+<p>처음 보면 “이게 뭐지?” 싶지만, 사실은 <strong>생성자를 대신 만들어주는 도구</strong>다.</p>
+<hr>
+<h2>1. @RequiredArgsConstructor의 역할</h2>
+<p>이 어노테이션은</p>
+<blockquote>
+<p><strong>final이 붙은 필드를 기준으로 생성자를 자동 생성해준다</strong></p>
+</blockquote>
+<p>즉, 아래 코드:</p>
+<pre><code class="language-java">private final BoardService boardService;
+</code></pre>
+<p>이걸 보고 Lombok이 자동으로 이걸 만들어준다:</p>
+<pre><code class="language-java">public BoardController(BoardService boardService) {
+    this.boardService = boardService;
+}
+</code></pre>
+<hr>
+<h2>2. 왜 이게 필요할까?</h2>
+<p>Spring에서 의존성 주입을 할 때 가장 권장되는 방식이</p>
+<blockquote>
+<p>생성자 주입</p>
+</blockquote>
+<p>이다.</p>
+<p>즉, 이렇게 쓰는 게 정석이다:</p>
+<pre><code class="language-java">public BoardController(BoardService boardService) {
+    this.boardService = boardService;
+}
+</code></pre>
+<p>그런데 클래스마다 이걸 매번 쓰면 귀찮고 코드가 길어진다.</p>
+<p>그래서 Lombok을 쓰면:</p>
+<pre><code class="language-java">@RequiredArgsConstructor
+</code></pre>
+<p>한 줄로 끝낼 수 있다.</p>
+<hr>
+<h2>3. Lombok 안 쓰면 어떻게 해야 할까?</h2>
+<p>Lombok을 안 쓰면 <strong>직접 생성자를 만들어야 한다</strong></p>
+<pre><code class="language-java">@RestController
+public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+}
+</code></pre>
+<p>즉,</p>
+<ul>
+<li>Lombok 있음 → 자동 생성</li>
+<li>Lombok 없음 → 직접 작성</li>
+</ul>
+<hr>
+<h2>4. 왜 final을 붙일까?</h2>
+<pre><code class="language-java">private final BoardService boardService;
+</code></pre>
+<p>여기서 <code>final</code>이 중요한 이유는:</p>
+<ul>
+<li>한 번 주입되면 바뀌지 않도록 보장</li>
+<li>생성자 주입을 강제</li>
+<li>코드 안정성 증가</li>
+</ul>
+<p>그리고 Lombok도 <strong>final 기준으로 생성자 만들어준다</strong></p>
+<hr>
+<h2>5. 핵심 흐름</h2>
+<p>정리하면:</p>
+<ol>
+<li>Controller가 Service를 사용해야 함</li>
+<li>그래서 생성자로 받아야 함</li>
+<li>그 생성자를 Lombok이 대신 만들어줌</li>
+</ol>
+<hr>
+<h2>6. 한 줄 정리</h2>
+<ul>
+<li>@RequiredArgsConstructor → final 필드 기준 생성자 자동 생성</li>
+<li>Lombok 없으면 → 생성자 직접 작성해야 함</li>
+<li>Spring에서는 생성자 주입이 기본 패턴</li>
+</ul>
+<hr>
+<p>이걸 이해하면 지금 코드에서</p>
+<pre><code class="language-java">this.boardService = boardService;
+</code></pre>
+<p>이게 왜 필요한지도 자연스럽게 연결된다.</p>
+<p>다음 단계는
+→ “왜 필드 주입(@Autowired)보다 생성자 주입이 좋은지”</p>
+<p>이거까지 가면 설계 이해도가 한 단계 올라간다.</p>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

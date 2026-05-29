@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] ReplicaSet 생성 중 no matches for kind \&quot;ReplicaSet\&quot; in version \&quot;v1\&quot; 에러 해결 + 공식 Docs 보는 법 | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스 실습을 하다 보면 가장 많이 마주치는 것 중 하나가 YAML 오류다. 특히 CKA/KodeKloud에서는 일부러 틀린 YAML 파일을 주고 수정하게 만드는 문제가 굉장히 자주 나온다. 이번에는 ReplicaSet 생성 중 발생한 에러를 해결하면서: ReplicaSet 개념…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <a class="back-link" href="../index.html">← 글 목록</a>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] ReplicaSet 생성 중 no matches for kind \&quot;ReplicaSet\&quot; in version \&quot;v1\&quot; 에러 해결 + 공식 Docs 보는 법</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-11T03:51:00.227Z">2026.05.11</time>
+      <a class="velog-link" href="https://velog.io/@yorange50/Kubernetes-ReplicaSet-생성-중-no-matches-for-kind-ReplicaSet-in-version-v1-에러-해결-공식-Docs-보는-법" target="_blank" rel="noopener">Velog 원문</a>
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스 실습을 하다 보면 가장 많이 마주치는 것 중 하나가 YAML 오류다.</p>
+<p>특히 CKA/KodeKloud에서는 일부러 틀린 YAML 파일을 주고 수정하게 만드는 문제가 굉장히 자주 나온다.</p>
+<p>이번에는 ReplicaSet 생성 중 발생한 에러를 해결하면서:</p>
+<ul>
+<li>ReplicaSet 개념</li>
+<li>YAML 구조</li>
+<li>apiVersion 의미</li>
+<li>kubectl explain 사용법</li>
+<li>공식 Kubernetes Docs 보는 방법</li>
+</ul>
+<p>까지 한 번에 정리해보자.</p>
+<hr>
+<h1>문제 상황</h1>
+<p>문제:</p>
+<pre><code class="language-text">Create a ReplicaSet using the replicaset-definition-1.yaml file located at /root/.
+
+There is an issue with the file, so try to fix it.
+</code></pre>
+<p>파일 생성 시도:</p>
+<pre><code class="language-bash">k create -f /root/replicaset-definition-1.yaml
+</code></pre>
+<p>에러 발생:</p>
+<pre><code class="language-text">error: resource mapping not found for name: &quot;replicaset-1&quot;
+namespace: &quot;&quot; from &quot;/root/replicaset-definition-1.yaml&quot;:
+no matches for kind &quot;ReplicaSet&quot; in version &quot;v1&quot;
+</code></pre>
+<hr>
+<h1>에러 해석</h1>
+<p>핵심은 이 부분이다.</p>
+<pre><code class="language-text">no matches for kind &quot;ReplicaSet&quot; in version &quot;v1&quot;
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">ReplicaSet은 v1 버전이 아닌데
+YAML에서 v1으로 작성했다
+</code></pre>
+<p>라는 뜻이다.</p>
+<hr>
+<h1>원인 확인</h1>
+<p>파일 열기:</p>
+<pre><code class="language-bash">vi /root/replicaset-definition-1.yaml
+</code></pre>
+<p>문제 YAML:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ReplicaSet
+</code></pre>
+<p>여기서 잘못된 부분은:</p>
+<pre><code class="language-yaml">apiVersion: v1
+</code></pre>
+<p>이다.</p>
+<hr>
+<h1>왜 틀렸을까?</h1>
+<p>쿠버네티스 리소스마다 사용하는 API 그룹이 다르다.</p>
+<p>예를 들면:</p>
+<table>
+<thead>
+<tr>
+<th>리소스</th>
+<th>apiVersion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pod</td>
+<td>v1</td>
+</tr>
+<tr>
+<td>Service</td>
+<td>v1</td>
+</tr>
+<tr>
+<td>ConfigMap</td>
+<td>v1</td>
+</tr>
+<tr>
+<td>ReplicaSet</td>
+<td>apps/v1</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>apps/v1</td>
+</tr>
+</tbody>
+</table>
+<p>즉 ReplicaSet은:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+</code></pre>
+<p>를 사용해야 한다.</p>
+<hr>
+<h1>수정 방법</h1>
+<p>수정 후:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: ReplicaSet
+</code></pre>
+<p>저장 후 다시 생성:</p>
+<pre><code class="language-bash">k create -f /root/replicaset-definition-1.yaml
+</code></pre>
+<p>확인:</p>
+<pre><code class="language-bash">k get rs
+</code></pre>
+<p>예상 출력:</p>
+<pre><code class="language-text">NAME             DESIRED   CURRENT   READY
+replicaset-1     3         3         3
+</code></pre>
+<p>Pod 확인:</p>
+<pre><code class="language-bash">k get pods
+</code></pre>
+<hr>
+<h1>ReplicaSet이란?</h1>
+<p>ReplicaSet은:</p>
+<pre><code class="language-text">지정한 개수만큼 Pod를 유지하는 컨트롤러
+</code></pre>
+<p>이다.</p>
+<p>예를 들어 replicas: 3 이면:</p>
+<ul>
+<li>Pod 하나 죽음</li>
+<li>ReplicaSet이 자동으로 새 Pod 생성</li>
+</ul>
+<p>즉 “복제 개수 유지 관리자” 같은 느낌이다.</p>
+<hr>
+<h1>ReplicaSet YAML 구조 이해하기</h1>
+<p>대표 구조:</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: ReplicaSet
+
+metadata:
+  name: myapp-replicaset
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: myapp
+
+  template:
+    metadata:
+      labels:
+        app: myapp
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+</code></pre>
+<hr>
+<h1>가장 중요한 부분: selector 와 labels</h1>
+<p>여기 진짜 중요하다.</p>
+<pre><code class="language-yaml">selector:
+  matchLabels:
+    app: myapp
+</code></pre>
+<p>ReplicaSet이 관리할 Pod를 찾는 조건이다.</p>
+<p>그리고:</p>
+<pre><code class="language-yaml">template:
+  metadata:
+    labels:
+      app: myapp
+</code></pre>
+<p>생성할 Pod의 label이다.</p>
+<p>즉:</p>
+<pre><code class="language-text">selector.matchLabels
+==
+template.metadata.labels
+</code></pre>
+<p>이 둘이 반드시 일치해야 한다.</p>
+<p>안 맞으면 ReplicaSet이 Pod를 인식하지 못한다.</p>
+<hr>
+<h1>공식 Docs로 해결하는 방법</h1>
+<p>CKA에서 중요한 건 암기가 아니다.</p>
+<pre><code class="language-text">공식 문서를 얼마나 빨리 찾아서 적용하느냐
+</code></pre>
+<p>이다.</p>
+<p>ReplicaSet 문제면 검색:</p>
+<pre><code class="language-text">kubernetes replicaset
+</code></pre>
+<p>공식 문서:
+<a href="https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/?utm_source=chatgpt.com">Kubernetes ReplicaSet Documentation</a></p>
+<p>들어가면 바로 예제 YAML이 나온다.</p>
+<p>실전에서는:</p>
+<ul>
+<li>예제 복붙</li>
+<li>필요한 부분 수정</li>
+</ul>
+<p>이 흐름으로 많이 푼다.</p>
+<hr>
+<h1>kubectl explain 사용법</h1>
+<p>웹 Docs 말고 CLI에서도 구조 탐색 가능하다.</p>
+<p>ReplicaSet 전체 구조 보기:</p>
+<pre><code class="language-bash">k explain rs
+</code></pre>
+<p>spec 보기:</p>
+<pre><code class="language-bash">k explain rs.spec
+</code></pre>
+<p>template 보기:</p>
+<pre><code class="language-bash">k explain rs.spec.template
+</code></pre>
+<p>replicas 필드 보기:</p>
+<pre><code class="language-bash">k explain rs.spec.replicas
+</code></pre>
+<p>출력 예시:</p>
+<pre><code class="language-text">FIELD: replicas &lt;integer&gt;
+
+Number of desired pods.
+</code></pre>
+<p>즉:</p>
+<pre><code class="language-text">YAML 구조를 터미널 안에서 탐색 가능
+</code></pre>
+<p>하다.</p>
+<p>이거 CKA에서 엄청 중요하다.</p>
+<hr>
+<h1>실무에서도 docs를 보는 이유</h1>
+<p>쿠버네티스는:</p>
+<ul>
+<li>YAML 필드 많음</li>
+<li>apiVersion 계속 바뀜</li>
+<li>리소스 구조 깊음</li>
+<li>indentation 민감함</li>
+</ul>
+<p>그래서 실무에서도 전부 암기 안 한다.</p>
+<p>대부분:</p>
+<ul>
+<li>공식 docs</li>
+<li>kubectl explain</li>
+<li>기존 YAML 참고</li>
+</ul>
+<p>이걸 조합해서 작업한다.</p>
+<hr>
+<h1>CKA 스타일로 빠르게 푸는 흐름</h1>
+<p>문제 확인</p>
+<pre><code class="language-bash">k create -f file.yaml
+</code></pre>
+<p>에러 발생</p>
+<pre><code class="language-text">no matches for kind ...
+</code></pre>
+<p>파일 열기</p>
+<pre><code class="language-bash">vi file.yaml
+</code></pre>
+<p>공식 docs 참고</p>
+<ul>
+<li>apiVersion 확인</li>
+<li>selector 확인</li>
+<li>labels 확인</li>
+</ul>
+<p>수정 후 재적용</p>
+<pre><code class="language-bash">k create -f file.yaml
+</code></pre>
+<p>검증</p>
+<pre><code class="language-bash">k get rs
+k get pods
+</code></pre>
+<hr>
+<h1>핵심 정리</h1>
+<ul>
+<li>ReplicaSet은 <code>apps/v1</code></li>
+<li><code>selector.matchLabels</code> 와 <code>template.metadata.labels</code> 는 반드시 일치</li>
+<li>YAML 오류는 CKA에서 매우 자주 나옴</li>
+<li>쿠버네티스는 “암기 시험”보다 “문서 탐색 시험”에 가까움</li>
+<li>공식 Docs + <code>kubectl explain</code> 사용 습관이 중요</li>
+<li>실무에서도 대부분 Docs 참고하면서 작업함</li>
+</ul>
+  </article>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
