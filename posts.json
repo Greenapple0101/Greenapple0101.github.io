@@ -1450,16 +1450,6 @@
     "tag_color": "#7c3aed"
   },
   {
-    "slug": "[Network]-RIP-OSPF-BGP-차이-완벽-이해-IGPEGP부터-거리벡터까지",
-    "title": "[NETWORK] RIP, OSPF, BGP 차이 완벽 이해 — IGP/EGP부터 거리벡터까지",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "네트워크가 커지면 문제가 생긴다. 예를 들어 라우터가 수십 대, 수백 대가 되면:“어디로 보내야 가장 빠르지?” “어느 경로가 죽었지?” “새로운 네트워크가 생겼네?” plaintext id=\"j65wry\" Dyn…",
-    "tag_color": "#7c3aed"
-  },
-  {
     "slug": "[Network]-SSH는-어떻게-동작하는가",
     "title": "[NETWORK] SSH는 어떻게 동작하는가",
     "category": "Kubernetes",
@@ -1497,16 +1487,6 @@
     "tags": "",
     "date": "2026.05.11",
     "excerpt": "회사 네트워크 공부를 하다 보면 꼭 나오는 게 있다. 그리고 같이 따라오는 단어들: 터널링 암호화 IPsec Remote Access VPN Site-to-Site VPN 처음엔 되게 어려워 보이는데, 사실 핵심은…",
-    "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[Network]-라우팅이란-뭘까-Router-Routing-Table-Gateway까지-한번에-이해하기",
-    "title": "[NETWORK] 라우팅이란 뭘까? Router, Routing Table, Gateway까지 한번에 이해하기",
-    "category": "Kubernetes",
-    "topic": "docker-k8s",
-    "tags": "",
-    "date": "2026.05.11",
-    "excerpt": "우리가 인터넷을 사용할 때는 브라우저에 주소를 입력하면 서버까지 데이터가 이동한다. 그런데 컴퓨터는 어떻게: 어디로 보내야 하는지 어떤 길로 가야 하는지 중간에 누구를 거쳐야 하는지 를 알까? 이걸 담당하는 핵심…",
     "tag_color": "#7c3aed"
   },
   {
@@ -2347,6 +2327,26 @@
     "tags": "",
     "date": "2026.05.12",
     "excerpt": "웹 기술을 깊게 이해한다는 것은 단순히 “API를 호출할 줄 안다”는 뜻이 아니다. 실무에서는 이런 질문에 답할 수 있어야 한다. 이 글에서는 웹 백엔드, 클라우드, DevOps, MLOps 실무에서 자주 마주치는…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[WEB]-RIP-OSPF-BGP-차이-완벽-이해-IGPEGP부터-거리벡터까지",
+    "title": "[NETWORK] RIP, OSPF, BGP 차이 완벽 이해 — IGP/EGP부터 거리벡터까지",
+    "category": "WEB",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "네트워크가 커지면 문제가 생긴다. 예를 들어 라우터가 수십 대, 수백 대가 되면:“어디로 보내야 가장 빠르지?” “어느 경로가 죽었지?” “새로운 네트워크가 생겼네?” plaintext id=\"j65wry\" Dyn…",
+    "tag_color": "#64748b"
+  },
+  {
+    "slug": "[WEB]-라우팅이란-뭘까-Router-Routing-Table-Gateway까지-한번에-이해하기",
+    "title": "[NETWORK] 라우팅이란 뭘까? Router, Routing Table, Gateway까지 한번에 이해하기",
+    "category": "WEB",
+    "topic": "web",
+    "tags": "",
+    "date": "2026.05.11",
+    "excerpt": "우리가 인터넷을 사용할 때는 브라우저에 주소를 입력하면 서버까지 데이터가 이동한다. 그런데 컴퓨터는 어떻게: 어디로 보내야 하는지 어떤 길로 가야 하는지 중간에 누구를 거쳐야 하는지 를 알까? 이걸 담당하는 핵심…",
     "tag_color": "#64748b"
   },
   {
