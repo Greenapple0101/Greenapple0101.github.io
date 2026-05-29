@@ -390,26 +390,6 @@
     "tag_color": "#64748b"
   },
   {
-    "slug": "[DEPLOY]-Docker도-Jenkins도-없이-scp로-EC2에-직접-배포했던-이야기",
-    "title": "[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기",
-    "category": "DEPLOY",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "1. scp 배포란? scp 는 Secure Copy의 줄임말이다. SSH를 기반으로 로컬 파일을 원격 서버에 안전하게 복사하는 명령어다. 쉽게 말하면 내 노트북에서 만든 파일을 EC2 서버로 보내는 방식이다. 이…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[DEPLOY]-프론트·백-컨테이너만-있다고-했는데-“Nginx는-어디-갔나요”라고-물어본-이유",
-    "title": "[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유",
-    "category": "DEPLOY",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "나는 당시 기억을 기준으로 이렇게 답했다. 그런데 바로 이어서 이런 질문이 들어왔다. 처음에는 이 질문이 조금 당황스러웠다. 프론트랑 백엔드 컨테이너를 띄웠다고 말했는데 왜 갑자기 Nginx를 물어보는지 바로 연결…",
-    "tag_color": "#64748b"
-  },
-  {
     "slug": "[DOCKER-K3D]-포트-매핑에서-앞쪽-포트와-뒤쪽-포트가-헷갈릴-때",
     "title": "[DOCKER/K3D] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때",
     "category": "Kubernetes",
@@ -650,16 +630,6 @@
     "tag_color": "#0ea5e9"
   },
   {
-    "slug": "[GITHUB]-GitHub-Webhook은-도대체-뭘까",
-    "title": "[GITHUB] GitHub Webhook은 도대체 뭘까?",
-    "category": "GITHUB",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "프로젝트를 배포하다 보면 이런 흐름을 자주 보게 된다. 처음에는 이게 되게 신기하다. “내가 Jenkins에 들어가서 빌드 버튼을 누른 것도 아닌데, 왜 자동으로 실행되지?” 이때 GitHub와 Jenkins 사이…",
-    "tag_color": "#64748b"
-  },
-  {
     "slug": "[HA]-Auto-Scaling은-왜-필요할까",
     "title": "[HA] Auto Scaling은 왜 필요할까?",
     "category": "HA",
@@ -718,36 +688,6 @@
     "date": "2026.05.17",
     "excerpt": "Helm을 처음 배우다 보면 이런 생각이 든다. “이 명령어를 치면 Helm이 Docker 이미지를 가져오는 건가?” 특히 helm install 을 실행하면 Pod가 자동으로 뜨고, Docker Hub에서 이미지…",
     "tag_color": "#7c3aed"
-  },
-  {
-    "slug": "[INFRA]-3-Tier-구조란-무엇일까",
-    "title": "[INFRA] 3-Tier 구조란 무엇일까?",
-    "category": "INFRA",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "서비스 구조를 설명할 때 자주 나오는 말 중 하나가 3-Tier Architecture , 즉 3계층 구조 다. 처음 들으면 어려워 보이지만, 사실 핵심은 단순하다. 보통 다음 세 계층으로 나눈다. 웹 서비스 기준…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[INFRA]-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이",
-    "title": "[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이",
-    "category": "INFRA",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다. 또는 이런 그림을 본다. 그런데 이 설명만 보면 감이 잘 안 온다. “그래서 실제로 뭐가 다른데?”라는 생각이 든다. 나도 UTM으로 리눅스…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[JMETER]-JMeter로-API-부하-테스트를-해봤다는-건-무슨-뜻일까",
-    "title": "[JMETER] JMeter로 API 부하 테스트를 해봤다는 건 무슨 뜻일까?",
-    "category": "JMETER",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "프로젝트를 만들다 보면 단순히 “기능이 동작한다”에서 끝나면 안 된다. 내 로컬에서 버튼 한 번 눌렀을 때 잘 되는 것과, 여러 사용자가 동시에 요청을 보냈을 때도 안정적으로 동작하는 것은 완전히 다른 문제다. 내…",
-    "tag_color": "#64748b"
   },
   {
     "slug": "[K3D-KUBERNETES]-LoadBalancer-Service를-쓰려면-왜-클러스터-생성-때-포트-매핑을-해야-할까",
@@ -1560,26 +1500,6 @@
     "tag_color": "#64748b"
   },
   {
-    "slug": "[NGINX]-Reverse-Proxy는-왜-쓰는-걸까",
-    "title": "[NGINX] Reverse Proxy는 왜 쓰는 걸까?",
-    "category": "NGINX",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "서버를 배포하다 보면 Nginx라는 말을 자주 듣게 된다. 특히 이런 구조를 많이 본다. 처음에는 이런 생각이 든다. “그냥 사용자가 백엔드 서버로 바로 접속하면 되는 거 아닌가?” 예를 들어 백엔드가 8080번…",
-    "tag_color": "#64748b"
-  },
-  {
-    "slug": "[NGINX]-apiapi-중복과-WebSocket-101-실패를-해결하며-프록시-경로를-정리한-이야기",
-    "title": "[NGINX] /api/api 중복과 WebSocket 101 실패를 해결하며 프록시 경로를 정리한 이야기",
-    "category": "NGINX",
-    "topic": "web",
-    "tags": "",
-    "date": "2026.05.17",
-    "excerpt": "서비스를 배포하다 보면 로컬에서는 잘 되던 API 요청이 운영 서버에서는 실패하는 경우가 있다. 처음에는 백엔드 문제처럼 보인다. API 서버가 죽었는지, 포트가 막혔는지, CORS 문제인지부터 의심하게 된다. 그…",
-    "tag_color": "#64748b"
-  },
-  {
     "slug": "[Network]-HTTP란-무엇일까",
     "title": "[Network] HTTP란 무엇일까?",
     "category": "Kubernetes",
@@ -2260,6 +2180,16 @@
     "tag_color": "#16a34a"
   },
   {
+    "slug": "[Upstage]-3-Tier-구조란-무엇일까",
+    "title": "[INFRA] 3-Tier 구조란 무엇일까?",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "서비스 구조를 설명할 때 자주 나오는 말 중 하나가 3-Tier Architecture , 즉 3계층 구조 다. 처음 들으면 어려워 보이지만, 사실 핵심은 단순하다. 보통 다음 세 계층으로 나눈다. 웹 서비스 기준…",
+    "tag_color": "#0d9488"
+  },
+  {
     "slug": "[Upstage]-AI-API-모니터링은-어떻게-해야-할까",
     "title": "[Upstage] AI API 모니터링은 어떻게 해야 할까",
     "category": "Upstage",
@@ -2280,6 +2210,46 @@
     "tag_color": "#0d9488"
   },
   {
+    "slug": "[Upstage]-Docker도-Jenkins도-없이-scp로-EC2에-직접-배포했던-이야기",
+    "title": "[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "1. scp 배포란? scp 는 Secure Copy의 줄임말이다. SSH를 기반으로 로컬 파일을 원격 서버에 안전하게 복사하는 명령어다. 쉽게 말하면 내 노트북에서 만든 파일을 EC2 서버로 보내는 방식이다. 이…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-GitHub-Webhook은-도대체-뭘까",
+    "title": "[GITHUB] GitHub Webhook은 도대체 뭘까?",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "프로젝트를 배포하다 보면 이런 흐름을 자주 보게 된다. 처음에는 이게 되게 신기하다. “내가 Jenkins에 들어가서 빌드 버튼을 누른 것도 아닌데, 왜 자동으로 실행되지?” 이때 GitHub와 Jenkins 사이…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-JMeter로-API-부하-테스트를-해봤다는-건-무슨-뜻일까",
+    "title": "[JMETER] JMeter로 API 부하 테스트를 해봤다는 건 무슨 뜻일까?",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "프로젝트를 만들다 보면 단순히 “기능이 동작한다”에서 끝나면 안 된다. 내 로컬에서 버튼 한 번 눌렀을 때 잘 되는 것과, 여러 사용자가 동시에 요청을 보냈을 때도 안정적으로 동작하는 것은 완전히 다른 문제다. 내…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-Reverse-Proxy는-왜-쓰는-걸까",
+    "title": "[NGINX] Reverse Proxy는 왜 쓰는 걸까?",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "서버를 배포하다 보면 Nginx라는 말을 자주 듣게 된다. 특히 이런 구조를 많이 본다. 처음에는 이런 생각이 든다. “그냥 사용자가 백엔드 서버로 바로 접속하면 되는 거 아닌가?” 예를 들어 백엔드가 8080번…",
+    "tag_color": "#0d9488"
+  },
+  {
     "slug": "[Upstage]-Solar-LLM-API-문서는-어떻게-생겼을까",
     "title": "[Upstage] Solar LLM API 문서는 어떻게 생겼을까",
     "category": "Upstage",
@@ -2297,6 +2267,16 @@
     "tags": "",
     "date": "",
     "excerpt": "Solar LLM은 대체 뭐고, 어디에 쓰는 걸까? Upstage를 이해하려면 Solar LLM 을 알아야 한다. Upstage는 OCR, Document Parse, Embedding, Information Ex…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-apiapi-중복과-WebSocket-101-실패를-해결하며-프록시-경로를-정리한-이야기",
+    "title": "[NGINX] /api/api 중복과 WebSocket 101 실패를 해결하며 프록시 경로를 정리한 이야기",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "서비스를 배포하다 보면 로컬에서는 잘 되던 API 요청이 운영 서버에서는 실패하는 경우가 있다. 처음에는 백엔드 문제처럼 보인다. API 서버가 죽었는지, 포트가 막혔는지, CORS 문제인지부터 의심하게 된다. 그…",
     "tag_color": "#0d9488"
   },
   {
@@ -2330,6 +2310,16 @@
     "tag_color": "#0d9488"
   },
   {
+    "slug": "[Upstage]-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이",
+    "title": "[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다. 또는 이런 그림을 본다. 그런데 이 설명만 보면 감이 잘 안 온다. “그래서 실제로 뭐가 다른데?”라는 생각이 든다. 나도 UTM으로 리눅스…",
+    "tag_color": "#0d9488"
+  },
+  {
     "slug": "[Upstage]-코퍼스-청킹-임베딩-벡터서치-Recallk까지-한-번에-정리하기",
     "title": "[RAG] 코퍼스, 청킹, 임베딩, 벡터서치, Recall@k까지 한 번에 정리하기",
     "category": "Upstage",
@@ -2337,6 +2327,16 @@
     "tags": "",
     "date": "2026.05.12",
     "excerpt": "RAG를 공부하다 보면 처음부터 낯선 단어가 너무 많이 나온다. 코퍼스, 청킹, 임베딩, 벡터서치, top_k, reranker, Recall@k, nDCG@k 같은 말들이 계속 나오는데, 각각 따로 보면 알 것…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-프론트·백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유",
+    "title": "[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.17",
+    "excerpt": "나는 당시 기억을 기준으로 이렇게 답했다. 그런데 바로 이어서 이런 질문이 들어왔다. 처음에는 이 질문이 조금 당황스러웠다. 프론트랑 백엔드 컨테이너를 띄웠다고 말했는데 왜 갑자기 Nginx를 물어보는지 바로 연결…",
     "tag_color": "#0d9488"
   },
   {
