@@ -1,5 +1,25 @@
 [
   {
+    "slug": "[Kubernetes]-ServiceAccount는-왜-필요할까",
+    "title": "[Kubernetes] ServiceAccount는 왜 필요할까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 권한 관리를 공부하다 보면 User , Role , RoleBinding , ClusterRole , ClusterRoleBinding 같은 개념이 나온다. 그중에서 처음에 제일 애매하게 느껴지는 게…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-base64는-왜-계속-나올까",
+    "title": "[Kubernetes] base64는 왜 계속 나올까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스를 공부하다 보면 은근히 자주 보이는 게 있다. 처음 보면 암호화처럼 느껴진다. 특히 Secret을 다룰 때 이런 값이 나온다. 여기서 YWRtaW4= 나 cGFzc3dvcmQ= 같은 값이 바로 base6…",
+    "tag_color": "#7c3aed"
+  },
+  {
     "slug": "[Kubernetes]-API-접근제어-인증-권한관리는-왜-필요한가",
     "title": "[Kubernetes] API 접근제어, 인증, 권한관리는 왜 필요한가",
     "category": "Kubernetes",
