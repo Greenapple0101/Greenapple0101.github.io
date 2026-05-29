@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
     <span class="tag" style="--tag-color: #16a34a">SPRING</span>
     <h1>[SPRING] String → 객체로 바꾸기</h1>
     <div class="post-meta">
@@ -139,7 +143,7 @@ public Board createBoard(@RequestBody BoardRequest request){
   </article>
 <nav class="post-nav" aria-label="글 이동">
   <a class="post-nav-link prev" href="SPRING-POST-요청에서-null이-나온-이유는-뭘까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] Postman이 코드를 바꾸는 걸까?</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="SPRING-PUT과-DELETE-게시글-수정과-삭제.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] PUT과 DELETE — 게시글 수정과 삭제</span></a>
   </nav>
   <footer>

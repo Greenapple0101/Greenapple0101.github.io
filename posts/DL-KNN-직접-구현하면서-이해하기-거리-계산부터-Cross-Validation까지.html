@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/ai.html">AI</a>
+    </nav>
     <span class="tag" style="--tag-color: #db2777">DL</span>
     <h1>[Pytorch] KNN 직접 구현하면서 이해하기: 거리 계산부터 Cross Validation까지</h1>
     <div class="post-meta">
@@ -316,8 +320,8 @@ No loops 방식은 행렬 연산을 활용해서 훨씬 효율적이다.</p>
 텐서 연산과 벡터화 감각을 익히기에 좋은 예제라고 볼 수 있다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="CKA-ReplicaSet-이미지-수정과-Pod-재생성-흐름-정리.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <span class="post-nav-link prev disabled" aria-hidden="true"></span>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="PyTorch-Linear-Classifier와-Two-Layer-Neural-Network-직접-구현하기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[PyTorch] Linear Classifier와 Two Layer Neural Network 직접 구현하기</span></a>
   </nav>
   <footer>

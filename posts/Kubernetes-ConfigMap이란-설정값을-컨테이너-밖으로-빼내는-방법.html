@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
     <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[Kubernetes] ConfigMap이란? 설정값을 컨테이너 밖으로 빼내는 방법</h1>
     <div class="post-meta">
@@ -397,7 +401,7 @@ ConfigMap 수정 후 Pod 재시작이 필요할 수 있음
   </article>
 <nav class="post-nav" aria-label="글 이동">
   <a class="post-nav-link prev" href="CKA-Nginx-ConfigMap-수정-후-TLSv1.3만-허용하기-ctqwy1be.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[CKA] Nginx ConfigMap 수정 후 TLSv1.3만 허용하기</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="CKA-Ingress-Gateway-API-마이그레이션-문제-푸는-법-공식문서-활용법.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA] Ingress → Gateway API 마이그레이션 문제 푸는 법 + 공식문서 활용법\n</span></a>
   </nav>
   <footer>

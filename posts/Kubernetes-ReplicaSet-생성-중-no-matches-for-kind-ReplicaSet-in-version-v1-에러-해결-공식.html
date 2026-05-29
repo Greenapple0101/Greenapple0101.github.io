@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
     <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[Kubernetes] ReplicaSet 생성 중 no matches for kind \&quot;ReplicaSet\&quot; in version \&quot;v1\&quot; 에러 해결 + 공식 Docs 보는 법</h1>
     <div class="post-meta">
@@ -283,8 +287,8 @@ k get pods
   </article>
 <nav class="post-nav" aria-label="글 이동">
   <a class="post-nav-link prev" href="DOCKER-컨테이너에서-localhost가-안-먹히는-이유-host.docker.internal과-Profile-분리.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DOCKER] 컨테이너에서 localhost가 안 먹히는 이유: host.docker.internal과 Profile 분리</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
-  <a class="post-nav-link next" href="알고리즘-버킷-소트Bucket-Sort란-On-정렬이-가능한-이유.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[알고리즘] 버킷 소트(Bucket Sort)란? — O(n) 정렬이 가능한 이유</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="Kubernetes-Deployment-YAML-처음부터-다-외워야-할까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Kubernetes] Deployment YAML, 처음부터 다 외워야 할까?</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

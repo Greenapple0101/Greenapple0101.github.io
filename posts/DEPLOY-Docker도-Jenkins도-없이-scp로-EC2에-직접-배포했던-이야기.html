@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/web.html">웹 · 기타</a>
+    </nav>
     <span class="tag" style="--tag-color: #64748b">DEPLOY</span>
     <h1>[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기</h1>
     <div class="post-meta">
@@ -298,9 +302,9 @@ scp 명령어 직접 실행
 </code></pre>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="DOCKER-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
-  <a class="post-nav-link next" href="SPRING-ddl-auto-validate에서-테이블이-없으면-왜-부팅이-실패할까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[SPRING] ddl-auto: validate에서 테이블이 없으면 왜 부팅이 실패할까?</span></a>
+  <a class="post-nav-link prev" href="DB-PostgreSQL에서-스키마가-hello랑-public-두-개-보이는-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="DEPLOY-프론트백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
     <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[Kubernetes] ReplicaSet YAML에서 selector와 template label은 왜 같아야 할까?</h1>
     <div class="post-meta">
@@ -368,7 +372,7 @@ template은 tier=nginx인 Pod를 만들려고 해서 오류
   </article>
 <nav class="post-nav" aria-label="글 이동">
   <a class="post-nav-link prev" href="Kubernetes-Helm으로-ingress-nginx를-설치하면-어디까지-설치되는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] Helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="KUBERNETES-f.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[KUBERNETES] -f</span></a>
   </nav>
   <footer>

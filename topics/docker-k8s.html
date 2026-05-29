@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker &amp; Kubernetes | Greenapple0101</title>
+  <meta name="description" content="Docker, Kubernetes, CKA, Helm, k3d, Argo CD 등 인프라·컨테이너" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="topic-page">
+  <header class="topic-header" style="--topic-color: #7c3aed">
+    <a class="back-link" href="../index.html">← 홈</a>
+    <p class="small-title">폴더</p>
+    <h1>Docker &amp; Kubernetes</h1>
+    <p class="description">Docker, Kubernetes, CKA, Helm, k3d, Argo CD 등 인프라·컨테이너</p>
+    <span class="stat"><strong>135</strong> posts</span>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="이 폴더에서 제목 검색…" autocomplete="off" />
+    </div>
+    <p class="result-count" id="result-count"></p>
+    <div class="post-list" id="post-list">
+      <a class="post-card" href="../posts/[Kubernetes]-Helm-values.yaml은-왜-쓰는-걸까.html" data-title="[kubernetes] helm values.yaml은 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 19:30:20 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] Helm values.yaml은 왜 쓰는 걸까?</h2>
+        <p>Kubernetes를 공부하다 보면 처음에는 YAML 파일을 직접 작성한다. kubectl apply -f deployment.yaml kubectl apply -f service.yaml kubectl apply…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Ingress란-뭘까-외부에서-Pod에-접속하는-방법-이해하기.html" data-title="[kubernetes] ingress란 뭘까? 외부에서 pod에 접속하는 방법 이해하기" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 19:18:02 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] Ingress란 뭘까? 외부에서 Pod에 접속하는 방법 이해하기</h2>
+        <p>Kubernetes에서 Pod와 Service를 만들었는데 이런 생각이 든다. 어? Pod는 떠 있는데 브라우저에서는 어떻게 접속하지? Kubernetes 안에 nginx나 apache 같은 웹 서버를 띄워도, 그…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-프로비저닝이란-무엇일까.html" data-title="[kubernetes] 프로비저닝이란 무엇일까?" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 18:50:52 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] 프로비저닝이란 무엇일까?</h2>
+        <p>Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다. 정적 프로비저닝 동적 프로비저닝 StorageClass를 통한 동적 프로비저닝 처음 들으면 단어부터 어렵다. “프로비저닝이 뭔데?” “그냥…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-PV와-PVC란-무엇일까.html" data-title="[kubernetes] pv와 pvc란 무엇일까?" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 18:44:29 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] PV와 PVC란 무엇일까?</h2>
+        <p>Kubernetes에서 Pod는 기본적으로 언제든지 사라질 수 있는 존재 다. Pod가 죽었다가 다시 생성되면 내부 파일도 같이 사라질 수 있다. 예를 들어 MySQL Pod를 띄웠다고 해보자. MySQL Pod…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-apache.192.168.164.4.sslip.io에서-Apache랑-sslip.io는-뭘까.html" data-title="[kubernetes] apache.192.168.164.4.sslip.io에서 apache랑 sslip.io는 뭘까?" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 18:02:14 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] apache.192.168.164.4.sslip.io에서 Apache랑 sslip.io는 뭘까?</h2>
+        <p>Kubernetes Ingress 실습을 하다 보면 이런 주소를 만난다. apache.192.168.164.4.sslip.io apache 는 뭔가 서비스 이름 같고, 192.168.164.4 는 IP 주소 같고,…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Fluent-Bit이-뭔데-로그-수집할-때-자꾸-나올까.html" data-title="[kubernetes] fluent bit이 뭔데 로그 수집할 때 자꾸 나올까?" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 17:53:15 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] Fluent Bit이 뭔데 로그 수집할 때 자꾸 나올까?</h2>
+        <p>쿠버네티스에서 애플리케이션을 띄우다 보면 처음에는 이런 것만 신경 쓴다. Pod 잘 떴나? Service 연결됐나? Ingress로 접속되나? 그런데 운영 관점으로 넘어가면 질문이 바뀐다. 에러가 났을 때 로그는…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-로그-수집-패턴-비교-Sidecar-방식-vs-Cluster-level-방식.html" data-title="[kubernetes] 로그 수집 패턴 비교: sidecar 방식 vs cluster-level 방식" data-tags="" data-category="Kubernetes" data-published="Wed, 27 May 2026 15:33:35 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Wed, 27 Ma</time>
+        </div>
+        <h2>[Kubernetes] 로그 수집 패턴 비교: Sidecar 방식 vs Cluster-level 방식</h2>
+        <p>쿠버네티스에서 애플리케이션 로그를 수집하는 방식은 크게 두 가지로 볼 수 있다. 1. 파드 사이드카 패턴 기반 로그 수집 2. 클러스터 레벨 패턴 기반 로그 수집 둘 다 “로그를 모은다”는 목적은 같지만, 어디에서…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-K8s-API란-쿠버네티스가-움직이는-진짜-입구.html" data-title="[kubernetes] k8s api란? 쿠버네티스가 움직이는 진짜 입구" data-tags="" data-category="Kubernetes" data-published="Thu, 28 May 2026 23:58:39 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Kubernetes] K8s API란? 쿠버네티스가 움직이는 진짜 입구</h2>
+        <p>쿠버네티스를 쓰다 보면 이런 명령어를 자주 입력한다. kubectl get pod kubectl apply -f deployment.yaml kubectl delete svc nginx kubectl describ…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Daemon이란-DaemonSet을-이해하기-전에-알아야-할-기본-개념.html" data-title="[kubernetes] daemon이란? daemonset을 이해하기 전에 알아야 할 기본 개념" data-tags="" data-category="Kubernetes" data-published="Thu, 28 May 2026 23:57:43 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Kubernetes] Daemon이란? DaemonSet을 이해하기 전에 알아야 할 기본 개념</h2>
+        <p>쿠버네티스에서 DaemonSet 을 공부하다 보면 자연스럽게 이런 질문이 생긴다. Daemon이 뭐야? 왜 이름이 DaemonSet이야? Deployment랑 뭐가 다른데? DaemonSet 을 이해하려면 먼저 D…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-쿠버네티스에서-NIC는-도대체-뭘까.html" data-title="[kubernetes] 쿠버네티스에서 nic는 도대체 뭘까?" data-tags="" data-category="Kubernetes" data-published="Thu, 28 May 2026 23:57:01 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Kubernetes] 쿠버네티스에서 NIC는 도대체 뭘까?</h2>
+        <p>쿠버네티스 네트워크를 공부하다 보면 이런 단어들이 계속 나온다. Pod IP Service IP ClusterIP NodePort CNI Ingress DNS Routing 처음 보면 머리가 복잡해진다. “Pod…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-CoreDNS란-서비스-이름을-IP로-바꿔주는-DNS-서버.html" data-title="[kubernetes] coredns란? 서비스 이름을 ip로 바꿔주는 dns 서버" data-tags="" data-category="Kubernetes" data-published="Thu, 28 May 2026 23:56:37 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Kubernetes] CoreDNS란? 서비스 이름을 IP로 바꿔주는 DNS 서버</h2>
+        <p>쿠버네티스를 공부하다 보면 이런 주소를 자주 보게 된다. mysql.default.svc.cluster.local 또는 파드 안에서 그냥 이렇게 호출하기도 한다. curl http://mysql 처음 보면 조금 이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-LivenessProbe로-Self-Healing-이해하기.html" data-title="[kubernetes] livenessprobe로 self-healing 이해하기" data-tags="" data-category="Kubernetes" data-published="Thu, 28 May 2026 23:55:20 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Kubernetes] LivenessProbe로 Self-Healing 이해하기</h2>
+        <p>쿠버네티스를 공부하다 보면 자주 나오는 말이 있다. 쿠버네티스는 Self-Healing을 지원한다. 처음 들으면 뭔가 엄청 대단한 기능처럼 느껴진다. “쿠버네티스가 알아서 장애를 고쳐준다고?” “그럼 서버가 죽어도…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Headless-Service는-도대체-왜-쓰는-걸까.html" data-title="[kubernetes] headless service는 도대체 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="Thu, 28 May 2026 23:53:23 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Kubernetes] Headless Service는 도대체 왜 쓰는 걸까?</h2>
+        <p>쿠버네티스에서 Service를 배우다 보면 보통 이런 식으로 이해한다. Pod는 계속 죽고 다시 생기니까 IP가 바뀐다. 그래서 Service가 고정된 주소 역할을 해준다. 맞는 말이다. 일반적인 Service는…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Argo-CD]-Healthy,-Synced가-떴다는-건-무슨-뜻일까.html" data-title="[argo cd] healthy, synced가 떴다는 건 무슨 뜻일까?" data-tags="" data-category="Argo-CD" data-published="Thu, 28 May 2026 23:41:20 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">Argo-CD</span>
+          <time>Thu, 28 Ma</time>
+        </div>
+        <h2>[Argo CD] Healthy, Synced가 떴다는 건 무슨 뜻일까?</h2>
+        <p>지금 화면은 Argo CD로 Kubernetes 애플리케이션 배포가 성공한 상태 라고 보면 된다. 한 줄로 요약하면 이거다. GitHub에 있는 Kubernetes manifest를 Argo CD가 읽어서, Kub…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Taint-&amp;-Toleration,-Cordon-&amp;-Drain은-왜-필요할까.html" data-title="[kubernetes] taint &amp; toleration, cordon &amp; drain은 왜 필요할까?" data-tags="" data-category="Kubernetes" data-published="Fri, 29 May 2026 05:43:35 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Fri, 29 Ma</time>
+        </div>
+        <h2>[Kubernetes] Taint &amp; Toleration, Cordon &amp; Drain은 왜 필요할까?</h2>
+        <p>쿠버네티스에서 Pod는 기본적으로 Scheduler가 적절한 Node를 골라 배치한다. Pod 생성 ↓ Scheduler가 Node 선택 ↓ 선택된 Node에서 Pod 실행 그런데 운영하다 보면 이런 상황이 생긴다…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-nodeSelector란-Pod를-원하는-노드에-배치하는-가장-단순한-방법.html" data-title="[kubernetes] nodeselector란? pod를 원하는 노드에 배치하는 가장 단순한 방법" data-tags="" data-category="Kubernetes" data-published="Fri, 29 May 2026 05:29:26 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Fri, 29 Ma</time>
+        </div>
+        <h2>[Kubernetes] nodeSelector란? Pod를 원하는 노드에 배치하는 가장 단순한 방법</h2>
+        <p>쿠버네티스를 공부하다 보면 이런 말을 자주 듣는다. Pod는 Scheduler가 적절한 Node를 골라서 배치한다. 처음에는 이렇게 이해하면 된다. Pod 생성 요청 ↓ Scheduler가 Node 선택 ↓ 선택된…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Ingress-Controller란-Ingress랑-뭐가-다르고-왜-NGINX를-많이-쓸까.html" data-title="[kubernetes] ingress controller란? ingress랑 뭐가 다르고 왜 nginx를 많이 쓸까?" data-tags="" data-category="Kubernetes" data-published="Fri, 29 May 2026 00:20:16 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Fri, 29 Ma</time>
+        </div>
+        <h2>[Kubernetes] Ingress Controller란? Ingress랑 뭐가 다르고 왜 NGINX를 많이 쓸까?</h2>
+        <p>쿠버네티스에서 외부 트래픽을 다루다 보면 이런 흐름을 자주 본다. 사용자 ↓ Ingress ↓ Service ↓ Pod 처음에는 이렇게 이해한다. Ingress는 외부에서 들어온 HTTP/HTTPS 요청을 클러스터…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까.html" data-title="[kubernetes] ingress가 ssl 인증서를 처리한다는 게 무슨 뜻일까?" data-tags="" data-category="Kubernetes" data-published="Fri, 29 May 2026 00:12:25 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Fri, 29 Ma</time>
+        </div>
+        <h2>[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?</h2>
+        <p>쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다. Ingress는 HTTP/HTTPS를 통해 클러스터 내부 서비스를 외부로 노출한다. 그리고 기능으로는 보통 이런 것들이 나온다. Service에 외부…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Kubernetes]-kube-proxy란-Service-트래픽을-Pod로-보내주는-네트워크-관리자.html" data-title="[kubernetes] kube-proxy란? service 트래픽을 pod로 보내주는 네트워크 관리자" data-tags="" data-category="Kubernetes" data-published="Fri, 29 May 2026 00:11:56 GMT">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>Fri, 29 Ma</time>
+        </div>
+        <h2>[Kubernetes] kube-proxy란? Service 트래픽을 Pod로 보내주는 네트워크 관리자</h2>
+        <p>쿠버네티스에서 Service를 공부하다 보면 이런 말을 자주 듣는다. Service는 Pod 앞에 고정된 IP를 만들어준다. 클라이언트는 Pod IP를 몰라도 Service IP로 접근하면 된다. 처음에는 이렇게…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Taint-Toleration-Cordon-Drain은-왜-필요할까.html" data-title="[kubernetes] taint &amp; toleration, cordon &amp; drain은 왜 필요할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-29T05:43:35.441Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.29</time>
+        </div>
+        <h2>[Kubernetes] Taint &amp; Toleration, Cordon &amp; Drain은 왜 필요할까?</h2>
+        <p>쿠버네티스에서 Pod는 기본적으로 Scheduler가 적절한 Node를 골라 배치한다. 그런데 운영하다 보면 이런 상황이 생긴다. 이때 자주 나오는 개념이 바로 이것들이다. 처음 보면 다 비슷해 보인다. 하지만 역…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-nodeSelector란-Pod를-원하는-노드에-배치하는-가장-단순한-방법.html" data-title="[kubernetes] nodeselector란? pod를 원하는 노드에 배치하는 가장 단순한 방법" data-tags="" data-category="Kubernetes" data-published="2026-05-29T05:29:26.296Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.29</time>
+        </div>
+        <h2>[Kubernetes] nodeSelector란? Pod를 원하는 노드에 배치하는 가장 단순한 방법</h2>
+        <p>쿠버네티스를 공부하다 보면 이런 말을 자주 듣는다. 처음에는 이렇게 이해하면 된다. 그런데 여기서 질문이 생긴다. 이때 가장 단순하게 사용할 수 있는 방법이 바로 nodeSelector 다. --- 1. nodeS…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Ingress-Controller란-Ingress랑-뭐가-다르고-왜-NGINX를-많이-쓸까.html" data-title="[kubernetes] ingress controller란? ingress랑 뭐가 다르고 왜 nginx를 많이 쓸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-29T00:20:16.165Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.29</time>
+        </div>
+        <h2>[Kubernetes] Ingress Controller란? Ingress랑 뭐가 다르고 왜 NGINX를 많이 쓸까?</h2>
+        <p>쿠버네티스에서 외부 트래픽을 다루다 보면 이런 흐름을 자주 본다. 처음에는 이렇게 이해한다. Ingress는 외부에서 들어온 HTTP/HTTPS 요청을 클러스터 내부 Service로 보내주는 입구다. 그런데 여기서…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까.html" data-title="[kubernetes] ingress가 ssl 인증서를 처리한다는 게 무슨 뜻일까?\n" data-tags="" data-category="Kubernetes" data-published="2026-05-29T00:12:25.157Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.29</time>
+        </div>
+        <h2>[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?\n</h2>
+        <p>쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다. 그리고 기능으로는 보통 이런 것들이 나온다. 처음 보면 여기서 막힌다. “Ingress가 SSL 인증서를 처리한다는 게 뭐지?” “SSL은 HTTPS…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-kube-proxy란-Service-트래픽을-Pod로-보내주는-네트워크-관리자.html" data-title="[kubernetes] kube-proxy란? service 트래픽을 pod로 보내주는 네트워크 관리자" data-tags="" data-category="Kubernetes" data-published="2026-05-29T00:11:56.412Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.29</time>
+        </div>
+        <h2>[Kubernetes] kube-proxy란? Service 트래픽을 Pod로 보내주는 네트워크 관리자</h2>
+        <p>쿠버네티스에서 Service를 공부하다 보면 이런 말을 자주 듣는다. Service는 Pod 앞에 고정된 IP를 만들어준다. 클라이언트는 Pod IP를 몰라도 Service IP로 접근하면 된다. 처음에는 이렇게…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-K8s-API란-쿠버네티스가-움직이는-진짜-입구.html" data-title="[kubernetes] k8s api란? 쿠버네티스가 움직이는 진짜 입구" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:58:39.701Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Kubernetes] K8s API란? 쿠버네티스가 움직이는 진짜 입구</h2>
+        <p>쿠버네티스를 쓰다 보면 이런 명령어를 자주 입력한다. 겉으로 보면 kubectl 이 직접 쿠버네티스를 조작하는 것처럼 보인다. 그런데 실제로는 kubectl 이 직접 Pod를 만들고, Service를 지우고, De…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Daemon이란-DaemonSet을-이해하기-전에-알아야-할-기본-개념.html" data-title="[kubernetes] daemon이란? daemonset을 이해하기 전에 알아야 할 기본 개념" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:57:43.670Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Kubernetes] Daemon이란? DaemonSet을 이해하기 전에 알아야 할 기본 개념</h2>
+        <p>쿠버네티스에서 DaemonSet 을 공부하다 보면 자연스럽게 이런 질문이 생긴다. DaemonSet 을 이해하려면 먼저 Daemon 이라는 개념부터 잡고 가는 게 좋다. --- 1. Daemon이란? Daemon은…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-쿠버네티스에서-NIC는-도대체-뭘까.html" data-title="[kubernetes] 쿠버네티스에서 nic는 도대체 뭘까?" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:57:01.403Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Kubernetes] 쿠버네티스에서 NIC는 도대체 뭘까?</h2>
+        <p>쿠버네티스 네트워크를 공부하다 보면 이런 단어들이 계속 나온다. 처음 보면 머리가 복잡해진다. “Pod IP는 뭐고 Service IP는 또 뭐지?” “CNI는 왜 나오고, Ingress는 어디에 붙는 거지?” “…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-CoreDNS란-서비스-이름을-IP로-바꿔주는-DNS-서버.html" data-title="[kubernetes] coredns란? 서비스 이름을 ip로 바꿔주는 dns 서버" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:56:37.788Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Kubernetes] CoreDNS란? 서비스 이름을 IP로 바꿔주는 DNS 서버</h2>
+        <p>쿠버네티스를 공부하다 보면 이런 주소를 자주 보게 된다. 또는 파드 안에서 그냥 이렇게 호출하기도 한다. 처음 보면 조금 이상하다. “mysql이라는 도메인을 산 적도 없는데 왜 접속이 되지?” “저 이름을 누가…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-LivenessProbe로-Self-Healing-이해하기.html" data-title="[kubernetes] livenessprobe로 self-healing 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:55:20.003Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Kubernetes] LivenessProbe로 Self-Healing 이해하기</h2>
+        <p>쿠버네티스를 공부하다 보면 자주 나오는 말이 있다. 쿠버네티스는 Self-Healing을 지원한다. 처음 들으면 뭔가 엄청 대단한 기능처럼 느껴진다. “쿠버네티스가 알아서 장애를 고쳐준다고?” “그럼 서버가 죽어도…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Headless-Service는-도대체-왜-쓰는-걸까.html" data-title="[kubernetes] headless service는 도대체 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:53:23.911Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Kubernetes] Headless Service는 도대체 왜 쓰는 걸까?</h2>
+        <p>쿠버네티스에서 Service를 배우다 보면 보통 이런 식으로 이해한다. Pod는 계속 죽고 다시 생기니까 IP가 바뀐다. 그래서 Service가 고정된 주소 역할을 해준다. 맞는 말이다. 일반적인 Service는…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Argo-CD-Healthy-Synced가-떴다는-건-무슨-뜻일까.html" data-title="[argo cd] healthy, synced가 떴다는 건 무슨 뜻일까?" data-tags="" data-category="Kubernetes" data-published="2026-05-28T23:41:20.640Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.28</time>
+        </div>
+        <h2>[Argo CD] Healthy, Synced가 떴다는 건 무슨 뜻일까?</h2>
+        <p>지금 화면은 Argo CD로 Kubernetes 애플리케이션 배포가 성공한 상태 라고 보면 된다. 한 줄로 요약하면 이거다. GitHub에 있는 Kubernetes manifest를 Argo CD가 읽어서, Kub…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Helm-values.yaml은-왜-쓰는-걸까.html" data-title="[kubernetes] helm values.yaml은 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-27T19:30:20.369Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] Helm values.yaml은 왜 쓰는 걸까?</h2>
+        <p>Kubernetes를 공부하다 보면 처음에는 YAML 파일을 직접 작성한다. 그런데 Prometheus, Grafana, OpenSearch 같은 도구를 설치하려고 하면 YAML 파일이 너무 많아진다. Deploy…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Ingress란-뭘까-외부에서-Pod에-접속하는-방법-이해하기.html" data-title="[kubernetes] ingress란 뭘까? 외부에서 pod에 접속하는 방법 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-27T19:18:02.568Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] Ingress란 뭘까? 외부에서 Pod에 접속하는 방법 이해하기</h2>
+        <p>Kubernetes에서 Pod와 Service를 만들었는데 이런 생각이 든다. Kubernetes 안에 nginx나 apache 같은 웹 서버를 띄워도, 그냥 바로 외부에서 접속되는 건 아니다. 클러스터 안에 있는…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-프로비저닝이란-무엇일까.html" data-title="[kubernetes] 프로비저닝이란 무엇일까?\n" data-tags="" data-category="Kubernetes" data-published="2026-05-27T18:50:52.889Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] 프로비저닝이란 무엇일까?\n</h2>
+        <p>Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다. 처음 들으면 단어부터 어렵다. “프로비저닝이 뭔데?” “그냥 생성이랑 다른 건가?” “PV/PVC랑 무슨 관계지?” 이번 글에서는 프로비저닝…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-PV와-PVC란-무엇일까.html" data-title="[kubernetes] pv와 pvc란 무엇일까?" data-tags="" data-category="Kubernetes" data-published="2026-05-27T18:44:29.164Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] PV와 PVC란 무엇일까?</h2>
+        <p>Kubernetes에서 Pod는 기본적으로 언제든지 사라질 수 있는 존재 다. Pod가 죽었다가 다시 생성되면 내부 파일도 같이 사라질 수 있다. 예를 들어 MySQL Pod를 띄웠다고 해보자. 이러면 데이터베이스…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-apache.192.168.164.4.sslip.io에서-Apache랑-sslip.io는-뭘까.html" data-title="[kubernetes] apache.192.168.164.4.sslip.io에서 apache랑 sslip.io는 뭘까?" data-tags="" data-category="Kubernetes" data-published="2026-05-27T18:02:14.574Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] apache.192.168.164.4.sslip.io에서 Apache랑 sslip.io는 뭘까?</h2>
+        <p>Kubernetes Ingress 실습을 하다 보면 이런 주소를 만난다. apache 는 뭔가 서비스 이름 같고, 192.168.164.4 는 IP 주소 같고, sslip.io 는 도메인 같은데 이게 왜 한 줄에…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Fluent-Bit이-뭔데-로그-수집할-때-자꾸-나올까.html" data-title="[kubernetes] fluent bit이 뭔데 로그 수집할 때 자꾸 나올까?" data-tags="" data-category="Kubernetes" data-published="2026-05-27T17:53:15.253Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] Fluent Bit이 뭔데 로그 수집할 때 자꾸 나올까?</h2>
+        <p>쿠버네티스에서 애플리케이션을 띄우다 보면 처음에는 이런 것만 신경 쓴다. 그런데 운영 관점으로 넘어가면 질문이 바뀐다. 이때 등장하는 도구가 Fluent Bit 이다. --- 1. Fluent Bit이란? Flue…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-로그-수집-패턴-비교-Sidecar-방식-vs-Cluster-level-방식.html" data-title="[kubernetes] 로그 수집 패턴 비교: sidecar 방식 vs cluster-level 방식" data-tags="" data-category="Kubernetes" data-published="2026-05-27T15:33:35.321Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] 로그 수집 패턴 비교: Sidecar 방식 vs Cluster-level 방식</h2>
+        <p>쿠버네티스에서 애플리케이션 로그를 수집하는 방식은 크게 두 가지로 볼 수 있다. 둘 다 “로그를 모은다”는 목적은 같지만, 어디에서 로그를 수집하느냐 , 누가 로그 수집을 담당하느냐 가 다르다. --- 1. 먼저…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Pod-Resource-Requests와-Limits-쉽게-이해하기.html" data-title="[kubernetes] pod resource requests와 limits 쉽게 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-27T15:25:39.035Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] Pod Resource Requests와 Limits 쉽게 이해하기</h2>
+        <p>쿠버네티스에서 Pod를 만들 때 컨테이너가 사용할 CPU, Memory를 지정할 수 있다. 이때 나오는 개념이 두 개다. 처음 보면 둘 다 “리소스 설정”이라 헷갈리는데, 역할이 다르다. --- 1. Request…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Static-Pod란-kubelet이-직접-관리하는-Pod.html" data-title="[kubernetes] static pod란? kubelet이 직접 관리하는 pod" data-tags="" data-category="Kubernetes" data-published="2026-05-27T15:22:57.566Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] Static Pod란? kubelet이 직접 관리하는 Pod</h2>
+        <p>쿠버네티스에서 Pod는 보통 kubectl apply 로 만든다. 그러면 일반적인 Pod 생성 흐름은 이렇게 된다. 그런데 Static Pod 는 이 흐름과 조금 다르다. Static Pod는 한 줄로 말하면 이거…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-데몬이-뭐야-DaemonSet은-왜-쓰는-걸까.html" data-title="[kubernetes] 데몬이 뭐야? daemonset은 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-27T11:40:04.756Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] 데몬이 뭐야? DaemonSet은 왜 쓰는 걸까?</h2>
+        <p>쿠버네티스 공부하다 보면 DaemonSet 이라는 단어가 나온다. 처음 보면 이름부터 좀 무섭다. 데몬? 악마? 뭐 하는 애임? 근데 어렵게 생각할 필요 없다. 쿠버네티스에서 말하는 데몬은 쉽게 말하면 서버 뒤에서…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-kubectl-config는-도대체-뭐고-CKA에서-언제-쓰는-걸까.html" data-title="[kubernetes] kubectl config는 도대체 뭐고, cka에서 언제 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-27T04:36:31.530Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.27</time>
+        </div>
+        <h2>[Kubernetes] kubectl config는 도대체 뭐고, CKA에서 언제 쓰는 걸까?</h2>
+        <p>CKA 공부하다 보면 이런 명령어가 나온다. 처음 보면 느낌이 이렇다. 근데 이건 생각보다 단순하다. kubectl config 는 kubectl이 어느 쿠버네티스 클러스터에 접속할지 정하는 설정 명령어 다. --…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-YAML-구조는-도대체-어떻게-보는-걸까.html" data-title="[kubernetes] yaml 구조는 도대체 어떻게 보는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-22T07:56:04.445Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.22</time>
+        </div>
+        <h2>[Kubernetes] YAML 구조는 도대체 어떻게 보는 걸까?</h2>
+        <p>Kubernetes 공부를 하다 보면 결국 YAML을 계속 보게 된다. 처음 보면 그냥 이상한 설정 파일처럼 보인다. 근데 계속 보다 보면 Kubernetes YAML은 거의 같은 구조를 반복한다. 이 4개만 먼저…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-YAML이-무서우면-apiVersion부터-외우자.html" data-title="[cka] yaml이 무서우면 apiversion부터 외우자" data-tags="" data-category="Kubernetes" data-published="2026-05-22T07:29:14.646Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.22</time>
+        </div>
+        <h2>[CKA] YAML이 무서우면 apiVersion부터 외우자</h2>
+        <p>CKA를 공부하다 보면 YAML이 너무 많이 나온다. 처음에는 이 구조 자체가 부담스럽다. 특히 이런 생각이 든다. 근데 YAML을 전부 외우려고 하면 금방 지친다. 대신 조금 더 현실적인 방법이 있다. 즉, YA…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-왜-image가-containers-안에-있을까-사이드카까지-한-번에-이해하기.html" data-title="[kubernetes] 왜 image가 containers 안에 있을까? 사이드카까지 한 번에 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-22T05:10:16.018Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.22</time>
+        </div>
+        <h2>[Kubernetes] 왜 image가 containers 안에 있을까? 사이드카까지 한 번에 이해하기</h2>
+        <p>Kubernetes YAML을 처음 보면 이런 부분이 자주 헷갈림. 처음 보면 이렇게 생각할 수 있다. 근데 정확히는 이미지가 컨테이너 안에 들어가는 것 이 아니다. 정확한 의미는 이거다. 즉 image: ngin…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-kubectl-create-랑-kubectl-run-은-뭐가-다를까.html" data-title="[kubernetes] kubectl create 랑 kubectl run 은 뭐가 다를까?" data-tags="" data-category="Kubernetes" data-published="2026-05-22T04:34:55.405Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.22</time>
+        </div>
+        <h2>[Kubernetes] kubectl create 랑 kubectl run 은 뭐가 다를까?</h2>
+        <p>CKA 공부하다 보면 이런 명령어를 자주 본다. 또 이런 것도 본다. 둘 다 뭔가 “만드는” 명령어처럼 보인다. 그래서 처음에는 헷갈린다. 둘 다 리소스를 생성하는 명령어인데, run 은 주로 Pod를 빠르게 실행…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-HPA-생성-문제-공식문서-보고-YAML로-푸는-법.html" data-title="[cka] hpa 생성 문제 — 공식문서 보고 yaml로 푸는 법" data-tags="" data-category="Kubernetes" data-published="2026-05-20T07:33:42.810Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[CKA] HPA 생성 문제 — 공식문서 보고 YAML로 푸는 법</h2>
+        <p>문제는 이거다. 이 문제는 kubectl autoscale 명령어만으로 풀기 애매하다. 왜냐면 단순 HPA는 명령어로 만들 수 있지만: 여기에는 이 조건이 빠진다. 그래서 이 문제는 공식문서에서 HPA YAML 예…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-Ingress-Gateway-API-마이그레이션-문제-푸는-법-공식문서-활용법.html" data-title="[cka] ingress → gateway api 마이그레이션 문제 푸는 법 + 공식문서 활용법\n" data-tags="" data-category="Kubernetes" data-published="2026-05-20T07:24:19.658Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[CKA] Ingress → Gateway API 마이그레이션 문제 푸는 법 + 공식문서 활용법\n</h2>
+        <p>문제는 이거다. 처음 보면 YAML을 새로 만들어야 해서 어렵게 느껴진다. 근데 이 문제의 핵심은 YAML 암기가 아니다. 다. --- 1. 문제 해석 문제에서 이미 알려준 값이 있다. 그리고 기존 Ingress에…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-ConfigMap이란-설정값을-컨테이너-밖으로-빼내는-방법.html" data-title="[kubernetes] configmap이란? 설정값을 컨테이너 밖으로 빼내는 방법" data-tags="" data-category="Kubernetes" data-published="2026-05-20T06:19:27.366Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[Kubernetes] ConfigMap이란? 설정값을 컨테이너 밖으로 빼내는 방법</h2>
+        <p>Kubernetes를 공부하다 보면 ConfigMap 이라는 리소스가 자주 나온다. 처음에는 이름부터 헷갈린다. 대충 이런 느낌인데, 쉽게 말하면 ConfigMap은 애플리케이션 설정값을 Pod 밖에서 관리하게 해…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-Nginx-ConfigMap-수정-후-TLSv1.3만-허용하기-ctqwy1be.html" data-title="[cka] nginx configmap 수정 후 tlsv1.3만 허용하기" data-tags="" data-category="Kubernetes" data-published="2026-05-20T06:13:58.946Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[CKA] Nginx ConfigMap 수정 후 TLSv1.3만 허용하기</h2>
+        <p>CKA 문제를 풀다 보면 이런 유형이 자주 나온다. 처음 보면 영어가 길어서 복잡해 보이지만, 사실 문제의 핵심은 단순하다. --- 1. 문제에서 주어진 정보 정리 문제에서 이미 중요한 이름들을 다 알려준다. CK…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-Nginx-ConfigMap-수정-후-TLSv1.3만-허용하기.html" data-title="[cka] nginx configmap 수정 후 tlsv1.3만 허용하기" data-tags="" data-category="Kubernetes" data-published="2026-05-20T05:08:59.559Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[CKA] Nginx ConfigMap 수정 후 TLSv1.3만 허용하기</h2>
+        <p>CKA Nginx ConfigMap 수정 후 TLSv1.3만 허용하기 CKA 문제를 풀다 보면 이런 유형이 자주 나온다. 처음 보면 영어가 길어서 복잡해 보이지만, 사실 문제의 핵심은 단순하다. --- 1. 문제에…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-유형별-YAML-파일-읽는-법-어디부터-봐야-할까.html" data-title="[kubernetes] 유형별 yaml 파일 읽는 법 — 어디부터 봐야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-20T04:30:04.149Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[Kubernetes] 유형별 YAML 파일 읽는 법 — 어디부터 봐야 할까?</h2>
+        <p>\쿠버네티스 YAML을 처음 보면 대부분 이런 느낌이 든다. 분명 글자는 읽히는데 구조가 안 보인다. 처음에는 전부 비슷해 보인다. 근데 쿠버네티스 YAML은 유형별로 읽는 순서가 있다. 오늘은 CKA 공부할 때…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-공식문서에서-YAML-파일은-어떻게-찾을까.html" data-title="[cka] 공식문서에서 yaml 파일은 어떻게 찾을까?" data-tags="" data-category="Kubernetes" data-published="2026-05-20T04:05:07.181Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[CKA] 공식문서에서 YAML 파일은 어떻게 찾을까?</h2>
+        <p>CKA를 준비하다 보면 이런 생각이 든다. 결론부터 말하면, YAML을 전부 외우는 시험이 아니다. 더 중요한 건: 이다. --- 1. YAML을 찾는 기본 감각 쿠버네티스 공식문서에서 YAML을 찾을 때는 보통…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-dry-runclient-도대체-뭐-하는-옵션일까.html" data-title="[kubernetes] `--dry-run=client` 도대체 뭐 하는 옵션일까?" data-tags="" data-category="Kubernetes" data-published="2026-05-20T01:31:02.564Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.20</time>
+        </div>
+        <h2>[Kubernetes] `--dry-run=client` 도대체 뭐 하는 옵션일까?</h2>
+        <p>쿠버네티스를 공부하다 보면 이런 명령어를 자주 보게 된다. 혹은 처음 보면: 왜 실행 안 하고 dry-run을 하지? client는 또 뭐고 server는 뭐지? 왜 yaml 생성할 때 항상 붙어있지? 같은 생각이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-kubectl-Quick-Reference는-어떻게-활용해야-할까.html" data-title="[cka] kubectl quick reference는 어떻게 활용해야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T15:54:38.263Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[CKA] kubectl Quick Reference는 어떻게 활용해야 할까?</h2>
+        <p>CKA를 준비할 때 공식문서를 본다고 하면 보통 Kubernetes Concepts나 Tasks 문서를 떠올리기 쉽다. 그런데 실제 시험장에서 제일 자주 열게 되는 문서는 의외로 kubectl Quick Refer…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-쿠버네티스-공식문서-시험장에서-어떻게-써먹어야-할까.html" data-title="[cka] 쿠버네티스 공식문서, 시험장에서 어떻게 써먹어야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T15:43:27.639Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[CKA] 쿠버네티스 공식문서, 시험장에서 어떻게 써먹어야 할까?</h2>
+        <p>CKA는 암기 시험이라기보다는 공식문서를 빠르게 찾아서 필요한 YAML과 명령어를 정확히 가져다 쓰는 시험 에 가깝다. 그래서 Kubernetes 개념을 아는 것도 중요하지만, 실제 시험에서는 이런 능력이 더 중요…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-cAdvisor는-뭐고-Metrics-ServerHPA랑-무슨-관계일까.html" data-title="[kubernetes] cadvisor는 뭐고, metrics server/hpa랑 무슨 관계일까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T11:22:19.454Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] cAdvisor는 뭐고, Metrics Server/HPA랑 무슨 관계일까?</h2>
+        <p>Kubernetes에서 리소스 모니터링을 공부하다 보면 cAdvisor , Metrics Server , kubectl top , HPA 같은 단어가 같이 나온다. 처음 보면 다 비슷하게 “CPU랑 Memory 보…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-시험-전에-꼭-알아야-하는-Kubernetes-개념사전.html" data-title="[cka] 시험 전에 꼭 알아야 하는 kubernetes 개념사전" data-tags="" data-category="Kubernetes" data-published="2026-05-19T07:48:16.800Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[CKA] 시험 전에 꼭 알아야 하는 Kubernetes 개념사전</h2>
+        <p>CKA를 준비하다 보면 단어가 너무 많이 나온다. 처음에는 Pod, Deployment, Service 정도만 알아도 될 것 같은데, 조금만 들어가면 ConfigMap, Secret, Ingress, Gateway…</p>
+      </a>
+
+      <a class="post-card" href="../posts/K3DKUBERNETES-k3d에서는-왜-localhost로-접속하고-서버에서는-Node-IP로-접속할까.html" data-title="[k3d/kubernetes] k3d에서는 왜 localhost로 접속하고, 서버에서는 node ip로 접속할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T06:31:41.100Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[K3D/KUBERNETES] k3d에서는 왜 localhost로 접속하고, 서버에서는 Node IP로 접속할까?</h2>
+        <p>Kubernetes Service를 실습하다 보면 접속 주소가 계속 헷갈린다. 어떤 글에서는 이렇게 접속하라고 한다. 그런데 k3d에서는 이렇게 접속하라고 한다. 또 LoadBalancer Service를 만들면…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-NodePort는-아무-워커-노드로-들어가도-다른-노드의-Pod에-접속될까.html" data-title="[kubernetes] nodeport는 아무 워커 노드로 들어가도 다른 노드의 pod에 접속될까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T06:25:11.767Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] NodePort는 아무 워커 노드로 들어가도 다른 노드의 Pod에 접속될까?</h2>
+        <p>Kubernetes에서 NodePort Service를 배우다 보면 이런 의문이 생긴다. 결론부터 말하면 된다. NodePort는 특정 Pod가 떠 있는 노드에서만 열리는 포트가 아니다. Kubernetes 클러스…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-NodePort랑-LoadBalancer는-어디로-curl-해야-할까.html" data-title="[kubernetes] nodeport랑 loadbalancer는 어디로 curl 해야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T06:13:59.847Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] NodePort랑 LoadBalancer는 어디로 curl 해야 할까?</h2>
+        <p>Kubernetes Service를 공부하다 보면 NodePort 와 LoadBalancer 가 자주 나온다. 그런데 실습을 하다 보면 둘이 너무 비슷해 보인다. 이번 글에서는 Service 타입이 NodePort…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-LoadBalancer랑-NodePort는-뭐가-다를까-사실-비슷해-보이는-게-맞다.html" data-title="[kubernetes] loadbalancer랑 nodeport는 뭐가 다를까? 사실 비슷해 보이는 게 맞다" data-tags="" data-category="Kubernetes" data-published="2026-05-19T05:56:35.130Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] LoadBalancer랑 NodePort는 뭐가 다를까? 사실 비슷해 보이는 게 맞다</h2>
+        <p>Kubernetes Service를 공부하다 보면 ClusterIP , NodePort , LoadBalancer 가 나온다. 처음에는 셋이 완전히 다른 방식처럼 느껴지는데, 실습을 해보면 이런 생각이 든다. 결론…</p>
+      </a>
+
+      <a class="post-card" href="../posts/K3DKUBERNETES-LoadBalancer-Service를-쓰려면-왜-클러스터-생성-때-포트-매핑을-해야-할까.html" data-title="[k3d/kubernetes] loadbalancer service를 쓰려면 왜 클러스터 생성 때 포트 매핑을 해야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T05:43:52.434Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[K3D/KUBERNETES] LoadBalancer Service를 쓰려면 왜 클러스터 생성 때 포트 매핑을 해야 할까?</h2>
+        <p>Kubernetes에서 Service 타입 중 LoadBalancer 를 만들면 외부에서 바로 접속할 수 있을 것처럼 느껴진다. 예를 들어 이런 Service YAML이 있다고 하자. 적용하면: Service는 생…</p>
+      </a>
+
+      <a class="post-card" href="../posts/K3DKUBERNETES-k3d-클러스터-두-개를-같은-네트워크로-묶으면-NodePort-접근이-될까.html" data-title="[k3d/kubernetes] k3d 클러스터 두 개를 같은 네트워크로 묶으면 nodeport 접근이 될까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T05:07:26.639Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[K3D/KUBERNETES] k3d 클러스터 두 개를 같은 네트워크로 묶으면 NodePort 접근이 될까?</h2>
+        <p>Kubernetes에서 NodePort 를 배우면 보통 이렇게 접근한다고 배운다. 예를 들어 Service가 이렇게 떠 있다고 하자. 여기서 30001 이 NodePort다. 일반적인 VM이나 AWS 환경이라면 외…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKERK3D-포트-매핑에서-앞쪽-포트와-뒤쪽-포트가-헷갈릴-때.html" data-title="[docker/k3d] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때" data-tags="" data-category="Kubernetes" data-published="2026-05-19T04:50:03.833Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[DOCKER/K3D] 포트 매핑에서 앞쪽 포트와 뒤쪽 포트가 헷갈릴 때</h2>
+        <p>Docker나 k3d를 쓰다 보면 이런 문법을 자주 본다. 또는 k3d에서는 이런 식으로 쓴다. 처음 보면 제일 헷갈리는 부분은 이거다. 포트가 두 개 나오는데, 앞쪽 포트가 뭔지, 뒤쪽 포트가 뭔지 잘 안 와닿는…</p>
+      </a>
+
+      <a class="post-card" href="../posts/K3DKUBERNETES-NodePort인데-왜-Node-IP로-접속이-안-될까.html" data-title="[k3d/kubernetes] nodeport인데 왜 node ip로 접속이 안 될까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T04:42:35.260Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[K3D/KUBERNETES] NodePort인데 왜 Node IP로 접속이 안 될까?</h2>
+        <p>Kubernetes에서 Service 타입 중 NodePort 를 사용하면 외부에서 다음과 같은 형식으로 접근할 수 있다고 배운다. 예를 들어 Service가 이렇게 떠 있다고 하자. 여기서 중요한 부분은 이것이다…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Endpoint는-Service가-실제로-바라보는-Pod-목록이다.html" data-title="[kubernetes] endpoint는 service가 실제로 바라보는 pod 목록이다" data-tags="" data-category="Kubernetes" data-published="2026-05-19T04:21:56.924Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] Endpoint는 Service가 실제로 바라보는 Pod 목록이다</h2>
+        <p>Kubernetes에서 Service를 만들면 우리는 보통 Service IP로 접근한다. 예를 들어 nginx-svc 라는 Service가 있고, ClusterIP가 10.43.144.200 이라고 해보자. 그러…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-ClusterIP-Service는-정말-로드밸런싱을-할까.html" data-title="[kubernetes] clusterip service는 정말 로드밸런싱을 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T03:47:43.397Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] ClusterIP Service는 정말 로드밸런싱을 할까?</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/22861be3-31bf-4d24-adda-a7942ea01eb0/image.png Kubernetes에서 Service를 만…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-kubectl-run으로-만든-curl-test-Pod는-어디에-생기는-걸까.html" data-title="[kubernetes] kubectl run으로 만든 curl-test pod는 어디에 생기는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-19T03:38:11.599Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.19</time>
+        </div>
+        <h2>[KUBERNETES] kubectl run으로 만든 curl-test Pod는 어디에 생기는 걸까?</h2>
+        <p>Kubernetes에서 ClusterIP 를 테스트하다 보면 이런 명령어를 자주 쓰게 된다. 처음 보면 이런 생각이 든다. 이게 대체 어디에 설치되는 거지? 내 로컬에 curl을 까는 건가? 아니면 Kubernet…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Service는-왜-필요할까-ClusterIP-NodePort-LoadBalancer-한-번에-이해하기.html" data-title="[kubernetes] service는 왜 필요할까? clusterip, nodeport, loadbalancer 한 번에 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-18T09:13:26.646Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.18</time>
+        </div>
+        <h2>[KUBERNETES] Service는 왜 필요할까? ClusterIP, NodePort, LoadBalancer 한 번에 이해하기</h2>
+        <p>쿠버네티스에서 Pod를 띄우는 것까지는 비교적 이해가 쉽다. nginx 이미지를 이용해서 Pod를 만들면 nginx 서버가 뜨고, Deployment를 만들면 여러 개의 Pod가 생성된다. 그런데 여기서 바로 문제…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Pod-ReplicaSet-Deployment-Rollout-흐름-한-번에-이해하기.html" data-title="[kubernetes] pod, replicaset, deployment, rollout 흐름 한 번에 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-18T08:40:42.096Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.18</time>
+        </div>
+        <h2>[KUBERNETES] Pod, ReplicaSet, Deployment, Rollout 흐름 한 번에 이해하기</h2>
+        <p>쿠버네티스를 처음 보면 pod.yaml , deploy.yaml , service.yaml 같은 YAML 파일을 계속 만나게 된다. 처음에는 이 파일들이 전부 다르게 생긴 것처럼 보이지만, 계속 보다 보면 구조가…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Ingress에서-Gateway-API로-마이그레이션할-때-나오는-단어-정리하기.html" data-title="[kubernetes] ingress에서 gateway api로 마이그레이션할 때 나오는 단어 정리하기" data-tags="" data-category="Kubernetes" data-published="2026-05-18T05:31:51.102Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.18</time>
+        </div>
+        <h2>[KUBERNETES] Ingress에서 Gateway API로 마이그레이션할 때 나오는 단어 정리하기</h2>
+        <p>Kubernetes에서 외부 사용자가 애플리케이션에 접근하게 만들 때 자주 나오는 개념이 있다. 바로 Ingress , Gateway API , Gateway , HTTPRoute , TLS , Service ,…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-ConfigMap으로-Nginx-TLS-버전-제한하기-TLSv1.3만-허용하는-문제-풀이.html" data-title="[cka] configmap으로 nginx tls 버전 제한하기: tlsv1.3만 허용하는 문제 풀이" data-tags="" data-category="Kubernetes" data-published="2026-05-18T01:59:19.030Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.18</time>
+        </div>
+        <h2>[CKA] ConfigMap으로 Nginx TLS 버전 제한하기: TLSv1.3만 허용하는 문제 풀이</h2>
+        <p>CKA 문제를 풀다 보면 Kubernetes 리소스만 다루는 것처럼 보이지만, 실제로는 애플리케이션 설정까지 같이 이해해야 하는 문제가 자주 나온다. 이번 문제도 겉으로는 Deployment , Namespace…</p>
+      </a>
+
+      <a class="post-card" href="../posts/HELM-Helm-Chart는-이미지를-직접-가져오는-걸까.html" data-title="[helm] helm chart는 이미지를 직접 가져오는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-17T12:01:03.260Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[HELM] Helm Chart는 이미지를 직접 가져오는 걸까?</h2>
+        <p>Helm을 처음 배우다 보면 이런 생각이 든다. “이 명령어를 치면 Helm이 Docker 이미지를 가져오는 건가?” 특히 helm install 을 실행하면 Pod가 자동으로 뜨고, Docker Hub에서 이미지…</p>
+      </a>
+
+      <a class="post-card" href="../posts/HELM-Helm-Chart는-도대체-뭘까.html" data-title="[helm] helm chart는 도대체 뭘까?" data-tags="" data-category="Kubernetes" data-published="2026-05-17T11:59:02.918Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[HELM] Helm Chart는 도대체 뭘까?</h2>
+        <p>쿠버네티스를 쓰다 보면 이런 명령어를 자주 보게 된다. 처음 보면 헷갈린다. “나는 Ingress Controller를 설치하려고 했는데, 왜 Helm이라는 걸 쓰지?” “Helm Chart는 또 뭐고, value…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Ingress와-Ingress-Controller는-뭐가-다를까.html" data-title="[kubernetes] ingress와 ingress controller는 뭐가 다를까?" data-tags="" data-category="Kubernetes" data-published="2026-05-17T11:54:28.070Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[KUBERNETES] Ingress와 Ingress Controller는 뭐가 다를까?</h2>
+        <p>쿠버네티스에서 외부 요청을 서비스로 연결할 때 Service 만 쓰는 게 아니라 Ingress 라는 것도 자주 등장한다. 처음 보면 이름이 비슷해서 헷갈린다. 둘 다 외부 요청을 내부 서비스로 보내는 것 같고, 둘…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-쿠버네티스를-이해하기-전에-알아야-할-것들-온프레미스-VM-컨테이너-Docker-그리고-K8s.html" data-title="[kubernetes] 쿠버네티스를 이해하기 전에 알아야 할 것들: 온프레미스, vm, 컨테이너, docker, 그리고 k8s" data-tags="" data-category="Kubernetes" data-published="2026-05-17T11:16:43.976Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[KUBERNETES] 쿠버네티스를 이해하기 전에 알아야 할 것들: 온프레미스, VM, 컨테이너, Docker, 그리고 K8s</h2>
+        <p>쿠버네티스를 처음 공부할 때 바로 Pod, Service, Deployment부터 들어가면 헷갈리기 쉽다. 쿠버네티스는 갑자기 튀어나온 기술이 아니라, 서버를 운영하는 방식이 변화하면서 자연스럽게 등장한 기술이기…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-노드-토큰-복붙에서-CLI-조인-그리고-자동화까지.html" data-title="[kubernetes] 노드 토큰 복붙에서 cli 조인, 그리고 자동화까지" data-tags="" data-category="Kubernetes" data-published="2026-05-17T11:02:09.867Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[KUBERNETES] 노드 토큰 복붙에서 CLI 조인, 그리고 자동화까지</h2>
+        <p>쿠버네티스 클러스터를 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드를 마스터 노드에 어떻게 조인시키는가 였다. 처음에는 단순히 “워커 노드를 붙인다” 정도로만 생각했는데, 실제로 해보니 그 안에는 꽤 중요한…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-k3s-워커-노드는-어떻게-마스터-노드에-조인될까-node-token으로-이해하는-노드-조인.html" data-title="[kubernetes] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인" data-tags="" data-category="Kubernetes" data-published="2026-05-17T10:54:34.111Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[KUBERNETES] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인</h2>
+        <p>쿠버네티스를 처음 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드 조인 이었다. 처음에는 워커 노드를 클러스터에 붙이기 위해 여러 설정 파일을 직접 복사하고 수정해야 하는 줄 알았다. 그런데 k3s에서는 핵심이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유.html" data-title="[docker] docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유" data-tags="" data-category="DOCKER" data-published="2026-05-17T09:41:33.774Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유</h2>
+        <p>Docker로 애플리케이션을 배포하다 보면 이상한 상황을 만날 때가 있다. 분명히 코드를 고쳤다. Dockerfile도 수정했다. docker-compose.yml도 확인했다. 그런데 계속 같은 빌드 실패가 반복된…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-단일-스테이지-구조를-쓰면-항상-EC2-안에서-빌드해야-할까.html" data-title="[docker] 단일 스테이지 구조를 쓰면 항상 ec2 안에서 빌드해야 할까?" data-tags="" data-category="DOCKER" data-published="2026-05-17T09:27:34.161Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DOCKER] 단일 스테이지 구조를 쓰면 항상 EC2 안에서 빌드해야 할까?</h2>
+        <p>Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다. 결론부터 말하면 반드시 EC2 안에서 빌드해야 하는 것은 아니다. 다만 단일 스테이지 구조…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-이미지를-jdk로-할건지-jre로-할건지.html" data-title="[docker] 이미지를 jdk로 할건지 jre로 할건지" data-tags="" data-category="Docker" data-published="2026-05-17T09:23:19.316Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[Docker] 이미지를 jdk로 할건지 jre로 할건지</h2>
+        <p>맞아. 운영 실행용 이미지는 JDK보다 JRE가 더 적절한 경우가 많다. 내가 예시에서 eclipse-temurin:17-jdk 를 쓴 건 “일단 무조건 실행되는 안전한 예시”에 가깝고, 실제 운영 이미지 최적화…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-단일스테이지로-쓰려면.html" data-title="[docker] 단일스테이지로 쓰려면?" data-tags="" data-category="Docker" data-published="2026-05-17T09:21:14.863Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[Docker] 단일스테이지로 쓰려면?</h2>
+        <p>단일 스테이지로 쓰려면 핵심은 “Dockerfile이 JAR를 복사하기 전에, EC2 호스트에 JAR가 실제로 존재해야 한다” 는 전제를 지키는 것이다. 즉, 단일 스테이지 구조는 보통 이렇게 간다. 1. 가장 기…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-EC2에서-Docker-빌드할-때-JAR-파일이-없어서-COPY가-실패한-문제.html" data-title="[docker] ec2에서 docker 빌드할 때 jar 파일이 없어서 copy가 실패한 문제" data-tags="" data-category="DOCKER" data-published="2026-05-17T09:01:08.643Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DOCKER] EC2에서 Docker 빌드할 때 JAR 파일이 없어서 COPY가 실패한 문제</h2>
+        <p>Spring Boot 애플리케이션을 EC2 서버에 배포하다 보면, 로컬에서는 잘 되던 Docker 빌드가 서버에서는 갑자기 실패하는 경우가 있다. 그중 대표적인 문제가 바로 JAR 파일 누락으로 인한 COPY 실패…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-원격-클러스터와-인프라-운영-관점.html" data-title="[kubernetes] 원격 클러스터와 인프라 운영 관점" data-tags="" data-category="Kubernetes" data-published="2026-05-14T08:07:47.318Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Kubernetes] 원격 클러스터와 인프라 운영 관점</h2>
+        <p>Kubernetes를 처음 배울 때는 보통 서버에 직접 SSH로 들어가서 명령어를 치는 방식이 익숙하다. 그런데 실무 관점으로 가면 조금 다른 생각을 해야 한다. 이 질문이 바로 Kubernetes 운영, kube…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Helm과-Kubernetes-운영.html" data-title="[kubernetes] helm과 kubernetes 운영" data-tags="" data-category="Kubernetes" data-published="2026-05-14T07:59:25.686Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Kubernetes] Helm과 Kubernetes 운영</h2>
+        <p>Kubernetes를 공부하다 보면 처음에는 kubectl 로 직접 리소스를 만든다. 이 단계에서는 괜찮다. Pod 하나 만들고, Service 하나 만들고, Ingress 하나 만드는 정도는 직접 해도 된다. 그…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Kubernetes-Namespace와-Ingress.html" data-title="[kubernetes] kubernetes namespace와 ingress" data-tags="" data-category="Kubernetes" data-published="2026-05-14T07:51:43.497Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Kubernetes] Kubernetes Namespace와 Ingress</h2>
+        <p>Kubernetes를 처음 만지면 Pod, Deployment, Service까지는 어느 정도 감이 온다. 그런데 조금만 더 들어가면 바로 헷갈리는 개념이 나온다. 특히 ingress-nginx 와 ingress-…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-K3d-Pod-재생성-Event로-이해하는-쿠버네티스-기초.html" data-title="[kubernetes] k3d, pod 재생성, event로 이해하는 쿠버네티스 기초" data-tags="" data-category="Kubernetes" data-published="2026-05-14T07:47:03.614Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[KUBERNETES] K3d, Pod 재생성, Event로 이해하는 쿠버네티스 기초</h2>
+        <p>쿠버네티스를 처음 만지면 가장 먼저 드는 생각은 이것이다. “분명 내가 뭔가를 지웠는데 왜 다시 생기지?” “Pod가 죽었는데 왜 또 만들어지지?” “에러가 났는데 어디부터 봐야 하지?” “K3d는 또 뭐고, K3…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-Docker-Compose-실행-순서와-Health-Check.html" data-title="[docker] docker compose 실행 순서와 health check" data-tags="" data-category="DOCKER" data-published="2026-05-14T07:42:01.587Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[DOCKER] Docker Compose 실행 순서와 Health Check</h2>
+        <p>DOCKER COMPOSE DB가 먼저 떠야 하는 이유 Docker Compose로 애플리케이션과 DB를 함께 실행할 때 자주 나오는 구조가 있다. 또는 이 구조에서 애플리케이션은 혼자 동작하지 않는다. 대부분의…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-Docker-이미지와-커스텀-빌드.html" data-title="[docker] docker 이미지와 커스텀 빌드" data-tags="" data-category="Docker" data-published="2026-05-14T07:28:31.597Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Docker] Docker 이미지와 커스텀 빌드</h2>
+        <p>DOCKER IMAGE Dockerfile로 커스텀 이미지를 만드는 이유 Docker를 쓰다 보면 처음에는 공식 이미지를 그대로 사용한다. 예를 들어 PostgreSQL을 띄울 때는 이렇게 쓴다. Nginx를 띄울…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-Docker-네트워크와-컨테이너-통신.html" data-title="[docker] docker 네트워크와 컨테이너 통신" data-tags="" data-category="Docker" data-published="2026-05-14T07:26:31.259Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Docker] Docker 네트워크와 컨테이너 통신</h2>
+        <p>아래 4편은 그대로 벨로그에 나눠 올리면 된다. 오늘 메모 흐름상 localhost → 같은 네트워크 → host.docker.internal → 외부 DB 접근 방식 순서가 제일 자연스럽다. 수업 메모에서도 컨테…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKERDocker-Compose-실전-구조.html" data-title="[docker]docker compose 실전 구조" data-tags="" data-category="DOCKERDocker" data-published="2026-05-14T07:17:49.948Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKERDocker</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[DOCKER]Docker Compose 실전 구조</h2>
+        <p>DOCKER docker-compose.yml은 단순 실행 파일이 아니다 Docker를 처음 배울 때는 보통 docker run 명령어로 컨테이너를 실행한다. 이렇게 하면 PostgreSQL 컨테이너 하나를 띄울…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-컨테이너-안에서-vi로-수정하면-왜-위험할까.html" data-title="[docker] 컨테이너 안에서 vi로 수정하면 왜 위험할까?" data-tags="" data-category="DOCKER" data-published="2026-05-14T07:15:00.894Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[DOCKER] 컨테이너 안에서 vi로 수정하면 왜 위험할까?</h2>
+        <p>Docker를 처음 쓰다 보면 이런 생각을 하게 된다. “컨테이너 안에 들어가서 설정 파일을 직접 고치면 되는 거 아닌가?” 예를 들어 Nginx 컨테이너가 떠 있고, 그 안에 nginx.conf 나 server.…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-Docker-Volume은-왜-중요한가.html" data-title="[docker] docker volume은 왜 중요한가?" data-tags="" data-category="DOCKER" data-published="2026-05-14T07:01:57.426Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[DOCKER] Docker Volume은 왜 중요한가?</h2>
+        <p>Docker를 쓰다 보면 처음에는 이런 식으로 생각하기 쉽다. “컨테이너 안에 PostgreSQL이 떠 있으니까 데이터도 컨테이너 안에 있겠지?” 맞다. 그런데 문제는 컨테이너가 영구적인 존재가 아니라는 점이다.…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-컨테이너는-왜-설정이-날아갈까.html" data-title="[docker] 컨테이너는 왜 설정이 날아갈까?" data-tags="" data-category="DOCKER" data-published="2026-05-14T06:43:50.898Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[DOCKER] 컨테이너는 왜 설정이 날아갈까?</h2>
+        <p>Docker를 쓰다 보면 이런 상황을 자주 만난다. Nginx 컨테이너 안에 들어간다. 설정 파일을 수정한다. 처음에는 잘 되는 것처럼 보인다. 그런데 컨테이너를 지웠다가 다시 만들면? 수정한 설정이 사라진다. 이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Service-종류-3가지-ClusterIP-NodePort-LoadBalancer.html" data-title="[kubernetes] service 종류 3가지: clusterip, nodeport, loadbalancer" data-tags="" data-category="Kubernetes" data-published="2026-05-14T03:56:05.351Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Kubernetes] Service 종류 3가지: ClusterIP, NodePort, LoadBalancer</h2>
+        <p>쿠버네티스에서 Pod는 계속 생성되고 삭제될 수 있다. 문제는 Pod가 새로 만들어질 때마다 IP가 바뀔 수 있다는 점이다. 그래서 클라이언트가 Pod IP를 직접 바라보게 만들면 안정적이지 않다. 이런 상황에서…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Deployment-배포-전략이란-RollingUpdate와-Rollback-이해하기.html" data-title="[kubernetes] deployment 배포 전략이란? rollingupdate와 rollback 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-14T01:51:01.681Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.14</time>
+        </div>
+        <h2>[Kubernetes] Deployment 배포 전략이란? RollingUpdate와 Rollback 이해하기</h2>
+        <p>Kubernetes에서 애플리케이션을 운영하다 보면 단순히 Pod를 한 번 실행하는 것보다 더 중요한 문제가 생긴다. 바로 “새 버전으로 어떻게 안전하게 바꿀 것인가?”이다. 예를 들어 현재 kodekloud/we…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-f.html" data-title="[kubernetes] -f" data-tags="" data-category="Kubernetes" data-published="2026-05-13T09:05:34.885Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] -f</h2>
+        <p>지금 오류 원인은 명령어에서 -f 를 잘못 쓴 것 이야. 지금 친 명령어 이렇게 치면 Kubernetes는 rs 를 리소스 종류 로 해석하는 게 아니라, -f 옵션 뒤에 온 값이라서 파일 경로 로 해석함. 즉 Ku…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-ReplicaSet-YAML에서-selector와-template-label은-왜-같아야-할까.html" data-title="[kubernetes] replicaset yaml에서 selector와 template label은 왜 같아야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T08:49:01.720Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[Kubernetes] ReplicaSet YAML에서 selector와 template label은 왜 같아야 할까?</h2>
+        <p>Kubernetes에서 ReplicaSet 을 만들다 보면 이런 YAML을 자주 만나게 된다. 겉으로 보면 큰 문제 없어 보인다. ReplicaSet 을 만들고, replicas: 2 니까 Pod를 2개 만들고,…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Helm으로-ingress-nginx를-설치하면-어디까지-설치되는-걸까.html" data-title="[kubernetes] helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T06:54:30.851Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[Kubernetes] Helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?</h2>
+        <p>Ingress를 처음 실습할 때 가장 헷갈렸던 부분이 있다. 이 명령어를 치면 뭔가 Ingress 관련 설정이 다 끝난 것처럼 느껴진다. 그래서 이후에 다시 이런 명령어를 치면 헷갈린다. 처음에는 이런 생각이 든다…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Helm으로-설치한-ingress-nginx에도-Service가-있는데-왜-nginx-Service를-또-만들까.html" data-title="[kubernetes] helm으로 설치한 ingress-nginx에도 service가 있는데, 왜 nginx service를 또 만들까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T06:48:16.759Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[Kubernetes] Helm으로 설치한 ingress-nginx에도 Service가 있는데, 왜 nginx Service를 또 만들까?</h2>
+        <p>Kubernetes에서 Ingress를 실습하다 보면 처음에 많이 헷갈리는 부분이 있다. 이렇게 Helm으로 ingress-nginx 를 설치했는데, 이후에 또 이런 명령어를 친다. 처음 보면 이런 생각이 든다.…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Helm으로-ingress-nginx-설치하고-kubectl로-nginx-앱까지-연결하기.html" data-title="[kubernetes] helm으로 ingress-nginx 설치하고, kubectl로 nginx 앱까지 연결하기" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:44:39.802Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] Helm으로 ingress-nginx 설치하고, kubectl로 nginx 앱까지 연결하기</h2>
+        <p>Kubernetes에서 Ingress를 처음 실습하면 머리가 복잡해진다. Helm도 나오고, kubectl도 나오고, ingress-nginx도 나오고, nginx-ingress도 나오고, nginx Service…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-앱도-없고-Pod도-없는데-나는-뭘-한-걸까.html" data-title="[kubernetes] 앱도 없고 pod도 없는데 나는 뭘 한 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:41:42.596Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] 앱도 없고 Pod도 없는데 나는 뭘 한 걸까?</h2>
+        <p>Ingress 실습을 하다 보면 이런 순간이 온다. 처음에는 헷갈린다. “나는 뭘 만든 거지?” “앱도 없고 Pod도 없는데 왜 Ingress를 만든 거지?” “Service에는 앱이 들어가는 건가?” “Helm으…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-왜-Helm으로-설치하고-다시-kubectl로-YAML을-apply-했을까.html" data-title="[kubernetes] 왜 helm으로 설치하고, 다시 kubectl로 yaml을 apply 했을까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:34:28.127Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] 왜 Helm으로 설치하고, 다시 kubectl로 YAML을 apply 했을까?</h2>
+        <p>Helm = 큰 시스템 설치 kubectl apply = 내 규칙 추가 1. Helm으로 ingress-nginx 설치 → 요청을 받아서 처리할 관리자 설치 2. nginx Deployment 만들기 → 실제 응답…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-kubectl로-Ingress-만드는-것과-Helm으로-ingress-nginx-설치하는-것은-뭐가-다를까.html" data-title="[kubernetes] kubectl로 ingress 만드는 것과 helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:31:36.398Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] kubectl로 Ingress 만드는 것과 Helm으로 ingress-nginx 설치하는 것은 뭐가 다를까?</h2>
+        <p>Kubernetes에서 Ingress를 공부하다 보면 헷갈리는 지점이 있다. 이 명령어도 Ingress를 만드는 것 같고, 이 명령어도 Ingress 관련 무언가를 설치하는 것 같다. 둘 다 Ingress와 관련되…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Ingress-적용-후-localhost-접속까지-트러블슈팅-정리.html" data-title="[kubernetes] ingress 적용 후 localhost 접속까지 트러블슈팅 정리" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:24:35.460Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] Ingress 적용 후 localhost 접속까지 트러블슈팅 정리</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/351a7e1a-1db7-476f-a47f-d36542437280/image.png ! https://velog.velcdn.…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유.html" data-title="[kubernetes] helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:13:53.560Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/94669a90-5342-4d8f-af2f-2a7c43060275/image.png 쿠버네티스에서 ingress-nginx 를…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-Helm은-왜-쓰는-걸까.html" data-title="[kubernetes] helm은 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T05:01:32.267Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] Helm은 왜 쓰는 걸까?</h2>
+        <p>쿠버네티스를 공부하다 보면 처음에는 Pod , Deployment , Service 같은 YAML을 직접 작성하게 된다. 예를 들어 애플리케이션 하나를 배포하려면 보통 이런 리소스들이 필요하다. 처음에는 하나씩 작…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-kubectx는-뭐고-왜-쓰는-걸까.html" data-title="[kubernetes] kubectx는 뭐고 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T04:57:08.513Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] kubectx는 뭐고 왜 쓰는 걸까?</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/a4d41c3c-c7da-4398-b818-fc2a43ffafec/image.png 쿠버네티스를 쓰다 보면 kubectl 명령…</p>
+      </a>
+
+      <a class="post-card" href="../posts/KUBERNETES-k9s는-뭐고-왜-쓰는-걸까.html" data-title="[kubernetes] k9s는 뭐고 왜 쓰는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T04:52:33.249Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[KUBERNETES] k9s는 뭐고 왜 쓰는 걸까?</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/f5cf6d4a-7f1c-43a7-94db-d043b807e023/image.png 쿠버네티스를 처음 공부하면 보통 kubec…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-Docker-Compose로-PostgreSQL-데이터-유지하기-volume은-왜-필요할까.html" data-title="[docker] docker compose로 postgresql 데이터 유지하기: volume은 왜 필요할까?" data-tags="" data-category="DOCKER" data-published="2026-05-13T03:58:40.642Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[DOCKER] Docker Compose로 PostgreSQL 데이터 유지하기: volume은 왜 필요할까?</h2>
+        <p>Docker로 PostgreSQL을 띄우면 처음에는 굉장히 편하다. docker compose up 한 번이면 DB 컨테이너가 실행되고, 포트만 연결하면 DBeaver 같은 DB 클라이언트에서도 바로 접속할 수 있…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-일부러-잘못된-이미지로-Pod-만들기-redis123-실습-이해하기.html" data-title="[kubernetes] 일부러 잘못된 이미지로 pod 만들기: redis123 실습 이해하기" data-tags="" data-category="Kubernetes" data-published="2026-05-12T09:54:19.678Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[Kubernetes] 일부러 잘못된 이미지로 Pod 만들기: redis123 실습 이해하기</h2>
+        <p>쿠버네티스 실습을 하다 보면 이런 문제가 나온다. 처음 보면 조금 이상하다. redis 이미지를 쓰면 될 것 같은데, 문제에서는 굳이 redis123 이라는 잘못된 이미지를 쓰라고 한다. 여기서 중요한 포인트는 이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/K8S-BUSYBOX.html" data-title="[k8s] busybox" data-tags="" data-category="Kubernetes" data-published="2026-05-12T09:51:29.188Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[K8S] BUSYBOX</h2>
+        <p>busybox 는 쉽게 말하면 아주 작은 리눅스 도구 상자 이미지 쿠버네티스 실습에서 kubectl describe pods 했을 때 busybox 가 보이는 이유는 보통 그 Pod가 busybox 이미지를 기반으…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-kubectl-describe-nodes는-어디부터-봐야-할까.html" data-title="[kubernetes] kubectl describe nodes는 어디부터 봐야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-12T09:18:04.365Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[Kubernetes] kubectl describe nodes는 어디부터 봐야 할까?</h2>
+        <p>쿠버네티스를 공부하다 보면 kubectl describe nodes 명령어를 자주 보게 된다. 처음 이 명령어를 치면 출력이 너무 길다. 노드 이름, 라벨, 어노테이션, IP, 자원, 파드 목록, 이벤트까지 한 번…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-docker-run-하기-전에-mvn-spring-bootrun도-해야-할까.html" data-title="[docker] docker run 하기 전에 mvn spring-boot:run도 해야 할까?" data-tags="" data-category="DOCKER" data-published="2026-05-12T08:43:45.474Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[DOCKER] docker run 하기 전에 mvn spring-boot:run도 해야 할까?</h2>
+        <p>Spring Boot 애플리케이션을 Docker로 실행하다 보면 처음에 이런 생각이 든다. 나도 이 부분이 처음에는 헷갈렸다. 왜냐하면 둘 다 결국 localhost:8080 으로 접속하기 때문이다. 이렇게 실행해…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-docker-run-옵션-정리-d-p-f-a는-무슨-뜻일까.html" data-title="[docker] docker run 옵션 정리: -d, -p, -f, -a는 무슨 뜻일까?" data-tags="" data-category="DOCKER" data-published="2026-05-12T08:17:21.738Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[DOCKER] docker run 옵션 정리: -d, -p, -f, -a는 무슨 뜻일까?</h2>
+        <p>Docker 명령어를 보다 보면 이런 옵션들이 자주 나온다. 또 로그를 볼 때는 이런 명령어도 나온다. 컨테이너에 붙을 때는 이런 것도 나온다. 처음 보면 -d , -p , -f , -a 같은 옵션들이 다 비슷해…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CICDFROM-eclipse-temurin21-jre-alpine-같은-이미지.html" data-title="[ci/cd]`from eclipse-temurin:21-jre-alpine` 같은 이미지" data-tags="" data-category="CICDFROM" data-published="2026-05-12T08:10:27.648Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CICDFROM</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[CI/CD]`FROM eclipse-temurin:21-jre-alpine` 같은 이미지</h2>
+        <p>FROM eclipse-temurin:21-jre-alpine 같은 이미지는 종류가 엄청 많아 보이는데, 사실 태그를 쪼개서 보면 별거 아님. 이건 이렇게 읽으면 된다. 즉 한 줄로 말하면: --- 1. eclip…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-Dockerfile-빌드-방식-2가지-jar만-복사할까-컨테이너-안에서-빌드할까.html" data-title="[docker] dockerfile 빌드 방식 2가지: jar만 복사할까, 컨테이너 안에서 빌드할까?" data-tags="" data-category="DOCKER" data-published="2026-05-12T08:04:34.723Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.12</time>
+        </div>
+        <h2>[DOCKER] Dockerfile 빌드 방식 2가지: jar만 복사할까, 컨테이너 안에서 빌드할까?</h2>
+        <p>Spring Boot 애플리케이션을 Docker 이미지로 만들 때 처음 헷갈리는 지점이 있다. “jar 파일을 먼저 만들고 Docker 이미지에 넣어야 하나?” “아니면 Dockerfile 안에서 Maven 빌드까…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-80808080-도대체-무슨-뜻일까.html" data-title="[docker] `8080:8080` 도대체 무슨 뜻일까?" data-tags="" data-category="DOCKER" data-published="2026-05-11T08:43:00.209Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.11</time>
+        </div>
+        <h2>[DOCKER] `8080:8080` 도대체 무슨 뜻일까?</h2>
+        <p>Docker를 처음 배우면 가장 많이 보는 명령어 중 하나가 이것이다. 근데 처음 보면 솔직히 헷갈린다. 오늘은 이 개념을 진짜 직관적으로 이해해보자. --- Docker 컨테이너는 “별도의 컴퓨터”처럼 동작한다…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Deployment-YAML-처음부터-다-외워야-할까.html" data-title="[kubernetes] deployment yaml, 처음부터 다 외워야 할까?" data-tags="" data-category="Kubernetes" data-published="2026-05-11T07:14:34.563Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.11</time>
+        </div>
+        <h2>[Kubernetes] Deployment YAML, 처음부터 다 외워야 할까?</h2>
+        <p>쿠버네티스를 공부하다 보면 이런 문제를 자주 만난다. 처음 보면 이런 생각이 든다. 이 YAML을 실전에서 다 외워서 쓰나? 결론부터 말하면 다 외우는 게 아니다. 실무에서도 처음부터 YAML을 손으로 전부 치기보…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-ReplicaSet-생성-중-no-matches-for-kind-ReplicaSet-in-version-v1-에러-해결-공식.html" data-title="[kubernetes] replicaset 생성 중 no matches for kind \&quot;replicaset\&quot; in version \&quot;v1\&quot; 에러 해결 + 공식 docs 보는 법" data-tags="" data-category="Kubernetes" data-published="2026-05-11T03:51:00.227Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.11</time>
+        </div>
+        <h2>[Kubernetes] ReplicaSet 생성 중 no matches for kind \&quot;ReplicaSet\&quot; in version \&quot;v1\&quot; 에러 해결 + 공식 Docs 보는 법</h2>
+        <p>쿠버네티스 실습을 하다 보면 가장 많이 마주치는 것 중 하나가 YAML 오류다. 특히 CKA/KodeKloud에서는 일부러 틀린 YAML 파일을 주고 수정하게 만드는 문제가 굉장히 자주 나온다. 이번에는 Repli…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-컨테이너에서-localhost가-안-먹히는-이유-host.docker.internal과-Profile-분리.html" data-title="[docker] 컨테이너에서 localhost가 안 먹히는 이유: host.docker.internal과 profile 분리" data-tags="" data-category="DOCKER" data-published="2026-05-08T07:52:12.834Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.08</time>
+        </div>
+        <h2>[DOCKER] 컨테이너에서 localhost가 안 먹히는 이유: host.docker.internal과 Profile 분리</h2>
+        <p>이번에 겪은 문제는 단순히 DB URL 하나가 틀린 문제가 아니었다. 핵심은 이거였다. 이 셋은 같은 것처럼 보여도 네트워크 기준에서는 완전히 다르다. --- 1. 문제 상황 처음에는 Spring Boot API가…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-Maven-빌드-.m2-캐시-Dockerfile-방식-비교-정리.html" data-title="[docker] maven 빌드, `.m2` 캐시, dockerfile 방식 비교 정리" data-tags="" data-category="DOCKER" data-published="2026-05-08T07:50:22.528Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.08</time>
+        </div>
+        <h2>[DOCKER] Maven 빌드, `.m2` 캐시, Dockerfile 방식 비교 정리</h2>
+        <p>스프링부트 프로젝트를 Docker로 올리다 보면 단순히 docker run 만 문제가 아니다. 실제로는 그 전에: 이라는 흐름을 이해해야 한다. 이번에는 Maven 빌드, .m2 저장소, Dockerfile 두 가…</p>
+      </a>
+
+      <a class="post-card" href="../posts/DOCKER-왜-멀티-스테이지-빌드를-쓰고-왜-JRE만-남길까.html" data-title="[docker] 왜 멀티 스테이지 빌드를 쓰고, 왜 jre만 남길까?" data-tags="" data-category="DOCKER" data-published="2026-05-08T07:46:33.447Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">DOCKER</span>
+          <time>2026.05.08</time>
+        </div>
+        <h2>[DOCKER] 왜 멀티 스테이지 빌드를 쓰고, 왜 JRE만 남길까?</h2>
+        <p>도커로 스프링부트를 배포하다 보면 처음엔 이런 생각이 든다. 그런데 실제 운영 환경에서는: 이미지 용량 빌드 속도 OS 차이 캐싱 CI/CD 환경 같은 문제들이 생긴다. 오늘은: Dockerfile 구조 JDK v…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-Spring-Boot-게시판-프로젝트를-Docker로-배포하고-Docker-Hub에-올리기.html" data-title="[docker] spring boot 게시판 프로젝트를 docker로 배포하고 docker hub에 올리기" data-tags="" data-category="Docker" data-published="2026-05-08T04:10:32.469Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.08</time>
+        </div>
+        <h2>[Docker] Spring Boot 게시판 프로젝트를 Docker로 배포하고 Docker Hub에 올리기</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/d710c678-850d-4cb1-bf2d-8641f001537d/image.png 이번에는 로컬에서 실행하던 게시판 프로젝트…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-ReplicaSet-이미지-수정과-Pod-재생성-흐름-정리.html" data-title="[cka] replicaset 이미지 수정과 pod 재생성 흐름 정리" data-tags="" data-category="Kubernetes" data-published="2026-05-07T01:51:53.724Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.07</time>
+        </div>
+        <h2>[CKA] ReplicaSet 이미지 수정과 Pod 재생성 흐름 정리</h2>
+        <p>Kubernetes를 공부하다 보면 ReplicaSet 문제에서 자주 만나는 상황이 있다. 예를 들면 이런 문제다. 처음 보면 헷갈린다. 이번 글에서는 ReplicaSet과 Pod의 관계, 이미지 수정 흐름, 왜…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리.html" data-title="[cka] kodekloud pod 문제 풀면서 익힌 기본 명령어 정리\n" data-tags="" data-category="Kubernetes" data-published="2026-05-06T22:29:26.075Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.06</time>
+        </div>
+        <h2>[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\n</h2>
+        <p>KodeKloud에서 Kubernetes Pod 문제를 풀다 보면 처음에는 명령어 자체보다도 “문제에서 뭘 물어보는지”를 해석하는 게 더 헷갈린다. 특히 kubectl get pods , READY , descri…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-로컬에서-k3d-클러스터-만들고-LoadBalancer-포트-열기.html" data-title="[kubernetes] 로컬에서 k3d 클러스터 만들고 loadbalancer 포트 열기" data-tags="" data-category="Kubernetes" data-published="2026-05-06T22:00:48.887Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.06</time>
+        </div>
+        <h2>[Kubernetes] 로컬에서 k3d 클러스터 만들고 LoadBalancer 포트 열기</h2>
+        <p>! https://velog.velcdn.com/images/yorange50/post/d4c39157-4ed9-4955-846f-baccb49175ea/image.png 이번에는 로컬 환경에서 k3d 를 사용해…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Kubernetes-Service-ClusterIP-NodePort-LoadBalancer는-뭐가-다를까.html" data-title="[kubernetes] service, clusterip, nodeport, loadbalancer는 뭐가 다를까?" data-tags="" data-category="Kubernetes" data-published="2026-05-06T07:04:46.575Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.06</time>
+        </div>
+        <h2>[Kubernetes] Service, ClusterIP, NodePort, LoadBalancer는 뭐가 다를까?</h2>
+        <p>쿠버네티스를 처음 공부하면 Pod , Service , ClusterIP , NodePort , LoadBalancer 같은 단어가 계속 나온다. 처음에는 전부 네트워크 관련 용어처럼 보여서 헷갈리는데, 핵심은 하…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-윈도우에서-Docker-쓰려면-WSL이-꼭-필요할까.html" data-title="[docker] 윈도우에서 docker 쓰려면 wsl이 꼭 필요할까?" data-tags="" data-category="Docker" data-published="2026-05-06T03:40:53.981Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.06</time>
+        </div>
+        <h2>[Docker] 윈도우에서 Docker 쓰려면 WSL이 꼭 필요할까?</h2>
+        <p>윈도우에서 Docker Desktop을 설치하다 보면 WSL이라는 말을 자주 보게 된다. Docker를 설치하려는 건데 갑자기 WSL, Ubuntu, Linux 같은 단어가 같이 나오니까 처음에는 헷갈린다. 나도…</p>
+      </a>
+
+      <a class="post-card" href="../posts/Docker-서버에서-쓰는-Docker와-Docker-Desktop은-뭐가-다를까.html" data-title="[docker] 서버에서 쓰는 docker와 docker desktop은 뭐가 다를까?" data-tags="" data-category="Docker" data-published="2026-05-06T01:37:29.616Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.06</time>
+        </div>
+        <h2>[Docker] 서버에서 쓰는 Docker와 Docker Desktop은 뭐가 다를까?</h2>
+        <p>Docker를 처음 설치하려고 하면 가장 헷갈리는 지점이 있다. 분명 Docker를 쓰려는 건 똑같은데, 어떤 글에서는 Docker Desktop 을 설치하라고 하고, 어떤 글에서는 서버에 docker engine…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-etcd-정리-클러스터의-상태를-저장하는-핵심-데이터베이스.html" data-title="[cka] etcd 정리: 클러스터의 상태를 저장하는 핵심 데이터베이스" data-tags="" data-category="Kubernetes" data-published="2026-05-04T05:55:39.391Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.04</time>
+        </div>
+        <h2>[CKA] etcd 정리: 클러스터의 상태를 저장하는 핵심 데이터베이스</h2>
+        <p>Kubernetes를 공부하다 보면 etcd 라는 단어가 자주 나온다. 처음에는 이름부터 낯설다. Pod, Deployment, Service까지는 “애플리케이션을 배포하는 리소스구나” 하고 이해가 되는데, etc…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-기본-예제-nginx-Deployment-만들고-Service로-접속하기.html" data-title="cka 기본 예제: nginx deployment 만들고 service로 접속하기" data-tags="" data-category="Kubernetes" data-published="2026-05-04T04:32:57.716Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.04</time>
+        </div>
+        <h2>CKA 기본 예제: nginx Deployment 만들고 Service로 접속하기</h2>
+        <p>목표 쿠버네티스 클러스터 안에 nginx 웹서버를 띄우고, Service를 통해 접근 가능한지 확인한다. 최종 구조는 다음과 같다. --- 1. Deployment 생성 먼저 nginx 이미지를 사용하는 Deplo…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKAKubernetes-핵심-리소스-입문-정리.html" data-title="[cka]kubernetes 핵심 리소스 입문 정리" data-tags="" data-category="Kubernetes" data-published="2026-05-04T04:14:31.068Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.04</time>
+        </div>
+        <h2>[CKA]Kubernetes 핵심 리소스 입문 정리</h2>
+        <p>1. Pod Pod 는 쿠버네티스에서 컨테이너가 실제로 실행되는 가장 작은 단위다. 쉽게 말하면, Spring Boot 애플리케이션을 Docker 이미지로 만들었다고 하면, 쿠버네티스는 그 이미지를 바로 실행하지…</p>
+      </a>
+
+      <a class="post-card" href="../posts/CKA-자격증-입문-정리-쿠버네티스-관리자-시험에서-자주-쓰는-명령어-흐름.html" data-title="[cka] 쿠버네티스 관리자 시험에서 자주 쓰는 명령어 흐름" data-tags="" data-category="Kubernetes" data-published="2026-05-04T03:52:27.233Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.04</time>
+        </div>
+        <h2>[CKA] 쿠버네티스 관리자 시험에서 자주 쓰는 명령어 흐름</h2>
+        <p>CKA는 Certified Kubernetes Administrator의 약자로, 쿠버네티스 클러스터를 운영하고 관리할 수 있는지를 검증하는 실기형 자격증이다. 단순히 개념을 외우는 시험이라기보다는, 실제 터미널…</p>
+      </a>
+
+    </div>
+    <p class="empty-state" id="empty-state" hidden>검색 결과가 없습니다.</p>
+    <nav class="pagination" id="pagination" aria-label="페이지" hidden></nav>
+  </main>
+
+  <footer>
+    <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Velog backup archive</p>
+  </footer>
+  <script src="../topic.js"></script>
+</body>
+</html>

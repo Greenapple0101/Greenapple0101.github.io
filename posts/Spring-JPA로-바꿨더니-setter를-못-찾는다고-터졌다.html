@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/spring.html">Spring</a>
+    </nav>
     <span class="tag" style="--tag-color: #16a34a">Spring</span>
     <h1>[Spring] JPA로 바꿨더니 setter를 못 찾는다고 터졌다</h1>
     <div class="post-meta">
@@ -502,8 +506,8 @@ board.update(title, content, author);</p>
 그다음 PostgreSQL 연결, 테이블 생성, CRUD 요청 테스트 순서로 확인하면 된다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="Docker-윈도우에서-Docker-쓰려면-WSL이-꼭-필요할까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Docker] 윈도우에서 Docker 쓰려면 WSL이 꼭 필요할까?</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link prev" href="Spring-DTO란-무엇인가.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Spring] DTO란 무엇인가</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="Spring-boardapi-정리부터-boardfe-Thymeleaf-화면-서버-구성까지.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Spring] board_api 정리부터 board_fe Thymeleaf 화면 서버 구성까지</span></a>
   </nav>
   <footer>

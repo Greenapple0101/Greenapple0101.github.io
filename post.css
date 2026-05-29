@@ -8,17 +8,27 @@
   padding: 48px 24px 24px;
 }
 
-.back-link {
-  display: inline-block;
-  margin-bottom: 20px;
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
   font-size: 14px;
   font-weight: 600;
-  text-decoration: none;
-  color: #64748b;
 }
 
-.back-link:hover {
+.breadcrumb a {
+  color: #64748b;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
   color: #2563eb;
+}
+
+.breadcrumb span {
+  color: #cbd5e1;
 }
 
 .post-header h1 {

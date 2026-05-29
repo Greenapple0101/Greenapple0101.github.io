@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/web.html">웹 · 기타</a>
+    </nav>
     <span class="tag" style="--tag-color: #64748b">Linux</span>
     <h1>[Linux] systemctl이 뭐길래 서버에서 계속 나올까?</h1>
     <div class="post-meta">
@@ -254,9 +258,9 @@ journalctl -u kubelet -f
 <p>쿠버네티스나 Docker를 공부하다 보면 결국 서버 위에서 돌아가는 서비스들을 봐야 하기 때문에, <code>systemctl</code>은 인프라 공부에서 거의 기본기라고 보면 된다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="CKA-HPA-생성-문제-공식문서-보고-YAML로-푸는-법.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[CKA] HPA 생성 문제 — 공식문서 보고 YAML로 푸는 법</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
-  <a class="post-nav-link next" href="Kubernetes-kubectl-create-랑-kubectl-run-은-뭐가-다를까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Kubernetes] kubectl create 랑 kubectl run 은 뭐가 다를까?</span></a>
+  <a class="post-nav-link prev" href="LINUX-bash와-sh의-근본적인-차이.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[LINUX] bash와 sh의 근본적인 차이</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="Network-HTTP란-무엇일까.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Network] HTTP란 무엇일까?\n</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

@@ -24,6 +24,43 @@ FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 FIELD_RE = re.compile(r'^(\w+):\s*(?:"((?:\\.|[^"\\])*)"|\'((?:\\.|[^\'\\])*)\'|(.+))$', re.MULTILINE)
 
 KUBERNETES_CATEGORY = "Kubernetes"
+TOPICS_DIR = ROOT / "topics"
+
+# Folder groups shown on the home page (order matters).
+TOPIC_FOLDERS: list[dict[str, str]] = [
+    {
+        "id": "docker-k8s",
+        "title": "Docker & Kubernetes",
+        "description": "Docker, Kubernetes, CKA, Helm, k3d, Argo CD 등 인프라·컨테이너",
+        "color": "#7c3aed",
+    },
+    {
+        "id": "ai",
+        "title": "AI",
+        "description": "AI Infra, 딥러닝, PyTorch, RAG, MLOps 등",
+        "color": "#db2777",
+    },
+    {
+        "id": "spring",
+        "title": "Spring",
+        "description": "Spring Boot, JPA, API, 배포 실습 등",
+        "color": "#16a34a",
+    },
+    {
+        "id": "algorithm",
+        "title": "알고리즘",
+        "description": "LeetCode, 투포인터, 자료구조 등",
+        "color": "#ca8a04",
+    },
+    {
+        "id": "web",
+        "title": "웹 · 기타",
+        "description": "네트워크, DB, 보안, NGINX, HA, Linux, CI/CD 등",
+        "color": "#ea580c",
+    },
+]
+
+TOPIC_BY_ID = {t["id"]: t for t in TOPIC_FOLDERS}
 
 # Filename/tag prefixes that should appear under one Kubernetes filter.
 KUBERNETES_PREFIXES = frozenset(
@@ -110,6 +147,38 @@ def category_from_slug(slug: str, tags: str) -> str:
     return normalize_category(prefix) if prefix else "기타"
 
 
+def topic_for_entry(category: str, slug: str) -> str:
+    """Map a post to one of the five folder groups on the home page."""
+    prefix = _slug_prefix(slug).lower()
+    cat_key = re.sub(r"^\[|\]$", "", category.strip()).lower()
+
+    algorithm_keys = frozenset({"알고리즘", "leetcode", "algorithm", "알고리즘"})
+    if cat_key in algorithm_keys or prefix in algorithm_keys:
+        return "algorithm"
+    if "알고리즘" in cat_key or cat_key == "알고리즘":
+        return "algorithm"
+
+    spring_keys = frozenset({"spring", "springjpa", "thymeleaf"})
+    if cat_key in spring_keys or prefix in spring_keys or cat_key.startswith("spring"):
+        return "spring"
+
+    ai_keys = frozenset({"ai", "dl", "pytorch", "ml", "rag", "ragmlops", "cs"})
+    if cat_key in ai_keys or prefix in ai_keys:
+        return "ai"
+
+    docker_k8s_keys = KUBERNETES_PREFIXES | frozenset(
+        {"docker", "kubernetes", "k8s", "dockerdocker", "cicdfrom", "argo-cd"}
+    )
+    if (
+        cat_key in docker_k8s_keys
+        or prefix in docker_k8s_keys
+        or normalize_category(category) == KUBERNETES_CATEGORY
+    ):
+        return "docker-k8s"
+
+    return "web"
+
+
 def category_color(category: str) -> str:
     for key, color in CATEGORY_COLORS.items():
         if category.lower().startswith(key.lower()) or key.lower() in category.lower():
@@ -149,7 +218,11 @@ POST_HTML = """<!DOCTYPE html>
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/{topic_id}.html">{topic_title}</a>
+    </nav>
     <span class="tag" style="--tag-color: {tag_color}">{category}</span>
     <h1>{title}</h1>
     <div class="post-meta">
@@ -179,23 +252,54 @@ INDEX_HTML = """<!DOCTYPE html>
   <meta name="description" content="Spring, Kubernetes, Docker, AI Infra 등 개발 학습 기록 아카이브" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="home-page">
   <header>
     <p class="small-title">Greenapple0101</p>
     <h1>Dev Blog Archive</h1>
     <p class="description">
-      Velog에서 백업한 학습 기록 {count}편 — Spring, Kubernetes, Docker, AI, 네트워크, 알고리즘 등.
+      Velog에서 백업한 학습 기록 {count}편 — 주제 폴더를 선택해 글을 찾아보세요.
     </p>
     <div class="stats">
       <span class="stat"><strong>{count}</strong> posts</span>
-      <span class="stat"><strong>{category_count}</strong> topics</span>
+      <span class="stat"><strong>{folder_count}</strong> folders</span>
     </div>
   </header>
 
   <main>
+    <p class="folder-hint">주제별 폴더</p>
+    <div class="folder-grid">
+{folders}
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Velog backup archive</p>
+  </footer>
+</body>
+</html>
+"""
+
+TOPIC_HTML = """<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{topic_title} | Greenapple0101</title>
+  <meta name="description" content="{topic_description}" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="topic-page">
+  <header class="topic-header" style="--topic-color: {topic_color}">
+    <a class="back-link" href="../index.html">← 홈</a>
+    <p class="small-title">폴더</p>
+    <h1>{topic_title}</h1>
+    <p class="description">{topic_description}</p>
+    <span class="stat"><strong>{count}</strong> posts</span>
+  </header>
+
+  <main>
     <div class="toolbar">
-      <input type="search" id="search" placeholder="제목·태그 검색…" autocomplete="off" />
-      <div class="filter-tags" id="filter-tags"></div>
+      <input type="search" id="search" placeholder="이 폴더에서 제목 검색…" autocomplete="off" />
     </div>
     <p class="result-count" id="result-count"></p>
     <div class="post-list" id="post-list">
@@ -208,12 +312,21 @@ INDEX_HTML = """<!DOCTYPE html>
   <footer>
     <p>© 2026 <a href="https://github.com/Greenapple0101">Greenapple0101</a> · Velog backup archive</p>
   </footer>
-  <script src="app.js"></script>
+  <script src="../topic.js"></script>
 </body>
 </html>
 """
 
-CARD_TEMPLATE = """      <a class="post-card" href="posts/{slug}.html" data-title="{title_lower}" data-tags="{tags_lower}" data-category="{category}" data-published="{published}">
+FOLDER_CARD_TEMPLATE = """      <a class="folder-card" href="topics/{id}.html" style="--folder-color: {color}">
+        <div class="folder-card-top">
+          <span class="folder-badge">{count}편</span>
+        </div>
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </a>
+"""
+
+CARD_TEMPLATE = """      <a class="post-card" href="{post_href}" data-title="{title_lower}" data-tags="{tags_lower}" data-category="{category}" data-published="{published}">
         <div class="card-top">
           <span class="tag" style="--tag-color: {tag_color}">{category}</span>
           <time>{date}</time>
@@ -237,7 +350,7 @@ def post_nav_html(prev_entry: dict | None, next_entry: dict | None) -> str:
   else:
     parts.append('<span class="post-nav-link prev disabled" aria-hidden="true"></span>')
 
-  parts.append('<a class="post-nav-home" href="../index.html">목록</a>')
+  parts.append('<a class="post-nav-home" href="../index.html">홈</a>')
 
   if next_entry:
     parts.append(
@@ -256,11 +369,13 @@ def collect_entry(slug: str, meta: dict[str, str], body: str) -> dict:
     title = meta.get("title", slug.replace("-", " "))
     tags = meta.get("tags", "")
     category = category_from_slug(slug, tags)
+    topic = topic_for_entry(category, slug)
     published = meta.get("published", "")
     return {
         "slug": slug,
         "title": title,
         "category": category,
+        "topic": topic,
         "tags": tags,
         "published": published,
         "date": format_date(published),
@@ -269,11 +384,27 @@ def collect_entry(slug: str, meta: dict[str, str], body: str) -> dict:
     }
 
 
+def render_card(e: dict, *, post_href_prefix: str = "posts/") -> str:
+    return CARD_TEMPLATE.format(
+        post_href=html.escape(f"{post_href_prefix}{e['slug']}.html"),
+        slug=html.escape(e["slug"]),
+        title=html.escape(e["title"]),
+        title_lower=html.escape(e["title"].lower()),
+        tags_lower=html.escape((e.get("tags") or "").lower()),
+        category=html.escape(e["category"]),
+        tag_color=e["tag_color"],
+        date=html.escape(e.get("date") or ""),
+        published=html.escape(e.get("published") or ""),
+        excerpt=html.escape(e.get("excerpt") or ""),
+    )
+
+
 def build_post(
     slug: str,
     meta: dict[str, str],
     body: str,
     *,
+    topic_id: str,
     prev_entry: dict | None = None,
     next_entry: dict | None = None,
 ) -> None:
@@ -281,6 +412,7 @@ def build_post(
     tags = meta.get("tags", "")
     category = category_from_slug(slug, tags)
     tag_color = category_color(category)
+    topic_meta = TOPIC_BY_ID[topic_id]
     published = meta.get("published", "")
     source = meta.get("source", "")
 
@@ -303,6 +435,8 @@ def build_post(
         description=description,
         tag_color=tag_color,
         category=html.escape(category),
+        topic_id=html.escape(topic_id),
+        topic_title=html.escape(topic_meta["title"]),
         date_html=date_html,
         source_html=source_html,
         content=content_html,
@@ -314,29 +448,26 @@ def build_post(
 
 
 def build_index(entries: list[dict]) -> None:
-    entries.sort(key=lambda e: e.get("published") or "", reverse=True)
-
-    cards = []
+    counts = {t["id"]: 0 for t in TOPIC_FOLDERS}
     for e in entries:
-        cards.append(
-            CARD_TEMPLATE.format(
-                slug=html.escape(e["slug"]),
-                title=html.escape(e["title"]),
-                title_lower=html.escape(e["title"].lower()),
-                tags_lower=html.escape((e.get("tags") or "").lower()),
-                category=html.escape(e["category"]),
-                tag_color=e["tag_color"],
-                date=html.escape(e.get("date") or ""),
-                published=html.escape(e.get("published") or ""),
-                excerpt=html.escape(e.get("excerpt") or ""),
+        counts[e["topic"]] = counts.get(e["topic"], 0) + 1
+
+    folders = []
+    for topic in TOPIC_FOLDERS:
+        folders.append(
+            FOLDER_CARD_TEMPLATE.format(
+                id=html.escape(topic["id"]),
+                title=html.escape(topic["title"]),
+                description=html.escape(topic["description"]),
+                color=topic["color"],
+                count=counts.get(topic["id"], 0),
             )
         )
 
-    categories = sorted({e["category"] for e in entries}, key=str.lower)
     index = INDEX_HTML.format(
         count=len(entries),
-        category_count=len(categories),
-        cards="\n".join(cards),
+        folder_count=len(TOPIC_FOLDERS),
+        folders="\n".join(folders),
     )
     (ROOT / "index.html").write_text(index, encoding="utf-8")
 
@@ -345,6 +476,7 @@ def build_index(entries: list[dict]) -> None:
             "slug": e["slug"],
             "title": e["title"],
             "category": e["category"],
+            "topic": e["topic"],
             "tags": e.get("tags", ""),
             "date": e.get("date", ""),
             "excerpt": e.get("excerpt", ""),
@@ -355,6 +487,31 @@ def build_index(entries: list[dict]) -> None:
     (ROOT / "posts.json").write_text(
         json.dumps(posts_json, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+
+
+def build_topic_pages(entries: list[dict]) -> None:
+    TOPICS_DIR.mkdir(parents=True, exist_ok=True)
+
+    by_topic: dict[str, list[dict]] = {t["id"]: [] for t in TOPIC_FOLDERS}
+    for e in entries:
+        by_topic.setdefault(e["topic"], []).append(e)
+
+    for topic in TOPIC_FOLDERS:
+        topic_id = topic["id"]
+        topic_entries = sorted(
+            by_topic.get(topic_id, []),
+            key=lambda e: e.get("published") or "",
+            reverse=True,
+        )
+        cards = [render_card(e, post_href_prefix="../posts/") for e in topic_entries]
+        page = TOPIC_HTML.format(
+            topic_title=html.escape(topic["title"]),
+            topic_description=html.escape(topic["description"]),
+            topic_color=topic["color"],
+            count=len(topic_entries),
+            cards="\n".join(cards),
+        )
+        (TOPICS_DIR / f"{topic_id}.html").write_text(page, encoding="utf-8")
 
 
 def sync_markdown() -> list[Path]:
@@ -383,22 +540,39 @@ def main() -> None:
         slug = slug_from_filename(path)
         prepared.append((meta, body, slug))
 
-    prepared.sort(key=lambda item: item[0].get("published") or "", reverse=True)
-
     entries: list[dict] = []
-    for i, (meta, body, slug) in enumerate(prepared):
+    slug_to_prepared: dict[str, tuple[dict[str, str], str]] = {}
+    for meta, body, slug in prepared:
         entry = collect_entry(slug, meta, body)
         entries.append(entry)
+        slug_to_prepared[slug] = (meta, body)
 
-    for i, (meta, body, slug) in enumerate(prepared):
-        older = entries[i + 1] if i + 1 < len(entries) else None
-        newer = entries[i - 1] if i > 0 else None
+    by_topic: dict[str, list[dict]] = {t["id"]: [] for t in TOPIC_FOLDERS}
+    for e in entries:
+        by_topic.setdefault(e["topic"], []).append(e)
+    for topic_id in by_topic:
+        by_topic[topic_id].sort(key=lambda e: e.get("published") or "", reverse=True)
+
+    for e in entries:
+        topic_entries = by_topic[e["topic"]]
+        idx = next(i for i, x in enumerate(topic_entries) if x["slug"] == e["slug"])
+        older = topic_entries[idx + 1] if idx + 1 < len(topic_entries) else None
+        newer = topic_entries[idx - 1] if idx > 0 else None
         prev_nav = {"slug": older["slug"], "title": older["title"]} if older else None
         next_nav = {"slug": newer["slug"], "title": newer["title"]} if newer else None
-        build_post(slug, meta, body, prev_entry=prev_nav, next_entry=next_nav)
+        meta, body = slug_to_prepared[e["slug"]]
+        build_post(
+            e["slug"],
+            meta,
+            body,
+            topic_id=e["topic"],
+            prev_entry=prev_nav,
+            next_entry=next_nav,
+        )
 
-    print("Building index...")
+    print("Building index & topic folders...")
     build_index(entries)
+    build_topic_pages(entries)
     print(f"Done. {len(entries)} posts → {ROOT}")
 
 

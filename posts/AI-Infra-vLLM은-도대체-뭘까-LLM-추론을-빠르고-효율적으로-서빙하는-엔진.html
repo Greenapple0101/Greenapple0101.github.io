@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/ai.html">AI</a>
+    </nav>
     <span class="tag" style="--tag-color: #db2777">AI</span>
     <h1>[AI Infra] vLLM은 도대체 뭘까? LLM 추론을 빠르고 효율적으로 서빙하는 엔진\n</h1>
     <div class="post-meta">
@@ -671,8 +675,8 @@ LLM serving 핵심 컴포넌트
 <p>그래서 RAG 챗봇이나 사내 LLM API 서버를 직접 운영하려면 vLLM은 꼭 한 번 이해해볼 만한 기술이다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="Spring-브라우저-FE-API-DB-흐름으로-이해하는-서버-구조.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Spring] 브라우저 → FE → API → DB 흐름으로 이해하는 서버 구조</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-link prev" href="AI-Infra-Triton-Inference-Server는-도대체-뭘까-모델을-API로-서빙하는-추론-서버.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[AI Infra] Triton Inference Server는 도대체 뭘까? 모델을 API로 서빙하는 추론 서버</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="AI-Infra-KServe는-도대체-뭘까-Kubernetes-위에서-모델-서빙을-운영화하는-플랫폼.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[AI Infra] KServe는 도대체 뭘까? Kubernetes 위에서 모델 서빙을 운영화하는 플랫폼</span></a>
   </nav>
   <footer>

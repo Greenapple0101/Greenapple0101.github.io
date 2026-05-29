@@ -83,6 +83,114 @@ main {
   padding: 40px 20px 64px;
 }
 
+.folder-hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.folder-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+  padding: 22px 24px;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--folder-color, var(--accent));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.folder-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.folder-card-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.folder-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--folder-color, #64748b) 12%, white);
+  color: var(--folder-color, #64748b);
+  border: 1px solid color-mix(in srgb, var(--folder-color, #64748b) 22%, transparent);
+}
+
+.folder-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.folder-card p {
+  margin: 0;
+  flex: 1;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.topic-header {
+  padding: 56px 8% 40px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--topic-color, #2563eb) 8%, white) 0%,
+    var(--bg) 55%
+  );
+}
+
+.topic-header .back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.topic-header .back-link:hover {
+  color: var(--accent);
+}
+
+.topic-header h1 {
+  margin-top: 4px;
+}
+
+.topic-header .stat {
+  display: inline-block;
+  margin-top: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: var(--muted);
+  box-shadow: var(--shadow);
+}
+
+.topic-header .stat strong {
+  color: var(--text);
+}
+
 .toolbar {
   position: sticky;
   top: 0;

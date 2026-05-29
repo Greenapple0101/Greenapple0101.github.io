@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
     <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
     <h1>[CKA] 쿠버네티스 관리자 시험에서 자주 쓰는 명령어 흐름</h1>
     <div class="post-meta">
@@ -496,8 +500,8 @@ YAML 수정
 <p>이 흐름이 익숙해지면 CKA 공부가 단순 암기가 아니라 실제 DevOps 운영 역량으로 연결된다. 특히 DevOps 직무를 준비한다면 CKA 공부는 단순 자격증 준비가 아니라, 쿠버네티스 기반 배포·운영·장애 대응 역량을 쌓는 과정으로 볼 수 있다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="SPRING-Spring-Boot에서-어노테이션은-왜-변수-앞에도-붙을까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[SPRING] Spring Boot에서 어노테이션은 왜 변수 앞에도 붙을까?</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <span class="post-nav-link prev disabled" aria-hidden="true"></span>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="CKAKubernetes-핵심-리소스-입문-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA]Kubernetes 핵심 리소스 입문 정리</span></a>
   </nav>
   <footer>

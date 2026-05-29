@@ -11,7 +11,11 @@
 </head>
 <body class="post-page">
   <header class="post-header">
-    <a class="back-link" href="../index.html">← 글 목록</a>
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/web.html">웹 · 기타</a>
+    </nav>
     <span class="tag" style="--tag-color: #64748b">NGINX</span>
     <h1>[NGINX] /api/api 중복과 WebSocket 101 실패를 해결하며 프록시 경로를 정리한 이야기</h1>
     <div class="post-meta">
@@ -288,7 +292,7 @@ WebSocket Upgrade 헤더
   </article>
 <nav class="post-nav" aria-label="글 이동">
   <a class="post-nav-link prev" href="DEPLOY-프론트백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유</span></a>
-  <a class="post-nav-home" href="../index.html">목록</a>
+  <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="INFRA-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이</span></a>
   </nav>
   <footer>
