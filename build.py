@@ -41,6 +41,12 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
         "color": "#db2777",
     },
     {
+        "id": "upstage",
+        "title": "Upstage",
+        "description": "Solar LLM, Document Parse, Embedding, RAG, API 모니터링 등",
+        "color": "#0d9488",
+    },
+    {
         "id": "spring",
         "title": "Spring",
         "description": "Spring Boot, JPA, API, 배포 실습 등",
@@ -98,6 +104,7 @@ CATEGORY_COLORS = {
     "알고리즘": "#ca8a04",
     "LeetCode": "#ca8a04",
     "Thymeleaf": "#16a34a",
+    "Upstage": "#0d9488",
     "hello": "#64748b",
 }
 
@@ -148,9 +155,13 @@ def category_from_slug(slug: str, tags: str) -> str:
 
 
 def topic_for_entry(category: str, slug: str) -> str:
-    """Map a post to one of the five folder groups on the home page."""
+    """Map a post to one of the topic folder groups on the home page."""
     prefix = _slug_prefix(slug).lower()
     cat_key = re.sub(r"^\[|\]$", "", category.strip()).lower()
+
+    upstage_keys = frozenset({"upstage", "업스테이지"})
+    if cat_key in upstage_keys or prefix in upstage_keys:
+        return "upstage"
 
     algorithm_keys = frozenset({"알고리즘", "leetcode", "algorithm", "알고리즘"})
     if cat_key in algorithm_keys or prefix in algorithm_keys:
@@ -522,9 +533,23 @@ def sync_markdown() -> list[Path]:
     if not POSTS_SRC.is_dir():
         raise SystemExit(f"Source not found: {POSTS_SRC}")
 
-    files = sorted(POSTS_SRC.glob("*.md"))
+    files = source_markdown_files()
     for src in files:
-        shutil.copy2(src, POSTS_DIR / src.name)
+        dest_name = src.name if src.suffix == ".md" else f"{src.name}.md"
+        shutil.copy2(src, POSTS_DIR / dest_name)
+    return [POSTS_DIR / (f.name if f.suffix == ".md" else f"{f.name}.md") for f in files]
+
+
+def source_markdown_files() -> list[Path]:
+    """Collect .md files and extensionless Velog exports (e.g. [Upstage]...)."""
+    files: list[Path] = []
+    for path in sorted(POSTS_SRC.iterdir()):
+        if not path.is_file() or path.name.startswith("."):
+            continue
+        if path.suffix == ".md":
+            files.append(path)
+        elif path.suffix == "" and path.name.startswith("["):
+            files.append(path)
     return files
 
 
