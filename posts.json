@@ -1,5 +1,35 @@
 [
   {
+    "slug": "[Kubernetes]-kubeconfig는-도대체-뭐-하는-파일일까",
+    "title": "[Kubernetes] kubeconfig는 도대체 뭐 하는 파일일까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스를 쓰다 보면 이런 명령어를 계속 치게 된다. 그런데 생각해보면 이상하다. kubectl 은 어떻게 내가 접속해야 할 Kubernetes 클러스터를 알고 있을까? 이 정보를 담고 있는 파일이 바로 kube…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-ClusterRole은-언제-쓰는-걸까",
+    "title": "[Kubernetes] ClusterRole은 언제 쓰는 걸까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 RBAC를 공부하다 보면 Role 다음에 바로 ClusterRole 이 나온다. 처음 보면 이런 생각이 든다. Role이 권한이면 ClusterRole은 더 센 권한인가? ClusterRole은 무조…",
+    "tag_color": "#7c3aed"
+  },
+  {
+    "slug": "[Kubernetes]-Role과-RoleBinding은-뭐가-다를까",
+    "title": "[Kubernetes] Role과 RoleBinding은 뭐가 다를까?",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 권한 관리를 공부하면 거의 무조건 나오는 개념이 있다. 이름이 비슷해서 처음에는 헷갈린다. 특히 Role 과 RoleBinding 은 같이 나오기 때문에 이런 생각이 들 수 있다. Role이 권한이면…",
+    "tag_color": "#7c3aed"
+  },
+  {
     "slug": "[Kubernetes]-ServiceAccount는-왜-필요할까",
     "title": "[Kubernetes] ServiceAccount는 왜 필요할까?",
     "category": "Kubernetes",
