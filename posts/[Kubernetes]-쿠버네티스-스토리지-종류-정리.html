@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] 쿠버네티스 스토리지 종류 정리 | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스에서 스토리지를 공부하면 처음에는 Volume , PV , PVC , StorageClass 같은 개념이 나오고, 그 안에서 또 hostPath , emptyDir , NFS , iSCSI , AWS EBS , Azure Disk , GCE PD 같은 이름들이 나온다. 처음…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] 쿠버네티스 스토리지 종류 정리</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-29T18:01:00.000Z">2026.05.29</time>
+      
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스에서 스토리지를 공부하면 처음에는 <code>Volume</code>, <code>PV</code>, <code>PVC</code>, <code>StorageClass</code> 같은 개념이 나오고, 그 안에서 또 <code>hostPath</code>, <code>emptyDir</code>, <code>NFS</code>, <code>iSCSI</code>, <code>AWS EBS</code>, <code>Azure Disk</code>, <code>GCE PD</code> 같은 이름들이 나온다.</p>
+<p>처음 보면 너무 많아서 헷갈린다.</p>
+<p>그래서 먼저 이렇게 나눠서 보면 좋다.</p>
+<pre><code class="language-text">Kubernetes Storage 종류
+
+1. 임시 저장소
+   - emptyDir
+
+2. 노드 로컬 저장소
+   - hostPath
+   - local
+
+3. 네트워크 공유 저장소
+   - NFS
+   - iSCSI
+   - FC
+
+4. 클라우드 블록 스토리지
+   - AWS EBS
+   - GCE Persistent Disk
+   - Azure Disk
+   - Cinder
+
+5. 쿠버네티스 추상화 리소스
+   - PersistentVolume
+   - PersistentVolumeClaim
+   - StorageClass
+</code></pre>
+<p>이번 글에서는 스토리지 종류 중심으로 정리한다.</p>
+<hr>
+<h2>1. emptyDir</h2>
+<p><code>emptyDir</code>은 Pod가 생성될 때 같이 만들어지는 임시 저장소다.</p>
+<p>Pod가 살아있는 동안에는 유지되지만, Pod가 삭제되면 같이 사라진다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: emptydir-pod
+spec:
+  containers:
+    - name: app
+      image: busybox
+      command: [&quot;sh&quot;, &quot;-c&quot;, &quot;echo hello &gt; /data/hello.txt &amp;&amp; sleep 3600&quot;]
+      volumeMounts:
+        - name: temp-storage
+          mountPath: /data
+  volumes:
+    - name: temp-storage
+      emptyDir: {}
+</code></pre>
+<p>구조는 이렇다.</p>
+<pre><code class="language-text">Pod
+ ├── Container
+ │    └── /data
+ │
+ └── emptyDir Volume
+</code></pre>
+<p><code>emptyDir</code>은 이런 경우에 쓴다.</p>
+<pre><code class="language-text">임시 파일 저장
+컨테이너 간 파일 공유
+로그 임시 저장
+캐시 데이터 저장
+</code></pre>
+<p>예를 들어 하나의 Pod 안에 app 컨테이너와 sidecar 컨테이너가 있을 때, app이 로그를 쓰고 sidecar가 그 로그를 읽는 구조에 사용할 수 있다.</p>
+<pre><code class="language-text">app container
+  → /logs/app.log에 로그 작성
+
+sidecar container
+  → /logs/app.log 읽어서 외부로 전송
+
+두 컨테이너가 같은 emptyDir 공유
+</code></pre>
+<p>단점은 명확하다.</p>
+<pre><code class="language-text">Pod가 삭제되면 데이터도 삭제됨
+영구 데이터 저장용으로 부적합
+DB 데이터 저장하면 안 됨
+</code></pre>
+<p>한 줄로 정리하면 이렇다.</p>
+<blockquote>
+<p>emptyDir은 Pod 생명주기와 함께하는 임시 저장소다.</p>
+</blockquote>
+<hr>
+<h2>2. hostPath</h2>
+<p><code>hostPath</code>는 Pod가 실행되는 Node의 실제 파일이나 디렉터리를 Pod 안에 마운트하는 방식이다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: html
+      hostPath:
+        path: /hostdir_or_file
+</code></pre>
+<p>이 구조는 이렇게 보면 된다.</p>
+<pre><code class="language-text">Node
+ └── /hostdir_or_file
+        ↑
+     hostPath
+        ↑
+Pod
+ └── Container
+      └── /usr/share/nginx/html
+</code></pre>
+<p>컨테이너 입장에서는 <code>/usr/share/nginx/html</code>에 접근하지만, 실제 데이터는 Node의 <code>/hostdir_or_file</code>에 있다.</p>
+<p>장점은 단순하다.</p>
+<pre><code class="language-text">설정이 쉬움
+Node의 실제 파일을 바로 확인 가능
+실습하기 좋음
+시스템 파일 접근이 필요한 특수 Pod에서 사용 가능
+</code></pre>
+<p>하지만 운영에서는 조심해야 한다.</p>
+<pre><code class="language-text">Pod가 특정 Node에 의존함
+Pod가 다른 Node로 이동하면 데이터가 없음
+Node 파일시스템을 직접 건드려 보안 위험이 있음
+여러 Node 간 데이터 공유가 어려움
+</code></pre>
+<p>예를 들어 Pod가 Node1에서 실행될 때는 데이터가 있다.</p>
+<pre><code class="language-text">Node1
+ └── /data/index.html 있음
+</code></pre>
+<p>그런데 장애로 Pod가 Node2로 옮겨가면?</p>
+<pre><code class="language-text">Node2
+ └── /data/index.html 없음
+</code></pre>
+<p>그래서 hostPath는 보통 실습, 테스트, 데몬셋, 노드 로그 수집 같은 특수한 경우에 사용한다.</p>
+<blockquote>
+<p>hostPath는 Node의 로컬 경로를 Pod에 직접 붙이는 방식이다.</p>
+</blockquote>
+<hr>
+<h2>3. local Volume</h2>
+<p><code>local</code> Volume은 특정 Node의 로컬 디스크를 사용하는 방식이다.</p>
+<p>hostPath와 비슷하게 Node 로컬 저장소를 쓰지만, PersistentVolume과 함께 사용해서 쿠버네티스가 어느 정도 스케줄링을 인식할 수 있게 만든다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/disks/ssd1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - worker-node-1
+</code></pre>
+<p>핵심은 <code>nodeAffinity</code>다.</p>
+<pre><code class="language-text">이 PV는 worker-node-1에 있는 로컬 디스크다
+그러니까 이 PV를 쓰는 Pod도 worker-node-1에 떠야 한다
+</code></pre>
+<p>장점은 성능이다.</p>
+<pre><code class="language-text">네트워크 스토리지보다 빠를 수 있음
+로컬 SSD 사용 가능
+지연시간이 낮음
+</code></pre>
+<p>단점은 가용성이다.</p>
+<pre><code class="language-text">해당 Node가 죽으면 접근 불가
+다른 Node로 쉽게 이동 불가
+데이터 복제는 별도로 고려해야 함
+</code></pre>
+<blockquote>
+<p>local Volume은 성능은 좋지만 Node 장애에 약한 로컬 영구 저장소다.</p>
+</blockquote>
+<hr>
+<h2>4. NFS</h2>
+<p><code>NFS</code>는 Network File System이다.</p>
+<p>여러 서버가 네트워크를 통해 하나의 파일시스템을 공유할 수 있게 해준다.</p>
+<p>쿠버네티스에서는 여러 Pod가 같은 저장소를 공유해야 할 때 자주 나온다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nfs-pod
+spec:
+  containers:
+    - name: app
+      image: nginx
+      volumeMounts:
+        - name: nfs-volume
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: nfs-volume
+      nfs:
+        server: 192.168.0.10
+        path: /exports/data
+</code></pre>
+<p>구조는 이렇다.</p>
+<pre><code class="language-text">NFS Server
+ └── /exports/data
+        ↑
+      Network
+        ↑
+Pod A  Pod B  Pod C
+</code></pre>
+<p>NFS의 장점은 공유다.</p>
+<pre><code class="language-text">여러 Pod가 같은 파일 접근 가능
+여러 Node에서 접근 가능
+ReadWriteMany 지원 가능
+온프레미스 환경에서 많이 사용
+</code></pre>
+<p>여기서 <code>ReadWriteMany</code>는 여러 Pod가 동시에 읽고 쓸 수 있는 접근 모드다.</p>
+<pre><code class="language-text">ReadWriteMany
+→ 여러 Node의 여러 Pod가 동시에 마운트 가능
+</code></pre>
+<p>단점도 있다.</p>
+<pre><code class="language-text">NFS 서버가 장애 지점이 될 수 있음
+네트워크 성능에 영향 받음
+동시 쓰기 성능 문제 가능
+권한 설정이 까다로울 수 있음
+</code></pre>
+<blockquote>
+<p>NFS는 여러 Pod가 같은 파일 저장소를 공유할 때 유용한 네트워크 파일 스토리지다.</p>
+</blockquote>
+<hr>
+<h2>5. iSCSI</h2>
+<p><code>iSCSI</code>는 네트워크를 통해 블록 스토리지를 연결하는 방식이다.</p>
+<p>NFS가 파일 단위 공유에 가깝다면, iSCSI는 원격 디스크를 로컬 디스크처럼 붙이는 느낌에 가깝다.</p>
+<pre><code class="language-text">NFS
+→ 네트워크 파일시스템
+
+iSCSI
+→ 네트워크로 연결하는 블록 디스크
+</code></pre>
+<p>구조는 대략 이렇다.</p>
+<pre><code class="language-text">iSCSI Target
+   ↓
+Network
+   ↓
+Node
+   ↓
+Pod에 Volume으로 제공
+</code></pre>
+<p>장점은 이렇다.</p>
+<pre><code class="language-text">블록 스토리지 제공
+DB 같은 워크로드에 사용 가능
+온프레미스 스토리지 환경에서 활용 가능
+</code></pre>
+<p>단점은 이렇다.</p>
+<pre><code class="language-text">설정이 복잡함
+스토리지 네트워크 구성이 필요함
+운영 난이도가 NFS보다 높을 수 있음
+동시 다중 쓰기에 주의 필요
+</code></pre>
+<blockquote>
+<p>iSCSI는 네트워크를 통해 원격 블록 디스크를 붙이는 방식이다.</p>
+</blockquote>
+<hr>
+<h2>6. FC</h2>
+<p><code>FC</code>는 Fibre Channel이다.</p>
+<p>주로 기업용 스토리지 환경에서 사용하는 고성능 스토리지 연결 방식이다.</p>
+<pre><code class="language-text">서버
+  ↓
+Fibre Channel 네트워크
+  ↓
+SAN Storage
+</code></pre>
+<p>장점은 안정성과 성능이다.</p>
+<pre><code class="language-text">고성능
+낮은 지연시간
+기업용 SAN 환경에서 사용
+</code></pre>
+<p>단점은 비용과 복잡도다.</p>
+<pre><code class="language-text">전용 장비 필요
+구성이 복잡함
+클라우드·일반 실습 환경에서는 보기 어려움
+</code></pre>
+<blockquote>
+<p>FC는 기업용 SAN 환경에서 쓰는 고성능 블록 스토리지 연결 방식이다.</p>
+</blockquote>
+<hr>
+<h2>7. AWS EBS</h2>
+<p><code>AWS EBS</code>는 AWS의 블록 스토리지다.</p>
+<p>EC2에 디스크를 붙이듯이, Kubernetes에서는 Pod가 사용할 PersistentVolume으로 붙일 수 있다.</p>
+<pre><code class="language-text">AWS EBS Volume
+        ↓
+Node에 attach
+        ↓
+Pod에 mount
+</code></pre>
+<p>과거에는 YAML에 <code>awsElasticBlockStore</code>를 직접 쓰기도 했지만, 요즘은 보통 CSI Driver와 StorageClass를 통해 동적으로 생성한다.</p>
+<p>EBS의 특징은 이렇다.</p>
+<pre><code class="language-text">블록 스토리지
+AWS 환경에서 사용
+보통 하나의 Node에 attach
+ReadWriteOnce 방식으로 많이 사용
+DB 저장소로 사용 가능
+</code></pre>
+<p>주의할 점은 EBS가 기본적으로 특정 Availability Zone에 속한다는 것이다.</p>
+<pre><code class="language-text">EBS가 ap-northeast-2a에 있음
+Pod가 ap-northeast-2c Node에 뜸
+→ attach 불가
+</code></pre>
+<p>그래서 EKS에서는 StorageClass, topology, scheduler 동작을 같이 이해해야 한다.</p>
+<blockquote>
+<p>AWS EBS는 AWS에서 Pod에 붙이는 대표적인 클라우드 블록 스토리지다.</p>
+</blockquote>
+<hr>
+<h2>8. GCE Persistent Disk</h2>
+<p><code>GCE PD</code>는 Google Cloud의 Persistent Disk다.</p>
+<p>AWS EBS와 비슷한 위치에 있는 GCP의 블록 스토리지다.</p>
+<pre><code class="language-text">GCE Persistent Disk
+        ↓
+GKE Node에 attach
+        ↓
+Pod에 mount
+</code></pre>
+<p>특징은 이렇다.</p>
+<pre><code class="language-text">GCP 환경에서 사용
+블록 스토리지
+PersistentVolume으로 사용 가능
+ReadWriteOnce 중심
+StorageClass로 동적 프로비저닝 가능
+</code></pre>
+<blockquote>
+<p>GCE Persistent Disk는 GCP에서 사용하는 대표적인 쿠버네티스 블록 스토리지다.</p>
+</blockquote>
+<hr>
+<h2>9. Azure Disk</h2>
+<p><code>Azure Disk</code>는 Microsoft Azure의 블록 스토리지다.</p>
+<p>AKS에서 PersistentVolume으로 많이 사용된다.</p>
+<pre><code class="language-text">Azure Disk
+      ↓
+AKS Node에 attach
+      ↓
+Pod에 mount
+</code></pre>
+<p>특징은 이렇다.</p>
+<pre><code class="language-text">Azure 환경에서 사용
+블록 스토리지
+ReadWriteOnce 중심
+DB나 상태 저장 애플리케이션에 사용 가능
+StorageClass로 동적 생성 가능
+</code></pre>
+<blockquote>
+<p>Azure Disk는 Azure에서 Pod에 붙이는 클라우드 블록 스토리지다.</p>
+</blockquote>
+<hr>
+<h2>10. Cinder</h2>
+<p><code>Cinder</code>는 OpenStack의 블록 스토리지 서비스다.</p>
+<p>OpenStack 기반 클라우드에서 Kubernetes를 운영할 때 사용할 수 있다.</p>
+<pre><code class="language-text">OpenStack Cinder Volume
+          ↓
+Node에 attach
+          ↓
+Pod에 mount
+</code></pre>
+<p>특징은 이렇다.</p>
+<pre><code class="language-text">OpenStack 환경에서 사용
+블록 스토리지
+PersistentVolume으로 사용 가능
+프라이빗 클라우드 환경에서 등장
+</code></pre>
+<blockquote>
+<p>Cinder는 OpenStack 환경의 블록 스토리지를 쿠버네티스에 연결할 때 사용한다.</p>
+</blockquote>
+<hr>
+<h2>11. ConfigMap Volume</h2>
+<p>스토리지라고 하면 디스크만 떠올리기 쉬운데, 쿠버네티스에서는 ConfigMap도 Volume처럼 마운트할 수 있다.</p>
+<p>ConfigMap은 설정값을 저장하는 리소스다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  index.html: |
+    hello configmap volume
+</code></pre>
+<p>Pod에 Volume으로 붙일 수 있다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-volume-pod
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      volumeMounts:
+        - name: config-volume
+          mountPath: /usr/share/nginx/html
+  volumes:
+    - name: config-volume
+      configMap:
+        name: nginx-config
+</code></pre>
+<p>이렇게 하면 ConfigMap의 데이터가 파일처럼 보인다.</p>
+<pre><code class="language-text">ConfigMap
+  index.html
+      ↓
+Pod 안의 /usr/share/nginx/html/index.html
+</code></pre>
+<blockquote>
+<p>ConfigMap Volume은 설정 파일을 컨테이너 안에 파일 형태로 넣을 때 사용한다.</p>
+</blockquote>
+<hr>
+<h2>12. Secret Volume</h2>
+<p>Secret도 Volume으로 마운트할 수 있다.</p>
+<p>비밀번호, 토큰, 인증서 같은 값을 파일로 컨테이너에 전달할 때 쓴다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+stringData:
+  password: mypassword
+</code></pre>
+<p>Pod에서 Secret을 Volume으로 마운트한다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-volume-pod
+spec:
+  containers:
+    - name: app
+      image: busybox
+      command: [&quot;sh&quot;, &quot;-c&quot;, &quot;cat /etc/secret/password &amp;&amp; sleep 3600&quot;]
+      volumeMounts:
+        - name: secret-volume
+          mountPath: /etc/secret
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: app-secret
+</code></pre>
+<p>구조는 이렇다.</p>
+<pre><code class="language-text">Secret
+  password
+      ↓
+Pod 안의 /etc/secret/password
+</code></pre>
+<p>주의할 점은 Secret이 base64로 보인다고 안전한 게 아니라는 것이다.</p>
+<p>Secret 조회 권한이 있으면 디코딩해서 볼 수 있다.</p>
+<blockquote>
+<p>Secret Volume은 민감정보를 컨테이너 안에 파일로 전달할 때 사용한다.</p>
+</blockquote>
+<hr>
+<h2>13. PersistentVolume, PVC, StorageClass</h2>
+<p>스토리지 종류를 볼 때 마지막으로 꼭 알아야 하는 게 쿠버네티스의 추상화 리소스다.</p>
+<h3>PersistentVolume</h3>
+<p><code>PersistentVolume</code>, 줄여서 <code>PV</code>는 클러스터에 준비된 실제 저장소다.</p>
+<pre><code class="language-text">PV
+→ 관리자가 준비한 저장공간
+→ 또는 StorageClass가 동적으로 만든 저장공간
+</code></pre>
+<p>예를 들어 NFS, EBS, Azure Disk 같은 실제 저장소가 PV로 표현된다.</p>
+<h3>PersistentVolumeClaim</h3>
+<p><code>PersistentVolumeClaim</code>, 줄여서 <code>PVC</code>는 Pod가 스토리지를 요청하는 문서다.</p>
+<pre><code class="language-text">PVC
+→ Pod가 &quot;나 10Gi 저장소 필요해&quot;라고 요청하는 것
+</code></pre>
+<p>Pod는 보통 실제 PV를 직접 고르지 않는다. PVC를 참조한다.</p>
+<pre><code class="language-text">Pod
+  ↓
+PVC 요청
+  ↓
+PV 연결
+  ↓
+실제 스토리지 사용
+</code></pre>
+<h3>StorageClass</h3>
+<p><code>StorageClass</code>는 스토리지를 자동으로 만들기 위한 템플릿이다.</p>
+<pre><code class="language-text">StorageClass
+→ 어떤 종류의 스토리지를 어떤 방식으로 만들지 정의
+</code></pre>
+<p>예를 들어 EKS에서는 EBS를 자동으로 만들고, AKS에서는 Azure Disk를 자동으로 만들고, GKE에서는 GCE PD를 자동으로 만들 수 있다.</p>
+<p>전체 흐름은 이렇다.</p>
+<pre><code class="language-text">Pod
+  ↓
+PVC
+  ↓
+StorageClass
+  ↓
+실제 클라우드 디스크 자동 생성
+  ↓
+PV 생성
+  ↓
+Pod에 mount
+</code></pre>
+<hr>
+<h2>14. Access Mode도 같이 봐야 한다</h2>
+<p>스토리지를 고를 때는 접근 방식도 중요하다.</p>
+<p>대표적인 Access Mode는 세 가지다.</p>
+<pre><code class="language-text">ReadWriteOnce, RWO
+→ 하나의 Node에서 읽기/쓰기 가능
+
+ReadOnlyMany, ROX
+→ 여러 Node에서 읽기 전용 가능
+
+ReadWriteMany, RWX
+→ 여러 Node에서 읽기/쓰기 가능
+</code></pre>
+<p>간단히 보면 이렇다.</p>
+<table>
+<thead>
+<tr>
+<th>Access Mode</th>
+<th>의미</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RWO</td>
+<td>한 Node에서 읽기/쓰기</td>
+<td>EBS, Azure Disk, GCE PD</td>
+</tr>
+<tr>
+<td>ROX</td>
+<td>여러 Node에서 읽기 전용</td>
+<td>일부 네트워크 스토리지</td>
+</tr>
+<tr>
+<td>RWX</td>
+<td>여러 Node에서 읽기/쓰기</td>
+<td>NFS</td>
+</tr>
+</tbody>
+</table>
+<p>특히 여러 Pod가 같은 저장소를 동시에 써야 하면 <code>RWX</code> 지원 여부를 봐야 한다.</p>
+<pre><code class="language-text">여러 Pod가 같은 파일을 읽고 써야 함
+→ NFS 같은 RWX 지원 스토리지 고려
+</code></pre>
+<p>반대로 DB처럼 하나의 Pod가 전용 디스크를 쓰는 구조라면 <code>RWO</code>가 일반적이다.</p>
+<pre><code class="language-text">MySQL Pod
+→ PVC
+→ EBS
+→ RWO
+</code></pre>
+<hr>
+<h2>15. 스토리지 종류 한 번에 비교</h2>
+<table>
+<thead>
+<tr>
+<th>종류</th>
+<th>성격</th>
+<th>유지 기간</th>
+<th>공유 가능성</th>
+<th>주 사용처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>emptyDir</td>
+<td>임시 저장소</td>
+<td>Pod 삭제 시 삭제</td>
+<td>같은 Pod 내부 컨테이너끼리 공유</td>
+<td>임시파일, 캐시, 로그 전달</td>
+</tr>
+<tr>
+<td>hostPath</td>
+<td>Node 로컬 경로</td>
+<td>Node에 남음</td>
+<td>특정 Node 중심</td>
+<td>실습, 노드 로그, 시스템 Pod</td>
+</tr>
+<tr>
+<td>local</td>
+<td>Node 로컬 디스크</td>
+<td>Node에 남음</td>
+<td>특정 Node 중심</td>
+<td>고성능 로컬 저장소</td>
+</tr>
+<tr>
+<td>NFS</td>
+<td>네트워크 파일 스토리지</td>
+<td>외부 서버에 유지</td>
+<td>여러 Pod 공유 가능</td>
+<td>공유 파일, RWX</td>
+</tr>
+<tr>
+<td>iSCSI</td>
+<td>네트워크 블록 스토리지</td>
+<td>외부 스토리지에 유지</td>
+<td>보통 단일 attach 중심</td>
+<td>DB, 블록 스토리지</td>
+</tr>
+<tr>
+<td>FC</td>
+<td>SAN 블록 스토리지</td>
+<td>외부 스토리지에 유지</td>
+<td>기업 환경 구성에 따라 다름</td>
+<td>고성능 기업용 스토리지</td>
+</tr>
+<tr>
+<td>AWS EBS</td>
+<td>클라우드 블록 스토리지</td>
+<td>EBS에 유지</td>
+<td>보통 RWO</td>
+<td>EKS, DB 저장소</td>
+</tr>
+<tr>
+<td>GCE PD</td>
+<td>클라우드 블록 스토리지</td>
+<td>PD에 유지</td>
+<td>보통 RWO</td>
+<td>GKE, DB 저장소</td>
+</tr>
+<tr>
+<td>Azure Disk</td>
+<td>클라우드 블록 스토리지</td>
+<td>Disk에 유지</td>
+<td>보통 RWO</td>
+<td>AKS, DB 저장소</td>
+</tr>
+<tr>
+<td>Cinder</td>
+<td>OpenStack 블록 스토리지</td>
+<td>Cinder에 유지</td>
+<td>보통 RWO</td>
+<td>OpenStack 기반 Kubernetes</td>
+</tr>
+<tr>
+<td>ConfigMap Volume</td>
+<td>설정 파일</td>
+<td>ConfigMap 기준</td>
+<td>여러 Pod에서 참조 가능</td>
+<td>설정 파일 주입</td>
+</tr>
+<tr>
+<td>Secret Volume</td>
+<td>민감정보 파일</td>
+<td>Secret 기준</td>
+<td>여러 Pod에서 참조 가능</td>
+<td>인증서, 토큰, 비밀번호</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>16. 어떤 상황에 뭘 쓰면 될까?</h2>
+<p>상황별로 보면 더 쉽다.</p>
+<pre><code class="language-text">Pod 안에서 잠깐 쓸 임시 공간이 필요하다
+→ emptyDir
+
+컨테이너 여러 개가 같은 Pod 안에서 파일을 공유해야 한다
+→ emptyDir
+
+Node의 특정 파일이나 로그를 Pod에서 읽어야 한다
+→ hostPath
+
+실습에서 Node 디렉터리를 Pod에 붙여보고 싶다
+→ hostPath
+
+여러 Pod가 같은 파일 저장소를 공유해야 한다
+→ NFS
+
+DB처럼 영구 디스크가 필요하다
+→ EBS, GCE PD, Azure Disk, Cinder, iSCSI
+
+클라우드에서 PVC 만들면 자동으로 디스크가 생기게 하고 싶다
+→ StorageClass
+
+설정 파일을 컨테이너에 넣고 싶다
+→ ConfigMap Volume
+
+비밀번호나 인증서를 파일로 넣고 싶다
+→ Secret Volume
+</code></pre>
+<hr>
+<h2>17. 정리</h2>
+<p>쿠버네티스 스토리지는 단순히 “파일 저장”이 아니라, Pod가 데이터를 어디에 저장하고 어떻게 유지할지를 정하는 개념이다.</p>
+<p>종류별 핵심은 이렇게 기억하면 된다.</p>
+<pre><code class="language-text">emptyDir
+→ Pod 생명주기와 함께하는 임시 저장소
+
+hostPath
+→ Node의 실제 경로를 Pod에 붙이는 저장소
+
+local
+→ 특정 Node의 로컬 디스크를 PV로 사용하는 저장소
+
+NFS
+→ 여러 Pod가 공유할 수 있는 네트워크 파일 스토리지
+
+iSCSI / FC
+→ 네트워크 기반 블록 스토리지
+
+EBS / GCE PD / Azure Disk / Cinder
+→ 클라우드 또는 프라이빗 클라우드의 블록 스토리지
+
+ConfigMap Volume
+→ 설정값을 파일처럼 마운트
+
+Secret Volume
+→ 민감정보를 파일처럼 마운트
+
+PV / PVC / StorageClass
+→ 실제 스토리지를 쿠버네티스 방식으로 요청하고 연결하는 추상화
+</code></pre>
+<p>마지막으로 이렇게 정리하면 된다.</p>
+<blockquote>
+<p>쿠버네티스 스토리지 종류는 “임시로 쓸 것인가, 노드 로컬을 쓸 것인가, 여러 Pod가 공유할 것인가, 클라우드 디스크를 쓸 것인가”를 기준으로 나누면 훨씬 덜 헷갈린다.</p>
+</blockquote>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-kubeconfig는-도대체-뭐-하는-파일일까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] kubeconfig는 도대체 뭐 하는 파일일까?</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Kubernetes]-클러스터-네트워킹-구성-Docker-네트워크부터-kube-proxy까지.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Kubernetes] 클러스터 네트워킹 구성: Docker 네트워크부터 kube-proxy까지</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

@@ -20,6 +20,16 @@
     "tag_color": "#7c3aed"
   },
   {
+    "slug": "[Kubernetes]-쿠버네티스-스토리지-종류-정리",
+    "title": "[Kubernetes] 쿠버네티스 스토리지 종류 정리",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
+    "tags": "",
+    "date": "2026.05.29",
+    "excerpt": "쿠버네티스에서 스토리지를 공부하면 처음에는 Volume , PV , PVC , StorageClass 같은 개념이 나오고, 그 안에서 또 hostPath , emptyDir , NFS , iSCSI , AWS EB…",
+    "tag_color": "#7c3aed"
+  },
+  {
     "slug": "[Kubernetes]-kubeconfig는-도대체-뭐-하는-파일일까",
     "title": "[Kubernetes] kubeconfig는 도대체 뭐 하는 파일일까?",
     "category": "Kubernetes",
