@@ -1,5 +1,15 @@
 [
   {
+    "slug": "[Upstage]-Upstage-API-기반-RAG-경험과-AI-DevOps-핵심-키워드-정리",
+    "title": "[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.31",
+    "excerpt": "1. 들어가며 업스테이지 제품을 단순히 체험해본 것이 아니라, SSAFY 과정에서 RAG 구조를 구현하며 API 호출 형태로 직접 연동해본 경험이 있다. 이 과정에서 LangChain, Embedding, 문서 분…",
+    "tag_color": "#0d9488"
+  },
+  {
     "slug": "[Upstage]-DEV-서버-Docker-데몬-장애-분석-및-재설치-복구-과정",
     "title": "[Upstage] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정",
     "category": "Upstage",
@@ -100,6 +110,16 @@
     "tag_color": "#7c3aed"
   },
   {
+    "slug": "[Upstage]-논문-기반-RAG-면접-예상-질문",
+    "title": "[Upstage] RAG / 코퍼스 / 리트리벌 기본 질문",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.30",
+    "excerpt": "1. 코퍼스가 뭔가요? 답변 코퍼스는 RAG 시스템이 검색 대상으로 삼는 문서 집합입니다. 일반 검색 서비스로 치면 검색 엔진이 색인해두는 문서 데이터베이스이고, RAG에서는 사용자의 질문에 답하기 위해 참조하는…",
+    "tag_color": "#0d9488"
+  },
+  {
     "slug": "[Upstage]-Document-Parse-Enhanced로-이해하는-문서-AI-파이프라인",
     "title": "[Upstage] Document Parse Enhanced로 이해하는 문서 AI 파이프라인",
     "category": "Upstage",
@@ -167,6 +187,16 @@
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "Solar Pro 3는 업스테이지가 개발한 대규모 언어 모델 Solar Pro의 최신 버전이다. 겉으로 보면 “성능이 좋아진 LLM”처럼 보일 수 있다. 하지만 DevOps 관점에서 더 중요하게 봐야 할 지점은 따…",
+    "tag_color": "#0d9488"
+  },
+  {
+    "slug": "[Upstage]-업스테이지-AI-DevOps-심화-기술면접-예상-질문-정리",
+    "title": "[Upstage] 업스테이지 AI DevOps 심화 기술면접 예상 질문 정리",
+    "category": "Upstage",
+    "topic": "upstage",
+    "tags": "",
+    "date": "2026.05.30",
+    "excerpt": "업스테이지 AI DevOps 심화 기술 인터뷰에서는 단순 개념 암기보다, AI 제품을 실제 고객사 환경에 어떻게 배포하고 운영할 것인가 를 중심으로 질문이 나올 가능성이 높다. 특히 공고와 업스테이지 제품군을 기준…",
     "tag_color": "#0d9488"
   },
   {
