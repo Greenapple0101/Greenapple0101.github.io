@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Upstage] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅 | Greenapple0101</title>
+  <meta name="description" content="1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스를 대상으로 Jenkins CI/CD 파이프라인을 구성하고, 코드 품질 검증, DEV 서버 배포, 부하 테스트, main 브랜치 병합, PROD 배포까지 이어지는 자동화 흐름을 실습한 경험이다. 단순히 애플리케이션을…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/upstage.html">Upstage</a>
+    </nav>
+    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
+    <h1>[Upstage] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-30T12:00:00.000Z">2026.05.30</time>
+      
+    </div>
+  </header>
+  <article class="post-content">
+<h2>1. 개요</h2>
+<p>이 프로젝트는 Flask 기반 Conversation 서비스를 대상으로 Jenkins CI/CD 파이프라인을 구성하고, 코드 품질 검증, DEV 서버 배포, 부하 테스트, main 브랜치 병합, PROD 배포까지 이어지는 자동화 흐름을 실습한 경험이다.</p>
+<p>단순히 애플리케이션을 컨테이너로 실행하는 것에서 끝내지 않고, 배포 전에 코드 품질을 확인하고, 배포 후에는 부하 테스트를 통해 기본적인 성능 검증을 수행하도록 파이프라인을 구성했다. 또한 GitHub Webhook, Jenkins 브랜치 조건, SonarQube 장애, SSH/SCP 원격 배포 오류 등 여러 문제를 직접 추적하면서 CI/CD 파이프라인이 실제 운영 환경에서 어떻게 실패할 수 있는지 경험했다.</p>
+<p>이 경험을 통해 CI/CD는 단순 자동 배포가 아니라 코드 품질, 배포 환경, 성능 검증, 장애 대응을 함께 연결하는 운영 파이프라인이라는 점을 배웠다.</p>
+<hr>
+<h2>2. 프로젝트 목표</h2>
+<p>이 프로젝트의 목표는 다음과 같았다.</p>
+<ul>
+<li>Conversation 서비스를 Docker 이미지로 빌드</li>
+<li>Jenkins를 이용한 CI/CD 파이프라인 구성</li>
+<li>develop 브랜치 기준 DEV 서버 자동 배포</li>
+<li>SonarQube 기반 코드 품질 분석</li>
+<li>Quality Gate 실패 시 배포 차단</li>
+<li>DEV 배포 후 JMeter 부하 테스트 실행</li>
+<li>테스트 통과 후 main 브랜치로 자동 병합</li>
+<li>main 브랜치 기준 PROD 서버 배포</li>
+<li>GitHub Webhook을 통한 자동 빌드 트리거</li>
+<li>Jenkins, SonarQube, Docker, SSH/SCP 관련 장애 원인 분석</li>
+</ul>
+<hr>
+<h2>3. 전체 파이프라인 구조</h2>
+<p>구성한 파이프라인은 크게 develop 브랜치 흐름과 main 브랜치 흐름으로 나뉜다.</p>
+<pre><code class="language-text">develop push
+   ↓
+Jenkins Pipeline Trigger
+   ↓
+Checkout
+   ↓
+SonarQube Analysis
+   ↓
+Quality Gate
+   ↓
+Docker Build
+   ↓
+Deploy to DEV
+   ↓
+JMeter Load Test
+   ↓
+Auto Merge to Main
+   ↓
+main branch
+   ↓
+Deploy to PROD
+````
+
+develop 브랜치에서는 코드 분석, 품질 게이트, DEV 배포, 부하 테스트가 실행되도록 구성했다. main 브랜치에서는 검증이 끝난 코드를 운영 서버에 배포하는 흐름으로 분리했다.
+
+---
+
+## 4. Jenkins CI/CD 파이프라인 구성
+
+Jenkinsfile에서는 브랜치별로 실행되는 stage를 분리했다.
+
+develop 브랜치에서는 다음 단계가 실행되도록 했다.
+
+```text
+1. Checkout
+2. SonarQube Analysis
+3. Quality Gate
+4. Deploy to DEV
+5. JMeter Load Test
+6. Auto Merge to Main
+</code></pre>
+<p>main 브랜치에서는 다음 단계가 실행되도록 했다.</p>
+<pre><code class="language-text">1. Checkout
+2. Deploy to PROD
+</code></pre>
+<p>이 구조를 통해 개발 브랜치에서는 충분한 검증을 수행하고, main 브랜치에는 검증된 코드만 반영되도록 설계했다.</p>
+<hr>
+<h2>5. SonarQube Analysis와 Quality Gate</h2>
+<p>배포 전 코드 품질 검증을 위해 SonarQube Analysis 단계를 추가했다.</p>
+<p>SonarQube는 코드의 bug, vulnerability, code smell, duplication 등을 분석하는 정적 분석 도구이다. Jenkins에서는 SonarQube 분석 후 Quality Gate 결과를 확인하고, 기준을 통과하지 못하면 이후 배포 단계로 넘어가지 않도록 구성했다.</p>
+<pre><code class="language-groovy">stage('Quality Gate') {
+    when { branch 'develop' }
+    steps {
+        timeout(time: 2, unit: 'MINUTES') {
+            script {
+                def qg = waitForQualityGate()
+                if (qg.status != 'OK') {
+                    error &quot;Quality Gate failed: ${qg.status}&quot;
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p>이 단계의 핵심은 배포 자동화에 품질 검증 조건을 포함했다는 점이다. 단순히 코드가 실행된다고 해서 바로 배포하는 것이 아니라, 정적 분석 기준을 통과한 코드만 DEV 서버 배포로 넘어가도록 했다.</p>
+<p>AI 서비스 운영 관점에서도 이 구조는 중요하다. 일반적인 애플리케이션에서는 코드 품질 게이트가 필요하고, AI API나 OCR 서비스에서는 여기에 latency, error rate, timeout rate, 모델 품질 지표, OCR 정확도 같은 운영 지표를 추가할 수 있다.</p>
+<hr>
+<h2>6. Docker 이미지 기반 DEV 서버 배포</h2>
+<p>DEV 배포 단계에서는 Jenkins에서 Docker 이미지를 빌드하고, 이를 tar.gz 파일로 저장한 뒤 SCP로 DEV 서버에 전송했다. 이후 원격 서버에서 이미지를 load하고 기존 컨테이너를 중지·삭제한 뒤 새 컨테이너를 실행했다.</p>
+<pre><code class="language-text">Jenkins Server
+   ↓ docker build
+Docker Image
+   ↓ docker save
+image.tar.gz
+   ↓ scp
+DEV Server
+   ↓ docker load
+Container Restart
+</code></pre>
+<p>배포 과정은 다음과 같다.</p>
+<pre><code class="language-bash">docker build -t conversation-service:dev .
+docker save conversation-service:dev | gzip &gt; image.tar.gz
+scp image.tar.gz ubuntu@DEV_HOST:/home/ubuntu/app/
+ssh ubuntu@DEV_HOST &quot;
+  cd /home/ubuntu/app
+  gunzip -c image.tar.gz | docker load
+  docker stop dev-conv || true
+  docker rm dev-conv || true
+  docker run -d -p 8000:8000 --name dev-conv conversation-service:dev
+&quot;
+</code></pre>
+<p>이 과정에서 단순히 Docker 명령어만 아는 것보다 원격 서버 접근 권한, SSH credential, 보안그룹, 파일 경로, 기존 컨테이너 정리 방식까지 함께 고려해야 한다는 점을 배웠다.</p>
+<hr>
+<h2>7. JMeter 기반 부하 테스트</h2>
+<p>DEV 서버 배포 이후 JMeter를 이용해 부하 테스트를 실행했다.</p>
+<pre><code class="language-bash">jmeter -n -t loadtest.jmx -l results.jtl
+</code></pre>
+<p>JMeter는 여러 요청을 보내면서 응답 시간, 처리량, 실패율 등을 확인할 수 있는 부하 테스트 도구이다. 이 프로젝트에서는 배포가 정상적으로 끝난 뒤 API가 기본적인 요청을 처리할 수 있는지 확인하는 용도로 사용했다.</p>
+<p>부하 테스트에서 확인해야 할 주요 지표는 다음과 같다.</p>
+<pre><code class="language-text">- 평균 응답 시간
+- p95 latency
+- p99 latency
+- throughput
+- error rate
+- timeout 수
+- 동시 요청 수 증가에 따른 응답 지연
+</code></pre>
+<p>특히 AI API나 OCR API는 일반 API보다 요청별 처리 시간이 길고, 입력 문서 크기나 모델 응답 시간에 따라 latency 편차가 커질 수 있다. 따라서 평균 응답 시간만 보는 것이 아니라 p95, p99 latency와 timeout rate를 함께 보는 것이 중요하다.</p>
+<hr>
+<h2>8. GitHub Webhook과 Jenkins 브랜치 조건 문제</h2>
+<p>파이프라인을 구성하면서 가장 많이 겪은 문제 중 하나는 GitHub Webhook과 Jenkins 브랜치 조건 문제였다.</p>
+<p>처음에는 싱글 파이프라인으로 Jenkins job을 구성했는데, 이 경우 <code>BRANCH_NAME</code> 환경변수가 제대로 생성되지 않았다. 그 결과 Jenkinsfile 안의 다음 조건이 항상 false가 되었다.</p>
+<pre><code class="language-groovy">when { branch 'develop' }
+</code></pre>
+<p>실행 로그에서는 브랜치가 develop으로 인식되는 것이 아니라 <code>HEAD</code>로 표시되었다. 이 때문에 SonarQube Analysis, Quality Gate, DEV Deploy 등 develop 브랜치에서 실행되어야 할 stage가 모두 skip되었다.</p>
+<p>문제의 원인은 싱글 파이프라인에서는 현재 브랜치 개념이 명확하지 않다는 점이었다. Jenkins가 특정 브랜치를 체크아웃하는 것이 아니라 커밋 SHA를 직접 체크아웃하면, Git 입장에서는 현재 브랜치가 detached HEAD 상태가 된다.</p>
+<p>이를 통해 싱글 파이프라인과 멀티브랜치 파이프라인의 차이를 이해했다.</p>
+<pre><code class="language-text">Single Pipeline
+- 브랜치 컨텍스트가 약함
+- BRANCH_NAME이 자동으로 잡히지 않을 수 있음
+- when { branch 'develop' } 조건이 기대대로 동작하지 않을 수 있음
+
+Multibranch Pipeline
+- 브랜치별 job이 자동 생성됨
+- env.BRANCH_NAME이 자동으로 설정됨
+- develop, main 조건 분기가 자연스럽게 동작함
+- GitHub Webhook과 연결하기 적합함
+</code></pre>
+<p>결론적으로 develop, main 브랜치에 따라 서로 다른 CI/CD 흐름을 구성하려면 멀티브랜치 파이프라인이 더 적합하다는 점을 배웠다.</p>
+<hr>
+<h2>9. SonarQube 장애 분석</h2>
+<p>SonarQube 단계에서 Quality Gate가 계속 실패하는 문제도 있었다. 처음에는 Jenkinsfile이나 실행 명령어 문제라고 생각했지만, 원인을 따라가 보니 SonarQube 내부 저장소와 디스크 용량 문제가 연결되어 있었다.</p>
+<p>문제 흐름은 다음과 같았다.</p>
+<pre><code class="language-text">SonarQube 분석 실패
+   ↓
+Elasticsearch index write 실패
+   ↓
+read-only-allow-delete 상태 확인
+   ↓
+disk watermark 초과
+   ↓
+EC2 root disk 사용량 95% 이상
+   ↓
+Quality Gate 실패
+</code></pre>
+<p>SonarQube는 내부적으로 Elasticsearch를 사용해 분석 결과를 저장한다. 디스크 사용량이 일정 기준을 넘으면 Elasticsearch는 데이터 손실을 막기 위해 인덱스를 read-only 상태로 전환한다. 이 상태에서는 새로운 분석 결과를 저장할 수 없기 때문에 Quality Gate가 정상적으로 동작하지 않는다.</p>
+<p>또한 Python 프로젝트 내부의 <code>venv</code> 디렉터리가 SonarQube 분석 대상에 포함되면서 파일 수가 과도하게 늘어난 것도 문제였다.</p>
+<pre><code class="language-text">문제 원인
+- EC2 디스크 용량 부족
+- SonarQube 내부 Elasticsearch 데이터 증가
+- Python venv 디렉터리까지 분석 대상에 포함
+- Docker 이미지와 로그로 인한 root partition 사용량 증가
+</code></pre>
+<p>이를 통해 CI/CD 도구도 하나의 운영 대상이라는 점을 배웠다. Jenkins나 SonarQube는 단순히 설치하고 쓰는 도구가 아니라, 디스크, 로그, 데이터 저장 위치, 분석 제외 설정까지 관리해야 안정적으로 사용할 수 있다.</p>
+<hr>
+<h2>10. SSH/SCP 원격 배포 오류 분석</h2>
+<p>원격 서버 배포 과정에서는 SSH timeout과 SCP 경로 오류도 발생했다.</p>
+<p>첫 번째 문제는 SSH 22번 포트 접속 timeout이었다.</p>
+<pre><code class="language-text">ssh: connect to host &lt;host&gt; port 22: Connection timed out
+</code></pre>
+<p>이 경우 원인은 DEV 서버의 보안그룹 인바운드 규칙에서 22번 포트가 열려 있지 않은 것이었다. Jenkins 서버에서 DEV 서버로 SSH 접속하려면 DEV 서버 보안그룹에서 Jenkins 서버의 IP 또는 허용할 IP 대역에 대해 22번 포트를 열어야 한다.</p>
+<p>두 번째 문제는 SCP 목적지 경로 문제였다.</p>
+<pre><code class="language-text">scp: ... Is a directory
+</code></pre>
+<p>이 문제는 파일을 전송할 때 목적지 경로가 디렉터리인지 파일 경로인지 명확하지 않아 발생했다. 원격 서버에 전송할 때는 다음처럼 파일명을 명확히 지정하는 것이 안전하다.</p>
+<pre><code class="language-bash">scp image.tar.gz ubuntu@DEV_HOST:/home/ubuntu/app/image.tar.gz
+</code></pre>
+<p>이 경험을 통해 배포 장애를 볼 때는 다음 계층으로 나눠 확인해야 한다는 점을 배웠다.</p>
+<pre><code class="language-text">1. 네트워크
+   - 보안그룹
+   - 방화벽
+   - 포트 개방 여부
+
+2. 인증
+   - SSH key
+   - Jenkins credential
+   - 권한 설정
+
+3. 경로
+   - 원격 디렉터리 존재 여부
+   - 파일명 지정 여부
+   - 실행 권한
+
+4. 원격 서버 상태
+   - Docker daemon 상태
+   - 디스크 용량
+   - 기존 컨테이너 상태
+</code></pre>
+<hr>
+<h2>11. 업스테이지 AI DevOps 직무와의 연결</h2>
+<p>이 경험은 업스테이지 AI DevOps 직무와 다음 지점에서 연결된다.</p>
+<p>첫째, AI 서비스도 일반 서비스처럼 CI/CD 파이프라인을 통해 안정적으로 배포되어야 한다. OCR API, LLM API, RAG API 모두 코드 변경, 모델 변경, 설정 변경이 발생할 수 있고, 변경사항이 검증 없이 배포되면 고객 환경에서 장애나 품질 저하로 이어질 수 있다.</p>
+<p>둘째, 배포 전 검증이 중요하다. 이 프로젝트에서는 SonarQube Quality Gate와 JMeter 부하 테스트를 배포 흐름에 포함했다. AI 서비스에서는 여기에 OCR 정확도, 필드 추출 F1, latency, timeout rate, error rate, token usage, 모델 응답 품질 같은 지표를 추가할 수 있다.</p>
+<p>셋째, 장애는 한 계층에서만 발생하지 않는다. Jenkins stage skip 문제는 브랜치 컨텍스트 문제였고, SonarQube 실패는 디스크와 Elasticsearch 문제였으며, 원격 배포 실패는 보안그룹과 SCP 경로 문제였다. 즉 운영 문제는 코드, CI 도구, 네트워크, 서버 리소스, 배포 스크립트가 함께 얽혀 발생한다.</p>
+<p>넷째, AI DevOps에서는 서비스가 단순히 떠 있는지만 보면 부족하다. API가 200 OK를 반환하더라도 응답 품질이 낮거나, latency가 비정상적으로 증가하거나, 특정 문서 유형에서 OCR 실패율이 높아질 수 있다. 따라서 배포 전후로 품질 지표와 운영 지표를 함께 확인하는 구조가 필요하다.</p>
+<hr>
+<h2>12. 배운 점</h2>
+<p>이 프로젝트를 통해 다음을 배웠다.</p>
+<pre><code class="language-text">- CI/CD는 단순 자동 배포가 아니라 검증과 통제를 포함해야 한다.
+- Jenkins 브랜치 조건은 파이프라인 종류에 따라 다르게 동작할 수 있다.
+- 멀티브랜치 파이프라인은 브랜치별 CI/CD 흐름을 구성할 때 적합하다.
+- Quality Gate는 배포 전 품질 기준을 강제하는 장치로 사용할 수 있다.
+- SonarQube 같은 CI 도구도 디스크, 인덱스, 로그 관리가 필요하다.
+- Docker 기반 원격 배포에서는 SSH, SCP, 보안그룹, 경로 문제가 자주 발생한다.
+- 부하 테스트는 배포 후 최소한의 성능 검증 단계로 활용할 수 있다.
+- 장애 분석은 코드만 보는 것이 아니라 네트워크, 서버, 도구, 리소스를 함께 봐야 한다.
+</code></pre>
+<hr>
+<h2>13. 면접용 요약</h2>
+<p>이 경험을 면접에서 설명한다면 다음과 같이 정리할 수 있다.</p>
+<blockquote>
+<p>Conversation 서비스에 대해 Jenkins 기반 CI/CD 파이프라인을 구성했습니다. develop 브랜치에서는 SonarQube 분석과 Quality Gate를 거친 뒤 DEV 서버에 Docker 이미지로 배포하고, JMeter 부하 테스트를 통과하면 main으로 merge되도록 구성했습니다. main 브랜치에서는 PROD 서버 배포가 실행되도록 분리했습니다.</p>
+<p>이 과정에서 GitHub Webhook과 Jenkins SCM 설정, 브랜치 조건 문제를 겪었습니다. 특히 싱글 파이프라인에서는 <code>BRANCH_NAME</code>이 제대로 잡히지 않아 stage가 모두 skip되는 문제가 있었고, 이를 통해 멀티브랜치 파이프라인과 SCM 기반 Jenkinsfile 관리의 필요성을 이해했습니다.</p>
+<p>또한 SonarQube 실패 원인을 따라가며 Elasticsearch read-only, 디스크 부족, venv 스캔 문제를 확인했고, 원격 배포에서는 SSH 보안그룹과 SCP 경로 오류도 해결했습니다. 이 경험을 통해 CI/CD는 단순 자동 배포가 아니라 코드 품질 검증, 배포 환경, 성능 테스트, 장애 대응을 함께 연결하는 운영 파이프라인이라는 점을 배웠습니다.</p>
+<p>업스테이지에서도 AI API나 OCR 서비스 배포 과정에서 코드 품질뿐 아니라 latency, error rate, timeout, 모델 품질 지표를 함께 검증하는 DevOps 업무에 기여하고 싶습니다.</p>
+</blockquote>
+<hr>
+<h2>14. 정리</h2>
+<p>이 프로젝트는 완성된 대규모 운영 시스템은 아니지만, CI/CD 파이프라인을 구성하면서 실제 운영에서 자주 마주치는 문제들을 경험했다는 점에서 의미가 있다.</p>
+<p>특히 Jenkins, SonarQube, Docker, JMeter, GitHub Webhook, SSH/SCP 배포를 연결하면서 배포 자동화의 기본 흐름을 익혔고, 브랜치 조건 오류, 디스크 부족, Elasticsearch read-only, 보안그룹, 경로 오류 같은 문제를 직접 추적했다.</p>
+<p>이 경험을 바탕으로 AI 서비스 운영에서도 단순히 모델이나 API를 배포하는 것에 그치지 않고, 배포 전 검증, 배포 후 모니터링, 장애 발생 시 계층별 원인 분석을 수행하는 DevOps 엔지니어로 성장하고자 한다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Upstage]-Information-Extract-API를-DevOps-관점에서-이해하기.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Upstage] Information Extract API를 DevOps 관점에서 이해하기</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Upstage]-AI-에이전트-PoC-이후가-진짜-문제인-이유.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Upstage] AI 에이전트 PoC 이후가 진짜 문제인 이유</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
