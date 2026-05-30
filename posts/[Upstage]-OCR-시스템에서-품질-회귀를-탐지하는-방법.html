@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Upstage] OCR 시스템에서 품질 회귀를 탐지하는 방법 | Greenapple0101</title>
+  <meta name="description" content="--- title: &quot;OCR 시스템에서 품질 회귀를 탐지하는 방법&quot; date: 2026-05-30 categories: OCR, AI DevOps, MLOps tags: OCR, Quality Regression, AI DevOps, Document AI, Monitoring, Eva…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/upstage.html">Upstage</a>
+    </nav>
+    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
+    <h1>[Upstage] OCR 시스템에서 품질 회귀를 탐지하는 방법</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-30T18:35:54.000Z">2026.05.30</time>
+      
+    </div>
+  </header>
+  <article class="post-content">
+<hr>
+<p>title: &ldquo;OCR 시스템에서 품질 회귀를 탐지하는 방법&rdquo;
+date: 2026-05-30
+categories: [OCR, AI DevOps, MLOps]
+tags: [OCR, Quality Regression, AI DevOps, Document AI, Monitoring, Evaluation]</p>
+<hr>
+<h1>OCR 시스템에서 품질 회귀를 탐지하는 방법</h1>
+<p>OCR은 Optical Character Recognition의 약자로, 이미지나 PDF 안에 있는 글자를 기계가 읽을 수 있는 텍스트로 변환하는 기술이다. 예를 들어 영수증, 계약서, 신분증, 세금계산서, 신청서, 보험 서류 같은 문서를 OCR에 넣으면 이미지 속 글자를 추출해 텍스트나 JSON 형태로 반환한다.</p>
+<p>겉으로 보면 OCR은 단순히 “이미지를 넣으면 텍스트가 나오는 API”처럼 보인다. 하지만 실제 운영 환경에서는 훨씬 복잡하다. 문서의 종류가 다양하고, 촬영 상태가 다르고, 글자 크기와 폰트가 다르고, 표나 도장, 서명, 손글씨, 기울어진 이미지, 흐릿한 스캔본이 섞여 있기 때문이다.</p>
+<p>이때 OCR 시스템이 업데이트 이후 이전보다 글자를 더 많이 틀리거나, 표 구조를 잘못 읽거나, 특정 문서 유형에서 인식률이 떨어지는 현상을 <strong>OCR 품질 회귀</strong>라고 볼 수 있다.</p>
+<h2>OCR 품질 회귀란 무엇인가</h2>
+<p>품질 회귀는 시스템 변경 이후 기존보다 품질이 떨어지는 현상이다. 일반적인 소프트웨어에서는 기능이 깨지는 것을 회귀라고 부른다. 예를 들어 기존에는 업로드가 잘 되던 파일이 배포 이후 업로드되지 않는다면 기능 회귀이다.</p>
+<p>OCR에서는 조금 다르다. OCR API가 정상 응답을 반환하더라도 결과 텍스트가 틀릴 수 있다.</p>
+<p>예를 들어 API 응답 코드는 200 OK이고, latency도 정상이고, 서버 에러도 없지만 실제 결과는 다음처럼 잘못될 수 있다.</p>
+<pre><code class="language-text">원본 이미지:
+주민등록번호
+
+OCR 결과:
+주민등륵번호
+</code></pre>
+<p>또는 금액 인식에서 다음과 같은 문제가 생길 수 있다.</p>
+<pre><code class="language-text">원본 이미지:
+125,000원
+
+OCR 결과:
+12,500원
+</code></pre>
+<p>이 경우 시스템은 장애처럼 보이지 않는다. 하지만 사용자가 받는 결과는 명확히 잘못되었다. 특히 금융, 보험, 세무, 법무, 의료 문서에서는 숫자 하나, 날짜 하나, 이름 한 글자만 틀려도 큰 문제가 될 수 있다.</p>
+<p>따라서 OCR 품질 회귀는 단순히 API가 살아 있는지를 보는 문제가 아니라, <strong>인식 결과가 이전 품질을 유지하고 있는지 확인하는 문제</strong>이다.</p>
+<h2>OCR 품질 회귀가 발생하는 이유</h2>
+<p>OCR 품질은 여러 요소에 의해 달라진다. 모델 자체가 바뀌지 않아도 전처리, 후처리, 문서 파싱, 배포 환경, 입력 데이터 분포 변화 때문에 품질이 떨어질 수 있다.</p>
+<h2>1. OCR 모델 변경</h2>
+<p>가장 직접적인 원인은 OCR 모델 변경이다. 새 모델이 평균적으로 더 좋은 성능을 보이더라도, 특정 문서 유형에서는 기존 모델보다 나쁜 결과를 낼 수 있다.</p>
+<p>예를 들어 새 모델이 일반 인쇄체 인식은 좋아졌지만, 작은 글씨나 표 안의 숫자 인식은 떨어질 수 있다. 또는 한글 문서에서는 좋아졌지만 영문, 숫자, 특수문자가 섞인 문서에서는 오히려 오류가 늘어날 수 있다.</p>
+<p>그래서 OCR 모델을 교체할 때는 전체 평균 성능만 보면 안 된다. 문서 유형별, 필드별, 문자 유형별로 품질을 나누어 봐야 한다.</p>
+<h2>2. 이미지 전처리 변경</h2>
+<p>OCR 전에 이미지를 보정하는 과정이 들어가는 경우가 많다.</p>
+<p>예를 들어 다음과 같은 전처리가 사용될 수 있다.</p>
+<pre><code class="language-text">기울기 보정
+노이즈 제거
+해상도 조정
+흑백 변환
+대비 조정
+문서 영역 탐지
+이미지 자르기
+회전 보정
+</code></pre>
+<p>이 전처리 과정이 바뀌면 OCR 결과도 바뀐다.</p>
+<p>예를 들어 대비를 강하게 조정하면 흐릿한 글자는 더 잘 보일 수 있지만, 얇은 글자는 사라질 수 있다. 문서 영역 자르기가 잘못되면 상단 제목이나 하단 주석이 잘려 나갈 수 있다. 회전 보정이 잘못되면 정상 이미지가 오히려 기울어진 상태로 처리될 수 있다.</p>
+<p>즉, OCR 품질 회귀는 모델 때문만이 아니라 전처리 파이프라인 변경 때문에도 발생할 수 있다.</p>
+<h2>3. 레이아웃 분석 변경</h2>
+<p>문서 OCR에서는 단순히 글자만 읽는 것이 아니라 문서의 구조를 함께 이해해야 한다.</p>
+<p>특히 계약서, 청구서, 세금계산서, 신청서처럼 표나 항목이 많은 문서에서는 레이아웃 분석이 중요하다.</p>
+<p>예를 들어 다음과 같은 정보가 필요할 수 있다.</p>
+<pre><code class="language-text">제목
+본문
+표
+행
+열
+체크박스
+서명란
+도장
+필드명
+필드값
+</code></pre>
+<p>레이아웃 분석이 바뀌면 텍스트 인식은 맞아도 구조화 결과가 틀릴 수 있다.</p>
+<p>예를 들어 원본 문서는 다음과 같다고 하자.</p>
+<pre><code class="language-text">이름: 백서연
+금액: 125,000원
+날짜: 2026-05-30
+</code></pre>
+<p>OCR 텍스트 자체는 모두 맞게 읽었지만, 필드 매핑이 잘못되면 다음처럼 나올 수 있다.</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;125,000원&quot;,
+  &quot;amount&quot;: &quot;2026-05-30&quot;,
+  &quot;date&quot;: &quot;백서연&quot;
+}
+</code></pre>
+<p>이 경우 문자 인식률만 보면 문제가 없어 보일 수 있다. 하지만 실제 서비스 품질은 크게 떨어진다.</p>
+<p>따라서 OCR 품질 회귀 탐지에서는 텍스트 정확도뿐 아니라 <strong>문서 구조와 필드 추출 정확도</strong>도 함께 평가해야 한다.</p>
+<h2>4. 후처리 로직 변경</h2>
+<p>OCR 결과에는 후처리 로직이 붙는 경우가 많다.</p>
+<p>예를 들어 다음과 같은 후처리가 있을 수 있다.</p>
+<pre><code class="language-text">전화번호 형식 보정
+사업자등록번호 형식 보정
+날짜 형식 통일
+금액 쉼표 처리
+불필요한 공백 제거
+오인식 문자 교정
+정규식 기반 필드 추출
+사전 기반 교정
+</code></pre>
+<p>후처리는 품질을 높일 수도 있지만, 잘못 적용되면 오히려 정답을 망칠 수 있다.</p>
+<p>예를 들어 OCR 결과가 <code>2026.05.30</code>인데 후처리 로직이 잘못되어 <code>2026-50-30</code>으로 변환될 수 있다. 또는 사업자등록번호를 전화번호로 잘못 판단할 수도 있다.</p>
+<p>운영 환경에서는 OCR 모델보다 후처리 로직 변경이 더 자주 일어날 수 있다. 따라서 후처리 변경도 품질 회귀의 주요 원인으로 봐야 한다.</p>
+<h2>5. 입력 데이터 분포 변화</h2>
+<p>OCR 시스템은 운영 중에 새로운 유형의 문서를 계속 만나게 된다.</p>
+<p>초기에는 깨끗한 스캔본 위주로 테스트했지만, 실제 고객 환경에서는 휴대폰으로 찍은 사진, 그림자 있는 이미지, 접힌 종이, 낮은 해상도, 손글씨가 섞인 문서가 들어올 수 있다.</p>
+<p>이런 데이터 분포 변화가 생기면 기존 모델이 잘 동작하던 환경과 달라져 품질이 떨어질 수 있다.</p>
+<p>예를 들어 다음과 같은 변화가 있을 수 있다.</p>
+<pre><code class="language-text">스캔본 중심 → 휴대폰 촬영본 증가
+인쇄체 중심 → 손글씨 포함 문서 증가
+정형 문서 중심 → 비정형 문서 증가
+한국어 중심 → 영어/숫자 혼합 문서 증가
+고해상도 이미지 중심 → 저해상도 이미지 증가
+</code></pre>
+<p>이런 변화는 코드 배포와 무관하게 발생할 수 있다. 따라서 OCR 품질 회귀 탐지는 배포 시점뿐 아니라 운영 중 모니터링에서도 필요하다.</p>
+<h2>OCR 품질 회귀는 왜 탐지하기 어려운가</h2>
+<p>OCR 품질 회귀가 어려운 이유는 API 상태와 결과 품질이 다르기 때문이다.</p>
+<p>일반적인 API 모니터링에서는 다음 지표를 본다.</p>
+<pre><code class="language-text">status code
+latency
+error rate
+timeout
+CPU usage
+memory usage
+request count
+</code></pre>
+<p>이 지표들은 시스템이 정상적으로 동작하는지 확인하는 데 필요하다. 하지만 OCR 결과가 정확한지는 알려주지 않는다.</p>
+<p>예를 들어 다음 상황이 가능하다.</p>
+<pre><code class="language-text">API status: 200 OK
+latency: 정상
+error rate: 정상
+timeout: 없음
+OCR 결과: 금액 오인식
+</code></pre>
+<p>시스템 관점에서는 정상인데, 서비스 품질 관점에서는 실패이다.</p>
+<p>또한 OCR은 정답 비교가 쉽지 않다. 텍스트 전체가 조금 다르다고 무조건 실패라고 볼 수 없고, 반대로 한 글자만 틀렸더라도 중요한 필드라면 치명적인 실패일 수 있다.</p>
+<p>예를 들어 이름의 띄어쓰기 오류는 큰 문제가 아닐 수 있다.</p>
+<pre><code class="language-text">정답: 백서연
+결과: 백 서연
+</code></pre>
+<p>하지만 금액의 숫자 하나가 틀리면 심각하다.</p>
+<pre><code class="language-text">정답: 125,000원
+결과: 12,500원
+</code></pre>
+<p>따라서 OCR 품질 평가는 단순 문자열 비교가 아니라, 문서 유형과 필드 중요도를 고려해야 한다.</p>
+<h2>OCR 품질 회귀 탐지를 위한 평가셋</h2>
+<p>OCR 품질 회귀를 탐지하려면 기준 평가셋이 필요하다. 평가셋은 OCR 시스템이 반드시 잘 처리해야 하는 문서 이미지와 정답 데이터로 구성된다.</p>
+<p>평가 데이터는 다음과 같이 만들 수 있다.</p>
+<pre><code class="language-text">document_image: 원본 이미지 또는 PDF
+ground_truth_text: 정답 텍스트
+ground_truth_fields: 정답 필드
+document_type: 문서 유형
+metadata: 해상도, 촬영 방식, 언어, 난이도
+</code></pre>
+<p>예를 들어 영수증 OCR 평가 데이터는 다음처럼 구성할 수 있다.</p>
+<pre><code class="language-json">{
+  &quot;document_type&quot;: &quot;receipt&quot;,
+  &quot;image&quot;: &quot;receipt_001.png&quot;,
+  &quot;ground_truth_fields&quot;: {
+    &quot;store_name&quot;: &quot;ABC마트&quot;,
+    &quot;date&quot;: &quot;2026-05-30&quot;,
+    &quot;total_amount&quot;: &quot;125000&quot;
+  },
+  &quot;metadata&quot;: {
+    &quot;quality&quot;: &quot;low_resolution&quot;,
+    &quot;angle&quot;: &quot;slightly_rotated&quot;,
+    &quot;language&quot;: &quot;ko&quot;
+  }
+}
+</code></pre>
+<p>평가셋은 단순히 많은 데이터를 모으는 것보다, 실제 운영에서 중요한 문서 유형과 실패하면 안 되는 필드를 포함하는 것이 중요하다.</p>
+<h2>평가셋에 포함해야 할 문서 유형</h2>
+<p>운영형 OCR에서는 다양한 문서 유형을 나누어 평가해야 한다.</p>
+<p>예를 들어 다음과 같은 문서 유형을 포함할 수 있다.</p>
+<pre><code class="language-text">영수증
+세금계산서
+신분증
+계약서
+청구서
+신청서
+보험 서류
+통장 사본
+사업자등록증
+표가 포함된 문서
+손글씨가 포함된 문서
+저해상도 이미지
+기울어진 이미지
+그림자가 있는 이미지
+</code></pre>
+<p>문서 유형별로 OCR 난이도가 다르기 때문에 전체 평균 점수만 보면 안 된다.</p>
+<p>예를 들어 전체 정확도는 유지되었지만, 세금계산서의 금액 필드 정확도가 떨어졌다면 실제 서비스에서는 큰 문제일 수 있다.</p>
+<h2>OCR 품질 평가 지표</h2>
+<p>OCR 품질 회귀를 탐지하려면 목적에 맞는 지표를 사용해야 한다.</p>
+<h2>1. Character Error Rate</h2>
+<p>Character Error Rate, 즉 CER은 문자 단위 오류율이다.</p>
+<p>정답 텍스트와 OCR 결과를 문자 단위로 비교해 얼마나 틀렸는지 계산한다.</p>
+<p>예를 들어 정답이 다음과 같다고 하자.</p>
+<pre><code class="language-text">백서연
+</code></pre>
+<p>OCR 결과가 다음과 같다면,</p>
+<pre><code class="language-text">백서역
+</code></pre>
+<p>마지막 한 글자가 틀렸으므로 문자 단위 오류가 발생한 것이다.</p>
+<p>CER은 한글, 숫자, 영문처럼 문자 단위 정확도가 중요한 OCR 평가에 유용하다.</p>
+<p>다만 CER만으로는 필드 중요도를 반영하기 어렵다. 금액의 숫자 한 글자 오류와 일반 설명 문장의 한 글자 오류를 같은 비중으로 보기 때문이다.</p>
+<h2>2. Word Error Rate</h2>
+<p>Word Error Rate, 즉 WER은 단어 단위 오류율이다.</p>
+<p>정답 텍스트와 OCR 결과를 단어 단위로 비교한다. 영어처럼 단어 경계가 명확한 언어에서 자주 사용된다.</p>
+<p>한국어 문서에서는 띄어쓰기 차이 때문에 WER이 민감하게 흔들릴 수 있다. 따라서 한국어 OCR에서는 CER과 함께 보는 것이 좋다.</p>
+<h2>3. Field Accuracy</h2>
+<p>Field Accuracy는 구조화된 필드가 정확히 추출되었는지 보는 지표이다.</p>
+<p>예를 들어 OCR 결과에서 다음 필드를 추출한다고 하자.</p>
+<pre><code class="language-text">이름
+생년월일
+금액
+날짜
+사업자등록번호
+주소
+전화번호
+</code></pre>
+<p>각 필드가 정답과 일치하는지 평가한다.</p>
+<p>문서 AI에서는 전체 텍스트 정확도보다 Field Accuracy가 더 중요할 수 있다. 실제 고객은 OCR 전체 텍스트보다 특정 필드값을 자동 입력하거나 검증하는 데 관심이 많기 때문이다.</p>
+<p>예를 들어 세금계산서에서 <code>공급가액</code>, <code>부가세</code>, <code>사업자등록번호</code>가 틀리면 전체 텍스트 대부분이 맞아도 실패로 봐야 한다.</p>
+<h2>4. Key-Value Matching Accuracy</h2>
+<p>계약서나 신청서처럼 <code>항목명: 값</code> 구조가 있는 문서에서는 key-value 매칭 정확도가 중요하다.</p>
+<p>예를 들어 다음과 같은 문서가 있다.</p>
+<pre><code class="language-text">성명: 백서연
+신청일: 2026-05-30
+금액: 125,000원
+</code></pre>
+<p>OCR이 텍스트를 잘 읽더라도 key와 value를 잘못 연결하면 문제가 된다.</p>
+<pre><code class="language-json">{
+  &quot;성명&quot;: &quot;2026-05-30&quot;,
+  &quot;신청일&quot;: &quot;125,000원&quot;,
+  &quot;금액&quot;: &quot;백서연&quot;
+}
+</code></pre>
+<p>이 경우 문자 인식은 맞지만 문서 이해는 실패한 것이다.</p>
+<p>따라서 문서 AI 관점에서는 key-value 매칭 정확도를 따로 봐야 한다.</p>
+<h2>5. Table Structure Accuracy</h2>
+<p>표가 있는 문서에서는 표 구조 인식이 중요하다.</p>
+<p>OCR이 셀 안의 텍스트를 잘 읽어도 행과 열을 잘못 나누면 데이터가 엉망이 된다.</p>
+<p>예를 들어 원본 표가 다음과 같다고 하자.</p>
+<pre><code class="language-text">품목        수량     금액
+노트북      1       1,200,000
+마우스      2       50,000
+</code></pre>
+<p>OCR 결과가 다음처럼 나오면 문제가 된다.</p>
+<pre><code class="language-text">품목: 노트북, 마우스
+수량: 1, 2
+금액: 1,200,000, 50,000
+</code></pre>
+<p>단순 텍스트로는 읽힌 것 같지만, 행 단위 관계가 사라졌다. 실제 정산이나 자동 입력 업무에서는 사용할 수 없는 결과일 수 있다.</p>
+<h2>6. Layout Detection Accuracy</h2>
+<p>문서에서 제목, 본문, 표, 서명, 도장, 체크박스 같은 영역을 잘 구분하는지도 평가해야 한다.</p>
+<p>특히 문서 AI에서는 OCR 결과를 단순 텍스트가 아니라 구조화된 데이터로 사용하기 때문에 레이아웃 탐지 정확도가 중요하다.</p>
+<p>예를 들어 체크박스가 선택되었는지, 서명란이 비어 있는지, 도장이 찍혀 있는지 같은 정보는 단순 텍스트 OCR만으로는 부족하다.</p>
+<h2>7. Confidence Score Drift</h2>
+<p>OCR 모델은 각 인식 결과에 confidence score를 제공하는 경우가 있다. confidence score는 모델이 해당 결과를 얼마나 확신하는지 나타내는 값이다.</p>
+<p>운영 중 평균 confidence score가 갑자기 낮아지면 입력 이미지 품질이 나빠졌거나, 특정 문서 유형에서 모델이 어려움을 겪고 있다는 신호일 수 있다.</p>
+<p>예를 들어 배포 이후 error rate는 그대로인데 confidence score가 낮아졌다면 품질 회귀 가능성을 의심할 수 있다.</p>
+<h2>OCR 품질 회귀 탐지 파이프라인</h2>
+<p>OCR 품질 회귀 탐지는 배포 파이프라인과 연결되어야 한다.</p>
+<p>예를 들어 다음과 같은 구조를 만들 수 있다.</p>
+<pre><code class="language-text">OCR 모델 변경
+전처리 로직 변경
+후처리 로직 변경
+레이아웃 분석 로직 변경
+배포 환경 변경
+        ↓
+기준 OCR 평가셋 실행
+        ↓
+문서 유형별 품질 지표 계산
+        ↓
+필드별 품질 지표 계산
+        ↓
+기존 버전과 비교
+        ↓
+품질 기준 통과 여부 판단
+        ↓
+배포 승인 또는 배포 차단
+</code></pre>
+<p>이때 중요한 개념이 quality gate이다.</p>
+<p>quality gate는 배포 전에 품질 기준을 통과했는지 확인하는 장치이다.</p>
+<p>예를 들어 다음과 같은 기준을 둘 수 있다.</p>
+<pre><code class="language-text">전체 CER이 기존 대비 2% 이상 악화되면 배포 차단
+금액 필드 정확도가 기준 이하이면 배포 차단
+사업자등록번호 필드 정확도가 하락하면 배포 차단
+신분증 문서 유형의 정확도가 하락하면 배포 차단
+표 구조 인식 정확도가 기준 이하이면 배포 차단
+p95 latency가 기준을 넘으면 배포 차단
+</code></pre>
+<p>이렇게 하면 OCR 시스템 변경이 실제 고객 환경에 반영되기 전에 품질 저하를 자동으로 탐지할 수 있다.</p>
+<h2>문서 유형별 평가가 중요한 이유</h2>
+<p>OCR 품질을 평가할 때 전체 평균만 보면 위험하다.</p>
+<p>예를 들어 전체 정확도는 다음처럼 유지될 수 있다.</p>
+<pre><code class="language-text">기존 버전 전체 정확도: 95.2%
+새 버전 전체 정확도: 95.1%
+</code></pre>
+<p>겉으로 보면 거의 차이가 없다. 하지만 문서 유형별로 보면 문제가 드러날 수 있다.</p>
+<pre><code class="language-text">영수증 정확도: 96.0% → 96.5%
+계약서 정확도: 94.5% → 94.8%
+세금계산서 정확도: 97.0% → 91.2%
+신분증 정확도: 95.3% → 95.1%
+</code></pre>
+<p>전체 평균은 크게 변하지 않았지만, 세금계산서 정확도는 크게 하락했다. 만약 고객사가 세금계산서 자동 처리에 OCR을 사용하고 있다면 이 배포는 막아야 한다.</p>
+<p>즉, OCR 품질 회귀는 전체 평균이 아니라 <strong>문서 유형별, 필드별, 고객사별로 나누어 탐지해야 한다</strong>.</p>
+<h2>필드별 평가가 중요한 이유</h2>
+<p>OCR에서는 모든 글자가 같은 중요도를 가지지 않는다.</p>
+<p>예를 들어 계약서의 긴 설명 문장에서 조사 하나가 틀린 것은 큰 문제가 아닐 수 있다. 하지만 계약 금액, 계약 기간, 이름, 주민등록번호, 사업자등록번호, 계좌번호가 틀리면 심각하다.</p>
+<p>따라서 필드별 중요도를 다르게 설정할 수 있다.</p>
+<pre><code class="language-text">높은 중요도:
+금액
+날짜
+이름
+계좌번호
+사업자등록번호
+주민등록번호
+계약 기간
+
+중간 중요도:
+주소
+기관명
+부서명
+상품명
+
+낮은 중요도:
+일반 설명 문장
+부가 안내 문구
+머리말
+꼬리말
+</code></pre>
+<p>품질 게이트도 필드 중요도에 따라 다르게 설정하는 것이 좋다.</p>
+<p>예를 들어 일반 텍스트 CER은 조금 올라가도 허용할 수 있지만, 금액 필드 정확도가 떨어지면 배포를 차단해야 한다.</p>
+<h2>OCR 품질 회귀 원인 분석 방법</h2>
+<p>품질 회귀가 감지되면 어느 단계에서 문제가 발생했는지 나누어 봐야 한다.</p>
+<p>OCR 파이프라인은 보통 다음과 같이 구성된다.</p>
+<pre><code class="language-text">입력 이미지
+↓
+이미지 전처리
+↓
+문서 영역 탐지
+↓
+레이아웃 분석
+↓
+문자 인식
+↓
+후처리
+↓
+필드 추출
+↓
+구조화 결과 반환
+</code></pre>
+<p>문제가 발생하면 각 단계를 분리해서 확인해야 한다.</p>
+<h2>1. 입력 이미지 문제인지 확인</h2>
+<p>먼저 입력 데이터 자체가 바뀌었는지 확인해야 한다.</p>
+<pre><code class="language-text">최근 저해상도 이미지가 증가했는가
+휴대폰 촬영본이 증가했는가
+특정 고객사의 문서 양식이 바뀌었는가
+그림자나 기울어진 이미지가 많아졌는가
+손글씨 포함 비율이 늘었는가
+</code></pre>
+<p>입력 데이터 분포가 바뀌었다면 모델이나 코드 문제가 아니라 데이터 변화에 따른 품질 저하일 수 있다.</p>
+<h2>2. 전처리 문제인지 확인</h2>
+<p>전처리 변경 이후 품질이 떨어졌다면 이미지 보정 과정에서 문제가 생겼을 수 있다.</p>
+<p>확인할 내용은 다음과 같다.</p>
+<pre><code class="language-text">문서 영역이 잘려 나가지 않았는가
+회전 보정이 잘못 적용되지 않았는가
+대비 조정으로 얇은 글자가 사라지지 않았는가
+노이즈 제거가 작은 글자를 지우지 않았는가
+해상도 조정으로 글자가 뭉개지지 않았는가
+</code></pre>
+<p>전처리 문제는 원본 이미지와 전처리 후 이미지를 비교하면 원인을 찾기 쉽다.</p>
+<h2>3. 문자 인식 문제인지 확인</h2>
+<p>전처리와 레이아웃은 정상인데 글자를 틀리게 읽는다면 OCR 모델의 문자 인식 문제일 수 있다.</p>
+<p>이 경우 다음을 확인한다.</p>
+<pre><code class="language-text">한글 오류가 증가했는가
+숫자 오류가 증가했는가
+영문 대소문자 오류가 증가했는가
+특수문자 오류가 증가했는가
+유사 문자 오류가 증가했는가
+</code></pre>
+<p>예를 들어 OCR에서 자주 발생하는 오류는 다음과 같다.</p>
+<pre><code class="language-text">0 ↔ O
+1 ↔ I ↔ l
+5 ↔ S
+8 ↔ B
+원 ↔ 윈
+등 ↔ 둥
+일 ↔ 일
+</code></pre>
+<p>특히 숫자와 영문이 섞인 코드, 계좌번호, 사업자등록번호에서는 이런 오류가 치명적이다.</p>
+<h2>4. 레이아웃 분석 문제인지 확인</h2>
+<p>문자 자체는 맞게 읽었지만 문서 구조가 틀렸다면 레이아웃 분석 문제일 수 있다.</p>
+<p>확인할 내용은 다음과 같다.</p>
+<pre><code class="language-text">표의 행과 열이 잘 유지되었는가
+제목과 본문을 잘 구분했는가
+필드명과 필드값을 올바르게 연결했는가
+체크박스 상태를 올바르게 인식했는가
+서명이나 도장 영역을 올바르게 탐지했는가
+</code></pre>
+<p>레이아웃 문제는 단순 텍스트 정확도 지표로는 잘 드러나지 않으므로 별도의 구조 평가가 필요하다.</p>
+<h2>5. 후처리 문제인지 확인</h2>
+<p>OCR 원문 결과는 맞는데 최종 결과가 틀리다면 후처리 로직을 의심해야 한다.</p>
+<p>예를 들어 다음과 같은 문제가 생길 수 있다.</p>
+<pre><code class="language-text">날짜 형식 변환 오류
+금액 쉼표 제거 오류
+전화번호와 사업자등록번호 혼동
+정규식 추출 오류
+불필요한 자동 교정
+공백 제거로 인한 의미 손상
+</code></pre>
+<p>후처리 문제를 확인하려면 OCR 원시 결과와 후처리 결과를 함께 저장하고 비교해야 한다.</p>
+<h2>운영 환경에서 모니터링해야 할 지표</h2>
+<p>OCR 운영에서는 품질 지표와 시스템 지표를 함께 봐야 한다.</p>
+<h2>시스템 지표</h2>
+<pre><code class="language-text">request count
+error rate
+latency
+p95 latency
+timeout
+CPU usage
+GPU usage
+memory usage
+queue length
+throughput
+</code></pre>
+<p>이 지표들은 OCR API가 안정적으로 동작하는지 확인하는 데 필요하다.</p>
+<h2>품질 지표</h2>
+<pre><code class="language-text">CER
+WER
+Field Accuracy
+Key-Value Matching Accuracy
+Table Structure Accuracy
+Layout Detection Accuracy
+Confidence Score
+Correction Rate
+</code></pre>
+<p>이 지표들은 OCR 결과가 정확한지 확인하는 데 필요하다.</p>
+<h2>데이터 지표</h2>
+<pre><code class="language-text">문서 유형별 요청 수
+이미지 해상도 분포
+촬영 각도 분포
+파일 크기 분포
+언어 분포
+고객사별 문서 분포
+저품질 이미지 비율
+</code></pre>
+<p>이 지표들은 입력 데이터 분포가 바뀌고 있는지 확인하는 데 필요하다.</p>
+<h2>운영 지표</h2>
+<pre><code class="language-text">모델 버전
+전처리 버전
+후처리 버전
+배포 시점
+품질 게이트 실패 횟수
+롤백 횟수
+고객 피드백 수
+수동 검수 전환 비율
+</code></pre>
+<p>운영형 OCR에서는 어떤 변경 이후 품질이 떨어졌는지 추적할 수 있어야 한다. 그래서 모델 버전, 전처리 버전, 후처리 버전, 배포 시점을 함께 기록하는 것이 중요하다.</p>
+<h2>OCR과 RAG 품질 회귀의 연결</h2>
+<p>OCR 품질 회귀는 OCR 단계에서 끝나지 않는다. OCR 결과가 RAG 시스템의 입력으로 사용된다면, OCR 오류는 RAG 품질에도 영향을 준다.</p>
+<p>예를 들어 문서 이미지 기반 RAG 시스템은 다음 흐름으로 동작할 수 있다.</p>
+<pre><code class="language-text">PDF 또는 이미지 문서 업로드
+↓
+OCR로 텍스트 추출
+↓
+문서 전처리
+↓
+청킹
+↓
+임베딩
+↓
+벡터 DB 저장
+↓
+사용자 질문 입력
+↓
+관련 문서 검색
+↓
+LLM 답변 생성
+</code></pre>
+<p>이때 OCR이 문서를 잘못 읽으면 뒤 단계가 모두 흔들린다.</p>
+<p>예를 들어 OCR이 다음처럼 금액을 잘못 읽었다고 하자.</p>
+<pre><code class="language-text">원본:
+계약 금액은 125,000,000원이다.
+
+OCR 결과:
+계약 금액은 12,500,000원이다.
+</code></pre>
+<p>이 텍스트가 그대로 벡터 DB에 들어가면 RAG 시스템은 잘못된 금액을 근거로 답변하게 된다. 이 경우 LLM은 틀린 것이 아니라, 잘못된 OCR 결과를 충실히 따른 것이다.</p>
+<p>따라서 문서 기반 AI 서비스에서는 OCR 품질 회귀와 RAG 품질 회귀를 따로 볼 수 없다. OCR은 RAG의 입력 품질을 결정하는 앞단 파이프라인이기 때문이다.</p>
+<h2>AI DevOps 관점에서 OCR 품질 회귀가 중요한 이유</h2>
+<p>AI DevOps는 단순히 OCR API를 배포하고 서버를 모니터링하는 역할이 아니다. 실제 고객 환경에서 OCR 품질이 유지되도록 배포, 평가, 모니터링, 롤백 체계를 만드는 역할에 가깝다.</p>
+<p>일반적인 DevOps에서는 서비스가 정상적으로 응답하는지, latency가 안정적인지, 에러율이 낮은지를 본다.</p>
+<p>하지만 AI DevOps에서는 여기에 하나가 더 추가된다.</p>
+<pre><code class="language-text">AI 결과가 여전히 정확한가
+</code></pre>
+<p>OCR에서는 이 질문이 다음처럼 구체화된다.</p>
+<pre><code class="language-text">글자를 여전히 정확히 읽는가
+중요 필드를 정확히 추출하는가
+표 구조를 유지하는가
+문서 유형별 품질이 떨어지지 않았는가
+고객사별 품질이 유지되는가
+배포 이후 특정 필드 오류가 증가하지 않았는가
+</code></pre>
+<p>이걸 자동으로 확인하지 않으면 품질 저하는 고객이 먼저 발견하게 된다. B2B 환경에서는 고객이 발견한 품질 문제는 곧 신뢰 문제로 이어질 수 있다.</p>
+<p>따라서 AI DevOps에서는 OCR 품질 회귀를 탐지하는 평가셋, 품질 지표, quality gate, 모니터링 대시보드가 필요하다.</p>
+<h2>면접에서 말할 수 있는 정리</h2>
+<p>OCR 품질 회귀를 AI DevOps 관점에서 설명하면 다음과 같이 말할 수 있다.</p>
+<pre><code class="language-text">OCR 서비스는 API가 정상적으로 응답하더라도 인식 결과가 틀릴 수 있기 때문에, 일반적인 error rate나 latency만으로는 품질을 판단하기 어렵다고 생각합니다.
+
+그래서 OCR 운영에서는 모델 변경, 전처리 변경, 후처리 변경, 레이아웃 분석 변경 이후에 기준 평가셋을 돌려 품질 회귀를 탐지해야 합니다.
+
+평가 지표로는 전체 텍스트 기준의 CER, WER뿐 아니라 실제 업무에 중요한 Field Accuracy, Key-Value Matching Accuracy, Table Structure Accuracy를 함께 봐야 한다고 생각합니다.
+
+특히 문서 AI나 B2B 환경에서는 전체 평균 정확도보다 문서 유형별, 고객사별, 필드별 품질 저하를 잡는 것이 중요합니다.
+
+운영 파이프라인에서는 품질 기준을 quality gate로 두고, 금액이나 사업자등록번호 같은 중요 필드 정확도가 떨어지거나 p95 latency가 기준을 넘으면 배포를 차단하는 방식이 필요하다고 봅니다.
+
+또한 OCR 결과가 RAG의 입력으로 사용되는 경우, OCR 오류가 청킹, 임베딩, 검색, LLM 답변까지 전파될 수 있기 때문에 OCR 품질 관리는 문서 기반 AI 서비스 전체 품질 관리의 출발점이라고 생각합니다.
+</code></pre>
+<h2>정리</h2>
+<p>OCR 품질 회귀는 OCR 시스템 변경 이후 기존보다 인식 품질이 떨어지는 현상이다.</p>
+<p>이 문제는 일반적인 API 장애와 다르다. API는 정상 응답을 반환하지만, 인식 결과가 틀릴 수 있기 때문이다.</p>
+<p>OCR 품질 회귀를 탐지하려면 다음이 필요하다.</p>
+<pre><code class="language-text">기준 평가셋 구축
+문서 유형별 평가
+필드별 평가
+CER, WER 측정
+Field Accuracy 측정
+Key-Value 매칭 평가
+표 구조 평가
+레이아웃 분석 평가
+기존 버전과 비교
+quality gate 적용
+배포 차단 또는 롤백
+운영 모니터링
+</code></pre>
+<p>결국 OCR 품질 회귀 탐지는 OCR을 단순 API가 아니라 운영형 AI 시스템으로 바라보는 관점이다.</p>
+<p>AI DevOps에서는 서버가 살아 있는지만 보는 것이 아니라, OCR이 고객 문서를 여전히 정확하게 읽고 있는지까지 확인해야 한다. 이 차이를 이해하는 것이 OCR 기반 AI 서비스 운영에서 매우 중요하다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Upstage]-임베딩과-벡터-DB의-차이.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Upstage] 임베딩과 벡터 DB의 차이</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Upstage]-OCR-품질-회귀-탐지-지표-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Upstage] OCR 품질 회귀 탐지 지표 정리</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

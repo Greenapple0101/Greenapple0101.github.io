@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Upstage] 임베딩과 벡터 DB의 차이 | Greenapple0101</title>
+  <meta name="description" content="RAG를 공부하다 보면 임베딩과 벡터 DB라는 말을 자주 보게 된다. 둘 다 검색과 관련되어 있어서 비슷해 보이지만, 실제 역할은 다르다. 간단히 말하면 임베딩은 텍스트를 숫자 벡터로 바꾸는 과정 이고, 벡터 DB는 그 벡터를 저장하고 검색하는 저장소 이다. 즉, 임베딩은 변환 작업이…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/upstage.html">Upstage</a>
+    </nav>
+    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
+    <h1>[Upstage] 임베딩과 벡터 DB의 차이</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-30T18:31:45.000Z">2026.05.30</time>
+      
+    </div>
+  </header>
+  <article class="post-content">
+<p>RAG를 공부하다 보면 임베딩과 벡터 DB라는 말을 자주 보게 된다. 둘 다 검색과 관련되어 있어서 비슷해 보이지만, 실제 역할은 다르다.</p>
+<p>간단히 말하면 <strong>임베딩은 텍스트를 숫자 벡터로 바꾸는 과정</strong>이고, <strong>벡터 DB는 그 벡터를 저장하고 검색하는 저장소</strong>이다.</p>
+<p>즉, 임베딩은 변환 작업이고, 벡터 DB는 저장 및 검색 시스템이다.</p>
+<h2>임베딩이란 무엇인가</h2>
+<p>임베딩은 텍스트, 이미지, 문서 같은 데이터를 컴퓨터가 계산할 수 있는 숫자 형태로 바꾸는 것이다.</p>
+<p>LLM이나 검색 시스템은 사람이 쓰는 자연어를 그대로 이해하는 것이 아니라, 이를 숫자로 변환해서 계산한다. 이때 사용되는 숫자 배열을 벡터라고 한다.</p>
+<p>예를 들어 다음과 같은 문장이 있다고 하자.</p>
+<pre><code class="language-text">고양이는 소파 위에서 잔다.
+</code></pre>
+<p>이 문장을 임베딩 모델에 넣으면 다음과 비슷한 숫자 배열로 변환된다.</p>
+<pre><code class="language-text">[0.12, -0.45, 0.88, 0.03, ...]
+</code></pre>
+<p>실제로는 수백 차원에서 수천 차원의 벡터가 만들어진다. 이 벡터는 문장의 의미를 숫자로 표현한 것이다.</p>
+<p>중요한 점은 임베딩이 단순히 단어를 숫자로 바꾸는 것이 아니라, <strong>의미가 비슷한 문장끼리 가까운 벡터가 되도록 표현한다는 것</strong>이다.</p>
+<p>예를 들어 다음 두 문장은 표현은 다르지만 의미가 비슷하다.</p>
+<pre><code class="language-text">비밀번호를 잊어버렸어요.
+로그인이 안 되는데 계정 정보를 다시 찾고 싶어요.
+</code></pre>
+<p>임베딩 모델은 이런 문장들을 의미적으로 가까운 벡터로 변환한다. 그래서 키워드가 정확히 일치하지 않아도 의미 기반 검색이 가능해진다.</p>
+<h2>벡터란 무엇인가</h2>
+<p>벡터는 숫자들의 묶음이다.</p>
+<p>일반적인 숫자는 하나의 값만 가진다.</p>
+<pre><code class="language-text">3
+</code></pre>
+<p>하지만 벡터는 여러 숫자를 가진다.</p>
+<pre><code class="language-text">[0.1, 0.3, -0.2, 0.9]
+</code></pre>
+<p>텍스트 임베딩에서 벡터는 문장의 의미를 여러 숫자로 표현한 결과이다.</p>
+<p>예를 들어 어떤 차원은 금융 관련 의미를, 어떤 차원은 기술 관련 의미를, 어떤 차원은 부정적인 감정을 반영할 수도 있다. 물론 사람이 각 차원의 의미를 정확히 해석하기는 어렵다. 하지만 모델은 이 숫자 공간 안에서 문장 간 유사도를 계산할 수 있다.</p>
+<h2>벡터 DB란 무엇인가</h2>
+<p>벡터 DB는 임베딩으로 만들어진 벡터를 저장하고, 비슷한 벡터를 빠르게 찾아주는 데이터베이스이다.</p>
+<p>일반적인 데이터베이스는 보통 정확한 값이나 조건을 기준으로 데이터를 찾는다.</p>
+<p>예를 들어 SQL에서는 다음과 같이 검색할 수 있다.</p>
+<pre><code class="language-sql">SELECT * FROM documents
+WHERE title = '환불 정책';
+</code></pre>
+<p>이 방식은 정확한 키워드나 조건이 있을 때 좋다.</p>
+<p>하지만 RAG에서는 사용자의 질문과 문서의 표현이 정확히 일치하지 않을 수 있다.</p>
+<p>예를 들어 사용자가 이렇게 질문할 수 있다.</p>
+<pre><code class="language-text">결제 취소하면 돈은 언제 돌아와?
+</code></pre>
+<p>문서에는 이렇게 적혀 있을 수 있다.</p>
+<pre><code class="language-text">환불은 결제 취소일로부터 영업일 기준 3~5일 이내 처리됩니다.
+</code></pre>
+<p>키워드는 완전히 같지 않지만 의미는 연결되어 있다. 이런 경우에는 단순 키워드 검색보다 의미 기반 검색이 필요하다.</p>
+<p>벡터 DB는 사용자의 질문을 임베딩한 벡터와, 미리 저장된 문서 벡터들을 비교해서 의미적으로 가까운 문서를 찾아준다.</p>
+<h2>임베딩과 벡터 DB의 차이</h2>
+<p>임베딩과 벡터 DB의 차이를 한 줄로 정리하면 다음과 같다.</p>
+<pre><code class="language-text">임베딩 = 텍스트를 벡터로 바꾸는 작업
+벡터 DB = 벡터를 저장하고 유사한 벡터를 검색하는 저장소
+</code></pre>
+<p>조금 더 나누어 보면 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>임베딩</th>
+<th>벡터 DB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>역할</td>
+<td>텍스트를 숫자 벡터로 변환</td>
+<td>벡터를 저장하고 검색</td>
+</tr>
+<tr>
+<td>성격</td>
+<td>모델 또는 변환 과정</td>
+<td>데이터베이스 또는 검색 시스템</td>
+</tr>
+<tr>
+<td>입력</td>
+<td>문장, 문서, 이미지 등</td>
+<td>임베딩된 벡터</td>
+</tr>
+<tr>
+<td>출력</td>
+<td>숫자 벡터</td>
+<td>유사한 문서 또는 벡터</td>
+</tr>
+<tr>
+<td>예시</td>
+<td>OpenAI Embedding, Solar Embedding, BGE, E5</td>
+<td>Pinecone, Weaviate, Milvus, Chroma, FAISS</td>
+</tr>
+<tr>
+<td>RAG에서의 위치</td>
+<td>문서와 질문을 벡터화</td>
+<td>관련 문서를 검색</td>
+</tr>
+</tbody>
+</table>
+<p>임베딩은 데이터를 검색 가능한 형태로 바꾸는 과정이고, 벡터 DB는 그 결과를 쌓아두었다가 필요할 때 찾아주는 시스템이다.</p>
+<h2>RAG에서 임베딩과 벡터 DB가 사용되는 흐름</h2>
+<p>RAG에서는 보통 다음 순서로 임베딩과 벡터 DB를 사용한다.</p>
+<pre><code class="language-text">문서 수집
+↓
+문서 전처리
+↓
+청킹
+↓
+각 청크를 임베딩 모델로 벡터화
+↓
+벡터 DB에 저장
+↓
+사용자 질문 입력
+↓
+질문을 임베딩 모델로 벡터화
+↓
+벡터 DB에서 질문 벡터와 가까운 문서 검색
+↓
+검색된 문서를 LLM에 전달
+↓
+LLM이 문서를 바탕으로 답변 생성
+</code></pre>
+<p>여기서 임베딩은 두 번 사용된다.</p>
+<p>첫 번째는 문서를 저장할 때이다. 문서 청크를 임베딩해서 벡터 DB에 넣는다.</p>
+<p>두 번째는 사용자가 질문할 때이다. 사용자 질문도 같은 임베딩 모델을 이용해 벡터로 바꾼다.</p>
+<p>그 다음 벡터 DB가 질문 벡터와 문서 벡터를 비교해서 가장 가까운 문서를 찾아준다.</p>
+<h2>예시로 이해하기</h2>
+<p>회사 내부 문서 검색 챗봇을 만든다고 해보자.</p>
+<p>먼저 다음과 같은 문서가 있다.</p>
+<pre><code class="language-text">휴가 신청은 사내 인사 시스템에서 최소 3일 전에 등록해야 합니다.
+</code></pre>
+<p>이 문서를 작은 청크로 나누고 임베딩 모델에 넣는다.</p>
+<pre><code class="language-text">입력 문서:
+휴가 신청은 사내 인사 시스템에서 최소 3일 전에 등록해야 합니다.
+
+임베딩 결과:
+[0.21, -0.14, 0.76, 0.09, ...]
+</code></pre>
+<p>이 벡터와 원문 정보를 벡터 DB에 저장한다.</p>
+<pre><code class="language-text">벡터 DB 저장 내용:
+id: doc_001
+text: 휴가 신청은 사내 인사 시스템에서 최소 3일 전에 등록해야 합니다.
+vector: [0.21, -0.14, 0.76, 0.09, ...]
+metadata: {category: &quot;HR&quot;, source: &quot;employee_manual&quot;}
+</code></pre>
+<p>이후 사용자가 이렇게 질문한다.</p>
+<pre><code class="language-text">연차는 며칠 전에 신청해야 해?
+</code></pre>
+<p>이 질문도 임베딩한다.</p>
+<pre><code class="language-text">질문 벡터:
+[0.19, -0.11, 0.72, 0.12, ...]
+</code></pre>
+<p>벡터 DB는 이 질문 벡터와 저장된 문서 벡터들을 비교한다. 그리고 가장 의미가 가까운 문서를 찾아 반환한다.</p>
+<pre><code class="language-text">검색 결과:
+휴가 신청은 사내 인사 시스템에서 최소 3일 전에 등록해야 합니다.
+</code></pre>
+<p>그 다음 LLM은 이 문서를 근거로 답변한다.</p>
+<pre><code class="language-text">연차는 최소 3일 전에 사내 인사 시스템에서 신청해야 합니다.
+</code></pre>
+<p>여기서 임베딩은 문장들을 벡터로 바꾸는 역할을 했고, 벡터 DB는 그 벡터들 중 가장 가까운 문서를 찾는 역할을 했다.</p>
+<h2>임베딩 모델이 중요한 이유</h2>
+<p>임베딩 모델이 좋지 않으면 의미적으로 비슷한 문장을 가까운 벡터로 만들지 못한다.</p>
+<p>예를 들어 다음 두 문장을 보자.</p>
+<pre><code class="language-text">비밀번호를 재설정하고 싶어요.
+계정 로그인이 안 돼요.
+</code></pre>
+<p>서비스 관점에서는 둘 다 계정 문제와 관련이 있다. 좋은 임베딩 모델은 이 두 문장을 어느 정도 가까운 의미로 표현할 수 있다.</p>
+<p>하지만 임베딩 모델이 도메인에 맞지 않거나 성능이 낮으면, 실제로 관련 있는 문서가 검색되지 않을 수 있다.</p>
+<p>특히 금융, 법률, 의료, 기업 내부 문서처럼 전문 용어가 많은 도메인에서는 임베딩 모델 선택이 중요하다.</p>
+<h2>벡터 DB가 중요한 이유</h2>
+<p>벡터 DB는 많은 문서 벡터 중에서 질문과 가까운 벡터를 빠르게 찾아야 한다.</p>
+<p>문서가 몇십 개라면 단순히 모든 벡터를 하나씩 비교해도 된다. 하지만 운영 환경에서는 문서가 수만 개, 수백만 개가 될 수 있다. 이때 모든 벡터를 매번 직접 비교하면 너무 느리다.</p>
+<p>벡터 DB는 이런 대량의 벡터를 효율적으로 저장하고, 빠르게 유사도 검색을 수행한다.</p>
+<p>또한 벡터 DB는 단순히 벡터만 저장하는 것이 아니라, 보통 원문 텍스트와 메타데이터도 함께 저장한다.</p>
+<p>예를 들어 다음과 같은 정보가 같이 저장될 수 있다.</p>
+<pre><code class="language-text">문서 ID
+원문 텍스트
+벡터 값
+문서 출처
+생성일
+카테고리
+권한 정보
+버전 정보
+</code></pre>
+<p>이 메타데이터를 이용하면 검색 결과를 필터링할 수 있다.</p>
+<p>예를 들어 HR 문서만 검색하거나, 특정 고객사의 문서만 검색하거나, 최신 버전 문서만 검색할 수 있다.</p>
+<h2>유사도 검색이란 무엇인가</h2>
+<p>벡터 DB는 질문 벡터와 문서 벡터가 얼마나 가까운지 계산한다. 이때 사용하는 방식이 유사도 계산이다.</p>
+<p>대표적인 방식은 다음과 같다.</p>
+<pre><code class="language-text">Cosine Similarity
+Dot Product
+Euclidean Distance
+</code></pre>
+<p>가장 자주 나오는 개념은 Cosine Similarity이다.</p>
+<p>Cosine Similarity는 두 벡터가 같은 방향을 보고 있는지를 계산한다. 값이 높을수록 두 벡터의 의미가 비슷하다고 볼 수 있다.</p>
+<p>RAG에서는 보통 사용자의 질문 벡터와 문서 청크 벡터를 비교해서 유사도가 높은 문서를 상위 결과로 반환한다.</p>
+<h2>임베딩과 벡터 DB를 헷갈리면 생기는 문제</h2>
+<p>임베딩과 벡터 DB를 구분하지 못하면 RAG 문제를 분석할 때 원인을 잘못 짚을 수 있다.</p>
+<p>예를 들어 검색 결과가 이상하다고 하자.</p>
+<p>이때 가능한 원인은 여러 가지다.</p>
+<pre><code class="language-text">임베딩 모델이 질문의 의미를 제대로 표현하지 못함
+문서 청킹이 잘못되어 필요한 문맥이 잘림
+벡터 DB에 색인이 제대로 안 됨
+구버전 임베딩과 신버전 임베딩이 섞임
+검색 top_k 설정이 너무 작음
+메타데이터 필터가 잘못 적용됨
+</code></pre>
+<p>이 중에서 임베딩 문제와 벡터 DB 문제는 다르게 접근해야 한다.</p>
+<p>임베딩 문제라면 모델을 바꾸거나, 도메인에 맞는 임베딩 모델을 선택하거나, 텍스트 전처리를 개선해야 한다.</p>
+<p>벡터 DB 문제라면 색인 상태, 검색 파라미터, 메타데이터 필터, 재색인 여부, 인덱스 설정을 확인해야 한다.</p>
+<h2>RAG 품질 회귀와의 관계</h2>
+<p>RAG 품질 회귀에서도 임베딩과 벡터 DB는 중요한 원인이 된다.</p>
+<p>임베딩 모델을 변경하면 기존 문서 벡터와 질문 벡터의 의미 공간이 달라진다. 이때 문서를 다시 색인하지 않으면 검색 품질이 크게 떨어질 수 있다.</p>
+<p>예를 들어 기존 문서는 A 임베딩 모델로 벡터화되어 있고, 사용자 질문은 B 임베딩 모델로 벡터화한다고 하자.</p>
+<pre><code class="language-text">문서 벡터: A 임베딩 모델 사용
+질문 벡터: B 임베딩 모델 사용
+</code></pre>
+<p>이 경우 두 벡터는 서로 다른 기준으로 만들어졌기 때문에 유사도 비교가 제대로 되지 않을 수 있다.</p>
+<p>따라서 임베딩 모델을 바꿀 때는 보통 기존 문서들을 같은 모델로 다시 임베딩하고, 벡터 DB를 재색인해야 한다.</p>
+<p>즉, 임베딩 변경은 벡터 DB 재색인과 함께 봐야 한다.</p>
+<h2>정리</h2>
+<p>임베딩과 벡터 DB는 RAG에서 서로 연결되어 있지만 같은 개념은 아니다.</p>
+<pre><code class="language-text">임베딩은 텍스트를 의미 벡터로 바꾸는 과정이다.
+벡터 DB는 그 벡터를 저장하고 유사한 벡터를 검색하는 시스템이다.
+</code></pre>
+<p>RAG에서는 문서를 임베딩해서 벡터 DB에 저장하고, 사용자 질문도 임베딩해서 벡터 DB에서 관련 문서를 찾는다. 그 후 LLM은 검색된 문서를 바탕으로 답변을 생성한다.</p>
+<p>따라서 RAG 품질을 개선하려면 두 가지를 나누어 봐야 한다.</p>
+<pre><code class="language-text">임베딩 모델이 의미를 잘 표현하고 있는가
+벡터 DB가 벡터를 잘 저장하고 빠르게 검색하고 있는가
+</code></pre>
+<p>임베딩은 의미를 숫자로 바꾸는 역할이고, 벡터 DB는 그 숫자들 사이에서 가까운 것을 찾아주는 역할이다.</p>
+<p>비유하자면 임베딩은 책 내용을 좌표로 바꾸는 작업이고, 벡터 DB는 그 좌표들을 지도에 저장해두고 가까운 위치를 빠르게 찾아주는 시스템이다.</p>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Upstage]-RAG-시스템에서-품질-회귀란-무엇인가.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Upstage] RAG 시스템에서 품질 회귀란 무엇인가</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <a class="post-nav-link next" href="[Upstage]-OCR-시스템에서-품질-회귀를-탐지하는-방법.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Upstage] OCR 시스템에서 품질 회귀를 탐지하는 방법</span></a>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
