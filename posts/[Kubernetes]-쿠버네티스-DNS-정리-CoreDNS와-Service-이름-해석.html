@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[Kubernetes] 쿠버네티스 DNS 정리: CoreDNS와 Service 이름 해석 | Greenapple0101</title>
+  <meta name="description" content="쿠버네티스에서 Service를 만들면 이런 식으로 접근할 수 있다. 또는 더 길게는 이렇게도 접근할 수 있다. 처음 보면 이상하다. 이걸 이해하기 위해 필요한 개념이 Kubernetes DNS 다. 이번 글에서는 쿠버네티스 DNS, kube-dns Service, CoreDNS, Se…" />
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body class="post-page">
+  <header class="post-header">
+    <nav class="breadcrumb" aria-label="경로">
+      <a href="../index.html">홈</a>
+      <span aria-hidden="true">/</span>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
+    </nav>
+    <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+    <h1>[Kubernetes] 쿠버네티스 DNS 정리: CoreDNS와 Service 이름 해석</h1>
+    <div class="post-meta">
+      <time datetime="2026-05-30T17:19:27.000Z">2026.05.30</time>
+      
+    </div>
+  </header>
+  <article class="post-content">
+<p>쿠버네티스에서 Service를 만들면 이런 식으로 접근할 수 있다.</p>
+<pre><code class="language-bash">curl http://svc-web
+</code></pre>
+<p>또는 더 길게는 이렇게도 접근할 수 있다.</p>
+<pre><code class="language-bash">curl http://svc-web.default.svc.cluster.local
+</code></pre>
+<p>처음 보면 이상하다.</p>
+<pre><code class="language-text">svc-web이라는 이름을 어떻게 IP로 바꾸는 걸까?
+
+default.svc.cluster.local은 무슨 뜻일까?
+
+Pod 안에서는 DNS 설정이 어디에 들어있을까?
+
+CoreDNS는 정확히 뭘 하는 걸까?
+</code></pre>
+<p>이걸 이해하기 위해 필요한 개념이 <strong>Kubernetes DNS</strong>다.</p>
+<p>이번 글에서는 쿠버네티스 DNS, kube-dns Service, CoreDNS, Service DNS 이름 규칙, Pod 내부 <code>/etc/resolv.conf</code> 설정을 정리한다. 강의 자료의 학습 내용도 CoreDNS 사용과 DNS 편집을 중심으로 구성되어 있다. </p>
+<hr>
+<h2>1. 쿠버네티스에서 DNS가 필요한 이유</h2>
+<p>쿠버네티스에서는 Pod가 계속 생성되고 삭제된다.</p>
+<pre><code class="language-text">Pod 생성
+Pod 삭제
+Pod 재시작
+Pod 스케일 아웃
+Pod 스케일 인
+</code></pre>
+<p>이때 Pod IP는 바뀔 수 있다.</p>
+<p>예를 들어 <code>web</code> 애플리케이션 Pod가 3개 있다고 하자.</p>
+<pre><code class="language-text">web-pod-1 → 10.40.0.1
+web-pod-2 → 10.32.0.2
+web-pod-3 → 10.46.0.2
+</code></pre>
+<p>클라이언트가 이 Pod IP를 직접 외우고 접근하면 문제가 생긴다.</p>
+<pre><code class="language-text">Pod가 재시작됨
+→ IP 변경
+→ 기존 IP로 접근 실패
+</code></pre>
+<p>그래서 쿠버네티스에서는 Pod 앞에 Service를 둔다.</p>
+<pre><code class="language-text">Service: svc-web
+ClusterIP: 10.96.100.100
+        ↓
+Pod 1: 10.40.0.1
+Pod 2: 10.32.0.2
+Pod 3: 10.46.0.2
+</code></pre>
+<p>하지만 Service IP도 매번 외우기는 불편하다.</p>
+<p>그래서 쿠버네티스는 Service 이름을 DNS로 해석할 수 있게 해준다.</p>
+<pre><code class="language-text">svc-web.default.svc.cluster.local
+        ↓
+10.96.100.100
+</code></pre>
+<p>즉, 쿠버네티스 DNS는 Service 이름을 IP로 바꿔주는 역할을 한다.</p>
+<hr>
+<h2>2. Kubernetes DNS란?</h2>
+<p>Kubernetes DNS는 클러스터 내부에서 Service와 Pod 이름을 DNS 이름으로 접근할 수 있게 해주는 기능이다.</p>
+<p>강의 자료에서는 Kubernetes DNS가 클러스터에서 실행하는 모든 Pod가 사용할 수 있도록 구성되며, DNS를 통해 Service와 Pod에 접근할 수 있다고 설명한다. </p>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">Kubernetes DNS
+→ 클러스터 내부 DNS 시스템
+→ Service 이름을 ClusterIP로 변환
+→ Pod DNS 이름을 Pod IP로 변환
+→ Pod들이 이름 기반으로 통신할 수 있게 해줌
+</code></pre>
+<p>예를 들어 애플리케이션이 DB에 접근한다고 해보자.</p>
+<p>IP를 직접 쓰는 방식은 좋지 않다.</p>
+<pre><code class="language-text">mysql Pod IP: 10.32.0.7
+</code></pre>
+<p>Pod가 재시작되면 IP가 바뀔 수 있기 때문이다.</p>
+<p>대신 Service 이름을 사용한다.</p>
+<pre><code class="language-text">mysql.default.svc.cluster.local
+</code></pre>
+<p>또는 같은 namespace라면 더 짧게 쓸 수도 있다.</p>
+<pre><code class="language-text">mysql
+</code></pre>
+<hr>
+<h2>3. CoreDNS란?</h2>
+<p>쿠버네티스에서 DNS 서버 역할을 하는 대표 컴포넌트가 <strong>CoreDNS</strong>다.</p>
+<p>과거에는 kube-dns가 사용되었지만, 현재는 CoreDNS가 일반적으로 사용된다.</p>
+<p>강의 자료에서도 <code>kube-dns</code>라는 Service가 존재하고, 실제로는 CoreDNS Pod가 동작하는 구조를 보여준다. 예시에서 kube-dns Service의 ClusterIP는 <code>10.96.0.10</code>이고, CoreDNS Pod들이 <code>kube-system</code> namespace에서 실행되는 것으로 나온다. </p>
+<p>구조는 이렇게 볼 수 있다.</p>
+<pre><code class="language-text">Pod
+  ↓
+DNS 질의
+  ↓
+kube-dns Service
+  ↓
+CoreDNS Pod
+  ↓
+Service 이름을 ClusterIP로 응답
+</code></pre>
+<p>즉, Pod가 DNS 질의를 직접 CoreDNS Pod IP로 보내는 것이 아니라, 보통 <code>kube-dns</code> Service를 통해 DNS 질의를 보낸다.</p>
+<hr>
+<h2>4. kube-dns Service</h2>
+<p>쿠버네티스 클러스터에는 보통 <code>kube-system</code> namespace에 <code>kube-dns</code> Service가 있다.</p>
+<p>확인 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">kubectl get svc -A
+</code></pre>
+<p>예시 출력은 이런 식이다.</p>
+<pre><code class="language-text">NAMESPACE     NAME         TYPE        CLUSTER-IP    PORT(S)
+default       kubernetes   ClusterIP   10.96.0.1     443/TCP
+kube-system   kube-dns     ClusterIP   10.96.0.10    53/UDP,53/TCP,9153/TCP
+</code></pre>
+<p>여기서 중요한 부분은 이것이다.</p>
+<pre><code class="language-text">kube-dns Service
+→ ClusterIP: 10.96.0.10
+→ DNS port: 53
+</code></pre>
+<p>Pod들은 DNS 서버로 이 <code>kube-dns</code> Service IP를 사용한다.</p>
+<p>CoreDNS Pod 확인은 이렇게 한다.</p>
+<pre><code class="language-bash">kubectl get pod -A | grep dns
+</code></pre>
+<p>출력 예시는 다음과 비슷하다.</p>
+<pre><code class="language-text">kube-system   coredns-558bd4d5db-kbqgr   1/1   Running
+kube-system   coredns-558bd4d5db-vbn7m   1/1   Running
+</code></pre>
+<p>즉, 실제 DNS 서버 프로세스는 CoreDNS Pod로 동작하고, 앞에는 <code>kube-dns</code> Service가 있다.</p>
+<hr>
+<h2>5. Service DNS 이름 규칙</h2>
+<p>쿠버네티스 Service는 다음 형식의 DNS 이름을 가진다.</p>
+<pre><code class="language-text">service_name.namespace.svc.cluster.local
+</code></pre>
+<p>예를 들어 Service 이름이 <code>svc-web</code>이고 namespace가 <code>default</code>라면 전체 DNS 이름은 이렇게 된다.</p>
+<pre><code class="language-text">svc-web.default.svc.cluster.local
+</code></pre>
+<p>구조를 나눠보면 이렇다.</p>
+<pre><code class="language-text">svc-web
+→ Service 이름
+
+default
+→ namespace 이름
+
+svc
+→ Service 리소스라는 의미
+
+cluster.local
+→ 클러스터 내부 DNS 도메인
+</code></pre>
+<p>즉, 이 이름은 이렇게 해석된다.</p>
+<pre><code class="language-text">default namespace에 있는 svc-web Service
+</code></pre>
+<p>Pod 안에서 다음 명령을 실행하면 Service로 접근할 수 있다.</p>
+<pre><code class="language-bash">curl http://svc-web.default.svc.cluster.local
+</code></pre>
+<p>강의 자료에도 <code>curl http://svc-web.default.svc.cluster.local</code> 형태의 접근 예시가 나온다. </p>
+<hr>
+<h2>6. 같은 namespace에서는 짧게 접근 가능</h2>
+<p>만약 클라이언트 Pod와 Service가 같은 namespace에 있다면 Service 이름만으로 접근할 수 있다.</p>
+<pre><code class="language-bash">curl http://svc-web
+</code></pre>
+<p>예를 들어 둘 다 <code>default</code> namespace에 있다면 다음 두 주소는 비슷하게 동작한다.</p>
+<pre><code class="language-text">svc-web
+svc-web.default.svc.cluster.local
+</code></pre>
+<p>왜냐하면 Pod 내부의 DNS search 설정이 자동으로 들어가기 때문이다.</p>
+<p>Pod가 <code>svc-web</code>이라는 이름을 찾으면 Kubernetes DNS 검색 규칙에 따라 다음처럼 후보를 붙여서 찾는다.</p>
+<pre><code class="language-text">svc-web.default.svc.cluster.local
+svc-web.svc.cluster.local
+svc-web.cluster.local
+</code></pre>
+<p>그래서 같은 namespace에서는 짧은 이름으로도 접근이 된다.</p>
+<hr>
+<h2>7. 다른 namespace의 Service 접근</h2>
+<p>다른 namespace에 있는 Service에 접근할 때는 namespace까지 적어주는 것이 안전하다.</p>
+<p>예를 들어 <code>dev</code> namespace의 <code>mysql</code> Service에 접근하려면 이렇게 쓴다.</p>
+<pre><code class="language-bash">curl http://mysql.dev
+</code></pre>
+<p>또는 전체 이름을 쓴다.</p>
+<pre><code class="language-bash">curl http://mysql.dev.svc.cluster.local
+</code></pre>
+<p>정리하면 이렇다.</p>
+<pre><code class="language-text">같은 namespace
+→ service_name
+
+다른 namespace
+→ service_name.namespace
+
+전체 DNS 이름
+→ service_name.namespace.svc.cluster.local
+</code></pre>
+<hr>
+<h2>8. Pod DNS 이름 규칙</h2>
+<p>Service뿐만 아니라 Pod도 DNS 이름을 가질 수 있다.</p>
+<p>강의 자료에서는 Pod DNS 이름 형식을 다음처럼 제시한다.</p>
+<pre><code class="language-text">Pod-IP-Address.namespace.pod.cluster.local
+</code></pre>
+<p>예를 들어 Pod IP가 <code>10.40.0.1</code>이고 namespace가 <code>default</code>라면 DNS 이름은 보통 이런 형태로 표현된다.</p>
+<pre><code class="language-text">10-40-0-1.default.pod.cluster.local
+</code></pre>
+<p>여기서 IP의 점 <code>.</code>은 DNS 이름에서 하이픈 <code>-</code>으로 바뀐다.</p>
+<pre><code class="language-text">10.40.0.1
+→ 10-40-0-1
+</code></pre>
+<p>다만 실무에서는 Pod IP 기반 DNS보다 Service DNS를 더 자주 사용한다.</p>
+<p>이유는 간단하다.</p>
+<pre><code class="language-text">Pod IP
+→ Pod 재생성 시 바뀔 수 있음
+
+Service DNS
+→ Service가 유지되는 동안 안정적
+</code></pre>
+<p>그래서 애플리케이션끼리 통신할 때는 보통 Pod DNS보다 Service DNS를 사용한다.</p>
+<hr>
+<h2>9. Service와 CoreDNS 동작 흐름</h2>
+<p>예를 들어 <code>svc-web</code> Service가 있다고 하자.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: svc-web
+spec:
+  clusterIP: 10.96.100.100
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+</code></pre>
+<p>이 Service 뒤에는 <code>app=web</code> 라벨을 가진 Pod들이 있다.</p>
+<pre><code class="language-text">svc-web: 10.96.100.100
+        ↓
+10.40.0.1
+10.32.0.2
+10.46.0.2
+</code></pre>
+<p>Pod 안에서 다음 요청을 보낸다.</p>
+<pre><code class="language-bash">curl http://svc-web.default.svc.cluster.local
+</code></pre>
+<p>전체 흐름은 이렇다.</p>
+<pre><code class="language-text">1. Pod가 svc-web.default.svc.cluster.local 조회
+2. DNS 요청이 kube-dns Service로 감
+3. kube-dns Service 뒤의 CoreDNS Pod가 응답
+4. CoreDNS가 svc-web의 ClusterIP 10.96.100.100 반환
+5. Pod가 10.96.100.100:80으로 요청
+6. Service와 kube-proxy 규칙을 통해 실제 web Pod로 전달
+</code></pre>
+<p>즉, DNS는 이름을 Service IP로 바꿔주는 역할이고, 실제 트래픽 분산은 Service와 kube-proxy 쪽에서 처리된다.</p>
+<hr>
+<h2>10. Deployment와 Service 예시</h2>
+<p>강의 자료에는 <code>web</code> Deployment와 <code>svc-web</code> Service 예시가 나온다.</p>
+<p>Deployment는 대략 이런 구조다.</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.14
+</code></pre>
+<p>Service는 이런 형태다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: svc-web
+spec:
+  clusterIP: 10.96.100.100
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+</code></pre>
+<p>여기서 중요한 연결고리는 label과 selector다.</p>
+<pre><code class="language-text">Pod label
+→ app: web
+
+Service selector
+→ app: web
+</code></pre>
+<p>Service selector가 Pod label과 일치해야 Service가 Pod들을 찾을 수 있다.</p>
+<pre><code class="language-text">svc-web
+  ↓
+app=web Pod들
+</code></pre>
+<p>만약 selector가 잘못되면 Service는 만들어져도 뒤에 연결된 Pod가 없어진다.</p>
+<p>확인 명령어는 다음과 같다.</p>
+<pre><code class="language-bash">kubectl get endpoints svc-web
+</code></pre>
+<p>또는</p>
+<pre><code class="language-bash">kubectl describe svc svc-web
+</code></pre>
+<hr>
+<h2>11. Pod 내부 DNS 설정</h2>
+<p>Pod 안에서 DNS가 동작하는 이유는 Pod 내부에 DNS 설정이 들어가기 때문이다.</p>
+<p>리눅스에서는 DNS 설정을 보통 이 파일에서 확인한다.</p>
+<pre><code class="language-bash">cat /etc/resolv.conf
+</code></pre>
+<p>Pod 안에서도 마찬가지다.</p>
+<pre><code class="language-bash">kubectl exec -it &lt;pod-name&gt; -- cat /etc/resolv.conf
+</code></pre>
+<p>기본적으로는 이런 형태가 들어간다.</p>
+<pre><code class="language-text">nameserver 10.96.0.10
+search default.svc.cluster.local svc.cluster.local cluster.local
+options ndots:5
+</code></pre>
+<p>여기서 <code>nameserver</code>는 DNS 서버 주소다.</p>
+<pre><code class="language-text">nameserver 10.96.0.10
+→ kube-dns Service IP
+</code></pre>
+<p><code>search</code>는 짧은 이름으로 질의했을 때 자동으로 붙여볼 도메인 목록이다.</p>
+<pre><code class="language-text">search default.svc.cluster.local svc.cluster.local cluster.local
+</code></pre>
+<p>그래서 <code>svc-web</code>만 입력해도 내부적으로 여러 후보를 검색할 수 있다.</p>
+<hr>
+<h2>12. dnsPolicy</h2>
+<p>Pod에는 <code>dnsPolicy</code>를 설정할 수 있다.</p>
+<p>기본값은 보통 <code>ClusterFirst</code>다.</p>
+<pre><code class="language-yaml">dnsPolicy: ClusterFirst
+</code></pre>
+<p>의미는 이렇다.</p>
+<pre><code class="language-text">클러스터 내부 DNS를 먼저 사용한다
+</code></pre>
+<p>그래서 Pod에서 Service 이름을 조회하면 CoreDNS를 통해 클러스터 내부 Service를 찾을 수 있다.</p>
+<p>반면 강의 자료의 예시처럼 <code>dnsPolicy: "None"</code>을 설정하면 DNS 설정을 직접 지정할 수 있다. </p>
+<hr>
+<h2>13. dnsConfig로 Pod DNS 직접 설정하기</h2>
+<p>강의 자료에는 Pod의 <code>/etc/resolv.conf</code> 구성을 직접 설정하는 예시가 나온다.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: dns-example
+spec:
+  containers:
+    - name: test
+      image: nginx
+  dnsPolicy: &quot;None&quot;
+  dnsConfig:
+    nameservers:
+      - 1.2.3.4
+    searches:
+      - ns1.svc.cluster-domain.example
+      - my.dns.search.suffix
+    options:
+      - name: ndots
+        value: &quot;2&quot;
+      - name: edns0
+</code></pre>
+<p>이 설정은 Pod의 DNS 설정을 직접 지정한다.</p>
+<pre><code class="language-text">nameservers
+→ 사용할 DNS 서버
+
+searches
+→ 검색 도메인 목록
+
+options
+→ DNS 옵션
+</code></pre>
+<p>예를 들어 위 설정에서는 nameserver가 <code>1.2.3.4</code>로 들어간다.</p>
+<pre><code class="language-text">nameserver 1.2.3.4
+</code></pre>
+<p>검색 도메인은 다음처럼 들어간다.</p>
+<pre><code class="language-text">search ns1.svc.cluster-domain.example my.dns.search.suffix
+</code></pre>
+<p>그리고 옵션은 다음과 비슷하게 들어간다.</p>
+<pre><code class="language-text">options ndots:2 edns0
+</code></pre>
+<p>즉, <code>dnsConfig</code>는 Pod 단위로 DNS 동작을 커스터마이징할 때 사용한다.</p>
+<hr>
+<h2>14. ndots란?</h2>
+<p>DNS 설정에서 자주 보이는 옵션이 <code>ndots</code>다.</p>
+<pre><code class="language-text">options ndots:5
+</code></pre>
+<p><code>ndots</code>는 도메인 이름 안에 점이 몇 개 이상 있을 때 절대 도메인처럼 먼저 질의할지를 정하는 옵션이다.</p>
+<p>예를 들어 <code>svc-web</code>은 점이 없다.</p>
+<pre><code class="language-text">svc-web
+</code></pre>
+<p>그러면 search domain을 붙여가며 찾는다.</p>
+<pre><code class="language-text">svc-web.default.svc.cluster.local
+svc-web.svc.cluster.local
+svc-web.cluster.local
+</code></pre>
+<p>반면 <code>svc-web.default.svc.cluster.local</code>처럼 점이 많은 이름은 전체 도메인으로 바로 질의될 수 있다.</p>
+<p>강의 예시에서는 <code>ndots</code> 값을 <code>"2"</code>로 설정하는 YAML이 나온다.</p>
+<pre><code class="language-yaml">options:
+  - name: ndots
+    value: &quot;2&quot;
+</code></pre>
+<p>즉, DNS 이름 해석 방식을 Pod 단위로 조절할 수 있다.</p>
+<hr>
+<h2>15. CoreDNS 확인 명령어</h2>
+<p>CoreDNS 관련 상태를 확인할 때는 다음 명령어를 자주 쓴다.</p>
+<pre><code class="language-bash">kubectl get svc -A | grep dns
+</code></pre>
+<p>kube-dns Service를 확인한다.</p>
+<pre><code class="language-bash">kubectl get pod -A | grep dns
+</code></pre>
+<p>CoreDNS Pod가 Running인지 확인한다.</p>
+<pre><code class="language-bash">kubectl get pod -n kube-system -o wide | grep coredns
+</code></pre>
+<p>CoreDNS Pod가 어느 Node에서 실행 중인지 확인한다.</p>
+<pre><code class="language-bash">kubectl logs -n kube-system &lt;coredns-pod-name&gt;
+</code></pre>
+<p>CoreDNS 로그를 확인한다.</p>
+<pre><code class="language-bash">kubectl describe configmap coredns -n kube-system
+</code></pre>
+<p>CoreDNS 설정을 확인한다.</p>
+<p>환경에 따라 ConfigMap 이름이 다를 수 있으므로 먼저 확인해도 된다.</p>
+<pre><code class="language-bash">kubectl get configmap -n kube-system | grep dns
+</code></pre>
+<hr>
+<h2>16. DNS 테스트용 Pod 만들기</h2>
+<p>DNS가 정상인지 확인하려면 테스트 Pod를 하나 띄워서 <code>nslookup</code>, <code>curl</code>을 해보는 방식이 좋다.</p>
+<pre><code class="language-bash">kubectl run dns-test \
+  --image=busybox:1.28 \
+  --restart=Never \
+  -- sleep 3600
+</code></pre>
+<p>Pod 안으로 들어간다.</p>
+<pre><code class="language-bash">kubectl exec -it dns-test -- sh
+</code></pre>
+<p>Service 이름 조회를 해본다.</p>
+<pre><code class="language-bash">nslookup kubernetes.default
+</code></pre>
+<p>특정 Service가 있다면 이렇게 확인한다.</p>
+<pre><code class="language-bash">nslookup svc-web.default.svc.cluster.local
+</code></pre>
+<p>또는 짧은 이름으로 확인한다.</p>
+<pre><code class="language-bash">nslookup svc-web
+</code></pre>
+<p>HTTP 요청도 확인한다.</p>
+<pre><code class="language-bash">wget -qO- http://svc-web
+</code></pre>
+<p>또는 curl이 있는 이미지라면 다음처럼 한다.</p>
+<pre><code class="language-bash">curl http://svc-web
+</code></pre>
+<hr>
+<h2>17. DNS 문제 해결 순서</h2>
+<p>Service 이름으로 접근이 안 될 때는 순서대로 봐야 한다.</p>
+<h3>1단계. Service가 있는지 확인</h3>
+<pre><code class="language-bash">kubectl get svc
+</code></pre>
+<p><code>svc-web</code> Service가 있는지 확인한다.</p>
+<hr>
+<h3>2단계. Service의 ClusterIP 확인</h3>
+<pre><code class="language-bash">kubectl get svc svc-web
+</code></pre>
+<p>예상 출력은 이런 식이다.</p>
+<pre><code class="language-text">NAME      TYPE        CLUSTER-IP      PORT(S)
+svc-web   ClusterIP   10.96.100.100   80/TCP
+</code></pre>
+<hr>
+<h3>3단계. Endpoint 확인</h3>
+<p>Service는 있는데 Endpoint가 비어 있으면 DNS 문제가 아니라 selector 문제일 수 있다.</p>
+<pre><code class="language-bash">kubectl get endpoints svc-web
+</code></pre>
+<p>Endpoint가 있어야 한다.</p>
+<pre><code class="language-text">svc-web   10.40.0.1:80,10.32.0.2:80,10.46.0.2:80
+</code></pre>
+<p>Endpoint가 없다면 Service selector와 Pod label을 확인한다.</p>
+<pre><code class="language-bash">kubectl describe svc svc-web
+kubectl get pods --show-labels
+</code></pre>
+<hr>
+<h3>4단계. CoreDNS Pod 확인</h3>
+<pre><code class="language-bash">kubectl get pod -n kube-system | grep coredns
+</code></pre>
+<p>또는</p>
+<pre><code class="language-bash">kubectl get pod -A | grep dns
+</code></pre>
+<p>CoreDNS Pod가 <code>Running</code>인지 본다.</p>
+<hr>
+<h3>5단계. kube-dns Service 확인</h3>
+<pre><code class="language-bash">kubectl get svc -n kube-system kube-dns
+</code></pre>
+<p>보통 53번 포트가 열려 있어야 한다.</p>
+<pre><code class="language-text">53/UDP, 53/TCP
+</code></pre>
+<hr>
+<h3>6단계. Pod 내부 resolv.conf 확인</h3>
+<pre><code class="language-bash">kubectl exec -it &lt;pod-name&gt; -- cat /etc/resolv.conf
+</code></pre>
+<p>여기서 nameserver가 kube-dns Service IP를 바라보는지 확인한다.</p>
+<pre><code class="language-text">nameserver 10.96.0.10
+</code></pre>
+<hr>
+<h3>7단계. nslookup 테스트</h3>
+<pre><code class="language-bash">kubectl exec -it &lt;pod-name&gt; -- nslookup svc-web
+</code></pre>
+<p>전체 도메인으로도 테스트한다.</p>
+<pre><code class="language-bash">kubectl exec -it &lt;pod-name&gt; -- nslookup svc-web.default.svc.cluster.local
+</code></pre>
+<hr>
+<h2>18. 자주 하는 실수</h2>
+<h3>18.1 Service selector와 Pod label이 다름</h3>
+<p>Service DNS 이름은 정상적으로 해석되더라도, 뒤에 Endpoint가 없으면 실제 통신은 안 된다.</p>
+<p>예를 들어 Pod label은 이렇다.</p>
+<pre><code class="language-yaml">labels:
+  app: web
+</code></pre>
+<p>그런데 Service selector가 이렇게 되어 있으면 문제가 생긴다.</p>
+<pre><code class="language-yaml">selector:
+  app: webui
+</code></pre>
+<p>이 경우 Service가 Pod를 못 찾는다.</p>
+<p>확인은 이렇게 한다.</p>
+<pre><code class="language-bash">kubectl get endpoints
+</code></pre>
+<p>Endpoint가 비어 있다면 DNS 문제가 아니라 Service selector 문제일 수 있다.</p>
+<hr>
+<h3>18.2 namespace를 잘못 씀</h3>
+<p><code>default</code> namespace에 있는 Service를 <code>dev</code> namespace에서 짧은 이름으로 찾으면 안 될 수 있다.</p>
+<pre><code class="language-bash">curl http://svc-web
+</code></pre>
+<p>이 명령은 현재 Pod의 namespace를 기준으로 먼저 찾는다.</p>
+<p>다른 namespace에 있는 Service라면 namespace를 붙인다.</p>
+<pre><code class="language-bash">curl http://svc-web.default
+</code></pre>
+<p>또는 전체 이름을 쓴다.</p>
+<pre><code class="language-bash">curl http://svc-web.default.svc.cluster.local
+</code></pre>
+<hr>
+<h3>18.3 CoreDNS 문제를 애플리케이션 문제로 착각</h3>
+<p>Pod끼리 IP로는 통신되는데 Service 이름으로만 안 되면 DNS 문제일 수 있다.</p>
+<pre><code class="language-text">Pod IP로 curl 가능
+Service 이름으로 curl 불가
+→ DNS 또는 Service 설정 문제 의심
+</code></pre>
+<p>이때는 CoreDNS와 <code>/etc/resolv.conf</code>를 확인해야 한다.</p>
+<hr>
+<h3>18.4 dnsPolicy를 None으로 설정해놓고 잊음</h3>
+<p><code>dnsPolicy: None</code>을 쓰면 기본 클러스터 DNS 설정이 자동으로 들어가지 않는다.</p>
+<pre><code class="language-yaml">dnsPolicy: &quot;None&quot;
+</code></pre>
+<p>이 상태에서 <code>dnsConfig</code>를 잘못 설정하면 클러스터 내부 Service 이름 해석이 안 될 수 있다.</p>
+<p>실습 목적이 아니라면 기본값을 쓰는 게 안전하다.</p>
+<pre><code class="language-yaml">dnsPolicy: ClusterFirst
+</code></pre>
+<hr>
+<h2>19. Service DNS 이름 한 번에 정리</h2>
+<pre><code class="language-text">service_name.namespace.svc.cluster.local
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-text">svc-web.default.svc.cluster.local
+</code></pre>
+<p>각 부분의 의미:</p>
+<pre><code class="language-text">svc-web
+→ Service 이름
+
+default
+→ namespace 이름
+
+svc
+→ Service 리소스
+
+cluster.local
+→ 클러스터 내부 도메인
+</code></pre>
+<p>짧게 쓰는 방식:</p>
+<pre><code class="language-text">svc-web
+→ 같은 namespace에서 사용 가능
+
+svc-web.default
+→ default namespace의 svc-web
+
+svc-web.default.svc.cluster.local
+→ 전체 DNS 이름
+</code></pre>
+<hr>
+<h2>20. Pod DNS 이름 한 번에 정리</h2>
+<p>Pod DNS 이름은 다음 형식을 가진다.</p>
+<pre><code class="language-text">Pod-IP-Address.namespace.pod.cluster.local
+</code></pre>
+<p>예시:</p>
+<pre><code class="language-text">10-40-0-1.default.pod.cluster.local
+</code></pre>
+<p>각 부분의 의미:</p>
+<pre><code class="language-text">10-40-0-1
+→ Pod IP 10.40.0.1을 DNS 이름 형태로 변환
+
+default
+→ namespace
+
+pod
+→ Pod 리소스
+
+cluster.local
+→ 클러스터 내부 도메인
+</code></pre>
+<p>하지만 실무에서는 Pod DNS보다 Service DNS를 더 많이 사용한다.</p>
+<pre><code class="language-text">Pod DNS
+→ Pod 단위 접근
+
+Service DNS
+→ 안정적인 서비스 단위 접근
+</code></pre>
+<hr>
+<h2>21. 전체 흐름 정리</h2>
+<p>쿠버네티스 DNS 동작 흐름은 이렇게 볼 수 있다.</p>
+<pre><code class="language-text">Pod에서 요청 발생
+  ↓
+curl http://svc-web.default.svc.cluster.local
+  ↓
+Pod의 /etc/resolv.conf 확인
+  ↓
+nameserver 10.96.0.10으로 DNS 질의
+  ↓
+kube-dns Service
+  ↓
+CoreDNS Pod
+  ↓
+svc-web Service의 ClusterIP 응답
+  ↓
+Pod가 ClusterIP로 실제 HTTP 요청
+  ↓
+Service와 kube-proxy를 통해 backend Pod로 전달
+</code></pre>
+<p>즉, DNS는 트래픽을 직접 전달하는 게 아니다.</p>
+<pre><code class="language-text">DNS
+→ 이름을 IP로 바꿔줌
+
+Service/kube-proxy
+→ 실제 트래픽을 Pod로 전달
+</code></pre>
+<hr>
+<h2>22. 정리</h2>
+<p>쿠버네티스 DNS는 클러스터 내부에서 Service와 Pod를 이름으로 찾을 수 있게 해주는 기능이다.</p>
+<p>핵심은 다음과 같다.</p>
+<pre><code class="language-text">CoreDNS
+→ 쿠버네티스 내부 DNS 서버 역할
+
+kube-dns Service
+→ CoreDNS Pod 앞에 있는 DNS Service
+
+Service DNS
+→ service_name.namespace.svc.cluster.local
+
+Pod DNS
+→ Pod-IP-Address.namespace.pod.cluster.local
+
+/etc/resolv.conf
+→ Pod 내부 DNS 설정 파일
+
+dnsPolicy
+→ Pod가 어떤 DNS 정책을 쓸지 결정
+
+dnsConfig
+→ Pod DNS 설정을 직접 커스터마이징
+</code></pre>
+<p>마지막으로 이렇게 기억하면 된다.</p>
+<blockquote>
+<p>쿠버네티스 DNS는 Pod가 IP를 외우지 않고 Service 이름으로 통신하게 해주는 내부 이름표 시스템이다. CoreDNS가 이름을 ClusterIP로 바꿔주고, 실제 트래픽은 Service와 kube-proxy를 거쳐 Pod로 전달된다.</p>
+</blockquote>
+  </article>
+<nav class="post-nav" aria-label="글 이동">
+  <a class="post-nav-link prev" href="[Kubernetes]-클러스터-네트워킹-구성-Docker-네트워크부터-kube-proxy까지.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] 클러스터 네트워킹 구성: Docker 네트워크부터 kube-proxy까지</span></a>
+  <a class="post-nav-home" href="../index.html">홈</a>
+  <span class="post-nav-link next disabled" aria-hidden="true"></span>
+  </nav>
+  <footer>
+    <p><a href="../index.html">Greenapple0101 Blog</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>
