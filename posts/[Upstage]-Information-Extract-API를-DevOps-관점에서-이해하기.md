@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] Information Extract API를 DevOps 관점에서 이해하기"
+title: "[면접대비] Information Extract API를 DevOps 관점에서 이해하기"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
 ---

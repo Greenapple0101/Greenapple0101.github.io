@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] JMeter 관련 개념어 정리"
+title: "[면접대비] JMeter 관련 개념어 정리"
 source: ""
 published: "2026-05-30T21:48:45.000Z"
 ---

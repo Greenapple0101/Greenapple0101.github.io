@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리"
+title: "[면접대비] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리"
 source: ""
 published: "2026-05-30T21:40:00.000Z"
 ---

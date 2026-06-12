@@ -43,7 +43,7 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
     },
     {
         "id": "upstage",
-        "title": "Upstage",
+        "title": "면접대비",
         "description": "Solar LLM, Document Parse, Embedding, RAG, API 모니터링 등",
         "color": "#0d9488",
     },

@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] RAG 시스템에서 품질 회귀란 무엇인가"
+title: "[면접대비] RAG 시스템에서 품질 회귀란 무엇인가"
 source: ""
 published: "2026-05-30T17:51:39.000Z"
 ---

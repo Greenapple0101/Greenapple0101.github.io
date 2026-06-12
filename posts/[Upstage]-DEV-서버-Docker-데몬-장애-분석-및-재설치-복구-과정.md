@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정"
+title: "[면접대비] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정"
 source: ""
 published: "2026-05-30T21:56:37.000Z"
 ---

@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] RAG / 코퍼스 / 리트리벌 기본 질문"
+title: "[면접대비] RAG / 코퍼스 / 리트리벌 기본 질문"
 source: ""
 published: "2026-05-30T15:56:31.000Z"
 ---

@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] Answer Similarity는 어떤 기준으로 평가하는가"
+title: "[면접대비] Answer Similarity는 어떤 기준으로 평가하는가"
 source: ""
 published: "2026-05-30T18:47:04.000Z"
 ---

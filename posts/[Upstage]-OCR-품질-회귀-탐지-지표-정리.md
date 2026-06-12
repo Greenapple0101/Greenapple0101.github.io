@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] OCR 품질 회귀 탐지 지표 정리"
+title: "[면접대비] OCR 품질 회귀 탐지 지표 정리"
 source: ""
 published: "2026-05-30T18:44:57.000Z"
 ---

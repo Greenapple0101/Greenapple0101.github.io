@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] 임베딩과 벡터 DB의 차이"
+title: "[면접대비] 임베딩과 벡터 DB의 차이"
 source: ""
 published: "2026-05-30T18:31:45.000Z"
 ---

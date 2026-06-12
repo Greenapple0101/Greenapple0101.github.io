@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] AI 에이전트 PoC 이후가 진짜 문제인 이유"
+title: "[면접대비] AI 에이전트 PoC 이후가 진짜 문제인 이유"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
 ---

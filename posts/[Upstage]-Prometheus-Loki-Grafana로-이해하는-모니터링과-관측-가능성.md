@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성"
+title: "[면접대비] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
 ---

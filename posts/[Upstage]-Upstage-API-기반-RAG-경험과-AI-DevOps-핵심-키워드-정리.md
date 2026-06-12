@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리"
+title: "[면접대비] 면접대비 API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리"
 source: ""
 published: "2026-05-31T12:00:00.000Z"
 ---

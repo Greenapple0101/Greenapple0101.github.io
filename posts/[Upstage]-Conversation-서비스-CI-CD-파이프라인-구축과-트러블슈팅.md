@@ -1,5 +1,5 @@
 ---
-title: "[Upstage] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅"
+title: "[면접대비] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
 ---
