@@ -41,7 +41,7 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
     },
     {
         "id": "upstage",
-        "title": "업스테이지 면접대비",
+        "title": "업스테이지",
         "description": "업스테이지 사업·제품, Solar API 활용, Document AI와 기술면접 준비",
         "color": "#0d9488",
     },
