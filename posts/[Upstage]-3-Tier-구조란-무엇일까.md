@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/INFRA-3-Tier-구조란-무엇일까"
 published: "2026-05-17T10:40:18.099Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.734488"
+topic: "web"
+category: "Web"
 ---
 
 서비스 구조를 설명할 때 자주 나오는 말 중 하나가 **3-Tier Architecture**, 즉 **3계층 구조**다.

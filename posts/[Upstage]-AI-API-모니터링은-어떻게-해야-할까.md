@@ -1,3 +1,9 @@
+---
+title: "[Upstage] AI API 모니터링은 어떻게 해야 할까"
+topic: "upstage"
+category: "Upstage"
+---
+
 # AI API 모니터링은 어떻게 해야 할까?
 
 AI DevOps 관점에서 중요한 질문이 있다.

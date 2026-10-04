@@ -4,9 +4,9 @@ source: "https://velog.io/@yorange50/Kubernetes-Helm으로-ingress-nginx를-설�
 published: "2026-05-13T06:54:30.851Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.744615"
+topic: "docker-k8s"
+category: "Kubernetes"
 ---
-
-
 
 Ingress를 처음 실습할 때 가장 헷갈렸던 부분이 있다.
 

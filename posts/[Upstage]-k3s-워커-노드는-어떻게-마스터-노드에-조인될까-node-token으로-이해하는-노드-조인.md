@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/KUBERNETES-k3s-워커-노드는-어떻게-�
 published: "2026-05-17T10:54:34.111Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.734028"
+topic: "docker-k8s"
+category: "Kubernetes"
 ---
 
 쿠버네티스를 처음 구성할 때 가장 헷갈렸던 부분 중 하나가 **워커 노드 조인**이었다.

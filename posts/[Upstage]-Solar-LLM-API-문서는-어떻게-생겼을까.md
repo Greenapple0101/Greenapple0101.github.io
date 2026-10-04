@@ -1,3 +1,9 @@
+---
+title: "[Upstage] Solar LLM API 문서는 어떻게 생겼을까"
+topic: "upstage"
+category: "Upstage"
+---
+
 맞아. 순서는 거의 이렇게 보면 돼.
 
 ```text

@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/DEPLOY-Docker도-Jenkins도-없이-scp로-E
 published: "2026-05-17T09:53:06.866Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.737007"
+topic: "docker-k8s"
+category: "CI/CD"
 ---
 
 1. scp 배포란?

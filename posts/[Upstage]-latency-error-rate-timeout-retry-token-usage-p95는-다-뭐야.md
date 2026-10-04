@@ -1,8 +1,14 @@
+---
+title: "[모니터링] latency error rate timeout retry token usage p95는 다 뭐야"
+topic: "web"
+category: "모니터링"
+---
+
 # latency, error rate, timeout, retry, token usage, p95는 다 뭐야?
 
 API나 DevOps 공부를 하다 보면 이런 말을 자주 본다.
 
-```text id="cdytsy"
+```text
 latency
 error rate
 timeout
@@ -23,7 +29,7 @@ p95
 
 내 서비스가 Solar LLM API를 호출한다고 해보자.
 
-```text id="6nzipj"
+```text
 사용자 질문 입력
     ↓
 내 백엔드 서버
@@ -41,7 +47,7 @@ Solar가 답변 생성
 
 이런 것들을 봐야 한다.
 
-```text id="3ufipn"
+```text
 얼마나 빨리 응답했는가?
 실패는 얼마나 나는가?
 너무 오래 걸려서 끊긴 요청은 없는가?
@@ -52,7 +58,7 @@ Solar가 답변 생성
 
 이 질문들이 각각 아래 개념으로 이어진다.
 
-```text id="hvhsip"
+```text
 얼마나 빨리 응답했는가? → latency
 실패는 얼마나 나는가? → error rate
 너무 오래 걸려서 끊겼는가? → timeout
@@ -71,20 +77,20 @@ Solar가 답변 생성
 
 예를 들어 사용자가 질문을 보냈다.
 
-```text id="ny46rb"
+```text
 질문: OCR API가 뭐야?
 ```
 
 내 서버가 Solar LLM API를 호출했다.
 
-```text id="bt3jnk"
+```text
 요청 보냄: 10:00:00
 응답 받음: 10:00:03
 ```
 
 그러면 latency는 3초다.
 
-```text id="80pe4c"
+```text
 latency = 응답 받은 시간 - 요청 보낸 시간
 latency = 3초
 ```
@@ -101,7 +107,7 @@ latency = 3초
 
 예를 들어:
 
-```text id="n7dr6l"
+```text
 0.3초 → 빠름
 1초 → 괜찮음
 3초 → 조금 느림
@@ -113,7 +119,7 @@ LLM API는 일반 API보다 latency가 길 수 있다.
 
 왜냐하면 모델이 답변을 생성하는 시간이 필요하기 때문이다.
 
-```text id="85dtjm"
+```text
 일반 게시글 조회 API
 → DB에서 꺼내오면 끝
 
@@ -135,21 +141,21 @@ LLM API
 
 예를 들어 100번 API를 호출했는데 5번 실패했다.
 
-```text id="zmmzyl"
+```text
 전체 요청 수: 100
 실패 요청 수: 5
 ```
 
 그러면 error rate는 5%다.
 
-```text id="4cmhlz"
+```text
 error rate = 실패 요청 수 / 전체 요청 수
 error rate = 5 / 100 = 5%
 ```
 
 에러는 여러 종류가 있다.
 
-```text id="r3q6ac"
+```text
 400 Bad Request
 → 요청 형식이 잘못됨
 
@@ -182,7 +188,7 @@ error rate = 5 / 100 = 5%
 
 예를 들어 LLM API 호출 1000번 중 200번이 실패하면 꽤 심각하다.
 
-```text id="aam2ou"
+```text
 전체 요청: 1000
 실패 요청: 200
 error rate: 20%
@@ -192,7 +198,7 @@ error rate: 20%
 
 에러율이 갑자기 올라가면 이런 원인을 의심할 수 있다.
 
-```text id="ld0koh"
+```text
 API Key 만료
 요청 형식 변경
 외부 API 장애
@@ -204,7 +210,7 @@ rate limit 초과
 
 그래서 DevOps에서는 error rate를 알림 조건으로 자주 쓴다.
 
-```text id="fksoj5"
+```text
 5분 동안 error rate가 5% 이상이면 알림
 10분 동안 500 에러가 급증하면 알림
 429 에러가 늘면 rate limit 확인
@@ -218,13 +224,13 @@ rate limit 초과
 
 예를 들어 내 서버가 외부 API를 호출할 때 이렇게 정했다고 하자.
 
-```text id="wo1jyl"
+```text
 최대 10초까지만 기다린다.
 ```
 
 그런데 API 응답이 10초 안에 안 왔다.
 
-```text id="ois602"
+```text
 요청 보냄
 1초...
 2초...
@@ -238,7 +244,7 @@ rate limit 초과
 
 이게 timeout이다.
 
-```text id="ya8854"
+```text
 10초 안에 응답이 안 오면 끊는다
 → timeout
 ```
@@ -257,7 +263,7 @@ rate limit 초과
 
 이런 요청이 많아지면 서버 전체가 느려질 수 있다.
 
-```text id="w6gzid"
+```text
 외부 API 응답 지연
 → 내 서버 요청들이 계속 대기
 → 커넥션/스레드 고갈
@@ -266,7 +272,7 @@ rate limit 초과
 
 그래서 timeout은 방어 장치다.
 
-```text id="din18q"
+```text
 너무 오래 걸리는 요청은 끊고
 사용자에게 실패 응답을 주거나
 나중에 다시 처리하게 만든다
@@ -284,7 +290,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 예를 들어 외부 API 호출이 네트워크 문제로 한 번 실패했다.
 
-```text id="6ne11r"
+```text
 1번째 요청 → 실패
 2번째 요청 → 성공
 ```
@@ -295,7 +301,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 일부 에러는 순간적인 문제일 수 있기 때문이다.
 
-```text id="eeu2nd"
+```text
 네트워크 순간 끊김
 외부 API 일시적 과부하
 잠깐 발생한 502/503
@@ -316,7 +322,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 그런데 모든 서버가 실패할 때마다 계속 재시도한다.
 
-```text id="4w1weo"
+```text
 요청 실패
 → 재시도
 → 또 실패
@@ -329,7 +335,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 보통은 이런 식으로 한다.
 
-```text id="fg7ktz"
+```text
 최대 3번까지만 재시도
 재시도 사이에 대기 시간 둠
 같은 간격이 아니라 점점 늘림
@@ -337,7 +343,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 예를 들면:
 
-```text id="z8wui3"
+```text
 1번째 실패
 → 1초 후 재시도
 
@@ -358,7 +364,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 예를 들어 API Key가 틀렸다.
 
-```text id="cbhq8d"
+```text
 401 Unauthorized
 ```
 
@@ -366,7 +372,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 요청 형식이 잘못됐다.
 
-```text id="20is2m"
+```text
 400 Bad Request
 ```
 
@@ -374,7 +380,7 @@ API 호출이 실패했을 때, 바로 포기하지 않고 다시 요청하는 �
 
 반면 이런 에러는 재시도를 고려할 수 있다.
 
-```text id="97yqa8"
+```text
 timeout
 502 Bad Gateway
 503 Service Unavailable
@@ -384,7 +390,7 @@ timeout
 
 그래서 retry 정책은 이렇게 나눠야 한다.
 
-```text id="71eikh"
+```text
 재시도 가능
 → 일시적 장애, timeout, 5xx 일부
 
@@ -402,7 +408,7 @@ LLM은 문장을 글자 단위로 그대로 보는 게 아니라, token이라는
 
 예를 들어:
 
-```text id="eg1q2v"
+```text
 OCR API가 뭐야?
 ```
 
@@ -410,7 +416,7 @@ OCR API가 뭐야?
 
 정확한 쪼개짐은 모델마다 다르지만, 중요한 건 이거다.
 
-```text id="bydvqx"
+```text
 입력이 길수록 token이 많아진다
 출력이 길수록 token이 많아진다
 token이 많을수록 비용과 시간이 늘 수 있다
@@ -418,7 +424,7 @@ token이 많을수록 비용과 시간이 늘 수 있다
 
 LLM API 응답에는 보통 이런 정보가 들어간다.
 
-```json id="xrm99x"
+```json
 {
   "usage": {
     "prompt_tokens": 1200,
@@ -430,7 +436,7 @@ LLM API 응답에는 보통 이런 정보가 들어간다.
 
 뜻은 이렇다.
 
-```text id="35791o"
+```text
 prompt_tokens
 → 입력에 사용된 토큰 수
 
@@ -453,7 +459,7 @@ RAG에서는 특히 token usage가 커질 수 있다.
 
 예를 들어:
 
-```text id="fn4oxa"
+```text
 사용자 질문:
 OCR API가 뭐야?
 
@@ -469,7 +475,7 @@ chunk 5...
 
 그래서 운영에서는 이런 고민을 해야 한다.
 
-```text id="lv9dls"
+```text
 chunk를 몇 개까지 넣을까?
 각 chunk 길이를 얼마나 줄일까?
 max_tokens를 얼마로 제한할까?
@@ -479,7 +485,7 @@ max_tokens를 얼마로 제한할까?
 
 token usage를 안 보면 비용이 갑자기 커질 수 있다.
 
-```text id="uipmj5"
+```text
 프롬프트가 길어짐
 → prompt_tokens 증가
 → 응답 시간 증가
@@ -500,7 +506,7 @@ token usage를 안 보면 비용이 갑자기 커질 수 있다.
 
 각 요청의 latency를 빠른 순서대로 정렬한다.
 
-```text id="s5zcg5"
+```text
 1번 요청: 0.1초
 2번 요청: 0.2초
 3번 요청: 0.2초
@@ -512,13 +518,13 @@ token usage를 안 보면 비용이 갑자기 커질 수 있다.
 
 이때 95번째 요청의 latency가 p95 latency다.
 
-```text id="g70m2b"
+```text
 p95 latency = 2.8초
 ```
 
 이 말은:
 
-```text id="z9axme"
+```text
 전체 요청의 95%는 2.8초 안에 끝났다
 나머지 5%는 2.8초보다 오래 걸렸다
 ```
@@ -533,7 +539,7 @@ p95 latency = 2.8초
 
 예를 들어 요청 10개의 latency가 이렇다고 하자.
 
-```text id="ul1ipl"
+```text
 0.5초
 0.5초
 0.5초
@@ -548,7 +554,7 @@ p95 latency = 2.8초
 
 평균은:
 
-```text id="43n950"
+```text
 (0.5*9 + 10) / 10 = 1.45초
 ```
 
@@ -562,7 +568,7 @@ p95 latency = 2.8초
 
 그래서 p95, p99 같은 지표를 본다.
 
-```text id="5xu2do"
+```text
 p50
 → 절반의 요청이 이 시간 안에 끝남
 
@@ -585,13 +591,13 @@ LLM API에서는 평균보다 p95가 더 중요할 때가 많다.
 
 예를 들어 Solar LLM API latency가 증가한다.
 
-```text id="55fiwb"
+```text
 latency 증가
 ```
 
 그러면 timeout이 늘 수 있다.
 
-```text id="z1u3xf"
+```text
 응답이 늦음
 → 설정한 시간 안에 못 받음
 → timeout 증가
@@ -599,7 +605,7 @@ latency 증가
 
 timeout이 늘면 error rate도 증가한다.
 
-```text id="zrwdab"
+```text
 timeout 증가
 → 실패 요청 증가
 → error rate 증가
@@ -607,7 +613,7 @@ timeout 증가
 
 실패가 늘면 retry가 발생한다.
 
-```text id="yqhof7"
+```text
 실패
 → retry
 → 요청 수 증가
@@ -615,7 +621,7 @@ timeout 증가
 
 retry가 너무 많으면 외부 API가 더 힘들어진다.
 
-```text id="e38ztf"
+```text
 retry 증가
 → API 호출량 증가
 → 더 느려짐
@@ -624,7 +630,7 @@ retry 증가
 
 RAG context를 너무 많이 넣으면 token usage가 증가한다.
 
-```text id="1p5ybz"
+```text
 context 길어짐
 → prompt token 증가
 → 처리 시간 증가
@@ -634,7 +640,7 @@ context 길어짐
 
 그래서 운영에서는 이런 식으로 같이 본다.
 
-```text id="cbdzkv"
+```text
 token usage가 늘었나?
 → latency도 늘었나?
 → timeout도 늘었나?
@@ -650,7 +656,7 @@ token usage가 늘었나?
 
 사용자가 질문하면 내부에서는 이렇게 돈다.
 
-```text id="f2sh6o"
+```text
 질문 입력
 → 질문 임베딩
 → 벡터 검색
@@ -661,7 +667,7 @@ token usage가 늘었나?
 
 어느 날 사용자가 말한다.
 
-```text id="tljzl4"
+```text
 답변이 너무 느려요.
 가끔 실패해요.
 ```
@@ -670,7 +676,7 @@ token usage가 늘었나?
 
 지표를 봐야 한다.
 
-```text id="faxczq"
+```text
 1. latency 확인
    → 전체적으로 느린가?
 
@@ -694,14 +700,14 @@ token usage가 늘었나?
 
 예를 들어 token usage가 갑자기 늘었다.
 
-```text id="55x66m"
+```text
 평균 total_tokens 1,500
 → 평균 total_tokens 7,000
 ```
 
 그럼 원인은 RAG context를 너무 많이 넣었을 수 있다.
 
-```text id="zgy1wx"
+```text
 검색 chunk 개수 증가
 chunk 크기 증가
 프롬프트 템플릿 변경
@@ -710,7 +716,7 @@ chunk 크기 증가
 
 그러면 해결은 이런 식이다.
 
-```text id="pxfjlk"
+```text
 top_k 줄이기
 chunk 크기 조정
 대화 히스토리 요약
@@ -732,7 +738,7 @@ latency는 요청 후 응답까지 걸린 시간이고, error rate는 전체 요
 
 # 한 문장으로 정리하면
 
-```text id="d84nmu"
+```text
 latency     → 얼마나 느린가
 error rate  → 얼마나 실패하는가
 timeout     → 너무 오래 걸려서 끊겼는가
@@ -745,7 +751,7 @@ p95         → 대부분은 괜찮아도 느린 요청이 얼마나 심한가
 
 DevOps는 이 값들을 보고 판단한다.
 
-```text id="d2s64t"
+```text
 지금 장애인가?
 느린 원인이 어디인가?
 재시도를 더 해야 하나, 줄여야 하나?

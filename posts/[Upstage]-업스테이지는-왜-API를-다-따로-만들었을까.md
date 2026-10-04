@@ -1,3 +1,9 @@
+---
+title: "[Upstage] 업스테이지는 왜 API를 다 따로 만들었을까"
+topic: "upstage"
+category: "Upstage"
+---
+
 # 업스테이지는 왜 API를 다 따로 만들었을까?
 
 업스테이지를 이해할 때 중요한 포인트가 있다.
@@ -6,7 +12,7 @@
 
 예를 들면 이런 식이다.
 
-```text id="tikb01"
+```text
 문서 읽기
 → OCR / Document Parse API
 
@@ -33,7 +39,7 @@
 
 “API를 각자 만들었다”는 말은 이런 뜻에 가깝다.
 
-```text id="pbd4ah"
+```text
 OCR도 따로 API가 있고
 Document Parse도 따로 API가 있고
 Embedding도 따로 API가 있고
@@ -46,7 +52,7 @@ Solar LLM도 따로 API가 있다
 
 전체 흐름은 이렇게 된다.
 
-```text id="13y4mn"
+```text
 PDF / 이미지 / 문서 업로드
         ↓
 Document Parse 또는 OCR API
@@ -72,7 +78,7 @@ Solar LLM API
 
 여기서 업스테이지가 해주는 부분은 여러 개로 나뉜다.
 
-```text id="fm86op"
+```text
 문서를 읽는 API
 텍스트를 벡터로 바꾸는 API
 답변을 생성하는 API
@@ -89,7 +95,7 @@ OCR API는 이미지나 스캔 문서 안에 있는 글자를 읽어주는 API�
 
 예를 들어 사용자가 이런 파일을 올린다.
 
-```text id="q092d6"
+```text
 신분증 이미지
 계약서 스캔본
 영수증 사진
@@ -99,7 +105,7 @@ OCR API는 이미지나 스캔 문서 안에 있는 글자를 읽어주는 API�
 
 그러면 OCR API는 이미지 안의 글자를 읽어서 텍스트로 바꿔준다.
 
-```text id="2ur4sc"
+```text
 이미지/PDF
   ↓
 OCR API
@@ -109,7 +115,7 @@ OCR API
 
 응답은 보통 이런 느낌이다.
 
-```json id="g12qfu"
+```json
 {
   "pages": [
     {
@@ -134,7 +140,7 @@ OCR API
 
 OCR API의 핵심은 이것이다.
 
-```text id="gi4ps2"
+```text
 이미지를 텍스트로 바꾼다
 글자의 위치를 찾는다
 인식 신뢰도를 준다
@@ -152,7 +158,7 @@ OCR이 “글자 읽기”에 가깝다면, Document Parse는 한 단계 더 나
 
 예를 들어 PDF 안에는 이런 것들이 있다.
 
-```text id="86ewmt"
+```text
 제목
 본문
 표
@@ -167,7 +173,7 @@ OCR이 “글자 읽기”에 가깝다면, Document Parse는 한 단계 더 나
 
 하지만 Document Parse는 문서를 LLM이 읽기 좋은 형태로 바꿔준다.
 
-```text id="jyh6gu"
+```text
 PDF / 스캔 이미지 / 슬라이드 / 스프레드시트
         ↓
 Document Parse API
@@ -177,7 +183,7 @@ HTML / Markdown 같은 구조화된 텍스트
 
 예를 들면 이런 식이다.
 
-```markdown id="nx29cw"
+```markdown
 # 보험 약관
 
 ## 제1조 목적
@@ -204,7 +210,7 @@ RAG에서는 문서를 검색해서 LLM에게 넣어야 하는데, 문서 구조
 
 예를 들어 보험 청구서라면 이런 값이 중요할 수 있다.
 
-```text id="uh2okc"
+```text
 이름
 생년월일
 진료일
@@ -215,7 +221,7 @@ RAG에서는 문서를 검색해서 LLM에게 넣어야 하는데, 문서 구조
 
 계약서라면 이런 값이 필요할 수 있다.
 
-```text id="5s6164"
+```text
 계약자
 계약 시작일
 계약 종료일
@@ -227,7 +233,7 @@ RAG에서는 문서를 검색해서 LLM에게 넣어야 하는데, 문서 구조
 
 흐름은 이렇게 볼 수 있다.
 
-```text id="on36na"
+```text
 문서
   ↓
 OCR / Document Parse
@@ -239,7 +245,7 @@ Information Extract API
 
 예상 응답은 이런 식이다.
 
-```json id="gl5hho"
+```json
 {
   "name": "홍길동",
   "birthDate": "2000-01-01",
@@ -260,13 +266,13 @@ RAG에서 가장 헷갈리는 부분이 임베딩이다.
 
 예를 들어 이런 문장이 있다.
 
-```text id="0th3r6"
+```text
 OCR API는 이미지나 PDF에서 텍스트를 추출하는 기능입니다.
 ```
 
 Embedding API에 넣으면 이런 숫자 배열이 나온다.
 
-```text id="ldvvyh"
+```text
 [0.12, -0.45, 0.88, 0.03, ...]
 ```
 
@@ -276,7 +282,7 @@ Embedding API에 넣으면 이런 숫자 배열이 나온다.
 
 컴퓨터가 문장의 의미적 유사도를 계산하려면 숫자 형태가 필요하기 때문이다.
 
-```text id="p5bwjf"
+```text
 "OCR API가 뭐야?"
 "이미지에서 글자를 뽑는 기술"
 
@@ -295,7 +301,7 @@ Solar LLM API는 사용자의 질문과 문맥을 받아 답변을 생성하는 
 
 예를 들어 RAG에서는 검색된 문서를 Solar LLM에게 같이 넣는다.
 
-```text id="57m0be"
+```text
 [검색된 문서]
 OCR API는 이미지나 PDF에서 텍스트를 추출하는 기능입니다.
 
@@ -305,14 +311,14 @@ OCR API는 뭐야?
 
 그러면 Solar LLM API가 답변을 생성한다.
 
-```text id="sqsm3z"
+```text
 OCR API는 이미지나 PDF 문서에서 텍스트를 추출하는 API입니다.
 스캔 문서, 영수증, 계약서 같은 비정형 문서를 디지털 텍스트로 바꾸는 데 사용됩니다.
 ```
 
 즉, Solar LLM API는 RAG 파이프라인의 마지막 생성 단계에 붙는다.
 
-```text id="zjqy46"
+```text
 검색된 근거 문서
   ↓
 Solar LLM API
@@ -332,7 +338,7 @@ LLM은 답변을 잘 만들지만, 가끔 없는 말을 만들어낼 수 있다.
 
 그래서 RAG에서는 이런 질문이 중요하다.
 
-```text id="w9zis5"
+```text
 LLM이 만든 답변이 실제 검색된 문서 근거와 맞는가?
 ```
 
@@ -340,7 +346,7 @@ Groundedness Checker는 이 부분을 확인하는 역할로 이해하면 된다
 
 흐름은 이렇게 볼 수 있다.
 
-```text id="t20wg3"
+```text
 검색된 문서
   ↓
 Solar LLM 답변 생성
@@ -352,7 +358,7 @@ Groundedness Checker
 
 면접에서 말할 때는 이렇게 표현하면 좋다.
 
-```text id="lgyxp9"
+```text
 RAG에서는 검색된 문서를 기반으로 답변을 생성하지만, LLM이 근거에 없는 내용을 생성할 수 있습니다.
 그래서 답변이 context에 grounded되어 있는지 확인하는 단계가 필요합니다.
 ```
@@ -365,7 +371,7 @@ RAG에서는 검색된 문서를 기반으로 답변을 생성하지만, LLM이 
 
 이제 업스테이지 API들을 RAG 흐름에 맞춰 다시 정리해보자.
 
-```text id="j81nij"
+```text
 1. 문서가 들어온다
    ↓
 2. Document Parse / OCR API로 텍스트를 뽑는다
@@ -391,7 +397,7 @@ RAG에서는 검색된 문서를 기반으로 답변을 생성하지만, LLM이 
 
 여기서 업스테이지가 제공하는 API를 표시하면 이렇다.
 
-```text id="jo2ns3"
+```text
 문서 읽기
 → Upstage Document OCR / Document Parse
 
@@ -407,7 +413,7 @@ RAG에서는 검색된 문서를 기반으로 답변을 생성하지만, LLM이 
 
 반대로 우리가 직접 만들어야 하는 부분도 있다.
 
-```text id="qzt2mj"
+```text
 파일 업로드 서버
 청킹 로직
 벡터DB 저장 로직
@@ -436,7 +442,7 @@ RAG에서는 검색된 문서를 기반으로 답변을 생성하지만, LLM이 
 
 API가 나뉘어 있으면 필요한 것만 골라 쓸 수 있다.
 
-```text id="kbpxjt"
+```text
 문서 읽기만 필요
 → OCR API만 사용
 
@@ -453,7 +459,7 @@ API가 나뉘어 있으면 필요한 것만 골라 쓸 수 있다.
 
 RAG 시스템에서 답변이 이상하면 원인이 하나가 아닐 수 있다.
 
-```text id="apbcw1"
+```text
 문서 파싱이 잘못됐나?
 청킹이 이상한가?
 임베딩 검색이 틀렸나?
@@ -465,7 +471,7 @@ API가 나뉘어 있으면 각 단계를 따로 테스트할 수 있다.
 
 예를 들어:
 
-```text id="wdkzdj"
+```text
 OCR 결과만 확인
 Embedding 검색 결과만 확인
 Solar 답변만 확인
@@ -482,7 +488,7 @@ Groundedness 결과만 확인
 
 API가 단계별로 나뉘어 있으면 이런 식으로 볼 수 있다.
 
-```text id="jmz7bj"
+```text
 Document Parse latency
 Embedding latency
 Vector search latency
@@ -494,7 +500,7 @@ Groundedness check latency
 
 DevOps 입장에서는 각 API 호출마다 이런 메트릭을 남기는 게 중요하다.
 
-```text id="zqspvk"
+```text
 요청 수
 성공률
 실패율
@@ -514,7 +520,7 @@ timeout 수
 
 하지만 API가 나뉘어 있으면 장애 범위를 좁힐 수 있다.
 
-```text id="sinxtm"
+```text
 OCR API 장애
 → 신규 문서 처리만 지연
 
@@ -548,7 +554,7 @@ DevOps 관점에서는 이 구조가 중요하다고 생각합니다. 각 기능
 
 그래서 개발자는 이 API들을 레고처럼 조립해서 서비스를 만든다.
 
-```text id="s782ee"
+```text
 문서를 읽는 API
 + 문장을 벡터로 바꾸는 API
 + 비슷한 문서를 찾는 벡터DB

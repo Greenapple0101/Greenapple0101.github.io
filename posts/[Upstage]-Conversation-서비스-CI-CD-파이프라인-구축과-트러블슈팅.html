@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅 | Greenapple0101</title>
+  <title>[CI/CD] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅 | Greenapple0101</title>
   <meta name="description" content="1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스를 대상으로 Jenkins CI/CD 파이프라인을 구성하고, 코드 품질 검증, DEV 서버 배포, 부하 테스트, main 브랜치 병합, PROD 배포까지 이어지는 자동화 흐름을 실습한 경험이다. 단순히 애플리케이션을…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
     </nav>
-    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅</h1>
+    <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+    <h1>[CI/CD] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅</h1>
     <div class="post-meta">
       <time datetime="2026-05-30T12:00:00.000Z">2026.05.30</time>
       
@@ -67,20 +67,13 @@ Auto Merge to Main
 main branch
    ↓
 Deploy to PROD
-````
-
-develop 브랜치에서는 코드 분석, 품질 게이트, DEV 배포, 부하 테스트가 실행되도록 구성했다. main 브랜치에서는 검증이 끝난 코드를 운영 서버에 배포하는 흐름으로 분리했다.
-
----
-
-## 4. Jenkins CI/CD 파이프라인 구성
-
-Jenkinsfile에서는 브랜치별로 실행되는 stage를 분리했다.
-
-develop 브랜치에서는 다음 단계가 실행되도록 했다.
-
-```text
-1. Checkout
+</code></pre>
+<p>develop 브랜치에서는 코드 분석, 품질 게이트, DEV 배포, 부하 테스트가 실행되도록 구성했다. main 브랜치에서는 검증이 끝난 코드를 운영 서버에 배포하는 흐름으로 분리했다.</p>
+<hr>
+<h2>4. Jenkins CI/CD 파이프라인 구성</h2>
+<p>Jenkinsfile에서는 브랜치별로 실행되는 stage를 분리했다.</p>
+<p>develop 브랜치에서는 다음 단계가 실행되도록 했다.</p>
+<pre><code class="language-text">1. Checkout
 2. SonarQube Analysis
 3. Quality Gate
 4. Deploy to DEV
@@ -269,9 +262,9 @@ Quality Gate 실패
 <p>이 경험을 바탕으로 AI 서비스 운영에서도 단순히 모델이나 API를 배포하는 것에 그치지 않고, 배포 전 검증, 배포 후 모니터링, 장애 발생 시 계층별 원인 분석을 수행하는 DevOps 엔지니어로 성장하고자 한다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-Document-Parse-Enhanced로-이해하는-문서-AI-파이프라인.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[면접대비] Document Parse Enhanced로 이해하는 문서 AI 파이프라인</span></a>
+  <a class="post-nav-link prev" href="[Upstage]-Jenkins-성능-게이트와-Grafana-모니터링-파이프라인-구축.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[CI/CD] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[Upstage]-AI-에이전트-PoC-이후가-진짜-문제인-이유.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[면접대비] AI 에이전트 PoC 이후가 진짜 문제인 이유</span></a>
+  <a class="post-nav-link next" href="[Kubernetes]-클러스터-네트워킹-구성-Docker-네트워크부터-kube-proxy까지.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Kubernetes] 클러스터 네트워킹 구성: Docker 네트워크부터 kube-proxy까지</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

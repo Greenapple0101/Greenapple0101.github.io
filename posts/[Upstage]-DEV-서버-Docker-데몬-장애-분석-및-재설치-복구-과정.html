@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정 | Greenapple0101</title>
+  <title>[Docker] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정 | Greenapple0101</title>
   <meta name="description" content="Jenkins 파이프라인에서 DEV 서버 배포 단계가 실패하면서 시작된 Docker 데몬 장애 분석 및 복구 과정을 정리한 문서다. 처음에는 Jenkins 파이프라인 자체 문제처럼 보였지만, 실제 원인은 Jenkins가 SSH로 접속한 DEV 서버 내부의 Docker daemon 장애…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
     </nav>
-    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정</h1>
+    <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+    <h1>[Docker] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정</h1>
     <div class="post-meta">
       <time datetime="2026-05-30T21:56:37.000Z">2026.05.30</time>
       
@@ -32,12 +32,9 @@
 <p>실패한 명령은 다음과 같았다.</p>
 <pre><code class="language-bash">docker rm dev-conv || true
 docker run -d -p 8000:8000 ...
-````
-
-에러 메시지는 다음과 같았다.
-
-```text
-Cannot connect to the Docker daemon at unix:///var/run/docker.sock
+</code></pre>
+<p>에러 메시지는 다음과 같았다.</p>
+<pre><code class="language-text">Cannot connect to the Docker daemon at unix:///var/run/docker.sock
 </code></pre>
 <p>이 메시지는 Docker CLI가 Docker daemon과 통신하지 못한다는 뜻이다.</p>
 <p>즉, <code>docker</code> 명령어 자체를 못 찾는 문제가 아니라, Docker 명령어는 존재하지만 백그라운드에서 떠 있어야 할 Docker daemon이 정상 동작하지 않는 상태였다.</p>
@@ -479,9 +476,9 @@ Cleanup
 <p>이번 경험의 핵심은 Jenkins 파이프라인 실패를 단순히 Jenkinsfile 문제로 보지 않고, 실제 명령이 실행되는 대상 서버의 상태까지 추적해야 한다는 점이다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-JMeter-관련-개념어-정리.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[면접대비] JMeter 관련 개념어 정리</span></a>
+  <a class="post-nav-link prev" href="[Upstage]-JMeter-기반-부하-테스트와-Jenkins-파이프라인-트러블슈팅-정리.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[CI/CD] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[Upstage]-Upstage-API-기반-RAG-경험과-AI-DevOps-핵심-키워드-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[면접대비] 면접대비 API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리</span></a>
+  <span class="post-nav-link next disabled" aria-hidden="true"></span>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

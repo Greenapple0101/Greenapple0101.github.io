@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅"
+title: "[CI/CD] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
+topic: "docker-k8s"
+category: "CI/CD"
 ---
 
 ## 1. 개요
@@ -57,7 +59,7 @@ Auto Merge to Main
 main branch
    ↓
 Deploy to PROD
-````
+```
 
 develop 브랜치에서는 코드 분석, 품질 게이트, DEV 배포, 부하 테스트가 실행되도록 구성했다. main 브랜치에서는 검증이 끝난 코드를 운영 서버에 배포하는 흐름으로 분리했다.
 

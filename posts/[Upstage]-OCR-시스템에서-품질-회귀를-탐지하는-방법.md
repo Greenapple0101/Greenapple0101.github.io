@@ -1,16 +1,10 @@
 ---
-title: "[면접대비] OCR 시스템에서 품질 회귀를 탐지하는 방법"
+title: "[AI] OCR 시스템에서 품질 회귀를 탐지하는 방법"
 source: ""
 published: "2026-05-30T18:35:54.000Z"
+topic: "ai"
+category: "AI"
 ---
-
----
-
-title: "OCR 시스템에서 품질 회귀를 탐지하는 방법"
-date: 2026-05-30
-categories: [OCR, AI DevOps, MLOps]
-tags: [OCR, Quality Regression, AI DevOps, Document AI, Monitoring, Evaluation]
--------------------------------------------------------------------------------
 
 # OCR 시스템에서 품질 회귀를 탐지하는 방법
 

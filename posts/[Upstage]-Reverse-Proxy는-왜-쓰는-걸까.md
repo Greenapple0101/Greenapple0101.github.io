@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/NGINX-Reverse-Proxy는-왜-쓰는-걸까"
 published: "2026-05-17T11:49:24.520Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.731961"
+topic: "web"
+category: "NGINX"
 ---
 
 서버를 배포하다 보면 Nginx라는 말을 자주 듣게 된다.

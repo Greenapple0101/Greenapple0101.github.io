@@ -6,7 +6,6 @@ from __future__ import annotations
 import html
 import json
 import re
-import shutil
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -14,7 +13,6 @@ from pathlib import Path
 import markdown
 
 ROOT = Path(__file__).resolve().parent
-POSTS_SRC = ROOT.parent / "git-pages"
 POSTS_DIR = ROOT / "posts"
 MD = markdown.Markdown(
     extensions=["fenced_code", "tables", "sane_lists", "smarty"],
@@ -32,7 +30,7 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
     {
         "id": "docker-k8s",
         "title": "Docker & Kubernetes",
-        "description": "Docker, Kubernetes, CKA, Helm, k3d, Argo CD 등 인프라·컨테이너",
+        "description": "Docker, Kubernetes, Helm, Jenkins, CI/CD 등 컨테이너·배포 자동화",
         "color": "#7c3aed",
     },
     {
@@ -43,8 +41,8 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
     },
     {
         "id": "upstage",
-        "title": "면접대비",
-        "description": "Solar LLM, Document Parse, Embedding, RAG, API 모니터링 등",
+        "title": "업스테이지 면접대비",
+        "description": "업스테이지 사업·제품, Solar API 활용, Document AI와 기술면접 준비",
         "color": "#0d9488",
     },
     {
@@ -62,7 +60,7 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
     {
         "id": "web",
         "title": "웹 · 기타",
-        "description": "네트워크, DB, 보안, NGINX, HA, Linux, CI/CD 등",
+        "description": "HTTP·API, 네트워크, NGINX, DB, 보안, 모니터링·부하 테스트 등",
         "color": "#ea580c",
     },
 ]
@@ -171,7 +169,7 @@ def topic_for_entry(category: str, slug: str) -> str:
     cat_key = re.sub(r"^\[|\]$", "", category.strip()).lower()
 
     upstage_keys = frozenset(
-        {"upstage", "업스테이지", "rag", "rag/mlops", "rag-mlops", "ragmlops"}
+        {"upstage", "업스테이지"}
     )
     if cat_key in upstage_keys or prefix in upstage_keys:
         return "upstage"
@@ -186,7 +184,7 @@ def topic_for_entry(category: str, slug: str) -> str:
     if cat_key in spring_keys or prefix in spring_keys or cat_key.startswith("spring"):
         return "spring"
 
-    ai_keys = frozenset({"ai", "ai-infra", "dl", "pytorch", "ml", "cs"})
+    ai_keys = frozenset({"ai", "ai-infra", "dl", "pytorch", "ml", "cs", "rag", "rag/mlops", "rag-mlops", "ragmlops"})
     if cat_key in ai_keys or prefix in ai_keys:
         return "ai"
 
@@ -214,6 +212,15 @@ def topic_for_entry(category: str, slug: str) -> str:
         return "docker-k8s"
 
     return "web"
+
+
+def entry_classification(slug: str, meta: dict[str, str]) -> tuple[str, str]:
+    """Explicit metadata moves articles without breaking their existing URLs."""
+    category = normalize_category(meta["category"]) if meta.get("category") else category_from_slug(slug, meta.get("tags", ""))
+    topic = meta.get("topic") or topic_for_entry(category, slug)
+    if topic not in TOPIC_BY_ID:
+        raise ValueError(f"Unknown topic {topic!r} in {slug}")
+    return category, topic
 
 
 def category_color(category: str) -> str:
@@ -426,8 +433,7 @@ def post_nav_html(prev_entry: dict | None, next_entry: dict | None) -> str:
 def collect_entry(slug: str, meta: dict[str, str], body: str) -> dict:
     title = meta.get("title", slug.replace("-", " "))
     tags = meta.get("tags", "")
-    category = category_from_slug(slug, tags)
-    topic = topic_for_entry(category, slug)
+    category, topic = entry_classification(slug, meta)
     published = meta.get("published", "")
     return {
         "slug": slug,
@@ -468,7 +474,7 @@ def build_post(
 ) -> None:
     title = meta.get("title", slug.replace("-", " "))
     tags = meta.get("tags", "")
-    category = category_from_slug(slug, tags)
+    category, _ = entry_classification(slug, meta)
     tag_color = category_color(category)
     topic_meta = TOPIC_BY_ID[topic_id]
     published = meta.get("published", "")
@@ -568,31 +574,26 @@ def build_topic_pages(entries: list[dict]) -> None:
 
 
 def sync_markdown() -> list[Path]:
-    if POSTS_DIR.exists():
-        shutil.rmtree(POSTS_DIR)
-    POSTS_DIR.mkdir(parents=True)
-
-    if not POSTS_SRC.is_dir():
-        raise SystemExit(f"Source not found: {POSTS_SRC}")
-
+    """Use versioned sources in place; rebuilding must never delete source files."""
+    if not POSTS_DIR.is_dir():
+        raise SystemExit(f"Source not found: {POSTS_DIR}")
     files = source_markdown_files()
-    for src in files:
-        dest_name = src.name if src.suffix == ".md" else f"{src.name}.md"
-        shutil.copy2(src, POSTS_DIR / dest_name)
-    return [POSTS_DIR / (f.name if f.suffix == ".md" else f"{f.name}.md") for f in files]
+    if not files:
+        raise SystemExit(f"No markdown sources in: {POSTS_DIR}")
+    return files
 
 
 def source_markdown_files() -> list[Path]:
-    """Collect markdown sources from git-pages."""
+    """Collect the repository's canonical markdown sources."""
     files: list[Path] = []
-    for path in sorted(POSTS_SRC.iterdir()):
+    for path in sorted(POSTS_DIR.iterdir()):
         if path.is_file() and path.suffix == ".md" and not path.name.startswith("."):
             files.append(path)
     return files
 
 
 def main() -> None:
-    print("Syncing markdown files...")
+    print("Reading markdown files...")
     md_files = sync_markdown()
     print(f"  {len(md_files)} files → {POSTS_DIR}")
 
@@ -600,7 +601,11 @@ def main() -> None:
     for path in md_files:
         text = path.read_text(encoding="utf-8")
         meta, body = parse_frontmatter(text)
-        slug = slug_from_filename(path)
+        # Preserve explicitly pinned URLs across filesystems with different
+        # Unicode filename normalization (for example macOS and Linux).
+        slug = meta.get("slug", slug_from_filename(path))
+        if not slug or "/" in slug or "\\" in slug or slug in {".", ".."}:
+            raise ValueError(f"Invalid post slug: {slug!r}")
         prepared.append((meta, body, slug))
 
     entries: list[dict] = []

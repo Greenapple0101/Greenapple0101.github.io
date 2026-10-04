@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/DOCKER-Docker-빌드-실패가-계속-반�
 published: "2026-05-17T09:41:33.774Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.737398"
+topic: "docker-k8s"
+category: "Docker"
 ---
 
 Docker로 애플리케이션을 배포하다 보면 이상한 상황을 만날 때가 있다.

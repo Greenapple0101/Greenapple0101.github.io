@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성"
+title: "[모니터링] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
+topic: "web"
+category: "모니터링"
 ---
 
 ## 1. 개요
@@ -18,7 +20,7 @@ published: "2026-05-30T12:00:00.000Z"
 - 디스크가 부족해지고 있지는 않은가?
 - 장애가 발생했을 때 어떤 로그가 남았는가?
 - 장애를 사람이 보기 전에 알림으로 받을 수 있는가?
-````
+```
 
 이 질문에 답하기 위해 사용하는 대표적인 도구가 Prometheus, Loki, Grafana이다.
 

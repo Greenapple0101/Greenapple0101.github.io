@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정"
+title: "[Docker] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정"
 source: ""
 published: "2026-05-30T21:56:37.000Z"
+topic: "docker-k8s"
+category: "Docker"
 ---
 
 Jenkins 파이프라인에서 DEV 서버 배포 단계가 실패하면서 시작된 Docker 데몬 장애 분석 및 복구 과정을 정리한 문서다. 처음에는 Jenkins 파이프라인 자체 문제처럼 보였지만, 실제 원인은 Jenkins가 SSH로 접속한 DEV 서버 내부의 Docker daemon 장애였다. 최종적으로 Docker와 containerd 관련 데이터 및 메타데이터를 초기화한 뒤 Docker를 재설치하여 복구했다.
@@ -19,7 +21,7 @@ Jenkins 파이프라인의 DEV 배포 단계에서 Docker 명령이 실패했다
 ```bash
 docker rm dev-conv || true
 docker run -d -p 8000:8000 ...
-````
+```
 
 에러 메시지는 다음과 같았다.
 

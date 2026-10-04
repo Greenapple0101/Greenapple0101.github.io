@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/Docker-단일스테이지로-쓰려면"
 published: "2026-05-17T09:21:14.863Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.738674"
+topic: "docker-k8s"
+category: "Docker"
 ---
 
 단일 스테이지로 쓰려면 핵심은 **“Dockerfile이 JAR를 복사하기 전에, EC2 호스트에 JAR가 실제로 존재해야 한다”**는 전제를 지키는 것이다.

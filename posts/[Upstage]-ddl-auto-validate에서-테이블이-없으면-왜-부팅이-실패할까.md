@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/SPRING-ddl-auto-validate에서-테이블이
 published: "2026-05-17T09:59:01.622Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.736628"
+topic: "spring"
+category: "Spring"
 ---
 
 Spring Boot 애플리케이션을 EC2 서버에 배포하다가 부팅이 실패한 적이 있다. 처음에는 MySQL 연결 문제인가 싶었다. DB 주소가 틀렸는지, 계정 정보가 잘못됐는지, 포트가 막혔는지부터 확인했다. 그런데 문제의 핵심은 DB 연결 자체가 아니라 **DB 안에 애플리케이션이 기대하는 테이블이 없었다는 것**이었다. 더 정확히 말하면, JPA 설정은 `ddl-auto: validate`였는데 실행 가능한 DDL 파일이나 `schema.sql`은 없고, 테이블 구조는 노션 문서에만 남아 있었다.
@@ -12,7 +14,7 @@ Spring Boot 애플리케이션을 EC2 서버에 배포하다가 부팅이 실패
 
 애플리케이션 설정에는 다음과 같은 JPA 설정이 들어 있었다.
 
-```yaml id="icqwpw"
+```yaml
 spring:
   jpa:
     hibernate:
@@ -21,7 +23,7 @@ spring:
 
 이 설정을 둔 상태에서 Spring Boot 애플리케이션을 실행했다.
 
-```bash id="c2hpky"
+```bash
 java -jar app.jar
 ```
 
@@ -29,7 +31,7 @@ java -jar app.jar
 
 처음에는 DB 접속 문제라고 생각할 수 있다.
 
-```text id="svlk3z"
+```text
 MySQL이 안 떠 있나?
 DB 계정이 틀렸나?
 비밀번호가 틀렸나?
@@ -47,7 +49,7 @@ Spring Boot에서 JPA와 Hibernate를 사용할 때 `ddl-auto` 설정은 애플�
 
 대표적으로 이런 값들이 있다.
 
-```yaml id="zvteob"
+```yaml
 spring:
   jpa:
     hibernate:
@@ -56,7 +58,7 @@ spring:
 
 `create`는 애플리케이션 실행 시 테이블을 새로 만든다. 기존 테이블을 지우고 다시 만들 수 있기 때문에 운영 환경에서는 위험하다.
 
-```yaml id="tzf9f2"
+```yaml
 spring:
   jpa:
     hibernate:
@@ -65,7 +67,7 @@ spring:
 
 `update`는 Entity를 기준으로 DB 스키마를 어느 정도 맞춰준다. 개발 환경에서는 편하지만, 운영 환경에서는 의도치 않은 스키마 변경이 생길 수 있다.
 
-```yaml id="8nj35w"
+```yaml
 spring:
   jpa:
     hibernate:
@@ -77,7 +79,7 @@ spring:
 
 즉, `validate`의 의미는 이거다.
 
-```text id="ntxcot"
+```text
 “테이블은 이미 있다고 가정할게.
 나는 Entity와 DB 테이블이 맞는지만 확인할게.”
 ```
@@ -88,7 +90,7 @@ spring:
 
 예를 들어 애플리케이션에 이런 Entity가 있다고 해보자.
 
-```java id="p0o4zl"
+```java
 @Entity
 public class Member {
     @Id
@@ -105,13 +107,13 @@ Hibernate는 애플리케이션이 시작될 때 이 Entity를 보고 DB에 `mem
 
 그런데 MySQL에 접속해서 확인했을 때 테이블이 없다면?
 
-```sql id="dsepnk"
+```sql
 SHOW TABLES;
 ```
 
 결과가 비어 있거나 `member` 테이블이 없다면 Hibernate는 이렇게 판단한다.
 
-```text id="cdk7wn"
+```text
 Member Entity는 존재함
 → member 테이블이 DB에 있어야 함
 → 그런데 DB에 없음
@@ -131,7 +133,7 @@ Member Entity는 존재함
 
 예를 들면 이런 식이다.
 
-```text id="0ik9ti"
+```text
 member
 - id: bigint
 - email: varchar(255)
@@ -144,7 +146,7 @@ member
 
 DB에 테이블을 만들려면 실제 SQL이 필요하다.
 
-```sql id="brykk2"
+```sql
 CREATE TABLE member (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
@@ -157,7 +159,7 @@ CREATE TABLE member (
 
 정확히는 이거였다.
 
-```text id="tyotew"
+```text
 테이블 명세는 노션에 있었지만,
 MySQL에 적용 가능한 DDL 파일이나 schema.sql이 없었다.
 ```
@@ -170,7 +172,7 @@ Spring Boot에서는 `schema.sql`을 통해 초기 테이블 생성 SQL을 관�
 
 예를 들어 `src/main/resources/schema.sql`에 다음과 같이 작성할 수 있다.
 
-```sql id="s0o2ds"
+```sql
 CREATE TABLE member (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
@@ -183,7 +185,7 @@ CREATE TABLE member (
 
 다만 Spring Boot 버전이나 설정에 따라 `schema.sql` 실행 여부는 별도로 확인해야 한다. 특히 JPA와 함께 사용할 때는 다음 설정이 필요할 수 있다.
 
-```yaml id="86sbyb"
+```yaml
 spring:
   sql:
     init:
@@ -194,7 +196,7 @@ spring:
 
 중요한 건 이것이다.
 
-```text id="4p6xqd"
+```text
 validate를 쓰려면
 애플리케이션 실행 전에
 DB 테이블이 이미 만들어져 있어야 한다.
@@ -204,7 +206,7 @@ DB 테이블이 이미 만들어져 있어야 한다.
 
 이번 문제는 단순히 `ddl-auto`를 `update`로 바꾸면 해결되는 것처럼 보일 수 있다.
 
-```yaml id="ekhhzq"
+```yaml
 spring:
   jpa:
     hibernate:
@@ -218,7 +220,7 @@ spring:
 
 그래서 이번에는 `validate` 설정을 유지하되, 그 전제 조건을 명확히 했다.
 
-```text id="l4hfgj"
+```text
 1. validate는 테이블을 자동 생성하지 않는다.
 2. 실행 전에 DB 테이블이 선생성되어 있어야 한다.
 3. 노션 테이블 명세만으로는 부족하다.
@@ -232,25 +234,25 @@ spring:
 
 먼저 MySQL에 접속한다.
 
-```bash id="tov7no"
+```bash
 mysql -u appuser -p
 ```
 
 사용할 DB를 선택한다.
 
-```sql id="vd914m"
+```sql
 USE appdb;
 ```
 
 테이블 목록을 확인한다.
 
-```sql id="o2l6xn"
+```sql
 SHOW TABLES;
 ```
 
 필요한 테이블이 있는지 확인한다.
 
-```text id="zdxz9k"
+```text
 member
 board
 comment
@@ -259,13 +261,13 @@ comment
 
 테이블 구조도 확인한다.
 
-```sql id="c7mtcb"
+```sql
 DESC member;
 ```
 
 또는:
 
-```sql id="nprz1f"
+```sql
 SHOW CREATE TABLE member;
 ```
 
@@ -273,7 +275,7 @@ SHOW CREATE TABLE member;
 
 검증 흐름은 다음과 같이 정리할 수 있다.
 
-```text id="38tqbt"
+```text
 노션 테이블 명세 확인
 → DDL 또는 schema.sql 작성/확보
 → MySQL에 적용
@@ -291,7 +293,7 @@ SHOW CREATE TABLE member;
 
 `validate`는 전혀 다르다.
 
-```text id="dz52ao"
+```text
 create/update:
 Entity를 기준으로 DB를 만들거나 수정하려고 함
 
@@ -303,7 +305,7 @@ DB가 이미 준비되어 있다고 보고 검사만 함
 
 그리고 문서도 중요하지만, 문서만으로는 부족하다.
 
-```text id="7r58t3"
+```text
 노션 테이블 명세:
 사람이 이해하기 위한 설계 문서
 
@@ -319,13 +321,13 @@ DB가 실제로 실행할 수 있는 스키마 생성 코드
 
 이 경험은 다음처럼 정리할 수 있다.
 
-```text id="jfx8hh"
+```text
 Spring Boot 애플리케이션 배포 과정에서 ddl-auto: validate 설정으로 인해 DB 테이블이 선생성되지 않은 상태에서는 부팅이 실패하는 문제가 발생했습니다. 당시 테이블 구조는 노션에 명세되어 있었지만, 실행 가능한 DDL 파일이나 schema.sql이 제공되지 않아 MySQL 초기화 상태가 불명확했습니다. validate 설정의 전제 조건을 문서화하고, schema.sql 적용 여부와 SHOW TABLES, DESC 기반 검증 절차를 고정하여 환경 초기화 상태에 따른 장애를 통제했습니다.
 ```
 
 면접에서는 이렇게 말할 수 있다.
 
-```text id="gumf74"
+```text
 당시 ddl-auto 설정이 validate였기 때문에 Hibernate가 테이블을 자동 생성하지 않고 기존 DB 스키마와 Entity 매핑만 검증했습니다. 그런데 테이블 구조는 노션에만 있고 실제 DDL이나 schema.sql이 없어서 MySQL에는 테이블이 생성되지 않은 상태였습니다. 그래서 애플리케이션 부팅이 실패했고, 이후 validate의 전제 조건을 정리하고 SHOW TABLES, DESC 명령으로 배포 전 DB 초기화 상태를 확인하는 절차를 만들었습니다.
 ```
 
@@ -333,7 +335,7 @@ Spring Boot 애플리케이션 배포 과정에서 ddl-auto: validate 설정으�
 
 `ddl-auto: validate`는 안전한 설정처럼 보이지만, 전제 조건이 있다.
 
-```text id="jz58up"
+```text
 DB 테이블이 이미 존재해야 한다.
 ```
 
@@ -344,7 +346,7 @@ DB 테이블이 이미 존재해야 한다.
 
 문제는 이것이었다.
 
-```text id="f652op"
+```text
 테이블 명세는 노션에 있었지만,
 실제 DB에 적용할 DDL/schema.sql이 없었다.
 ```
@@ -353,6 +355,6 @@ DB 테이블이 이미 존재해야 한다.
 
 한 줄로 정리하면 다음과 같다.
 
-```text id="egpvmg"
+```text
 ddl-auto: validate는 테이블을 만들어주는 설정이 아니라, 이미 만들어진 테이블이 Entity와 맞는지 검사하는 설정이다.
 ```

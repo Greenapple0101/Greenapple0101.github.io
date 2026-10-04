@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Document Parse Enhanced로 이해하는 문서 AI 파이프라인"
+title: "[Upstage] Document Parse Enhanced로 이해하는 문서 AI 파이프라인"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
+topic: "upstage"
+category: "Upstage"
 ---
 
 AI 에이전트와 RAG 시스템의 품질은 모델 성능만으로 결정되지 않는다.  
@@ -20,7 +22,7 @@ PDF
 이미지 속 텍스트
 여러 페이지에 걸친 테이블
 줄이 없는 테이블
-````
+```
 
 이런 문서를 제대로 해석하지 못하면, 이후 RAG 검색이나 LLM 답변도 신뢰하기 어렵다.
 

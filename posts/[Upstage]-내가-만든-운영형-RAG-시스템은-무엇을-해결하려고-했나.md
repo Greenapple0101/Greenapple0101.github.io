@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/RAGMLOps-내가-만든-운영형-RAG-시스
 published: "2026-05-12T19:23:35.784Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.753090"
+topic: "upstage"
+category: "Upstage"
 ---
 
 요즘 생성형 AI 서비스를 만들 때 가장 많이 나오는 구조 중 하나가 RAG다. RAG는 Retrieval-Augmented Generation의 줄임말로, 쉽게 말하면 “LLM이 그냥 자기 기억만으로 답하게 하지 않고, 먼저 관련 문서를 찾아준 뒤 그 문서를 참고해서 답하게 만드는 구조”다.

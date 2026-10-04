@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Information Extract API를 DevOps 관점에서 이해하기"
+title: "[Upstage] Information Extract API를 DevOps 관점에서 이해하기"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
+topic: "upstage"
+category: "Upstage"
 ---
 
 기업은 매일 수많은 문서를 처리한다.
@@ -15,7 +17,7 @@ published: "2026-05-30T12:00:00.000Z"
 스캔 문서
 표 문서
 임대료 관리 문서
-````
+```
 
 이 문서들에는 업무에 필요한 정보가 들어 있지만, 실제 현장에서는 여전히 사람이 문서를 읽고 필요한 값을 시스템에 직접 입력하는 경우가 많다.
 

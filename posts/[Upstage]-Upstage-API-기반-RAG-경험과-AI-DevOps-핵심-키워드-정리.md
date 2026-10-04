@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] 면접대비 API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리"
+title: "[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리"
 source: ""
 published: "2026-05-31T12:00:00.000Z"
+topic: "upstage"
+category: "Upstage"
 ---
 
 ## 1. 들어가며
@@ -33,7 +35,7 @@ published: "2026-05-31T12:00:00.000Z"
 → 답변 생성
 → 응답 반환
 → 품질 평가 및 운영 모니터링
-````
+```
 
 이 구조에서 중요한 점은 LLM이 모든 정보를 알고 있다고 가정하지 않는다는 것이다. 대신 외부 문서를 검색해 필요한 문맥을 제공하고, LLM이 그 문맥을 바탕으로 답변하게 만든다.
 

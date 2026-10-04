@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/DOCKER-EC2에서-Docker-빌드할-때-JAR-�
 published: "2026-05-17T09:01:08.643Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.739080"
+topic: "docker-k8s"
+category: "Docker"
 ---
 
 Spring Boot 애플리케이션을 EC2 서버에 배포하다 보면, 로컬에서는 잘 되던 Docker 빌드가 서버에서는 갑자기 실패하는 경우가 있다. 그중 대표적인 문제가 바로 `JAR 파일 누락으로 인한 COPY 실패`다. 이번 글에서는 EC2 환경에서 Docker 이미지를 빌드하던 중 `build/libs/*.jar` 파일을 찾지 못해 빌드가 실패했던 문제와, 이를 멀티스테이지 빌드로 해결한 과정을 정리한다.

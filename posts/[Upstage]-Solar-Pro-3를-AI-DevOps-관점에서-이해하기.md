@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Solar Pro 3를 AI DevOps 관점에서 이해하기"
+title: "[Upstage] Solar Pro 3를 AI DevOps 관점에서 이해하기"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
+topic: "upstage"
+category: "Upstage"
 ---
 
 Solar Pro 3는 업스테이지가 개발한 대규모 언어 모델 Solar Pro의 최신 버전이다.
@@ -16,7 +18,7 @@ Solar Pro 3는 업스테이지가 개발한 대규모 언어 모델 Solar Pro의
 에이전트 워크플로우를 끝까지 안정적으로 수행하는가
 한국어 업무 환경에서 품질 저하가 적은가
 모델 버전 전환 시 운영 리스크가 낮은가
-````
+```
 
 즉, Solar Pro 3는 단순히 벤치마크 점수가 오른 모델이 아니라, **실서비스 운영 환경에서 더 안정적으로 쓸 수 있도록 개선된 LLM**으로 이해하는 것이 좋다.
 
@@ -26,7 +28,7 @@ Solar Pro 3는 업스테이지가 개발한 대규모 언어 모델 Solar Pro의
 
 Solar Pro 3의 주요 특징은 다음과 같다.
 
-```text id="m26off"
+```text
 102B MoE 대규모 언어 모델
 추론 시 토큰당 12B 파라미터만 활성화
 Solar Pro 2 대비 에이전트 벤치마크 약 2배 향상
@@ -52,7 +54,7 @@ Solar Pro 3는 Solar Pro 2 대비 에이전트 벤치마크에서 큰 향상을 
 
 대표적으로 다음 지표가 언급된다.
 
-```text id="72dsru"
+```text
 Tau2-all: 72.3 vs 36.0
 SWE Bench: 28.6 vs 14.5
 Terminal Bench 2: 10.1 vs 2.2
@@ -62,7 +64,7 @@ Terminal Bench 2: 10.1 vs 2.2
 
 AI 에이전트는 단순 질의응답보다 훨씬 복잡한 작업을 수행한다.
 
-```text id="ewhqrk"
+```text
 사용자 요청 이해
 계획 수립
 도구 호출
@@ -74,7 +76,7 @@ AI 에이전트는 단순 질의응답보다 훨씬 복잡한 작업을 수행�
 
 에이전트 성능이 낮으면 이런 문제가 발생한다.
 
-```text id="z79274"
+```text
 개별 도구 호출은 성공하지만 전체 작업을 완주하지 못함
 중간 단계에서 맥락이 끊김
 잘못된 도구를 호출함
@@ -95,7 +97,7 @@ PoC 단계에서는 LLM이 좋은 답변을 몇 번 생성하는 것만으로도
 
 하지만 운영 환경에서는 다르다.
 
-```text id="19m3nr"
+```text
 반복적인 요청을 안정적으로 처리해야 함
 다양한 사용자 입력을 견뎌야 함
 외부 도구와 연동해야 함
@@ -112,7 +114,7 @@ Solar Pro 3의 개선 방향은 이 운영 환경의 문제와 연결된다.
 
 모델이 다음을 할 수 있어야 한다.
 
-```text id="10fw1g"
+```text
 여러 단계의 계획을 유지
 도구 호출 결과를 해석
 중간 오류를 감지
@@ -133,7 +135,7 @@ Solar Pro 3는 업스테이지의 강화학습 프레임워크인 SnapPO를 적�
 
 AI 에이전트는 한 번의 답변으로 끝나는 작업보다, 여러 단계를 거쳐야 하는 작업이 많다.
 
-```text id="80qwyk"
+```text
 문서 읽기
 → 필요한 정보 찾기
 → 조건 비교
@@ -146,7 +148,7 @@ AI 에이전트는 한 번의 답변으로 끝나는 작업보다, 여러 단계
 
 추론 능력이 약한 모델은 다음 문제를 일으킨다.
 
-```text id="rfu5yy"
+```text
 초기 가정이 틀렸는데 수정하지 못함
 도구 호출 결과를 잘못 해석함
 중간 단계 오류가 누적됨
@@ -166,7 +168,7 @@ Solar Pro 3는 지시 이행 능력에서도 개선되었다고 설명된다.
 
 사용자 요청은 항상 명확하지 않다.
 
-```text id="3nvc2f"
+```text
 이 문서에서 계약 조건만 뽑아줘
 이전 양식과 다른 부분만 비교해줘
 문제 있는 조항만 근거와 함께 알려줘
@@ -180,7 +182,7 @@ JSON으로 반환하되 빈 필드는 null로 둬
 
 지시 이행 능력이 낮으면 다음 문제가 발생한다.
 
-```text id="ubko6m"
+```text
 JSON 형식을 지키지 않음
 필수 필드를 누락함
 요청하지 않은 내용을 추가함
@@ -204,7 +206,7 @@ Solar Pro 3는 한국어 성능 개선도 강조한다.
 
 특히 다음 문서는 한국어 정확도가 낮으면 품질이 크게 흔들릴 수 있다.
 
-```text id="5muhsw"
+```text
 금융 약관
 보험 약관
 공공 문서
@@ -218,7 +220,7 @@ Solar Pro 3는 한국어 성능 개선도 강조한다.
 
 예를 들어 다음과 같은 문장은 단순 번역식 이해로 처리하기 어렵다.
 
-```text id="ig5sxl"
+```text
 단, 다음 각 호의 어느 하나에 해당하는 경우에는 제외한다.
 본 약관에서 정하지 아니한 사항은 관련 법령 및 상관례에 따른다.
 고객이 별도로 동의한 경우에 한하여 적용한다.
@@ -238,7 +240,7 @@ MoE는 Mixture of Experts의 약자다.
 
 간단히 말하면, 모든 파라미터를 매번 전부 사용하는 것이 아니라 입력에 따라 일부 전문가 네트워크만 활성화하는 구조다.
 
-```text id="f911qy"
+```text
 전체 모델 규모: 102B
 추론 시 활성화: 12B
 ```
@@ -249,7 +251,7 @@ DevOps 관점에서 이 구조가 중요한 이유는 서빙 효율성 때문이
 
 MoE 구조는 다음 균형을 노린다.
 
-```text id="d7cn8z"
+```text
 큰 모델의 표현력
 +
 작은 활성 파라미터 기반 추론 효율
@@ -259,7 +261,7 @@ MoE 구조는 다음 균형을 노린다.
 
 AI DevOps 관점에서는 모델 구조를 볼 때 다음 질문을 해야 한다.
 
-```text id="gmkjwv"
+```text
 응답 품질이 좋은가
 latency가 안정적인가
 GPU 사용량이 예측 가능한가
@@ -278,7 +280,7 @@ Solar Pro 3는 Solar Pro 2와 동일한 API 인터페이스를 유지한다고 �
 
 모델을 교체할 때 API 인터페이스가 바뀌면 다음 문제가 생긴다.
 
-```text id="71tzpj"
+```text
 클라이언트 코드 수정
 백엔드 API 수정
 프롬프트 포맷 수정
@@ -290,7 +292,7 @@ Solar Pro 3는 Solar Pro 2와 동일한 API 인터페이스를 유지한다고 �
 
 반대로 API 인터페이스가 유지되면 모델 교체가 훨씬 쉬워진다.
 
-```text id="6hgabv"
+```text
 기존 요청 방식 유지
 기존 인증 방식 유지
 기존 응답 처리 로직 유지
@@ -314,7 +316,7 @@ Solar Pro 3는 Solar Pro 2와 유사한 처리 속도와 비용 구조를 유지
 
 비용이 크게 증가하면 고객사나 내부 조직을 설득하기 어렵다.
 
-```text id="1ezaic"
+```text
 성능 향상
 +
 latency 유지
@@ -326,7 +328,7 @@ latency 유지
 
 AI 서비스를 운영할 때는 최고 성능 수치보다 예측 가능성이 중요하다.
 
-```text id="vvhlpm"
+```text
 p95 latency가 안정적인가
 토큰 처리량이 예측 가능한가
 GPU 비용이 통제 가능한가
@@ -344,7 +346,7 @@ Solar Pro 2에서 Solar Pro 3로 전환할 때 DevOps 관점에서는 다음을 
 
 ## 1. API 호환성
 
-```text id="wpu1c3"
+```text
 요청 형식이 동일한가
 응답 형식이 유지되는가
 인증 방식이 동일한가
@@ -354,7 +356,7 @@ timeout 정책이 달라지지 않았는가
 
 ## 2. 성능 지표
 
-```text id="k89ctv"
+```text
 평균 latency
 p95 latency
 p99 latency
@@ -366,7 +368,7 @@ retry 횟수
 
 ## 3. 품질 지표
 
-```text id="a5dqu6"
+```text
 지시 이행률
 JSON 형식 준수율
 답변 정확도
@@ -378,7 +380,7 @@ JSON 형식 준수율
 
 ## 4. 비용 지표
 
-```text id="e81tkg"
+```text
 요청당 비용
 토큰당 비용
 일별 token usage
@@ -389,7 +391,7 @@ JSON 형식 준수율
 
 ## 5. 회귀 테스트
 
-```text id="40i2op"
+```text
 기존 프롬프트 결과가 깨지지 않는가
 JSON 출력 형식이 유지되는가
 RAG 답변 근거가 유지되는가
@@ -407,7 +409,7 @@ RAG 답변 근거가 유지되는가
 
 AI Agent 시스템은 보통 여러 컴포넌트로 구성된다.
 
-```text id="jk4dnj"
+```text
 사용자 요청
 → LLM Planner
 → Tool Calling
@@ -419,7 +421,7 @@ AI Agent 시스템은 보통 여러 컴포넌트로 구성된다.
 
 Solar Pro 3는 이 구조에서 다음 역할을 맡을 수 있다.
 
-```text id="sbpq3r"
+```text
 사용자 의도 해석
 작업 계획 수립
 도구 호출 판단
@@ -432,7 +434,7 @@ Solar Pro 3는 이 구조에서 다음 역할을 맡을 수 있다.
 
 특히 다음 업무에 유리할 수 있다.
 
-```text id="8fwhdv"
+```text
 문서 검토 자동화
 광고 심의 자동화
 보험 청구 검토
@@ -449,7 +451,7 @@ RAG 기반 질의응답
 
 RAG 시스템에서는 검색된 문서를 바탕으로 답변을 생성한다.
 
-```text id="n5v4c6"
+```text
 사용자 질문
 → Query 변환
 → Vector DB 검색
@@ -460,7 +462,7 @@ RAG 시스템에서는 검색된 문서를 바탕으로 답변을 생성한다.
 
 이때 LLM의 역할은 단순 생성이 아니다.
 
-```text id="1im6s4"
+```text
 검색 결과를 정확히 읽기
 서로 다른 문서의 내용을 비교하기
 근거와 답변을 일치시키기
@@ -480,7 +482,7 @@ Solar Pro 3를 실제 서비스에 적용한다면 다음 지표를 모니터링
 
 ## 1. API 안정성 지표
 
-```text id="f4iyxg"
+```text
 llm_requests_total
 llm_errors_total
 llm_latency_seconds
@@ -491,7 +493,7 @@ llm_rate_limit_total
 
 ## 2. 비용 지표
 
-```text id="b5nkte"
+```text
 llm_input_tokens_total
 llm_output_tokens_total
 llm_total_tokens
@@ -502,7 +504,7 @@ llm_cost_by_feature
 
 ## 3. 품질 지표
 
-```text id="4r9qjp"
+```text
 instruction_following_success_rate
 json_format_success_rate
 rag_answer_groundedness_score
@@ -514,7 +516,7 @@ human_escalation_rate
 
 ## 4. 버전 비교 지표
 
-```text id="flkxqf"
+```text
 solar_pro2_latency_p95
 solar_pro3_latency_p95
 solar_pro2_answer_quality_score
@@ -535,7 +537,7 @@ solar_pro3_agent_completion_rate
 
 운영 트래픽을 보내기 전에 기존 테스트셋으로 평가한다.
 
-```text id="gk25q8"
+```text
 기존 고객 질문
 실패했던 케이스
 RAG 테스트셋
@@ -548,7 +550,7 @@ JSON 출력 테스트셋
 
 실제 사용자에게는 기존 모델 응답을 제공하되, 내부적으로 Solar Pro 3에도 같은 요청을 보내 비교한다.
 
-```text id="di9kgf"
+```text
 사용자 요청
 → Solar Pro 2 응답 제공
 → Solar Pro 3 응답 내부 저장
@@ -559,7 +561,7 @@ JSON 출력 테스트셋
 
 일부 트래픽만 Solar Pro 3로 전환한다.
 
-```text id="5opxlb"
+```text
 1% 트래픽
 → 5% 트래픽
 → 20% 트래픽
@@ -571,7 +573,7 @@ JSON 출력 테스트셋
 
 문제가 발생하면 즉시 Solar Pro 2로 되돌릴 수 있어야 한다.
 
-```text id="wphm92"
+```text
 모델 라우팅 설정 분리
 환경변수로 모델명 관리
 프롬프트 버전 분리
@@ -589,7 +591,7 @@ JSON 출력 테스트셋
 
 대응 방법:
 
-```text id="8t8cmi"
+```text
 p95 / p99 latency 확인
 요청 길이와 출력 길이 분석
 timeout 설정 확인
@@ -602,7 +604,7 @@ fallback 모델 설정
 
 대응 방법:
 
-```text id="dnj945"
+```text
 프롬프트 형식 보강
 response_format 사용
 스키마 검증 추가
@@ -614,7 +616,7 @@ response_format 사용
 
 대응 방법:
 
-```text id="9adzbf"
+```text
 검색 결과 품질 확인
 chunk 변경 여부 확인
 프롬프트 버전 확인
@@ -627,7 +629,7 @@ Solar Pro 2와 결과 비교
 
 대응 방법:
 
-```text id="vb7i5d"
+```text
 입력 token 증가 여부 확인
 출력 token 증가 여부 확인
 재시도 증가 여부 확인
@@ -642,7 +644,7 @@ max_tokens 제한
 
 FastAPI, Docker, Jenkins, Prometheus, Grafana, JMeter 기반 운영형 백엔드 경험은 Solar Pro 3 같은 LLM API 운영에도 연결할 수 있다.
 
-```text id="u7uwy5"
+```text
 FastAPI
 → LLM Gateway, RAG API, Agent API 구성
 
@@ -721,7 +723,7 @@ Solar Pro 3는 단순히 더 큰 LLM이 아니다.
 
 운영 관점에서 중요한 특징은 다음과 같다.
 
-```text id="ujn99e"
+```text
 에이전트 성능 향상
 추론 능력 개선
 지시 이행 능력 개선
@@ -734,7 +736,7 @@ MoE 기반 서빙 효율
 
 AI DevOps 관점에서는 Solar Pro 3를 다음처럼 이해할 수 있다.
 
-```text id="xmy2wh"
+```text
 더 좋은 답변을 생성하는 모델
 +
 기존 운영 파이프라인을 크게 흔들지 않는 모델
@@ -746,7 +748,7 @@ AI DevOps 관점에서는 Solar Pro 3를 다음처럼 이해할 수 있다.
 
 LLM 운영에서 중요한 것은 최고 성능 수치만이 아니다.
 
-```text id="qaghia"
+```text
 API 호환성
 latency
 TPS

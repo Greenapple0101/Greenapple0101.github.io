@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리 | Greenapple0101</title>
+  <title>[CI/CD] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리 | Greenapple0101</title>
   <meta name="description" content="FastAPI Todo 서비스를 EC2에 배포하고, Jenkins 파이프라인에서 테스트·빌드·배포·JMeter 부하 테스트·HTML Report 생성·InfluxDB/Grafana 연동까지 구성하는 과정에서 발생한 문제들을 정리한 문서이다. 이번 트러블슈팅의 핵심은 단순히 JMeter…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
     </nav>
-    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리</h1>
+    <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+    <h1>[CI/CD] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리</h1>
     <div class="post-meta">
       <time datetime="2026-05-30T21:40:00.000Z">2026.05.30</time>
       
@@ -58,31 +58,25 @@ JMeter load test
 HTML Report 생성
   ↓
 InfluxDB / Grafana 실시간 시각화
-````
-
-## 1-2. 사용한 주요 구성 요소
-
-* FastAPI
-* Docker
-* DockerHub
-* EC2
-* Jenkins
-* JMeter
-* JMeter HTML Dashboard
-* InfluxDB
-* Grafana
-* Jenkins HTML Publisher Plugin
-
----
-
-# 2. FastAPI 로컬 실행 문제
-
-## 2-1. 발생한 증상
-
-로컬에서 FastAPI를 실행하는 과정에서 여러 오류가 발생했다.
-
-```text
-Internal Server Error
+</code></pre>
+<h2>1-2. 사용한 주요 구성 요소</h2>
+<ul>
+<li>FastAPI</li>
+<li>Docker</li>
+<li>DockerHub</li>
+<li>EC2</li>
+<li>Jenkins</li>
+<li>JMeter</li>
+<li>JMeter HTML Dashboard</li>
+<li>InfluxDB</li>
+<li>Grafana</li>
+<li>Jenkins HTML Publisher Plugin</li>
+</ul>
+<hr>
+<h1>2. FastAPI 로컬 실행 문제</h1>
+<h2>2-1. 발생한 증상</h2>
+<p>로컬에서 FastAPI를 실행하는 과정에서 여러 오류가 발생했다.</p>
+<pre><code class="language-text">Internal Server Error
 Address already in use
 ModuleNotFoundError: No module named 'app'
 pydantic / pydantic-core version conflict
@@ -546,17 +540,11 @@ OWASP Markup Formatter Plugin
 <p>따라서 플러그인 미설치나 플러그인 자체 오류가 핵심 원인은 아니었다.</p>
 <h2>16-3. 정리</h2>
 <p>HTML Publisher가 설치되어 있는데도 화면이 깨지면 플러그인보다 Jenkins CSP 정책을 먼저 의심해야 한다.</p>
-<pre><code>
----
-
-# 17. Jenkins CSP / Sandbox 해제 시도
-
-## 17-1. Script Console 시도
-
-Jenkins Script Console에서 다음 설정을 시도했다.
-
-```groovy
-System.setProperty(&quot;hudson.model.DirectoryBrowserSupport.CSP&quot;, &quot;&quot;)
+<hr>
+<h1>17. Jenkins CSP / Sandbox 해제 시도</h1>
+<h2>17-1. Script Console 시도</h2>
+<p>Jenkins Script Console에서 다음 설정을 시도했다.</p>
+<pre><code class="language-groovy">System.setProperty(&quot;hudson.model.DirectoryBrowserSupport.CSP&quot;, &quot;&quot;)
 System.setProperty(&quot;hudson.model.DirectoryBrowserSupport.SANDBOX_FULL&quot;, &quot;false&quot;)
 System.setProperty(&quot;hudson.model.DirectoryBrowserSupport.SANDBOX&quot;, &quot;&quot;)
 </code></pre>
@@ -928,9 +916,9 @@ HTML Report와 InfluxDB/Grafana로 결과를 관찰하며,
 <p>이 경험은 단순 부하 테스트 실습이 아니라, 실제 운영 환경에서 장애 원인을 좁혀가는 DevOps식 문제 해결 과정에 가깝다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-Answer-Similarity는-어떤-기준으로-평가하는가.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[면접대비] Answer Similarity는 어떤 기준으로 평가하는가</span></a>
+  <a class="post-nav-link prev" href="[Kubernetes]-쿠버네티스-DNS-정리-CoreDNS와-Service-이름-해석.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] 쿠버네티스 DNS 정리: CoreDNS와 Service 이름 해석</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[Upstage]-JMeter-관련-개념어-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[면접대비] JMeter 관련 개념어 정리</span></a>
+  <a class="post-nav-link next" href="[Upstage]-DEV-서버-Docker-데몬-장애-분석-및-재설치-복구-과정.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Docker] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

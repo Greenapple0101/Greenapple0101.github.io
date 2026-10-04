@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/GITHUB-GitHub-Webhook은-도대체-뭘까"
 published: "2026-05-17T11:47:05.268Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.732333"
+topic: "docker-k8s"
+category: "CI/CD"
 ---
 
 프로젝트를 배포하다 보면 이런 흐름을 자주 보게 된다.

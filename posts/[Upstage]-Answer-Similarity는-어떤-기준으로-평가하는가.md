@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Answer Similarity는 어떤 기준으로 평가하는가"
+title: "[AI] Answer Similarity는 어떤 기준으로 평가하는가"
 source: ""
 published: "2026-05-30T18:47:04.000Z"
+topic: "ai"
+category: "AI"
 ---
 
 RAG나 LLM 서비스를 평가할 때 `Answer Similarity`라는 지표가 자주 등장한다. 이름 그대로 해석하면 “생성된 답변이 기준 답변과 얼마나 비슷한가”를 보는 지표이다.

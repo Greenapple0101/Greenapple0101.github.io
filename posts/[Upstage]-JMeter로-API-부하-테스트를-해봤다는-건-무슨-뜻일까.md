@@ -4,8 +4,9 @@ source: "https://velog.io/@yorange50/JMETER-JMeter로-API-부하-테스트를-�
 published: "2026-05-17T11:37:09.018Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.732697"
+topic: "web"
+category: "JMeter"
 ---
-
 
 프로젝트를 만들다 보면 단순히 “기능이 동작한다”에서 끝나면 안 된다.
 내 로컬에서 버튼 한 번 눌렀을 때 잘 되는 것과, 여러 사용자가 동시에 요청을 보냈을 때도 안정적으로 동작하는 것은 완전히 다른 문제다.

@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/KUBERNETES-노드-토큰-복붙에서-CLI-�
 published: "2026-05-17T11:02:09.867Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.733608"
+topic: "docker-k8s"
+category: "Kubernetes"
 ---
 
 쿠버네티스 클러스터를 구성할 때 가장 헷갈렸던 부분 중 하나가 **워커 노드를 마스터 노드에 어떻게 조인시키는가**였다.

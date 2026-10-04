@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/RAG-코퍼스-청킹-임베딩-벡터서치
 published: "2026-05-12T19:21:25.572Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.753453"
+topic: "ai"
+category: "AI"
 ---
 
 RAG를 공부하다 보면 처음부터 낯선 단어가 너무 많이 나온다. 코퍼스, 청킹, 임베딩, 벡터서치, top_k, reranker, Recall@k, nDCG@k 같은 말들이 계속 나오는데, 각각 따로 보면 알 것 같다가도 전체 흐름 안에서 보면 헷갈린다. 그래서 이번 글에서는 RAG 시스템을 이해하기 위해 꼭 알아야 하는 핵심 용어들을 하나씩 정리해보려고 한다.

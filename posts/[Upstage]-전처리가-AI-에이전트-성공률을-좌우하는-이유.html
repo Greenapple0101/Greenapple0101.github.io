@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] 전처리가 AI 에이전트 성공률을 좌우하는 이유 | Greenapple0101</title>
+  <title>[Upstage] 전처리가 AI 에이전트 성공률을 좌우하는 이유 | Greenapple0101</title>
   <meta name="description" content="AI 에이전트 자동화의 성패는 단순히 모델 성능만으로 결정되지 않는다. 실제 운영 환경에서는 모델이 얼마나 똑똑한가보다, 모델이 읽는 데이터가 얼마나 안정적으로 정제되어 있는가 가 더 큰 영향을 준다. 특히 금융권 광고심의와 같은 업무에서는 광고안, 약관, 상품설명서, 규정집처럼 다양…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/upstage.html">업스테이지 면접대비</a>
     </nav>
     <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] 전처리가 AI 에이전트 성공률을 좌우하는 이유</h1>
+    <h1>[Upstage] 전처리가 AI 에이전트 성공률을 좌우하는 이유</h1>
     <div class="post-meta">
       <time datetime="2026-05-30T12:00:00.000Z">2026.05.30</time>
       
@@ -38,21 +38,14 @@
 약관 PDF 안의 표 구조가 깨져서 문맥이 잘못 인식됨
 RAG가 의도와 다른 조항을 검색함
 통과/불통과 판정은 하지만 근거 조항을 찾지 못함
-````
-
-겉으로 보면 LLM의 답변 품질 문제처럼 보일 수 있다.
-하지만 실제 원인은 더 앞단에 있다.
-
-바로 **문서를 제대로 읽어내지 못하는 전처리 단계**다.
-
----
-
-# AI 광고심의 파이프라인 구조
-
-광고심의 자동화 파이프라인은 다음과 같은 흐름으로 구성된다.
-
-```text
-AI-OCR / Document Parse
+</code></pre>
+<p>겉으로 보면 LLM의 답변 품질 문제처럼 보일 수 있다.
+하지만 실제 원인은 더 앞단에 있다.</p>
+<p>바로 <strong>문서를 제대로 읽어내지 못하는 전처리 단계</strong>다.</p>
+<hr>
+<h1>AI 광고심의 파이프라인 구조</h1>
+<p>광고심의 자동화 파이프라인은 다음과 같은 흐름으로 구성된다.</p>
+<pre><code class="language-text">AI-OCR / Document Parse
         ↓
 규정 RAG 검색
         ↓
@@ -353,9 +346,9 @@ OCR, RAG, LLM, Guardrail 각각은 하나의 장애 지점이 될 수 있다.</p
 <p>AI DevOps는 모델 배포를 넘어, OCR·RAG·LLM·Guardrail이 실제 고객 업무에서 신뢰 가능한 결과를 내도록 전처리 품질, 근거 추적, 모니터링, 장애 대응까지 운영 구조로 묶는 일이다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-Reverse-Proxy는-왜-쓰는-걸까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[NGINX] Reverse Proxy는 왜 쓰는 걸까?</span></a>
+  <a class="post-nav-link prev" href="[Upstage]-내가-만든-운영형-RAG-시스템은-무엇을-해결하려고-했나.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[RAG/MLOps] 내가 만든 운영형 RAG 시스템은 무엇을 해결하려고 했나</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[Upstage]-업스테이지-AI-DevOps-심화-기술면접-예상-질문-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[면접대비] 업스테이지 AI DevOps 심화 기술면접 예상 질문 정리</span></a>
+  <a class="post-nav-link next" href="[Upstage]-업스테이지-AI-DevOps-심화-기술면접-예상-질문-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[Upstage] 업스테이지 AI DevOps 심화 기술면접 예상 질문 정리</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

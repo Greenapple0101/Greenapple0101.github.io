@@ -1,7 +1,7 @@
 [
   {
     "slug": "[Upstage]-Upstage-API-기반-RAG-경험과-AI-DevOps-핵심-키워드-정리",
-    "title": "[면접대비] 면접대비 API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리",
+    "title": "[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -11,83 +11,83 @@
   },
   {
     "slug": "[Upstage]-DEV-서버-Docker-데몬-장애-분석-및-재설치-복구-과정",
-    "title": "[면접대비] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[Docker] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정",
+    "category": "Docker",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "Jenkins 파이프라인에서 DEV 서버 배포 단계가 실패하면서 시작된 Docker 데몬 장애 분석 및 복구 과정을 정리한 문서다. 처음에는 Jenkins 파이프라인 자체 문제처럼 보였지만, 실제 원인은 Jenki…",
-    "tag_color": "#0d9488"
+    "tag_color": "#0ea5e9"
   },
   {
     "slug": "[Upstage]-JMeter-관련-개념어-정리",
-    "title": "[면접대비] JMeter 관련 개념어 정리",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[JMeter] JMeter 관련 개념어 정리",
+    "category": "JMeter",
+    "topic": "web",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "JMeter는 웹 애플리케이션, API 서버, 데이터베이스, 메시지 큐 등에 요청을 보내면서 시스템의 성능을 측정하는 부하 테스트 도구다. 이번 실습에서는 FastAPI Todo 서비스를 EC2에 배포한 뒤, Je…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-JMeter-기반-부하-테스트와-Jenkins-파이프라인-트러블슈팅-정리",
-    "title": "[면접대비] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[CI/CD] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리",
+    "category": "CI/CD",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "FastAPI Todo 서비스를 EC2에 배포하고, Jenkins 파이프라인에서 테스트·빌드·배포·JMeter 부하 테스트·HTML Report 생성·InfluxDB/Grafana 연동까지 구성하는 과정에서 발생한…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-Answer-Similarity는-어떤-기준으로-평가하는가",
-    "title": "[면접대비] Answer Similarity는 어떤 기준으로 평가하는가",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[AI] Answer Similarity는 어떤 기준으로 평가하는가",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "RAG나 LLM 서비스를 평가할 때 Answer Similarity 라는 지표가 자주 등장한다. 이름 그대로 해석하면 “생성된 답변이 기준 답변과 얼마나 비슷한가”를 보는 지표이다. 하지만 여기서 말하는 비슷함은…",
-    "tag_color": "#0d9488"
+    "tag_color": "#db2777"
   },
   {
     "slug": "[Upstage]-OCR-품질-회귀-탐지-지표-정리",
-    "title": "[면접대비] OCR 품질 회귀 탐지 지표 정리",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[AI] OCR 품질 회귀 탐지 지표 정리",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "OCR 시스템에서 품질 회귀를 탐지하려면 단순히 API가 정상 응답하는지만 보면 안 된다. OCR은 서버가 정상적으로 동작해도 인식 결과가 틀릴 수 있기 때문이다. 예를 들어 API 응답 코드는 200 OK이고 l…",
-    "tag_color": "#0d9488"
+    "tag_color": "#db2777"
   },
   {
     "slug": "[Upstage]-OCR-시스템에서-품질-회귀를-탐지하는-방법",
-    "title": "[면접대비] OCR 시스템에서 품질 회귀를 탐지하는 방법",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[AI] OCR 시스템에서 품질 회귀를 탐지하는 방법",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.30",
-    "excerpt": "--- title: \"OCR 시스템에서 품질 회귀를 탐지하는 방법\" date: 2026-05-30 categories: OCR, AI DevOps, MLOps tags: OCR, Quality Regression,…",
-    "tag_color": "#0d9488"
+    "excerpt": "OCR 시스템에서 품질 회귀를 탐지하는 방법 OCR은 Optical Character Recognition의 약자로, 이미지나 PDF 안에 있는 글자를 기계가 읽을 수 있는 텍스트로 변환하는 기술이다. 예를 들어…",
+    "tag_color": "#db2777"
   },
   {
     "slug": "[Upstage]-임베딩과-벡터-DB의-차이",
-    "title": "[면접대비] 임베딩과 벡터 DB의 차이",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[AI] 임베딩과 벡터 DB의 차이",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "RAG를 공부하다 보면 임베딩과 벡터 DB라는 말을 자주 보게 된다. 둘 다 검색과 관련되어 있어서 비슷해 보이지만, 실제 역할은 다르다. 간단히 말하면 임베딩은 텍스트를 숫자 벡터로 바꾸는 과정 이고, 벡터 DB…",
-    "tag_color": "#0d9488"
+    "tag_color": "#db2777"
   },
   {
     "slug": "[Upstage]-RAG-시스템에서-품질-회귀란-무엇인가",
-    "title": "[면접대비] RAG 시스템에서 품질 회귀란 무엇인가",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[AI] RAG 시스템에서 품질 회귀란 무엇인가",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "RAG 시스템은 LLM이 외부 문서를 검색한 뒤, 검색된 문서를 근거로 답변을 생성하는 구조이다. 일반적인 LLM 서비스와 달리 RAG는 모델 하나만 잘 동작한다고 품질이 보장되지 않는다. 문서 수집, 전처리, 청…",
-    "tag_color": "#0d9488"
+    "tag_color": "#db2777"
   },
   {
     "slug": "[Kubernetes]-쿠버네티스-DNS-정리-CoreDNS와-Service-이름-해석",
@@ -111,17 +111,17 @@
   },
   {
     "slug": "[Upstage]-논문-기반-RAG-면접-예상-질문",
-    "title": "[면접대비] RAG / 코퍼스 / 리트리벌 기본 질문",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[AI] RAG / 코퍼스 / 리트리벌 기본 질문",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "1. 코퍼스가 뭔가요? 답변 코퍼스는 RAG 시스템이 검색 대상으로 삼는 문서 집합입니다. 일반 검색 서비스로 치면 검색 엔진이 색인해두는 문서 데이터베이스이고, RAG에서는 사용자의 질문에 답하기 위해 참조하는…",
-    "tag_color": "#0d9488"
+    "tag_color": "#db2777"
   },
   {
     "slug": "[Upstage]-AI-에이전트-PoC-이후가-진짜-문제인-이유",
-    "title": "[면접대비] AI 에이전트 PoC 이후가 진짜 문제인 이유",
+    "title": "[Upstage] AI 에이전트 PoC 이후가 진짜 문제인 이유",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -131,17 +131,17 @@
   },
   {
     "slug": "[Upstage]-Conversation-서비스-CI-CD-파이프라인-구축과-트러블슈팅",
-    "title": "[면접대비] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[CI/CD] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅",
+    "category": "CI/CD",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스를 대상으로 Jenkins CI/CD 파이프라인을 구성하고, 코드 품질 검증, DEV 서버 배포, 부하 테스트, main 브랜치 병합, PROD…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-Document-Parse-Enhanced로-이해하는-문서-AI-파이프라인",
-    "title": "[면접대비] Document Parse Enhanced로 이해하는 문서 AI 파이프라인",
+    "title": "[Upstage] Document Parse Enhanced로 이해하는 문서 AI 파이프라인",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -151,7 +151,7 @@
   },
   {
     "slug": "[Upstage]-Information-Extract-API를-DevOps-관점에서-이해하기",
-    "title": "[면접대비] Information Extract API를 DevOps 관점에서 이해하기",
+    "title": "[Upstage] Information Extract API를 DevOps 관점에서 이해하기",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -161,27 +161,27 @@
   },
   {
     "slug": "[Upstage]-Jenkins-성능-게이트와-Grafana-모니터링-파이프라인-구축",
-    "title": "[면접대비] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[CI/CD] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축",
+    "category": "CI/CD",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스의 Jenkins CI/CD 파이프라인에서 DEV 서버 배포 이후 JMeter 부하 테스트를 실행하고, p95 latency 기준으로 성능 게이…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-Prometheus-Loki-Grafana로-이해하는-모니터링과-관측-가능성",
-    "title": "[면접대비] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[모니터링] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성",
+    "category": "모니터링",
+    "topic": "web",
     "tags": "",
     "date": "2026.05.30",
     "excerpt": "1. 개요 서비스를 운영할 때 가장 중요한 질문은 단순히 “서버가 켜져 있는가?”가 아니다. 운영 환경에서는 다음 질문에 답할 수 있어야 한다. 이 질문에 답하기 위해 사용하는 대표적인 도구가 Prometheus,…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-Solar-Pro-3를-AI-DevOps-관점에서-이해하기",
-    "title": "[면접대비] Solar Pro 3를 AI DevOps 관점에서 이해하기",
+    "title": "[Upstage] Solar Pro 3를 AI DevOps 관점에서 이해하기",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -191,7 +191,7 @@
   },
   {
     "slug": "[Upstage]-업스테이지-AI-DevOps-심화-기술면접-예상-질문-정리",
-    "title": "[면접대비] 업스테이지 AI DevOps 심화 기술면접 예상 질문 정리",
+    "title": "[Upstage] 업스테이지 AI DevOps 심화 기술면접 예상 질문 정리",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -201,7 +201,7 @@
   },
   {
     "slug": "[Upstage]-전처리가-AI-에이전트-성공률을-좌우하는-이유",
-    "title": "[면접대비] 전처리가 AI 에이전트 성공률을 좌우하는 이유",
+    "title": "[Upstage] 전처리가 AI 에이전트 성공률을 좌우하는 이유",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -922,32 +922,32 @@
   {
     "slug": "[Upstage]-Reverse-Proxy는-왜-쓰는-걸까",
     "title": "[NGINX] Reverse Proxy는 왜 쓰는 걸까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "NGINX",
+    "topic": "web",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "서버를 배포하다 보면 Nginx라는 말을 자주 듣게 된다. 특히 이런 구조를 많이 본다. 처음에는 이런 생각이 든다. “그냥 사용자가 백엔드 서버로 바로 접속하면 되는 거 아닌가?” 예를 들어 백엔드가 8080번…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-GitHub-Webhook은-도대체-뭘까",
     "title": "[GITHUB] GitHub Webhook은 도대체 뭘까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "CI/CD",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "프로젝트를 배포하다 보면 이런 흐름을 자주 보게 된다. 처음에는 이게 되게 신기하다. “내가 Jenkins에 들어가서 빌드 버튼을 누른 것도 아닌데, 왜 자동으로 실행되지?” 이때 GitHub와 Jenkins 사이…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-JMeter로-API-부하-테스트를-해봤다는-건-무슨-뜻일까",
     "title": "[JMETER] JMeter로 API 부하 테스트를 해봤다는 건 무슨 뜻일까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "JMeter",
+    "topic": "web",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "프로젝트를 만들다 보면 단순히 “기능이 동작한다”에서 끝나면 안 된다. 내 로컬에서 버튼 한 번 눌렀을 때 잘 되는 것과, 여러 사용자가 동시에 요청을 보냈을 때도 안정적으로 동작하는 것은 완전히 다른 문제다. 내…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Kubernetes]-쿠버네티스를-이해하기-전에-알아야-할-것들-온프레미스-VM-컨테이너-Docker-그리고-K8s",
@@ -962,112 +962,112 @@
   {
     "slug": "[Upstage]-노드-토큰-복붙에서-CLI-조인-그리고-자동화까지",
     "title": "[KUBERNETES] 노드 토큰 복붙에서 CLI 조인, 그리고 자동화까지",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "쿠버네티스 클러스터를 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드를 마스터 노드에 어떻게 조인시키는가 였다. 처음에는 단순히 “워커 노드를 붙인다” 정도로만 생각했는데, 실제로 해보니 그 안에는 꽤 중요한…",
-    "tag_color": "#0d9488"
+    "tag_color": "#7c3aed"
   },
   {
     "slug": "[Upstage]-k3s-워커-노드는-어떻게-마스터-노드에-조인될까-node-token으로-이해하는-노드-조인",
     "title": "[KUBERNETES] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "쿠버네티스를 처음 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드 조인 이었다. 처음에는 워커 노드를 클러스터에 붙이기 위해 여러 설정 파일을 직접 복사하고 수정해야 하는 줄 알았다. 그런데 k3s에서는 핵심이…",
-    "tag_color": "#0d9488"
+    "tag_color": "#7c3aed"
   },
   {
     "slug": "[Upstage]-3-Tier-구조란-무엇일까",
     "title": "[INFRA] 3-Tier 구조란 무엇일까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Web",
+    "topic": "web",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "서비스 구조를 설명할 때 자주 나오는 말 중 하나가 3-Tier Architecture , 즉 3계층 구조 다. 처음 들으면 어려워 보이지만, 사실 핵심은 단순하다. 보통 다음 세 계층으로 나눈다. 웹 서비스 기준…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이",
     "title": "[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Docker",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다. 또는 이런 그림을 본다. 그런데 이 설명만 보면 감이 잘 안 온다. “그래서 실제로 뭐가 다른데?”라는 생각이 든다. 나도 UTM으로 리눅스…",
-    "tag_color": "#0d9488"
+    "tag_color": "#0ea5e9"
   },
   {
     "slug": "[Upstage]-apiapi-중복과-WebSocket-101-실패를-해결하며-프록시-경로를-정리한-이야기",
     "title": "[NGINX] /api/api 중복과 WebSocket 101 실패를 해결하며 프록시 경로를 정리한 이야기",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "NGINX",
+    "topic": "web",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "서비스를 배포하다 보면 로컬에서는 잘 되던 API 요청이 운영 서버에서는 실패하는 경우가 있다. 처음에는 백엔드 문제처럼 보인다. API 서버가 죽었는지, 포트가 막혔는지, CORS 문제인지부터 의심하게 된다. 그…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-프론트·백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유",
     "title": "[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "CI/CD",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "나는 당시 기억을 기준으로 이렇게 답했다. 그런데 바로 이어서 이런 질문이 들어왔다. 처음에는 이 질문이 조금 당황스러웠다. 프론트랑 백엔드 컨테이너를 띄웠다고 말했는데 왜 갑자기 Nginx를 물어보는지 바로 연결…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-ddl-auto-validate에서-init.sql을-직접-만들며-DB-스키마를-맞춘-이야기",
     "title": "[SPRING] ddl-auto: validate에서 init.sql을 직접 만들며 DB 스키마를 맞춘 이야기",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Spring",
+    "topic": "spring",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "Spring Boot 애플리케이션을 EC2에 배포하다가 부팅이 실패한 적이 있다. 처음에는 단순히 MySQL 연결 문제라고 생각했다. DB 주소가 잘못됐는지, 계정 정보가 틀렸는지, 포트가 막혔는지부터 확인했다.…",
-    "tag_color": "#0d9488"
+    "tag_color": "#16a34a"
   },
   {
     "slug": "[Upstage]-ddl-auto-validate에서-테이블이-없으면-왜-부팅이-실패할까",
     "title": "[SPRING] ddl-auto: validate에서 테이블이 없으면 왜 부팅이 실패할까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Spring",
+    "topic": "spring",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "Spring Boot 애플리케이션을 EC2 서버에 배포하다가 부팅이 실패한 적이 있다. 처음에는 MySQL 연결 문제인가 싶었다. DB 주소가 틀렸는지, 계정 정보가 잘못됐는지, 포트가 막혔는지부터 확인했다. 그런…",
-    "tag_color": "#0d9488"
+    "tag_color": "#16a34a"
   },
   {
     "slug": "[Upstage]-Docker도-Jenkins도-없이-scp로-EC2에-직접-배포했던-이야기",
     "title": "[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "CI/CD",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "1. scp 배포란? scp 는 Secure Copy의 줄임말이다. SSH를 기반으로 로컬 파일을 원격 서버에 안전하게 복사하는 명령어다. 쉽게 말하면 내 노트북에서 만든 파일을 EC2 서버로 보내는 방식이다. 이…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유",
     "title": "[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Docker",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "Docker로 애플리케이션을 배포하다 보면 이상한 상황을 만날 때가 있다. 분명히 코드를 고쳤다. Dockerfile도 수정했다. docker-compose.yml도 확인했다. 그런데 계속 같은 빌드 실패가 반복된…",
-    "tag_color": "#0d9488"
+    "tag_color": "#0ea5e9"
   },
   {
     "slug": "[Upstage]-단일-스테이지-구조를-쓰면-항상-EC2-안에서-빌드해야-할까",
     "title": "[DOCKER] 단일 스테이지 구조를 쓰면 항상 EC2 안에서 빌드해야 할까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Docker",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다. 결론부터 말하면 반드시 EC2 안에서 빌드해야 하는 것은 아니다. 다만 단일 스테이지 구조…",
-    "tag_color": "#0d9488"
+    "tag_color": "#0ea5e9"
   },
   {
     "slug": "[Docker]-이미지를-jdk로-할건지-jre로-할건지",
@@ -1082,22 +1082,22 @@
   {
     "slug": "[Upstage]-단일스테이지로-쓰려면",
     "title": "[Docker] 단일스테이지로 쓰려면?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Docker",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "단일 스테이지로 쓰려면 핵심은 “Dockerfile이 JAR를 복사하기 전에, EC2 호스트에 JAR가 실제로 존재해야 한다” 는 전제를 지키는 것이다. 즉, 단일 스테이지 구조는 보통 이렇게 간다. 1. 가장 기…",
-    "tag_color": "#0d9488"
+    "tag_color": "#0ea5e9"
   },
   {
     "slug": "[Upstage]-EC2에서-Docker-빌드할-때-JAR-파일이-없어서-COPY가-실패한-문제",
     "title": "[DOCKER] EC2에서 Docker 빌드할 때 JAR 파일이 없어서 COPY가 실패한 문제",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Docker",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.17",
     "excerpt": "Spring Boot 애플리케이션을 EC2 서버에 배포하다 보면, 로컬에서는 잘 되던 Docker 빌드가 서버에서는 갑자기 실패하는 경우가 있다. 그중 대표적인 문제가 바로 JAR 파일 누락으로 인한 COPY 실패…",
-    "tag_color": "#0d9488"
+    "tag_color": "#0ea5e9"
   },
   {
     "slug": "[Kubernetes]-원격-클러스터와-인프라-운영-관점",
@@ -1262,12 +1262,12 @@
   {
     "slug": "[Upstage]-Helm으로-ingress-nginx를-설치하면-어디까지-설치되는-걸까",
     "title": "[Kubernetes] Helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "Kubernetes",
+    "topic": "docker-k8s",
     "tags": "",
     "date": "2026.05.13",
     "excerpt": "Ingress를 처음 실습할 때 가장 헷갈렸던 부분이 있다. 이 명령어를 치면 뭔가 Ingress 관련 설정이 다 끝난 것처럼 느껴진다. 그래서 이후에 다시 이런 명령어를 치면 헷갈린다. 처음에는 이런 생각이 든다…",
-    "tag_color": "#0d9488"
+    "tag_color": "#7c3aed"
   },
   {
     "slug": "[Kubernetes]-Helm으로-설치한-ingress-nginx에도-Service가-있는데-왜-nginx-Service를-또-만들까",
@@ -1462,12 +1462,12 @@
   {
     "slug": "[Upstage]-코퍼스-청킹-임베딩-벡터서치-Recallk까지-한-번에-정리하기",
     "title": "[RAG] 코퍼스, 청킹, 임베딩, 벡터서치, Recall@k까지 한 번에 정리하기",
-    "category": "Upstage",
-    "topic": "upstage",
+    "category": "AI",
+    "topic": "ai",
     "tags": "",
     "date": "2026.05.12",
     "excerpt": "RAG를 공부하다 보면 처음부터 낯선 단어가 너무 많이 나온다. 코퍼스, 청킹, 임베딩, 벡터서치, top_k, reranker, Recall@k, nDCG@k 같은 말들이 계속 나오는데, 각각 따로 보면 알 것…",
-    "tag_color": "#0d9488"
+    "tag_color": "#db2777"
   },
   {
     "slug": "[WEB]-브라우저는-도대체-뭘까",
@@ -2611,7 +2611,7 @@
   },
   {
     "slug": "[Upstage]-AI-API-모니터링은-어떻게-해야-할까",
-    "title": "[면접대비] AI API 모니터링은 어떻게 해야 할까",
+    "title": "[Upstage] AI API 모니터링은 어떻게 해야 할까",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -2621,17 +2621,17 @@
   },
   {
     "slug": "[Upstage]-API는-대체-어떻게-생겼을까",
-    "title": "[면접대비] API는 대체 어떻게 생겼을까",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[Web] API는 대체 어떻게 생겼을까",
+    "category": "Web",
+    "topic": "web",
     "tags": "",
     "date": "",
     "excerpt": "맞아. API 문서 는 “이 API를 어떻게 호출해야 하는지 적어둔 사용 설명서”야. 코드로 비유하면, API 자체가 자판기라면 API 문서는 이런 안내문임. 개발식으로 바꾸면 API 문서에는 보통 이게 적혀 있어…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-Solar-LLM-API-문서는-어떻게-생겼을까",
-    "title": "[면접대비] Solar LLM API 문서는 어떻게 생겼을까",
+    "title": "[Upstage] Solar LLM API 문서는 어떻게 생겼을까",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -2641,7 +2641,7 @@
   },
   {
     "slug": "[Upstage]-Solar-LLM은-대체-뭐고-어디에-쓰는-걸까",
-    "title": "[면접대비] Solar LLM은 대체 뭐고 어디에 쓰는 걸까",
+    "title": "[Upstage] Solar LLM은 대체 뭐고 어디에 쓰는 걸까",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",
@@ -2651,17 +2651,17 @@
   },
   {
     "slug": "[Upstage]-latency-error-rate-timeout-retry-token-usage-p95는-다-뭐야",
-    "title": "[면접대비] latency error rate timeout retry token usage p95는 다 뭐야",
-    "category": "Upstage",
-    "topic": "upstage",
+    "title": "[모니터링] latency error rate timeout retry token usage p95는 다 뭐야",
+    "category": "모니터링",
+    "topic": "web",
     "tags": "",
     "date": "",
     "excerpt": "latency, error rate, timeout, retry, token usage, p95는 다 뭐야? API나 DevOps 공부를 하다 보면 이런 말을 자주 본다. 처음 보면 다 따로 노는 단어처럼 보인다.…",
-    "tag_color": "#0d9488"
+    "tag_color": "#64748b"
   },
   {
     "slug": "[Upstage]-업스테이지는-왜-API를-다-따로-만들었을까",
-    "title": "[면접대비] 업스테이지는 왜 API를 다 따로 만들었을까",
+    "title": "[Upstage] 업스테이지는 왜 API를 다 따로 만들었을까",
     "category": "Upstage",
     "topic": "upstage",
     "tags": "",

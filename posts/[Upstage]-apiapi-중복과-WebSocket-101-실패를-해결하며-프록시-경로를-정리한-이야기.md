@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/NGINX-apiapi-중복과-WebSocket-101-실패
 published: "2026-05-17T10:09:56.622Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.735321"
+topic: "web"
+category: "NGINX"
 ---
 
 서비스를 배포하다 보면 로컬에서는 잘 되던 API 요청이 운영 서버에서는 실패하는 경우가 있다. 처음에는 백엔드 문제처럼 보인다. API 서버가 죽었는지, 포트가 막혔는지, CORS 문제인지부터 의심하게 된다. 그런데 실제 원인은 프론트엔드 요청 URL과 Nginx 프록시 경로가 서로 다르게 조합되면서 발생한 **경로 불일치 문제**였다. 여기에 실시간 기능을 위한 WebSocket 요청까지 포함되면서, 단순 HTTP 요청뿐 아니라 `Upgrade`, `Connection` 헤더까지 명시해야 하는 상황이 생겼다.

@@ -1,3 +1,9 @@
+---
+title: "[Upstage] Solar LLM은 대체 뭐고 어디에 쓰는 걸까"
+topic: "upstage"
+category: "Upstage"
+---
+
 # Solar LLM은 대체 뭐고, 어디에 쓰는 걸까?
 
 Upstage를 이해하려면 `Solar LLM`을 알아야 한다.

@@ -4,8 +4,9 @@ source: "https://velog.io/@yorange50/INFRA-컨테이너와-VM은-뭐가-다를�
 published: "2026-05-17T10:19:11.009Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.734825"
+topic: "docker-k8s"
+category: "Docker"
 ---
-
 
 컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다.
 

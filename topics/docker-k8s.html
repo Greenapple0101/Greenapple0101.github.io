@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Docker &amp; Kubernetes | Greenapple0101</title>
-  <meta name="description" content="Docker, Kubernetes, CKA, Helm, k3d, Argo CD 등 인프라·컨테이너" />
+  <meta name="description" content="Docker, Kubernetes, Helm, Jenkins, CI/CD 등 컨테이너·배포 자동화" />
   <link rel="stylesheet" href="../style.css" />
 </head>
 <body class="topic-page">
@@ -12,8 +12,8 @@
     <a class="back-link" href="../index.html">← 홈</a>
     <p class="small-title">폴더</p>
     <h1>Docker &amp; Kubernetes</h1>
-    <p class="description">Docker, Kubernetes, CKA, Helm, k3d, Argo CD 등 인프라·컨테이너</p>
-    <span class="stat"><strong>126</strong> posts</span>
+    <p class="description">Docker, Kubernetes, Helm, Jenkins, CI/CD 등 컨테이너·배포 자동화</p>
+    <span class="stat"><strong>141</strong> posts</span>
   </header>
 
   <main>
@@ -22,6 +22,24 @@
     </div>
     <p class="result-count" id="result-count"></p>
     <div class="post-list" id="post-list">
+      <a class="post-card" href="../posts/[Upstage]-DEV-서버-Docker-데몬-장애-분석-및-재설치-복구-과정.html" data-title="[docker] dev 서버 docker 데몬 장애 분석 및 재설치 복구 과정" data-tags="" data-category="Docker" data-published="2026-05-30T21:56:37.000Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.30</time>
+        </div>
+        <h2>[Docker] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정</h2>
+        <p>Jenkins 파이프라인에서 DEV 서버 배포 단계가 실패하면서 시작된 Docker 데몬 장애 분석 및 복구 과정을 정리한 문서다. 처음에는 Jenkins 파이프라인 자체 문제처럼 보였지만, 실제 원인은 Jenki…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-JMeter-기반-부하-테스트와-Jenkins-파이프라인-트러블슈팅-정리.html" data-title="[ci/cd] jmeter 기반 부하 테스트와 jenkins 파이프라인 트러블슈팅 정리" data-tags="" data-category="CI/CD" data-published="2026-05-30T21:40:00.000Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+          <time>2026.05.30</time>
+        </div>
+        <h2>[CI/CD] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리</h2>
+        <p>FastAPI Todo 서비스를 EC2에 배포하고, Jenkins 파이프라인에서 테스트·빌드·배포·JMeter 부하 테스트·HTML Report 생성·InfluxDB/Grafana 연동까지 구성하는 과정에서 발생한…</p>
+      </a>
+
       <a class="post-card" href="../posts/[Kubernetes]-쿠버네티스-DNS-정리-CoreDNS와-Service-이름-해석.html" data-title="[kubernetes] 쿠버네티스 dns 정리: coredns와 service 이름 해석" data-tags="" data-category="Kubernetes" data-published="2026-05-30T17:19:27.000Z">
         <div class="card-top">
           <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
@@ -38,6 +56,24 @@
         </div>
         <h2>[Kubernetes] 클러스터 네트워킹 구성: Docker 네트워크부터 kube-proxy까지</h2>
         <p>쿠버네티스 네트워킹을 이해하려면 바로 Service, Ingress부터 외우기보다 먼저 컨테이너가 네트워크를 어떻게 갖는지 를 봐야 한다. 이번 강의의 핵심은 크게 두 가지다. 즉, 먼저 단일 호스트와 멀티 호스트…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-Conversation-서비스-CI-CD-파이프라인-구축과-트러블슈팅.html" data-title="[ci/cd] conversation 서비스 ci/cd 파이프라인 구축과 트러블슈팅" data-tags="" data-category="CI/CD" data-published="2026-05-30T12:00:00.000Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+          <time>2026.05.30</time>
+        </div>
+        <h2>[CI/CD] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅</h2>
+        <p>1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스를 대상으로 Jenkins CI/CD 파이프라인을 구성하고, 코드 품질 검증, DEV 서버 배포, 부하 테스트, main 브랜치 병합, PROD…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-Jenkins-성능-게이트와-Grafana-모니터링-파이프라인-구축.html" data-title="[ci/cd] jenkins 성능 게이트와 grafana 모니터링 파이프라인 구축" data-tags="" data-category="CI/CD" data-published="2026-05-30T12:00:00.000Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+          <time>2026.05.30</time>
+        </div>
+        <h2>[CI/CD] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축</h2>
+        <p>1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스의 Jenkins CI/CD 파이프라인에서 DEV 서버 배포 이후 JMeter 부하 테스트를 실행하고, p95 latency 기준으로 성능 게이…</p>
       </a>
 
       <a class="post-card" href="../posts/[Kubernetes]-쿠버네티스-스토리지-종류-정리.html" data-title="[kubernetes] 쿠버네티스 스토리지 종류 정리" data-tags="" data-category="Kubernetes" data-published="2026-05-29T18:01:00.000Z">
@@ -643,6 +679,15 @@
         <p>쿠버네티스에서 외부 요청을 서비스로 연결할 때 Service 만 쓰는 게 아니라 Ingress 라는 것도 자주 등장한다. 처음 보면 이름이 비슷해서 헷갈린다. 둘 다 외부 요청을 내부 서비스로 보내는 것 같고, 둘…</p>
       </a>
 
+      <a class="post-card" href="../posts/[Upstage]-GitHub-Webhook은-도대체-뭘까.html" data-title="[github] github webhook은 도대체 뭘까?" data-tags="" data-category="CI/CD" data-published="2026-05-17T11:47:05.268Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[GITHUB] GitHub Webhook은 도대체 뭘까?</h2>
+        <p>프로젝트를 배포하다 보면 이런 흐름을 자주 보게 된다. 처음에는 이게 되게 신기하다. “내가 Jenkins에 들어가서 빌드 버튼을 누른 것도 아닌데, 왜 자동으로 실행되지?” 이때 GitHub와 Jenkins 사이…</p>
+      </a>
+
       <a class="post-card" href="../posts/[Kubernetes]-쿠버네티스를-이해하기-전에-알아야-할-것들-온프레미스-VM-컨테이너-Docker-그리고-K8s.html" data-title="[kubernetes] 쿠버네티스를 이해하기 전에 알아야 할 것들: 온프레미스, vm, 컨테이너, docker, 그리고 k8s" data-tags="" data-category="Kubernetes" data-published="2026-05-17T11:16:43.976Z">
         <div class="card-top">
           <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
@@ -652,6 +697,69 @@
         <p>쿠버네티스를 처음 공부할 때 바로 Pod, Service, Deployment부터 들어가면 헷갈리기 쉽다. 쿠버네티스는 갑자기 튀어나온 기술이 아니라, 서버를 운영하는 방식이 변화하면서 자연스럽게 등장한 기술이기…</p>
       </a>
 
+      <a class="post-card" href="../posts/[Upstage]-노드-토큰-복붙에서-CLI-조인-그리고-자동화까지.html" data-title="[kubernetes] 노드 토큰 복붙에서 cli 조인, 그리고 자동화까지" data-tags="" data-category="Kubernetes" data-published="2026-05-17T11:02:09.867Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[KUBERNETES] 노드 토큰 복붙에서 CLI 조인, 그리고 자동화까지</h2>
+        <p>쿠버네티스 클러스터를 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드를 마스터 노드에 어떻게 조인시키는가 였다. 처음에는 단순히 “워커 노드를 붙인다” 정도로만 생각했는데, 실제로 해보니 그 안에는 꽤 중요한…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-k3s-워커-노드는-어떻게-마스터-노드에-조인될까-node-token으로-이해하는-노드-조인.html" data-title="[kubernetes] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인" data-tags="" data-category="Kubernetes" data-published="2026-05-17T10:54:34.111Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[KUBERNETES] k3s 워커 노드는 어떻게 마스터 노드에 조인될까? — node-token으로 이해하는 노드 조인</h2>
+        <p>쿠버네티스를 처음 구성할 때 가장 헷갈렸던 부분 중 하나가 워커 노드 조인 이었다. 처음에는 워커 노드를 클러스터에 붙이기 위해 여러 설정 파일을 직접 복사하고 수정해야 하는 줄 알았다. 그런데 k3s에서는 핵심이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-컨테이너와-VM은-뭐가-다를까-UTM-위에-리눅스를-깔고-Incus를-올려보며-이해한-차이.html" data-title="[infra] 컨테이너와 vm은 뭐가 다를까? utm 위에 리눅스를 깔고 incus를 올려보며 이해한 차이" data-tags="" data-category="Docker" data-published="2026-05-17T10:19:11.009Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[INFRA] 컨테이너와 VM은 뭐가 다를까? UTM 위에 리눅스를 깔고 Incus를 올려보며 이해한 차이</h2>
+        <p>컨테이너와 VM의 차이를 처음 공부하면 보통 이런 식으로 설명을 듣는다. 또는 이런 그림을 본다. 그런데 이 설명만 보면 감이 잘 안 온다. “그래서 실제로 뭐가 다른데?”라는 생각이 든다. 나도 UTM으로 리눅스…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-프론트·백-컨테이너만-있다고-했는데-Nginx는-어디-갔나요라고-물어본-이유.html" data-title="[deploy] 프론트·백 컨테이너만 있다고 했는데, “nginx는 어디 갔나요?”라고 물어본 이유" data-tags="" data-category="CI/CD" data-published="2026-05-17T10:07:17.556Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DEPLOY] 프론트·백 컨테이너만 있다고 했는데, “Nginx는 어디 갔나요?”라고 물어본 이유</h2>
+        <p>나는 당시 기억을 기준으로 이렇게 답했다. 그런데 바로 이어서 이런 질문이 들어왔다. 처음에는 이 질문이 조금 당황스러웠다. 프론트랑 백엔드 컨테이너를 띄웠다고 말했는데 왜 갑자기 Nginx를 물어보는지 바로 연결…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-Docker도-Jenkins도-없이-scp로-EC2에-직접-배포했던-이야기.html" data-title="[deploy] docker도 jenkins도 없이 scp로 ec2에 직접 배포했던 이야기" data-tags="" data-category="CI/CD" data-published="2026-05-17T09:53:06.866Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DEPLOY] Docker도 Jenkins도 없이 scp로 EC2에 직접 배포했던 이야기</h2>
+        <p>1. scp 배포란? scp 는 Secure Copy의 줄임말이다. SSH를 기반으로 로컬 파일을 원격 서버에 안전하게 복사하는 명령어다. 쉽게 말하면 내 노트북에서 만든 파일을 EC2 서버로 보내는 방식이다. 이…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-Docker-빌드-실패가-계속-반복될-때-캐시와-잔여-리소스를-의심해야-하는-이유.html" data-title="[docker] docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유" data-tags="" data-category="Docker" data-published="2026-05-17T09:41:33.774Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DOCKER] Docker 빌드 실패가 계속 반복될 때: 캐시와 잔여 리소스를 의심해야 하는 이유</h2>
+        <p>Docker로 애플리케이션을 배포하다 보면 이상한 상황을 만날 때가 있다. 분명히 코드를 고쳤다. Dockerfile도 수정했다. docker-compose.yml도 확인했다. 그런데 계속 같은 빌드 실패가 반복된…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-단일-스테이지-구조를-쓰면-항상-EC2-안에서-빌드해야-할까.html" data-title="[docker] 단일 스테이지 구조를 쓰면 항상 ec2 안에서 빌드해야 할까?" data-tags="" data-category="Docker" data-published="2026-05-17T09:27:34.161Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DOCKER] 단일 스테이지 구조를 쓰면 항상 EC2 안에서 빌드해야 할까?</h2>
+        <p>Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다. 결론부터 말하면 반드시 EC2 안에서 빌드해야 하는 것은 아니다. 다만 단일 스테이지 구조…</p>
+      </a>
+
       <a class="post-card" href="../posts/[Docker]-이미지를-jdk로-할건지-jre로-할건지.html" data-title="[docker] 이미지를 jdk로 할건지 jre로 할건지" data-tags="" data-category="Docker" data-published="2026-05-17T09:23:19.316Z">
         <div class="card-top">
           <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
@@ -659,6 +767,24 @@
         </div>
         <h2>[Docker] 이미지를 jdk로 할건지 jre로 할건지</h2>
         <p>맞아. 운영 실행용 이미지는 JDK보다 JRE가 더 적절한 경우가 많다. 내가 예시에서 eclipse-temurin:17-jdk 를 쓴 건 “일단 무조건 실행되는 안전한 예시”에 가깝고, 실제 운영 이미지 최적화…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-단일스테이지로-쓰려면.html" data-title="[docker] 단일스테이지로 쓰려면?" data-tags="" data-category="Docker" data-published="2026-05-17T09:21:14.863Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[Docker] 단일스테이지로 쓰려면?</h2>
+        <p>단일 스테이지로 쓰려면 핵심은 “Dockerfile이 JAR를 복사하기 전에, EC2 호스트에 JAR가 실제로 존재해야 한다” 는 전제를 지키는 것이다. 즉, 단일 스테이지 구조는 보통 이렇게 간다. 1. 가장 기…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-EC2에서-Docker-빌드할-때-JAR-파일이-없어서-COPY가-실패한-문제.html" data-title="[docker] ec2에서 docker 빌드할 때 jar 파일이 없어서 copy가 실패한 문제" data-tags="" data-category="Docker" data-published="2026-05-17T09:01:08.643Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #0ea5e9">Docker</span>
+          <time>2026.05.17</time>
+        </div>
+        <h2>[DOCKER] EC2에서 Docker 빌드할 때 JAR 파일이 없어서 COPY가 실패한 문제</h2>
+        <p>Spring Boot 애플리케이션을 EC2 서버에 배포하다 보면, 로컬에서는 잘 되던 Docker 빌드가 서버에서는 갑자기 실패하는 경우가 있다. 그중 대표적인 문제가 바로 JAR 파일 누락으로 인한 COPY 실패…</p>
       </a>
 
       <a class="post-card" href="../posts/[Kubernetes]-원격-클러스터와-인프라-운영-관점.html" data-title="[kubernetes] 원격 클러스터와 인프라 운영 관점" data-tags="" data-category="Kubernetes" data-published="2026-05-14T08:07:47.318Z">
@@ -794,6 +920,15 @@
         </div>
         <h2>[Kubernetes] ReplicaSet YAML에서 selector와 template label은 왜 같아야 할까?</h2>
         <p>Kubernetes에서 ReplicaSet 을 만들다 보면 이런 YAML을 자주 만나게 된다. 겉으로 보면 큰 문제 없어 보인다. ReplicaSet 을 만들고, replicas: 2 니까 Pod를 2개 만들고,…</p>
+      </a>
+
+      <a class="post-card" href="../posts/[Upstage]-Helm으로-ingress-nginx를-설치하면-어디까지-설치되는-걸까.html" data-title="[kubernetes] helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T06:54:30.851Z">
+        <div class="card-top">
+          <span class="tag" style="--tag-color: #7c3aed">Kubernetes</span>
+          <time>2026.05.13</time>
+        </div>
+        <h2>[Kubernetes] Helm으로 ingress-nginx를 설치하면 어디까지 설치되는 걸까?</h2>
+        <p>Ingress를 처음 실습할 때 가장 헷갈렸던 부분이 있다. 이 명령어를 치면 뭔가 Ingress 관련 설정이 다 끝난 것처럼 느껴진다. 그래서 이후에 다시 이런 명령어를 치면 헷갈린다. 처음에는 이런 생각이 든다…</p>
       </a>
 
       <a class="post-card" href="../posts/[Kubernetes]-Helm으로-설치한-ingress-nginx에도-Service가-있는데-왜-nginx-Service를-또-만들까.html" data-title="[kubernetes] helm으로 설치한 ingress-nginx에도 service가 있는데, 왜 nginx service를 또 만들까?" data-tags="" data-category="Kubernetes" data-published="2026-05-13T06:48:16.759Z">

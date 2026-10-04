@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축"
+title: "[CI/CD] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축"
 source: ""
 published: "2026-05-30T12:00:00.000Z"
+topic: "docker-k8s"
+category: "CI/CD"
 ---
 
 ## 1. 개요
@@ -63,7 +65,7 @@ Create PR
 Auto Merge to Main
    ↓
 Monitoring & Alerting
-````
+```
 
 여기서 핵심은 배포가 끝났다고 바로 main으로 반영하지 않고, DEV 서버에 실제로 배포된 서비스를 대상으로 부하 테스트를 수행한 뒤 p95 latency 기준을 통과해야 다음 단계로 넘어가도록 한 점이다.
 
@@ -645,7 +647,3 @@ JMeter 실패, Dockerfile CMD 오류, 컨테이너 종료, API path 불일치, L
 초기에는 JMeter 100% 실패, 컨테이너 종료, Dockerfile CMD 오류, API path 불일치, 외부 API credential 누락, 디스크 부족, Loki 설정 오류, Promtail 수집 경로 문제 등 많은 장애가 발생했다. 하지만 각 문제를 계층별로 나누어 확인하면서 최종적으로 파이프라인 성공과 모니터링 알림까지 연결했다.
 
 이 경험을 바탕으로 AI 서비스 운영에서도 단순히 API를 배포하는 것에 그치지 않고, 배포 후 성능과 품질을 검증하고, 로그와 메트릭을 통해 이상 상태를 감지하며, 기준을 통과한 버전만 다음 환경으로 승격시키는 DevOps 파이프라인을 설계하고 싶다.
-
-```
-
-이 글은 네 포트폴리오에서 **“배포 이후 운영 검증까지 해본 경험”**으로 두면 좋아. 앞 문서가 Jenkins/SonarQube 중심이면, 이 문서는 **JMeter 성능 게이트 + Grafana 모니터링/알림** 중심으로 분리하면 깔끔해.

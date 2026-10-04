@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성 | Greenapple0101</title>
+  <title>[모니터링] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성 | Greenapple0101</title>
   <meta name="description" content="1. 개요 서비스를 운영할 때 가장 중요한 질문은 단순히 “서버가 켜져 있는가?”가 아니다. 운영 환경에서는 다음 질문에 답할 수 있어야 한다. 이 질문에 답하기 위해 사용하는 대표적인 도구가 Prometheus, Loki, Grafana이다. 세 도구를 함께 사용하면 서비스의 상태를…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/web.html">웹 · 기타</a>
     </nav>
-    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성</h1>
+    <span class="tag" style="--tag-color: #64748b">모니터링</span>
+    <h1>[모니터링] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성</h1>
     <div class="post-meta">
       <time datetime="2026-05-30T12:00:00.000Z">2026.05.30</time>
       
@@ -34,12 +34,9 @@
 - 디스크가 부족해지고 있지는 않은가?
 - 장애가 발생했을 때 어떤 로그가 남았는가?
 - 장애를 사람이 보기 전에 알림으로 받을 수 있는가?
-````
-
-이 질문에 답하기 위해 사용하는 대표적인 도구가 Prometheus, Loki, Grafana이다.
-
-```text
-Prometheus
+</code></pre>
+<p>이 질문에 답하기 위해 사용하는 대표적인 도구가 Prometheus, Loki, Grafana이다.</p>
+<pre><code class="language-text">Prometheus
 → 수치형 메트릭 수집 및 저장
 
 Loki
@@ -941,9 +938,9 @@ Grafana
 <p>Prometheus로 이상 징후를 수치로 확인하고, Loki로 관련 로그를 찾아 원인을 좁히며, Grafana로 대시보드와 알림을 구성하는 흐름을 이해하면 운영 가능한 시스템에 한 걸음 가까워질 수 있다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-Solar-Pro-3를-AI-DevOps-관점에서-이해하기.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[면접대비] Solar Pro 3를 AI DevOps 관점에서 이해하기</span></a>
+  <a class="post-nav-link prev" href="[Linux]-systemctl이-뭐길래-서버에서-계속-나올까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Linux] systemctl이 뭐길래 서버에서 계속 나올까?</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[Upstage]-Jenkins-성능-게이트와-Grafana-모니터링-파이프라인-구축.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[면접대비] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축</span></a>
+  <a class="post-nav-link next" href="[Upstage]-JMeter-관련-개념어-정리.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[JMeter] JMeter 관련 개념어 정리</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

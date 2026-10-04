@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축 | Greenapple0101</title>
+  <title>[CI/CD] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축 | Greenapple0101</title>
   <meta name="description" content="1. 개요 이 프로젝트는 Flask 기반 Conversation 서비스의 Jenkins CI/CD 파이프라인에서 DEV 서버 배포 이후 JMeter 부하 테스트를 실행하고, p95 latency 기준으로 성능 게이트를 적용한 경험이다. 초기에는 JMeter 요청이 모두 실패하거나, 컨…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/docker-k8s.html">Docker &amp; Kubernetes</a>
     </nav>
-    <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축</h1>
+    <span class="tag" style="--tag-color: #64748b">CI/CD</span>
+    <h1>[CI/CD] Jenkins 성능 게이트와 Grafana 모니터링 파이프라인 구축</h1>
     <div class="post-meta">
       <time datetime="2026-05-30T12:00:00.000Z">2026.05.30</time>
       
@@ -69,20 +69,13 @@ Create PR
 Auto Merge to Main
    ↓
 Monitoring &amp; Alerting
-````
-
-여기서 핵심은 배포가 끝났다고 바로 main으로 반영하지 않고, DEV 서버에 실제로 배포된 서비스를 대상으로 부하 테스트를 수행한 뒤 p95 latency 기준을 통과해야 다음 단계로 넘어가도록 한 점이다.
-
----
-
-## 4. JMeter 부하 테스트 실패 원인 분석
-
-처음에는 JMeter가 500건 요청을 모두 실패시키는 문제가 발생했다.
-
-초기에는 서버가 죽었거나 네트워크가 막힌 문제라고 생각했지만, 실제 원인은 여러 계층에 나뉘어 있었다.
-
-```text
-1. JMX 파일의 대상 서버 IP 오류
+</code></pre>
+<p>여기서 핵심은 배포가 끝났다고 바로 main으로 반영하지 않고, DEV 서버에 실제로 배포된 서비스를 대상으로 부하 테스트를 수행한 뒤 p95 latency 기준을 통과해야 다음 단계로 넘어가도록 한 점이다.</p>
+<hr>
+<h2>4. JMeter 부하 테스트 실패 원인 분석</h2>
+<p>처음에는 JMeter가 500건 요청을 모두 실패시키는 문제가 발생했다.</p>
+<p>초기에는 서버가 죽었거나 네트워크가 막힌 문제라고 생각했지만, 실제 원인은 여러 계층에 나뉘어 있었다.</p>
+<pre><code class="language-text">1. JMX 파일의 대상 서버 IP 오류
 2. DEV 서버 컨테이너 상태 불안정
 3. 애플리케이션 포트 불일치
 4. JMeter HTTP Method 오류
@@ -474,13 +467,11 @@ Keep Last State
 <p>이 프로젝트는 Jenkins 기반 CI/CD 파이프라인을 단순 배포 자동화에서 끝내지 않고, 배포 후 부하 테스트, p95 latency 기반 성능 게이트, 자동 PR 생성, Auto Merge, Prometheus/Loki/Grafana 기반 모니터링과 Discord 알림까지 확장한 경험이다.</p>
 <p>초기에는 JMeter 100% 실패, 컨테이너 종료, Dockerfile CMD 오류, API path 불일치, 외부 API credential 누락, 디스크 부족, Loki 설정 오류, Promtail 수집 경로 문제 등 많은 장애가 발생했다. 하지만 각 문제를 계층별로 나누어 확인하면서 최종적으로 파이프라인 성공과 모니터링 알림까지 연결했다.</p>
 <p>이 경험을 바탕으로 AI 서비스 운영에서도 단순히 API를 배포하는 것에 그치지 않고, 배포 후 성능과 품질을 검증하고, 로그와 메트릭을 통해 이상 상태를 감지하며, 기준을 통과한 버전만 다음 환경으로 승격시키는 DevOps 파이프라인을 설계하고 싶다.</p>
-<p>```</p>
-<p>이 글은 네 포트폴리오에서 <strong>“배포 이후 운영 검증까지 해본 경험”</strong>으로 두면 좋아. 앞 문서가 Jenkins/SonarQube 중심이면, 이 문서는 <strong>JMeter 성능 게이트 + Grafana 모니터링/알림</strong> 중심으로 분리하면 깔끔해.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-Prometheus-Loki-Grafana로-이해하는-모니터링과-관측-가능성.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[면접대비] Prometheus, Loki, Grafana로 이해하는 모니터링과 관측 가능성</span></a>
+  <a class="post-nav-link prev" href="[Kubernetes]-쿠버네티스-스토리지-종류-정리.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] 쿠버네티스 스토리지 종류 정리</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[Upstage]-Information-Extract-API를-DevOps-관점에서-이해하기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[면접대비] Information Extract API를 DevOps 관점에서 이해하기</span></a>
+  <a class="post-nav-link next" href="[Upstage]-Conversation-서비스-CI-CD-파이프라인-구축과-트러블슈팅.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CI/CD] Conversation 서비스 CI/CD 파이프라인 구축과 트러블슈팅</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

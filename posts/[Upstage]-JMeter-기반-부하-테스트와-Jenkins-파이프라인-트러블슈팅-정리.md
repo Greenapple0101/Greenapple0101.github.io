@@ -1,7 +1,9 @@
 ---
-title: "[면접대비] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리"
+title: "[CI/CD] JMeter 기반 부하 테스트와 Jenkins 파이프라인 트러블슈팅 정리"
 source: ""
 published: "2026-05-30T21:40:00.000Z"
+topic: "docker-k8s"
+category: "CI/CD"
 ---
 
 FastAPI Todo 서비스를 EC2에 배포하고, Jenkins 파이프라인에서 테스트·빌드·배포·JMeter 부하 테스트·HTML Report 생성·InfluxDB/Grafana 연동까지 구성하는 과정에서 발생한 문제들을 정리한 문서이다.
@@ -45,7 +47,7 @@ JMeter load test
 HTML Report 생성
   ↓
 InfluxDB / Grafana 실시간 시각화
-````
+```
 
 ## 1-2. 사용한 주요 구성 요소
 
@@ -843,8 +845,6 @@ HTML Publisher Plugin은 설치되어 있었고, report를 publish하는 기능 
 
 HTML Publisher가 설치되어 있는데도 화면이 깨지면 플러그인보다 Jenkins CSP 정책을 먼저 의심해야 한다.
 
-````
-
 ---
 
 # 17. Jenkins CSP / Sandbox 해제 시도
@@ -857,7 +857,7 @@ Jenkins Script Console에서 다음 설정을 시도했다.
 System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
 System.setProperty("hudson.model.DirectoryBrowserSupport.SANDBOX_FULL", "false")
 System.setProperty("hudson.model.DirectoryBrowserSupport.SANDBOX", "")
-````
+```
 
 실행은 되었지만 브라우저에서는 여전히 리소스가 차단되었다.
 

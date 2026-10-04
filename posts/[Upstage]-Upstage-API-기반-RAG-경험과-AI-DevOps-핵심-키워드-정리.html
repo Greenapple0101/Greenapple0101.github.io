@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[면접대비] 면접대비 API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리 | Greenapple0101</title>
+  <title>[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리 | Greenapple0101</title>
   <meta name="description" content="1. 들어가며 업스테이지 제품을 단순히 체험해본 것이 아니라, SSAFY 과정에서 RAG 구조를 구현하며 API 호출 형태로 직접 연동해본 경험이 있다. 이 과정에서 LangChain, Embedding, 문서 분할, 벡터 검색, LLM 호출 흐름을 직접 구성했고, Upstage AP…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
@@ -14,10 +14,10 @@
     <nav class="breadcrumb" aria-label="경로">
       <a href="../index.html">홈</a>
       <span aria-hidden="true">/</span>
-      <a href="../topics/upstage.html">Upstage</a>
+      <a href="../topics/upstage.html">업스테이지 면접대비</a>
     </nav>
     <span class="tag" style="--tag-color: #0d9488">Upstage</span>
-    <h1>[면접대비] 면접대비 API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리</h1>
+    <h1>[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리</h1>
     <div class="post-meta">
       <time datetime="2026-05-31T12:00:00.000Z">2026.05.31</time>
       
@@ -44,22 +44,14 @@
 → 답변 생성
 → 응답 반환
 → 품질 평가 및 운영 모니터링
-````
-
-이 구조에서 중요한 점은 LLM이 모든 정보를 알고 있다고 가정하지 않는다는 것이다. 대신 외부 문서를 검색해 필요한 문맥을 제공하고, LLM이 그 문맥을 바탕으로 답변하게 만든다.
-
----
-
-# 3. RAG
-
-## RAG란?
-
-RAG는 Retrieval-Augmented Generation의 약자로, 검색 증강 생성이라고 부른다. LLM이 답변을 생성하기 전에 외부 문서나 데이터베이스에서 관련 정보를 검색하고, 검색된 정보를 함께 제공하여 답변 품질을 높이는 구조다.
-
-단순 LLM 호출은 사용자의 질문만 모델에 전달한다. 반면 RAG는 질문과 함께 관련 문서를 전달한다.
-
-```text
-단순 LLM 호출:
+</code></pre>
+<p>이 구조에서 중요한 점은 LLM이 모든 정보를 알고 있다고 가정하지 않는다는 것이다. 대신 외부 문서를 검색해 필요한 문맥을 제공하고, LLM이 그 문맥을 바탕으로 답변하게 만든다.</p>
+<hr>
+<h1>3. RAG</h1>
+<h2>RAG란?</h2>
+<p>RAG는 Retrieval-Augmented Generation의 약자로, 검색 증강 생성이라고 부른다. LLM이 답변을 생성하기 전에 외부 문서나 데이터베이스에서 관련 정보를 검색하고, 검색된 정보를 함께 제공하여 답변 품질을 높이는 구조다.</p>
+<p>단순 LLM 호출은 사용자의 질문만 모델에 전달한다. 반면 RAG는 질문과 함께 관련 문서를 전달한다.</p>
+<pre><code class="language-text">단순 LLM 호출:
 사용자 질문 → LLM → 답변
 
 RAG:
@@ -943,7 +935,7 @@ Service Quality:
 <p>Upstage API 기반 RAG 경험의 핵심은 단순히 AI API를 호출해본 것이 아니라, 문서 파싱, 청킹, 임베딩, 검색, LLM 호출, 운영 지표 관리까지 이어지는 AI 서비스 파이프라인의 구조를 이해했다는 점이다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[Upstage]-DEV-서버-Docker-데몬-장애-분석-및-재설치-복구-과정.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[면접대비] DEV 서버 Docker 데몬 장애 분석 및 재설치 복구 과정</span></a>
+  <a class="post-nav-link prev" href="[Upstage]-AI-에이전트-PoC-이후가-진짜-문제인-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Upstage] AI 에이전트 PoC 이후가 진짜 문제인 이유</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
   <span class="post-nav-link next disabled" aria-hidden="true"></span>
   </nav>

@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/DOCKER-단일-스테이지-구조를-쓰면
 published: "2026-05-17T09:27:34.161Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.737831"
+topic: "docker-k8s"
+category: "Docker"
 ---
 
 Spring Boot 애플리케이션을 Docker로 배포할 때 단일 스테이지 Dockerfile을 쓰면 이런 의문이 생긴다.

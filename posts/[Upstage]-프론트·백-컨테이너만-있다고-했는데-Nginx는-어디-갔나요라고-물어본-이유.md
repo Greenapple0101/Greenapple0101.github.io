@@ -4,6 +4,8 @@ source: "https://velog.io/@yorange50/DEPLOY-프론트백-컨테이너만-있다�
 published: "2026-05-17T10:07:17.556Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.735775"
+topic: "docker-k8s"
+category: "CI/CD"
 ---
 
 ```text
