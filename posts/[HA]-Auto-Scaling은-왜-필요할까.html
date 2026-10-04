@@ -25,58 +25,46 @@
   </header>
   <article class="post-content">
 <p>서비스를 운영하다 보면 가장 무서운 순간 중 하나는:</p>
-<p>```text id=&rdquo;7j1v1i&rdquo;
-갑자기 트래픽이 폭증하는 상황</p>
-<pre><code>
-이다.
-
-예를 들어:
-
-* 쇼핑몰 할인 이벤트
-* 콘서트 티켓팅
-* 게임 업데이트
-* 유명 커뮤니티 유입
-* 바이럴 영상
-
-같은 상황이 발생하면 순간적으로 엄청난 요청이 몰린다.
-
-문제는 서버 자원이 한정되어 있다는 점이다.
-
-예:
-
-* CPU 100%
-* 메모리 부족
-* 응답 지연
-* 서버 다운
-
-같은 문제가 발생한다.
-
-그래서 등장한 개념이:
-
-```text id=&quot;4g7x3h&quot;
-Auto Scaling
+<pre><code class="language-text">갑자기 트래픽이 폭증하는 상황
+</code></pre>
+<p>이다.</p>
+<p>예를 들어:</p>
+<ul>
+<li>쇼핑몰 할인 이벤트</li>
+<li>콘서트 티켓팅</li>
+<li>게임 업데이트</li>
+<li>유명 커뮤니티 유입</li>
+<li>바이럴 영상</li>
+</ul>
+<p>같은 상황이 발생하면 순간적으로 엄청난 요청이 몰린다.</p>
+<p>문제는 서버 자원이 한정되어 있다는 점이다.</p>
+<p>예:</p>
+<ul>
+<li>CPU 100%</li>
+<li>메모리 부족</li>
+<li>응답 지연</li>
+<li>서버 다운</li>
+</ul>
+<p>같은 문제가 발생한다.</p>
+<p>그래서 등장한 개념이:</p>
+<pre><code class="language-text">Auto Scaling
 </code></pre>
 <p>이다.</p>
 <hr>
 <h1>Auto Scaling이란?</h1>
 <p>Auto Scaling은 말 그대로:</p>
-<p>```text id=&rdquo;3d9q0o&rdquo;
-트래픽 상황에 따라
-서버 개수를 자동으로 늘리거나 줄이는 기술</p>
-<pre><code>
-이다.
-
-즉:
-
-* 사용자가 많아지면 서버 증가
-* 사용자가 줄어들면 서버 감소
-
-를 자동으로 수행한다.
-
-핵심 목표는:
-
-```text id=&quot;4m5r2y&quot;
-성능 유지 + 비용 최적화
+<pre><code class="language-text">트래픽 상황에 따라
+서버 개수를 자동으로 늘리거나 줄이는 기술
+</code></pre>
+<p>이다.</p>
+<p>즉:</p>
+<ul>
+<li>사용자가 많아지면 서버 증가</li>
+<li>사용자가 줄어들면 서버 감소</li>
+</ul>
+<p>를 자동으로 수행한다.</p>
+<p>핵심 목표는:</p>
+<pre><code class="language-text">성능 유지 + 비용 최적화
 </code></pre>
 <p>다.</p>
 <hr>
@@ -84,19 +72,13 @@ Auto Scaling
 <p>예를 들어 서버가 2대 있다고 가정해보자.</p>
 <p>평소에는 충분하다.</p>
 <p>하지만 이벤트가 시작되면:</p>
-<p>```text id=&rdquo;9z2p1x&rdquo;
-사용자 10배 증가</p>
-<pre><code>
-같은 상황이 발생할 수 있다.
-
-이때 서버를 수동으로 추가하면 늦는다.
-
-이미 장애가 발생한 뒤일 수도 있다.
-
-그래서 시스템이 스스로:
-
-```text id=&quot;u1o3g7&quot;
-“지금 트래픽 위험하다”
+<pre><code class="language-text">사용자 10배 증가
+</code></pre>
+<p>같은 상황이 발생할 수 있다.</p>
+<p>이때 서버를 수동으로 추가하면 늦는다.</p>
+<p>이미 장애가 발생한 뒤일 수도 있다.</p>
+<p>그래서 시스템이 스스로:</p>
+<pre><code class="language-text">“지금 트래픽 위험하다”
 </code></pre>
 <p>고 판단하고 자동으로 서버를 늘린다.</p>
 <hr>
@@ -110,47 +92,32 @@ Auto Scaling
 <li>메모리 추가</li>
 </ul>
 <p>즉:</p>
-<p>```text id=&rdquo;d9x0e8&rdquo;
-더 강한 서버 사용</p>
-<pre><code>
-이다.
-
-하지만:
-
-* 비용 비쌈
-* 물리적 한계 존재
-* 다운타임 발생 가능
-
-같은 문제가 있다.
-
----
-
-## 2. Scale Out
-
-서버 개수 증가.
-
-예:
-
-```text id=&quot;1y0l7g&quot;
-Web Server 2대 → 10대
+<pre><code class="language-text">더 강한 서버 사용
+</code></pre>
+<p>이다.</p>
+<p>하지만:</p>
+<ul>
+<li>비용 비쌈</li>
+<li>물리적 한계 존재</li>
+<li>다운타임 발생 가능</li>
+</ul>
+<p>같은 문제가 있다.</p>
+<hr>
+<h2>2. Scale Out</h2>
+<p>서버 개수 증가.</p>
+<p>예:</p>
+<pre><code class="language-text">Web Server 2대 → 10대
 </code></pre>
 <p>처럼 확장한다.</p>
 <p>현대 클라우드는 대부분:</p>
-<p>```text id=&rdquo;x4k8v9&rdquo;
-Horizontal Scaling (Scale Out)</p>
-<pre><code>
-을 선호한다.
-
-그리고 Auto Scaling도 대부분 이 방식이다.
-
----
-
-# 기본 구조
-
-보통 이런 구조를 사용한다.
-
-```text id=&quot;x6z9n2&quot;
-              ┌──────────────┐
+<pre><code class="language-text">Horizontal Scaling (Scale Out)
+</code></pre>
+<p>을 선호한다.</p>
+<p>그리고 Auto Scaling도 대부분 이 방식이다.</p>
+<hr>
+<h1>기본 구조</h1>
+<p>보통 이런 구조를 사용한다.</p>
+<pre><code class="language-text">              ┌──────────────┐
               │ Load Balancer│
               └──────┬───────┘
                      │
@@ -161,13 +128,10 @@ Horizontal Scaling (Scale Out)</p>
 └─────────┘   └─────────┘   └─────────┘
 </code></pre>
 <p>트래픽이 증가하면:</p>
-<p>```text id=&rdquo;q9v7d5&rdquo;
-서버 자동 추가</p>
-<pre><code>
-트래픽이 감소하면:
-
-```text id=&quot;8j5r4f&quot;
-서버 자동 제거
+<pre><code class="language-text">서버 자동 추가
+</code></pre>
+<p>트래픽이 감소하면:</p>
+<pre><code class="language-text">서버 자동 제거
 </code></pre>
 <p>된다.</p>
 <hr>
@@ -182,20 +146,14 @@ Horizontal Scaling (Scale Out)</p>
 </ul>
 <p>같은 조건을 감지한다.</p>
 <p>예시:</p>
-<p>```text id=&rdquo;6x3j9v&rdquo;
-CPU &gt; 70% 5분 지속
-→ 서버 2대 추가</p>
-<pre><code>
-같은 정책을 설정한다.
-
----
-
-# AWS Auto Scaling
-
-AWS에서는 대표적으로:
-
-```text id=&quot;m1t6s8&quot;
-Auto Scaling Group (ASG)
+<pre><code class="language-text">CPU &gt; 70% 5분 지속
+→ 서버 2대 추가
+</code></pre>
+<p>같은 정책을 설정한다.</p>
+<hr>
+<h1>AWS Auto Scaling</h1>
+<p>AWS에서는 대표적으로:</p>
+<pre><code class="language-text">Auto Scaling Group (ASG)
 </code></pre>
 <p>을 사용한다.</p>
 <p>ASG는:</p>
@@ -206,27 +164,21 @@ Auto Scaling Group (ASG)
 </ul>
 <p>를 기준으로 자동 관리한다.</p>
 <p>예:</p>
-<p>```text id=&rdquo;2g4d0n&rdquo;
-Min: 2
+<pre><code class="language-text">Min: 2
 Desired: 3
-Max: 10</p>
-<pre><code>
-이면:
-
-* 최소 2대 유지
-* 기본 3대 운영
-* 최대 10대까지 자동 증가
-
-가능하다.
-
----
-
-# 하지만 DB는 어렵다
-
-여기서 중요한 현실이 있다.
-
-```text id=&quot;n0f7w3&quot;
-애플리케이션 서버는 쉽게 늘릴 수 있지만
+Max: 10
+</code></pre>
+<p>이면:</p>
+<ul>
+<li>최소 2대 유지</li>
+<li>기본 3대 운영</li>
+<li>최대 10대까지 자동 증가</li>
+</ul>
+<p>가능하다.</p>
+<hr>
+<h1>하지만 DB는 어렵다</h1>
+<p>여기서 중요한 현실이 있다.</p>
+<pre><code class="language-text">애플리케이션 서버는 쉽게 늘릴 수 있지만
 DB는 쉽지 않다
 </code></pre>
 <p>는 점이다.</p>
@@ -237,29 +189,21 @@ DB는 쉽지 않다
 <li>Consistency 문제가 발생하기 때문이다.</li>
 </ul>
 <p>즉:</p>
-<p>```text id=&rdquo;y5d8m1&rdquo;
-Web Server는 Stateless에 가깝고
-DB는 Stateful하다</p>
-<pre><code>
-는 차이가 존재한다.
-
-그래서 대부분 시스템은:
-
-* Web/App 서버 → Auto Scaling 적극 사용
-* DB → 제한적으로 확장
-
-구조를 가진다.
-
----
-
-# Kubernetes와 Auto Scaling
-
-Kubernetes도 Auto Scaling 기능을 제공한다.
-
-대표적으로:
-
-```text id=&quot;p6w1v4&quot;
-HPA (Horizontal Pod Autoscaler)
+<pre><code class="language-text">Web Server는 Stateless에 가깝고
+DB는 Stateful하다
+</code></pre>
+<p>는 차이가 존재한다.</p>
+<p>그래서 대부분 시스템은:</p>
+<ul>
+<li>Web/App 서버 → Auto Scaling 적극 사용</li>
+<li>DB → 제한적으로 확장</li>
+</ul>
+<p>구조를 가진다.</p>
+<hr>
+<h1>Kubernetes와 Auto Scaling</h1>
+<p>Kubernetes도 Auto Scaling 기능을 제공한다.</p>
+<p>대표적으로:</p>
+<pre><code class="language-text">HPA (Horizontal Pod Autoscaler)
 </code></pre>
 <p>가 있다.</p>
 <p>예:</p>
@@ -269,21 +213,14 @@ HPA (Horizontal Pod Autoscaler)
 </ul>
 <p>시 Pod 개수를 자동으로 늘린다.</p>
 <p>즉:</p>
-<p>```text id=&rdquo;k4s2t7&rdquo;
-Pod 자동 확장</p>
-<pre><code>
-을 수행한다.
-
-클라우드 환경에서는 거의 필수 기능이다.
-
----
-
-# Auto Scaling의 핵심 철학
-
-결국 Auto Scaling의 핵심은:
-
-```text id=&quot;f2m8z5&quot;
-트래픽 변화에 시스템이 자동 적응
+<pre><code class="language-text">Pod 자동 확장
+</code></pre>
+<p>을 수행한다.</p>
+<p>클라우드 환경에서는 거의 필수 기능이다.</p>
+<hr>
+<h1>Auto Scaling의 핵심 철학</h1>
+<p>결국 Auto Scaling의 핵심은:</p>
+<pre><code class="language-text">트래픽 변화에 시스템이 자동 적응
 </code></pre>
 <p>하는 것이다.</p>
 <p>즉 운영자가 매번 수동으로 대응하지 않아도:</p>
@@ -299,9 +236,9 @@ Pod 자동 확장</p>
 <p>갑자기 수십 배의 요청이 몰릴 수도 있고,
 반대로 새벽에는 거의 사용자가 없을 수도 있다.</p>
 <p>그래서 클라우드 환경에서는:</p>
-<p><code>text id="d5r0x2"
-필요할 때 늘어나고
-필요 없을 때 줄어드는 구조</code></p>
+<pre><code class="language-text">필요할 때 늘어나고
+필요 없을 때 줄어드는 구조
+</code></pre>
 <p>가 매우 중요해졌다.</p>
 <p>그리고 Auto Scaling은:</p>
 <ul>

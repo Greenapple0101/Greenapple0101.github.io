@@ -5,16 +5,15 @@ published: "2026-05-11T14:57:21.674Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.759894"
 ---
-
 AWS를 공부하다 보면 꼭 등장하는 DB가 있다.
 
-```text id="p2x8vk"
+```text
 DynamoDB
 ```
 
 그리고 보통 같이 나온다.
 
-```text id="q7m1zr"
+```text
 NoSQL
 Auto Scaling
 고가용성
@@ -24,7 +23,7 @@ Eventually Consistent
 
 처음엔 이런 생각이 든다.
 
-```text id="r4v9jt"
+```text
 "MySQL 쓰면 되는 거 아닌가?"
 ```
 
@@ -52,7 +51,7 @@ Eventually Consistent
 
 ## 장점
 
-```text id="s1k6pw"
+```text
 정확한 데이터 관리
 JOIN
 트랜잭션
@@ -67,7 +66,7 @@ JOIN
 
 서비스가 엄청 커지면:
 
-```text id="t8m3qx"
+```text
 수억 사용자
 엄청난 트래픽
 전 세계 요청
@@ -83,7 +82,7 @@ JOIN
 
 대표적으로:
 
-```text id="u5n0zr"
+```text
 Scale Out 어려움
 ```
 
@@ -95,7 +94,7 @@ Scale Out 어려움
 
 예를 들어:
 
-```text id="v2q7xt"
+```text
 CPU 증가
 RAM 증가
 ```
@@ -104,7 +103,7 @@ RAM 증가
 
 근데 결국:
 
-```text id="w9m4pk"
+```text
 장비 한계
 비용 폭증
 ```
@@ -123,7 +122,7 @@ NoSQL은:
 
 즉:
 
-```text id="x6n1qv"
+```text
 확장성 우선
 ```
 
@@ -135,7 +134,7 @@ NoSQL은:
 
 DynamoDB는 AWS의:
 
-```text id="y3m8zr"
+```text
 완전관리형(NoSQL) DB
 ```
 
@@ -145,7 +144,7 @@ AWS가 서버 관리까지 해준다.
 
 즉 사용자는:
 
-```text id="z0q5xt"
+```text
 DB 서버 운영
 패치
 백업
@@ -160,7 +159,7 @@ DB 서버 운영
 
 핵심은 크게:
 
-```text id="a7n2qv"
+```text
 1. 엄청난 확장성
 2. 고가용성
 3. 빠른 응답
@@ -174,7 +173,7 @@ DB 서버 운영
 
 RDB는 보통:
 
-```text id="b4m9zr"
+```text
 테이블 관계
 JOIN
 정규화
@@ -188,7 +187,7 @@ JOIN
 
 DynamoDB는:
 
-```text id="c1q6xt"
+```text
 Key-Value 기반
 ```
 
@@ -196,7 +195,7 @@ Key-Value 기반
 
 즉:
 
-```text id="d8n3qv"
+```text
 빠른 조회
 ```
 
@@ -208,7 +207,7 @@ Key-Value 기반
 
 예:
 
-```text id="e5m0zr"
+```text
 UserID → 사용자 데이터
 ```
 
@@ -216,7 +215,7 @@ UserID → 사용자 데이터
 
 즉:
 
-```text id="f2q7xt"
+```text
 Key 기반 조회
 ```
 
@@ -234,7 +233,7 @@ DynamoDB에서 가장 중요한 개념 중 하나.
 
 데이터를:
 
-```text id="g9n4qv"
+```text
 어느 서버(파티션)에 저장할지 결정
 ```
 
@@ -246,7 +245,7 @@ DynamoDB에서 가장 중요한 개념 중 하나.
 
 DynamoDB는 내부적으로:
 
-```text id="h6m1zr"
+```text
 수많은 서버에 데이터 분산 저장
 ```
 
@@ -254,7 +253,7 @@ DynamoDB는 내부적으로:
 
 즉:
 
-```text id="i3q8xt"
+```text
 Partition Key
 ↓
 데이터 위치 결정
@@ -268,7 +267,7 @@ Partition Key
 
 예를 들어 모든 요청이:
 
-```text id="j0n5qv"
+```text
 같은 Partition Key
 ```
 
@@ -278,7 +277,7 @@ Partition Key
 
 이걸:
 
-```text id="k7m2zr"
+```text
 Hot Partition
 ```
 
@@ -290,7 +289,7 @@ Hot Partition
 
 핵심은:
 
-```text id="l4q9xt"
+```text
 분산 구조
 ```
 
@@ -298,7 +297,7 @@ Hot Partition
 
 즉 데이터를 여러 서버에 나눠 저장해서:
 
-```text id="m1n6qv"
+```text
 병렬 처리
 ```
 
@@ -312,7 +311,7 @@ DynamoDB는 자동 확장도 지원한다.
 
 예:
 
-```text id="n8m3zr"
+```text
 트래픽 증가
 ↓
 자동으로 처리량 증가
@@ -320,7 +319,7 @@ DynamoDB는 자동 확장도 지원한다.
 
 즉 운영자가 직접:
 
-```text id="o5q0xt"
+```text
 DB 서버 추가
 샤딩
 ```
@@ -333,7 +332,7 @@ DB 서버 추가
 
 DynamoDB는 기본적으로:
 
-```text id="p2n7qv"
+```text
 여러 AZ(가용영역)
 ```
 
@@ -341,7 +340,7 @@ DynamoDB는 기본적으로:
 
 즉 서버 일부가 죽어도:
 
-```text id="q9m4zr"
+```text
 서비스 계속 가능
 ```
 
@@ -359,7 +358,7 @@ DynamoDB는 기본적으로:
 
 즉:
 
-```text id="r6q1xt"
+```text
 쓰기 직후
 잠깐 오래된 데이터 조회 가능
 ```
@@ -372,7 +371,7 @@ DynamoDB는 기본적으로:
 
 이유는:
 
-```text id="s3n8qv"
+```text
 성능
 확장성
 가용성
@@ -382,7 +381,7 @@ DynamoDB는 기본적으로:
 
 분산 시스템에서:
 
-```text id="t0m5zr"
+```text
 Strong Consistency
 ```
 
@@ -394,7 +393,7 @@ Strong Consistency
 
 옵션으로:
 
-```text id="u7q2xt"
+```text
 Strongly Consistent Read
 ```
 
@@ -402,7 +401,7 @@ Strongly Consistent Read
 
 하지만:
 
-```text id="v4n9qv"
+```text
 더 느리고 비용 증가
 ```
 
@@ -422,7 +421,7 @@ Strongly Consistent Read
 
 같이:
 
-```text id="w1m6zr"
+```text
 엄청난 트래픽
 ```
 
@@ -434,7 +433,7 @@ Strongly Consistent Read
 
 반대로:
 
-```text id="x8q3xt"
+```text
 복잡한 JOIN
 강한 트랜잭션
 복잡한 관계형 데이터
@@ -494,7 +493,7 @@ AWS의 NoSQL DB
 
 ## 핵심 특징
 
-```text id="y5n0qv"
+```text
 확장성
 고가용성
 빠른 조회
@@ -510,7 +509,7 @@ AWS의 NoSQL DB
 
 ## 기본 Consistency
 
-```text id="z2m7zr"
+```text
 Eventually Consistent
 ```
 
@@ -518,7 +517,7 @@ Eventually Consistent
 
 ## 장점
 
-```text id="a9q4xt"
+```text
 Auto Scaling
 운영 편의성
 분산 처리
@@ -528,7 +527,7 @@ Auto Scaling
 
 ## 단점
 
-```text id="b6n1qv"
+```text
 복잡한 관계형 처리 어려움
 ```
 
@@ -536,7 +535,7 @@ Auto Scaling
 
 ## 핵심 철학
 
-```text id="c3m8zr"
+```text
 정합성 일부를 양보하고,
 엄청난 확장성을 얻는다.
 ```
@@ -545,7 +544,7 @@ Auto Scaling
 
 # 한 줄 핵심
 
-```text id="d0q5xt"
+```text
 DynamoDB는 대규모 트래픽을 빠르게 처리하기 위해,
 분산과 확장성에 최적화된 AWS NoSQL 데이터베이스다.
 ```

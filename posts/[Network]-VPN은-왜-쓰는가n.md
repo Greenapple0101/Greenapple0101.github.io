@@ -1,12 +1,10 @@
 ---
-title: "[NETWORK] VPN은 왜 쓰는가\n"
+title: "[NETWORK] VPN은 왜 쓰는가"
 source: "https://velog.io/@yorange50/NETWORK-VPN은-왜-쓰는가"
 published: "2026-05-11T14:38:16.087Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.762842"
 ---
-
-
 회사 네트워크 공부를 하다 보면 꼭 나오는 게 있다.
 
 ```text

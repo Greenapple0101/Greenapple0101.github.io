@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>[Kubernetes] 로컬에서 k3d 클러스터 만들고 LoadBalancer 포트 열기 | Greenapple0101</title>
-  <meta name="description" content="! https://velog.velcdn.com/images/yorange50/post/d4c39157-4ed9-4955-846f-baccb49175ea/image.png 이번에는 로컬 환경에서 k3d 를 사용해 Kubernetes 클러스터를 만들고, 80 , 443 포트를 LoadB…" />
+  <meta name="description" content="이번에는 로컬 환경에서 k3d를 사용해 Kubernetes 클러스터를 만들고, 80, 443 포트를 LoadBalancer에 연결하는 작업을 진행했다. 처음에는 -p 80:80@loadbalancer, -p 443:443@loadbalancer 옵션이 무슨 의미인지 헷갈렸는데, 정리해…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
@@ -257,7 +257,7 @@ nginx를 배포하여 localhost에서 웹 서버 응답이 정상적으로 보�
 <nav class="post-nav" aria-label="글 이동">
   <a class="post-nav-link prev" href="[Kubernetes]-Service-ClusterIP-NodePort-LoadBalancer는-뭐가-다를까.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[Kubernetes] Service, ClusterIP, NodePort, LoadBalancer는 뭐가 다를까?</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
-  <a class="post-nav-link next" href="[CKA]-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리n.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\n</span></a>
+  <a class="post-nav-link next" href="[CKA]-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리n.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리</span></a>
   </nav>
   <footer>
     <p><a href="../index.html">Greenapple0101 Blog</a></p>

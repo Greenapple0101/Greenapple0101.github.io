@@ -5,7 +5,6 @@ published: "2026-05-11T15:07:50.186Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.759212"
 ---
-
 서비스를 운영하다 보면 언젠가는 서버가 죽는다.
 
 이건 거의 피할 수 없는 문제다.
@@ -22,7 +21,7 @@ backup_date: "2026-05-29T14:52:52.759212"
 
 문제는 DB 하나만 사용하는 구조에서는:
 
-```text id="m7i5fj"
+```text
 DB 장애 = 서비스 전체 장애
 ```
 
@@ -39,7 +38,7 @@ DB 장애 = 서비스 전체 장애
 
 그래서 등장한 개념이 바로:
 
-```text id="m5sjxq"
+```text
 Failover
 ```
 
@@ -51,7 +50,7 @@ Failover
 
 Failover는 말 그대로:
 
-```text id="fyl9s9"
+```text
 장애가 발생했을 때
 대기 중인 다른 서버로 자동 전환하는 것
 ```
@@ -60,7 +59,7 @@ Failover는 말 그대로:
 
 핵심 목표는:
 
-```text id="8j6i0d"
+```text
 서비스를 최대한 안 멈추게 만드는 것
 ```
 
@@ -72,7 +71,7 @@ Failover는 말 그대로:
 
 보통 이런 구조를 사용한다.
 
-```text id="0lv3gd"
+```text
          ┌─────────────┐
          │ Primary DB  │
          └──────┬──────┘
@@ -104,7 +103,7 @@ Failover는 말 그대로:
 
 만약 Primary DB가 죽으면:
 
-```text id="40bsg2"
+```text
 서비스 불가능 상태
 ```
 
@@ -112,7 +111,7 @@ Failover는 말 그대로:
 
 그래서 시스템은:
 
-```text id="ifhjif"
+```text
 Standby DB를 새로운 Primary로 승격(Promotion)
 ```
 
@@ -120,7 +119,7 @@ Standby DB를 새로운 Primary로 승격(Promotion)
 
 즉:
 
-```text id="g5jg0k"
+```text
 장애 서버 대신 다른 서버가 즉시 역할 수행
 ```
 
@@ -136,7 +135,7 @@ Standby DB를 새로운 Primary로 승격(Promotion)
 
 그래서 대부분:
 
-```text id="gmkc5v"
+```text
 자동 Failover
 ```
 
@@ -144,7 +143,7 @@ Standby DB를 새로운 Primary로 승격(Promotion)
 
 동작 흐름은 보통 이렇다.
 
-```text id="8cnlfm"
+```text
 1. Health Check 수행
 2. Primary 장애 감지
 3. Standby 승격
@@ -166,7 +165,7 @@ Standby DB를 새로운 Primary로 승격(Promotion)
 
 자동 Failover의 핵심은:
 
-```text id="7ry8a8"
+```text
 서버가 살아있는지 계속 감시하는 것
 ```
 
@@ -185,7 +184,7 @@ Standby DB를 새로운 Primary로 승격(Promotion)
 
 그리고 일정 조건 이상 실패하면:
 
-```text id="95c2qh"
+```text
 “이 서버 죽었다”
 ```
 
@@ -197,7 +196,7 @@ Standby DB를 새로운 Primary로 승격(Promotion)
 
 Failover는 보통:
 
-```text id="pp1hpn"
+```text
 Active-Standby
 ```
 
@@ -226,7 +225,7 @@ Active-Standby
 
 반면:
 
-```text id="gg2j5s"
+```text
 Standby 서버가 평소엔 놀고 있음
 ```
 
@@ -240,7 +239,7 @@ Failover는 생각보다 어렵다.
 
 대표적인 문제 중 하나가:
 
-```text id="wzkb75"
+```text
 Split Brain
 ```
 
@@ -253,7 +252,7 @@ Split Brain
 
 하면:
 
-```text id="o91x1x"
+```text
 Primary가 2개 생김
 ```
 
@@ -275,7 +274,7 @@ Primary가 2개 생김
 
 중요한 점은:
 
-```text id="5rmp2j"
+```text
 Failover 자체가 목적은 아니다
 ```
 
@@ -283,7 +282,7 @@ Failover 자체가 목적은 아니다
 
 Failover는 결국:
 
-```text id="7xj7lb"
+```text
 High Availability(고가용성)
 ```
 
@@ -313,7 +312,7 @@ Failover는 단순히 “백업 서버” 개념이 아니다.
 
 현대 서비스에서는:
 
-```text id="1e7hzt"
+```text
 “서버는 언젠가 죽는다”
 ```
 

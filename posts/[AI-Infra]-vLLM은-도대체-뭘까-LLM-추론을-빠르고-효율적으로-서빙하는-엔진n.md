@@ -1,11 +1,10 @@
 ---
-title: "[AI Infra] vLLM은 도대체 뭘까? LLM 추론을 빠르고 효율적으로 서빙하는 엔진\n"
+title: "[AI Infra] vLLM은 도대체 뭘까? LLM 추론을 빠르고 효율적으로 서빙하는 엔진"
 source: "https://velog.io/@yorange50/AI-Infra-vLLM은-도대체-뭘까-LLM-추론을-빠르고-효율적으로-서빙하는-엔진"
 published: "2026-05-07T09:09:49.933Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.768775"
 ---
-
 지금까지 흐름을 보면 이렇게 이어진다.
 
 ```text

@@ -5,12 +5,11 @@ published: "2026-05-03T10:38:17.206Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.780645"
 ---
-
 현재 프로젝트를 Gradle이 아니라 Maven으로 관리하기로 했다. 따라서 `build.gradle`에 의존성을 추가하는 방식이 아니라, 프로젝트 루트의 `pom.xml`을 기준으로 의존성을 관리해야 했다.
 
 Gradle과 Maven의 가장 큰 차이는 의존성을 선언하는 파일이다.
 
-```text id="0301ew"
+```text
 Gradle  → build.gradle
 Maven   → pom.xml
 ```
@@ -19,7 +18,7 @@ Maven   → pom.xml
 
 먼저 기존 Gradle 프로젝트에서 사용하던 핵심 의존성을 확인했다.
 
-```gradle id="e1m8a6"
+```gradle
 implementation 'org.springframework.boot:spring-boot-starter-web'
 implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 runtimeOnly 'com.h2database:h2'
@@ -28,7 +27,7 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 이 의존성들은 Maven에서는 다음과 같이 바꿔서 작성해야 한다.
 
-```xml id="wzglwy"
+```xml
 <dependencies>
     <!-- Spring Web: REST API 개발용 -->
     <dependency>
@@ -60,13 +59,13 @@ testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 Gradle의 `implementation`은 Maven에서는 보통 별도의 `scope` 없이 작성한다.
 
-```gradle id="uswdti"
+```gradle
 implementation 'org.springframework.boot:spring-boot-starter-web'
 ```
 
 Maven에서는 다음과 같다.
 
-```xml id="gddv7p"
+```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-web</artifactId>
@@ -75,13 +74,13 @@ Maven에서는 다음과 같다.
 
 Gradle의 `runtimeOnly`는 Maven에서는 `scope`를 `runtime`으로 지정한다.
 
-```gradle id="udtruh"
+```gradle
 runtimeOnly 'com.h2database:h2'
 ```
 
 Maven에서는 다음과 같다.
 
-```xml id="4v5yn8"
+```xml
 <dependency>
     <groupId>com.h2database</groupId>
     <artifactId>h2</artifactId>
@@ -91,13 +90,13 @@ Maven에서는 다음과 같다.
 
 Gradle의 `testImplementation`은 Maven에서는 `scope`를 `test`로 지정한다.
 
-```gradle id="j7c02g"
+```gradle
 testImplementation 'org.springframework.boot:spring-boot-starter-test'
 ```
 
 Maven에서는 다음과 같다.
 
-```xml id="m4oaz8"
+```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-test</artifactId>
@@ -107,7 +106,7 @@ Maven에서는 다음과 같다.
 
 그다음 Maven 프로젝트의 기본 구조를 맞췄다.
 
-```text id="02n6r3"
+```text
 board_api
  ├─ pom.xml
  ├─ src
@@ -125,13 +124,13 @@ board_api
 
 Maven에서는 `src/main/java` 아래에 Java 코드가 들어가고, `src/main/resources` 아래에 설정 파일이 들어간다. Spring Boot 설정 파일인 `application.properties`도 반드시 이 위치에 있어야 한다.
 
-```text id="3j9pz2"
+```text
 src/main/resources/application.properties
 ```
 
 이후 Gradle 관련 파일은 더 이상 사용하지 않는다. Maven으로 완전히 전환하려면 보통 다음 파일들은 제거하거나 사용하지 않도록 정리한다.
 
-```text id="tfshh9"
+```text
 build.gradle
 settings.gradle
 gradlew
@@ -141,13 +140,13 @@ gradle/
 
 반대로 Maven 프로젝트에서 중심이 되는 파일은 다음이다.
 
-```text id="08tmxe"
+```text
 pom.xml
 ```
 
 Maven Wrapper를 사용한다면 다음 파일들도 함께 둘 수 있다.
 
-```text id="1l9v73"
+```text
 mvnw
 mvnw.cmd
 .mvn/
@@ -157,25 +156,25 @@ mvnw.cmd
 
 Gradle에서는 보통 다음 명령어를 사용한다.
 
-```bash id="6vlxph"
+```bash
 ./gradlew bootRun
 ```
 
 Windows에서는 다음과 같이 실행할 수 있다.
 
-```powershell id="1gn0wo"
+```powershell
 gradlew.bat bootRun
 ```
 
 Maven에서는 다음 명령어를 사용한다.
 
-```bash id="9gsjvk"
+```bash
 mvn spring-boot:run
 ```
 
 Windows PowerShell에서 Maven Wrapper를 사용한다면 다음과 같이 실행한다.
 
-```powershell id="0c31c7"
+```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -183,25 +182,25 @@ Windows PowerShell에서 Maven Wrapper를 사용한다면 다음과 같이 실�
 
 Gradle:
 
-```bash id="rw9p8a"
+```bash
 ./gradlew build
 ```
 
 Maven:
 
-```bash id="z96lzo"
+```bash
 mvn clean package
 ```
 
 Maven Wrapper 사용 시:
 
-```powershell id="ksww6d"
+```powershell
 .\mvnw.cmd clean package
 ```
 
 이번 전환에서 최종적으로 사용한 `pom.xml`의 핵심 구조는 다음과 같다.
 
-```xml id="q7l86u"
+```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -262,19 +261,19 @@ Maven Wrapper 사용 시:
 
 전환 후에는 VS Code나 IDE에서도 Maven 프로젝트로 다시 인식시켜야 한다. VS Code에서는 Maven 탭에서 프로젝트를 새로고침하거나, 터미널에서 다음 명령어로 의존성을 다시 내려받을 수 있다.
 
-```powershell id="n3enml"
+```powershell
 mvn clean package
 ```
 
 또는 실행까지 바로 확인한다.
 
-```powershell id="sufo21"
+```powershell
 mvn spring-boot:run
 ```
 
 정리하면 Gradle에서 Maven으로 전환하는 과정은 다음과 같다.
 
-```text id="kcelqi"
+```text
 1. build.gradle에 있던 의존성을 확인한다.
 2. 같은 의존성을 pom.xml의 dependency 형식으로 옮긴다.
 3. runtimeOnly는 <scope>runtime</scope>으로 바꾼다.

@@ -1,11 +1,11 @@
 ---
-title: "[Kubernetes] 프로비저닝이란 무엇일까?\n"
+title: "[Kubernetes] 프로비저닝이란 무엇일까?"
 source: "https://velog.io/@yorange50/Kubernetes-프로비저닝이란-무엇일까"
 published: "2026-05-27T18:50:52.889Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.708629"
+redirect_to: "[Kubernetes]-프로비저닝이란-무엇일까"
 ---
-
 Kubernetes에서 PV와 PVC를 공부하다 보면 이런 말이 나온다.
 
 ```text

@@ -5,10 +5,9 @@ published: "2026-05-20T07:33:42.810Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.716811"
 ---
-
 문제는 이거다.
 
-```text id="ladp8e"
+```text
 autoscale namespace에 HPA를 만들어라.
 
 HPA 이름: apache-server
@@ -25,13 +24,13 @@ scaleDown stabilizationWindowSeconds: 30
 
 왜냐면 단순 HPA는 명령어로 만들 수 있지만:
 
-```bash id="w33syu"
+```bash
 kubectl autoscale deployment apache-server --cpu=50% --min=1 --max=4
 ```
 
 여기에는 이 조건이 빠진다.
 
-```yaml id="3v8t9b"
+```yaml
 behavior:
   scaleDown:
     stabilizationWindowSeconds: 30
@@ -64,19 +63,19 @@ behavior:
 
 공식문서 검색창에 이렇게 검색한다.
 
-```text id="3qun29"
+```text
 horizontal pod autoscaler
 ```
 
 또는:
 
-```text id="b4hcdp"
+```text
 hpa walkthrough
 ```
 
 들어갈 문서는 보통 이거다.
 
-```text id="i3e91x"
+```text
 Documentation
   → Tasks
   → Run Applications
@@ -91,19 +90,19 @@ Documentation
 
 문서에 들어가면 `Ctrl + F`로 이걸 찾는다.
 
-```text id="bdkqg9"
+```text
 Creating the autoscaler declaratively
 ```
 
 또는 짧게:
 
-```text id="ycgyo0"
+```text
 apiVersion: autoscaling/v2
 ```
 
 또는:
 
-```text id="h0tqmb"
+```text
 averageUtilization
 ```
 
@@ -111,7 +110,7 @@ averageUtilization
 
 문서 예시는 대략 이런 구조다.
 
-```yaml id="8zk3h9"
+```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -144,13 +143,13 @@ spec:
 
 그럴 땐 공식문서에서 다시 검색한다.
 
-```text id="j3crye"
+```text
 hpa behavior stabilizationWindowSeconds
 ```
 
 또는 문서 검색창에:
 
-```text id="en6n6x"
+```text
 Horizontal Pod Autoscaling behavior
 ```
 
@@ -158,7 +157,7 @@ Kubernetes HPA 문서에서는 `autoscaling/v2` HPA API에서 `behavior` 필드�
 
 즉 이 문제의 핵심 추가 조건은 이 구조다.
 
-```yaml id="dquif1"
+```yaml
 behavior:
   scaleDown:
     stabilizationWindowSeconds: 30
@@ -166,7 +165,7 @@ behavior:
 
 뜻은:
 
-```text id="6om1li"
+```text
 스케일 다운할 때 너무 바로 줄이지 말고
 30초 안정화 윈도우를 적용해라
 ```
@@ -179,7 +178,7 @@ behavior:
 
 문제 조건을 반영하면 이렇게 된다.
 
-```yaml id="8vk5wh"
+```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -212,7 +211,7 @@ spec:
 
 먼저 HPA가 붙을 Deployment가 진짜 있는지 확인한다.
 
-```bash id="2ss1l7"
+```bash
 kubectl get deployment apache-server -n autoscale
 ```
 
@@ -222,13 +221,13 @@ HPA는 혼자 일하는 리소스가 아니라, Deployment 같은 scale 가능�
 
 ## 2단계. YAML 파일 작성
 
-```bash id="2s5qry"
+```bash
 vi hpa.yaml
 ```
 
 내용:
 
-```yaml id="91wcc6"
+```yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -257,13 +256,13 @@ spec:
 
 ## 3단계. dry-run으로 문법 확인
 
-```bash id="h5aozi"
+```bash
 kubectl apply -f hpa.yaml --dry-run=client
 ```
 
 또는 서버 검증까지 하고 싶으면:
 
-```bash id="de8085"
+```bash
 kubectl apply -f hpa.yaml --dry-run=server
 ```
 
@@ -273,7 +272,7 @@ kubectl apply -f hpa.yaml --dry-run=server
 
 ## 4단계. 적용
 
-```bash id="7otkef"
+```bash
 kubectl apply -f hpa.yaml
 ```
 
@@ -281,19 +280,19 @@ kubectl apply -f hpa.yaml
 
 ## 5단계. 확인
 
-```bash id="sq54j4"
+```bash
 kubectl get hpa -n autoscale
 ```
 
 또는 특정 HPA만:
 
-```bash id="6nu40p"
+```bash
 kubectl get hpa apache-server -n autoscale
 ```
 
 자세히:
 
-```bash id="y8o53m"
+```bash
 kubectl describe hpa apache-server -n autoscale
 ```
 
@@ -305,7 +304,7 @@ kubectl describe hpa apache-server -n autoscale
 
 시험장에서는 이렇게 하면 된다.
 
-```text id="loq5te"
+```text
 1. 문제에서 HPA 조건 추출
 2. 공식문서 검색창에 horizontal pod autoscaler 검색
 3. Walkthrough 문서 진입
@@ -325,7 +324,7 @@ kubectl describe hpa apache-server -n autoscale
 
 이 문제는 명령어로 일부만 만들 수 있다.
 
-```bash id="flxy1e"
+```bash
 kubectl autoscale deployment apache-server \
   -n autoscale \
   --cpu=50% \
@@ -337,7 +336,7 @@ kubectl autoscale deployment apache-server \
 
 하지만 이 명령어만 쓰면:
 
-```yaml id="3x6n1j"
+```yaml
 behavior:
   scaleDown:
     stabilizationWindowSeconds: 30
@@ -347,7 +346,7 @@ behavior:
 
 그래서 이 문제는 처음부터 YAML 방식으로 가는 게 더 깔끔하다.
 
-```text id="2lwlqk"
+```text
 단순 HPA 생성
 → kubectl autoscale 가능
 
@@ -359,7 +358,7 @@ behavior까지 설정
 
 # 9. 이 YAML 읽는 법
 
-```yaml id="m97pbv"
+```yaml
 scaleTargetRef:
   apiVersion: apps/v1
   kind: Deployment
@@ -368,26 +367,26 @@ scaleTargetRef:
 
 이 부분은:
 
-```text id="djcqys"
+```text
 apache-server Deployment를 대상으로 삼겠다
 ```
 
 라는 뜻이다.
 
-```yaml id="q6p0yc"
+```yaml
 minReplicas: 1
 maxReplicas: 4
 ```
 
 이 부분은:
 
-```text id="uo8cla"
+```text
 최소 1개, 최대 4개까지만 늘리거나 줄이겠다
 ```
 
 라는 뜻이다.
 
-```yaml id="tnw9v9"
+```yaml
 metrics:
 - type: Resource
   resource:
@@ -399,13 +398,13 @@ metrics:
 
 이 부분은:
 
-```text id="c0d4bo"
+```text
 Pod들의 평균 CPU 사용률을 50% 근처로 맞추겠다
 ```
 
 라는 뜻이다.
 
-```yaml id="2vcqqa"
+```yaml
 behavior:
   scaleDown:
     stabilizationWindowSeconds: 30
@@ -413,7 +412,7 @@ behavior:
 
 이 부분은:
 
-```text id="cbvpgr"
+```text
 스케일 다운 판단을 30초 안정화 윈도우 기준으로 하겠다
 ```
 
@@ -423,7 +422,7 @@ behavior:
 
 # 10. 실전 최종 답
 
-```bash id="ygl95k"
+```bash
 cat <<EOF > hpa.yaml
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -462,7 +461,7 @@ kubectl describe hpa apache-server -n autoscale
 
 이 문제의 핵심은 이거다.
 
-```text id="qdp9jm"
+```text
 HPA 기본 구조는 공식문서 Walkthrough에서 가져온다.
 behavior.scaleDown.stabilizationWindowSeconds는 HPA behavior 문서에서 확인한다.
 문제 조건을 metadata, scaleTargetRef, min/max, metrics, behavior에 끼워 넣는다.
@@ -470,7 +469,7 @@ behavior.scaleDown.stabilizationWindowSeconds는 HPA behavior 문서에서 확�
 
 정리하면:
 
-```text id="yjoyoo"
+```text
 문서에서 autoscaling/v2 HPA 예시 찾기
 → 이름/namespace/대상 Deployment 변경
 → min 1, max 4 변경

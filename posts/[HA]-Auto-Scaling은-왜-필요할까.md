@@ -5,10 +5,9 @@ published: "2026-05-11T15:10:27.633Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.758497"
 ---
-
 서비스를 운영하다 보면 가장 무서운 순간 중 하나는:
 
-```text id="7j1v1i"
+```text
 갑자기 트래픽이 폭증하는 상황
 ```
 
@@ -37,7 +36,7 @@ backup_date: "2026-05-29T14:52:52.758497"
 
 그래서 등장한 개념이:
 
-```text id="4g7x3h"
+```text
 Auto Scaling
 ```
 
@@ -49,7 +48,7 @@ Auto Scaling
 
 Auto Scaling은 말 그대로:
 
-```text id="3d9q0o"
+```text
 트래픽 상황에 따라
 서버 개수를 자동으로 늘리거나 줄이는 기술
 ```
@@ -65,7 +64,7 @@ Auto Scaling은 말 그대로:
 
 핵심 목표는:
 
-```text id="4m5r2y"
+```text
 성능 유지 + 비용 최적화
 ```
 
@@ -81,7 +80,7 @@ Auto Scaling은 말 그대로:
 
 하지만 이벤트가 시작되면:
 
-```text id="9z2p1x"
+```text
 사용자 10배 증가
 ```
 
@@ -93,7 +92,7 @@ Auto Scaling은 말 그대로:
 
 그래서 시스템이 스스로:
 
-```text id="u1o3g7"
+```text
 “지금 트래픽 위험하다”
 ```
 
@@ -116,7 +115,7 @@ Auto Scaling은 말 그대로:
 
 즉:
 
-```text id="d9x0e8"
+```text
 더 강한 서버 사용
 ```
 
@@ -138,7 +137,7 @@ Auto Scaling은 말 그대로:
 
 예:
 
-```text id="1y0l7g"
+```text
 Web Server 2대 → 10대
 ```
 
@@ -146,7 +145,7 @@ Web Server 2대 → 10대
 
 현대 클라우드는 대부분:
 
-```text id="x4k8v9"
+```text
 Horizontal Scaling (Scale Out)
 ```
 
@@ -160,7 +159,7 @@ Horizontal Scaling (Scale Out)
 
 보통 이런 구조를 사용한다.
 
-```text id="x6z9n2"
+```text
               ┌──────────────┐
               │ Load Balancer│
               └──────┬───────┘
@@ -174,13 +173,13 @@ Horizontal Scaling (Scale Out)
 
 트래픽이 증가하면:
 
-```text id="q9v7d5"
+```text
 서버 자동 추가
 ```
 
 트래픽이 감소하면:
 
-```text id="8j5r4f"
+```text
 서버 자동 제거
 ```
 
@@ -203,7 +202,7 @@ Auto Scaling은 특정 조건을 기준으로 동작한다.
 
 예시:
 
-```text id="6x3j9v"
+```text
 CPU > 70% 5분 지속
 → 서버 2대 추가
 ```
@@ -216,7 +215,7 @@ CPU > 70% 5분 지속
 
 AWS에서는 대표적으로:
 
-```text id="m1t6s8"
+```text
 Auto Scaling Group (ASG)
 ```
 
@@ -232,7 +231,7 @@ ASG는:
 
 예:
 
-```text id="2g4d0n"
+```text
 Min: 2
 Desired: 3
 Max: 10
@@ -252,7 +251,7 @@ Max: 10
 
 여기서 중요한 현실이 있다.
 
-```text id="n0f7w3"
+```text
 애플리케이션 서버는 쉽게 늘릴 수 있지만
 DB는 쉽지 않다
 ```
@@ -267,7 +266,7 @@ DB는 쉽지 않다
 
 즉:
 
-```text id="y5d8m1"
+```text
 Web Server는 Stateless에 가깝고
 DB는 Stateful하다
 ```
@@ -289,7 +288,7 @@ Kubernetes도 Auto Scaling 기능을 제공한다.
 
 대표적으로:
 
-```text id="p6w1v4"
+```text
 HPA (Horizontal Pod Autoscaler)
 ```
 
@@ -304,7 +303,7 @@ HPA (Horizontal Pod Autoscaler)
 
 즉:
 
-```text id="k4s2t7"
+```text
 Pod 자동 확장
 ```
 
@@ -318,7 +317,7 @@ Pod 자동 확장
 
 결국 Auto Scaling의 핵심은:
 
-```text id="f2m8z5"
+```text
 트래픽 변화에 시스템이 자동 적응
 ```
 
@@ -343,7 +342,7 @@ Pod 자동 확장
 
 그래서 클라우드 환경에서는:
 
-```text id="d5r0x2"
+```text
 필요할 때 늘어나고
 필요 없을 때 줄어드는 구조
 ```

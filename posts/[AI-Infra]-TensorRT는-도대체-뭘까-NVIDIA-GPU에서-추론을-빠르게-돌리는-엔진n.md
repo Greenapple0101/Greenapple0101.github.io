@@ -1,11 +1,10 @@
 ---
-title: "[AI Infra] TensorRT는 도대체 뭘까? NVIDIA GPU에서 추론을 빠르게 돌리는 엔진\n"
+title: "[AI Infra] TensorRT는 도대체 뭘까? NVIDIA GPU에서 추론을 빠르게 돌리는 엔진"
 source: "https://velog.io/@yorange50/AI-Infra-TensorRT는-도대체-뭘까-NVIDIA-GPU에서-추론을-빠르게-돌리는-엔진"
 published: "2026-05-07T07:08:56.768Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.770886"
 ---
-
 PyTorch inference, ONNX, latency, throughput을 공부하다 보면 결국 이 단어가 나온다.
 
 ```text

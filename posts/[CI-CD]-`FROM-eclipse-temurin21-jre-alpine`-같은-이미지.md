@@ -1,11 +1,10 @@
 ---
-title: "[CI/CD]`FROM eclipse-temurin:21-jre-alpine` 같은 이미지"
+title: "[CI/CD]FROM eclipse-temurin:21-jre-alpine 같은 이미지"
 source: "https://velog.io/@yorange50/CICDFROM-eclipse-temurin21-jre-alpine-같은-이미지"
 published: "2026-05-12T08:10:27.648Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.756929"
 ---
-
 `FROM eclipse-temurin:21-jre-alpine` 같은 이미지는 종류가 엄청 많아 보이는데, 사실 태그를 쪼개서 보면 별거 아님.
 
 ```dockerfile

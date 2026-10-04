@@ -5,10 +5,9 @@ published: "2026-05-11T14:40:50.365Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.762459"
 ---
-
 보안 공부를 시작하면 반드시 나오는 게 있다.
 
-```text id="86pnfq"
+```text
 대칭키
 공개키(비대칭키)
 RSA
@@ -28,7 +27,7 @@ SSH
 
 오늘은 그 출발점인:
 
-```text id="x9zzff"
+```text
 대칭키 암호화
 비대칭키(공개키) 암호화
 ```
@@ -47,13 +46,13 @@ SSH
 
 예를 들어:
 
-```text id="4f8okg"
+```text
 HELLO
 ```
 
 라는 데이터를:
 
-```text id="6sjrff"
+```text
 A8XK29P...
 ```
 
@@ -61,7 +60,7 @@ A8XK29P...
 
 그리고 다시 원래대로 되돌리는 걸:
 
-```text id="0jmrjv"
+```text
 복호화
 ```
 
@@ -73,7 +72,7 @@ A8XK29P...
 
 인터넷은 기본적으로:
 
-```text id="up9qol"
+```text
 공용 공간
 ```
 
@@ -87,7 +86,7 @@ A8XK29P...
 
 그래서:
 
-```text id="fdjepw"
+```text
 "중간에서 봐도 못 읽게 만들자"
 ```
 
@@ -99,7 +98,7 @@ A8XK29P...
 
 암호화에서 가장 중요한 건:
 
-```text id="q8eg2n"
+```text
 키(Key)
 ```
 
@@ -107,7 +106,7 @@ A8XK29P...
 
 암호화는 보통:
 
-```text id="0wscna"
+```text
 데이터 + 키
 ```
 
@@ -132,7 +131,7 @@ A8XK29P...
 
 예시:
 
-```text id="e8f81h"
+```text
 KEY = abc123
 ```
 
@@ -140,7 +139,7 @@ KEY = abc123
 
 ## 흐름
 
-```text id="n9pkvn"
+```text
 송신자:
 HELLO
 → abc123으로 암호화
@@ -154,7 +153,7 @@ HELLO
 
 즉:
 
-```text id="yz4f3g"
+```text
 같은 키
 ```
 
@@ -162,7 +161,7 @@ HELLO
 
 그래서 이름이:
 
-```text id="u7q0b1"
+```text
 대칭키(Symmetric Key)
 ```
 
@@ -176,7 +175,7 @@ HELLO
 
 그래서 실제 서비스에서는:
 
-```text id="7eqx1o"
+```text
 대량 데이터 암호화
 ```
 
@@ -194,7 +193,7 @@ HELLO
 
 문제는:
 
-```text id="8xnmvi"
+```text
 키를 어떻게 전달할 건데?
 ```
 
@@ -202,7 +201,7 @@ HELLO
 
 예를 들어:
 
-```text id="vt5hyq"
+```text
 "암호화 키는 abc123입니다"
 ```
 
@@ -212,7 +211,7 @@ HELLO
 
 즉:
 
-```text id="jpk4gi"
+```text
 키 배송 자체가 위험
 ```
 
@@ -220,7 +219,7 @@ HELLO
 
 이 문제를 해결하려고 나온 게:
 
-```text id="a5stdr"
+```text
 공개키 암호화
 ```
 
@@ -244,7 +243,7 @@ HELLO
 
 비대칭키는:
 
-```text id="nkg9xk"
+```text
 1. 공개키(Public Key)
 2. 개인키(Private Key)
 ```
@@ -269,7 +268,7 @@ HELLO
 
 예를 들어:
 
-```text id="y95o0v"
+```text
 서버:
 공개키 공개
 개인키는 혼자 보관
@@ -281,7 +280,7 @@ HELLO
 
 사용자는:
 
-```text id="ch34e8"
+```text
 서버 공개키
 ```
 
@@ -293,7 +292,7 @@ HELLO
 
 서버는:
 
-```text id="nv0rzi"
+```text
 개인키
 ```
 
@@ -301,7 +300,7 @@ HELLO
 
 즉:
 
-```text id="x0gg7o"
+```text
 공개키로 암호화
 → 개인키로 복호화
 ```
@@ -314,7 +313,7 @@ HELLO
 
 핵심은:
 
-```text id="dt1ypw"
+```text
 개인키를 전달할 필요가 없음
 ```
 
@@ -322,7 +321,7 @@ HELLO
 
 즉 인터넷 중간에서 누가 봐도:
 
-```text id="glkpcv"
+```text
 복호화 불가능
 ```
 
@@ -336,7 +335,7 @@ HELLO
 
 좋아 보이는데 단점이 있다.
 
-```text id="ysl5qd"
+```text
 느리다
 ```
 
@@ -346,7 +345,7 @@ CPU를 많이 사용한다.
 
 그래서:
 
-```text id="1lkd1d"
+```text
 대량 데이터 암호화
 ```
 
@@ -358,7 +357,7 @@ CPU를 많이 사용한다.
 
 현실 서비스는 보통:
 
-```text id="4g0clw"
+```text
 비대칭키
 +
 대칭키
@@ -378,7 +377,7 @@ HTTPS(TLS)는 보통 이렇게 한다.
 
 비대칭키 사용.
 
-```text id="o5nq4r"
+```text
 서버 공개키로
 안전하게 대칭키 전달
 ```
@@ -389,7 +388,7 @@ HTTPS(TLS)는 보통 이렇게 한다.
 
 그 이후는:
 
-```text id="6msxkk"
+```text
 대칭키로 빠르게 통신
 ```
 
@@ -397,7 +396,7 @@ HTTPS(TLS)는 보통 이렇게 한다.
 
 즉:
 
-```text id="6fr9s4"
+```text
 비대칭키 = 안전한 키 교환
 대칭키 = 실제 데이터 암호화
 ```
@@ -412,7 +411,7 @@ SSH도 공개키 구조를 사용한다.
 
 예를 들어:
 
-```text id="8m0gux"
+```text
 id_rsa
 id_rsa.pub
 ```
@@ -423,7 +422,7 @@ id_rsa.pub
 
 ## 의미
 
-```text id="z9t0x4"
+```text
 id_rsa
 → 개인키
 
@@ -435,7 +434,7 @@ id_rsa.pub
 
 서버는 공개키를 저장하고:
 
-```text id="5qm8lj"
+```text
 내 개인키를 가진 사람만 접속 허용
 ```
 
@@ -449,7 +448,7 @@ id_rsa.pub
 
 같은 키 사용
 
-```text id="0zvtyh"
+```text
 암호화 = 복호화 키
 ```
 
@@ -471,7 +470,7 @@ id_rsa.pub
 
 키가 2개
 
-```text id="k9w8vc"
+```text
 공개키
 개인키
 ```
@@ -480,7 +479,7 @@ id_rsa.pub
 
 ## 구조
 
-```text id="6mps1z"
+```text
 공개키로 암호화
 개인키로 복호화
 ```
@@ -501,7 +500,7 @@ id_rsa.pub
 
 ## 현실 서비스
 
-```text id="c5d0z5"
+```text
 비대칭키로 키 교환
 ↓
 대칭키로 실제 통신
@@ -511,7 +510,7 @@ id_rsa.pub
 
 # 한 줄 핵심
 
-```text id="8g1oy9"
+```text
 대칭키는 빠르고,
 공개키는 안전하다.
 그래서 실제 인터넷은 둘을 함께 사용한다.

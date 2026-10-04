@@ -1,12 +1,10 @@
 ---
-title: "[DOCKER] Maven 빌드, `.m2` 캐시, Dockerfile 방식 비교 정리"
+title: "[DOCKER] Maven 빌드, .m2 캐시, Dockerfile 방식 비교 정리"
 source: "https://velog.io/@yorange50/DOCKER-Maven-빌드-.m2-캐시-Dockerfile-방식-비교-정리"
 published: "2026-05-08T07:50:22.528Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.767112"
 ---
-
-
 스프링부트 프로젝트를 Docker로 올리다 보면 단순히 `docker run`만 문제가 아니다.
 
 실제로는 그 전에:

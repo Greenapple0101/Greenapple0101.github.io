@@ -34,6 +34,27 @@ class BlogTests(unittest.TestCase):
         self.assertEqual(build.topic_for_entry('RAG/MLOps', '[RAG]-품질-평가'), 'ai')
         self.assertEqual(build.topic_for_entry('Upstage', '[Upstage]-Solar'), 'upstage')
 
+    def test_frontmatter_decodes_quoted_titles_without_corrupting_korean(self):
+        raw = '쿠버네티스 "ReplicaSet"과 `kubectl`\n'
+        meta, _ = build.parse_frontmatter('---\ntitle: ' + json.dumps(raw, ensure_ascii=False) + '\n---\n본문')
+        self.assertEqual(meta['title'], '쿠버네티스 "ReplicaSet"과 kubectl')
+
+    def test_redirects_require_a_real_canonical_article(self):
+        good = [({}, '내용', 'canonical'), ({'redirect_to': 'canonical'}, '보존본', 'old')]
+        self.assertEqual(build.validate_redirects(good), {'old': 'canonical'})
+        for bad in [
+            [({'redirect_to': 'missing'}, '', 'old')],
+            [({'redirect_to': 'self'}, '', 'self')],
+            [({'redirect_to': 'b'}, '', 'a'), ({'redirect_to': 'a'}, '', 'b')],
+            [({}, '', 'same'), ({}, '', 'same')],
+        ]:
+            with self.assertRaises(ValueError):
+                build.validate_redirects(bad)
+
+    def test_excerpt_does_not_leak_markdown_or_link_urls(self):
+        body = '# 제목\n\n```text\n출력 예제\n```\n\n---\n\n[공식 문서](https://example.com)에 정리한 **설명**입니다.'
+        self.assertEqual(build.excerpt(body), '공식 문서에 정리한 설명입니다.')
+
     def test_sources_are_read_in_place_without_deletion(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -51,10 +72,10 @@ class BlogTests(unittest.TestCase):
             self.assertTrue(source.exists())
 
     def test_repaired_export_fences_are_balanced_and_rendered(self):
-        for path in build.POSTS_DIR.glob('[[]Upstage[]]*.md'):
+        for path in build.POSTS_DIR.glob('*.md'):
             with self.subTest(post=path.name):
                 meta, body = build.parse_frontmatter(path.read_text(encoding='utf-8'))
-                self.assertIn(meta['topic'], build.TOPIC_BY_ID)
+                self.assertIn(build.entry_classification(path.stem, meta)[1], build.TOPIC_BY_ID)
                 fence = None
                 for line in body.splitlines():
                     match = re.fullmatch(r'(`{3,}|~{3,})(.*)', line)
@@ -69,6 +90,9 @@ class BlogTests(unittest.TestCase):
                         fence = None
                 self.assertIsNone(fence)
                 rendered = path.with_suffix('.html').read_text(encoding='utf-8')
+                if meta.get('redirect_to'):
+                    self.assertIn('<link rel="canonical"', rendered)
+                    continue
                 article = rendered.split('<article class="post-content">')[1].split('</article>')[0]
                 self.assertNotIn('```', article)
                 self.assertNotIn('\ufffd', article)
@@ -88,9 +112,20 @@ class BlogTests(unittest.TestCase):
         expected = set()
         for path in build.POSTS_DIR.glob('*.md'):
             meta, _ = build.parse_frontmatter(path.read_text(encoding='utf-8'))
+            if meta.get('redirect_to'):
+                text = path.with_suffix('.html').read_text(encoding='utf-8')
+                self.assertIn('http-equiv="refresh"', text)
+                self.assertIn(meta['redirect_to'], {p['slug'] for p in entries})
+                continue
             expected.add(meta.get('slug', path.stem))
         self.assertEqual({p['slug'] for p in entries}, expected)
         self.assertEqual(len(entries), len(expected))
+        titles = []
+        for entry in entries:
+            self.assertNotRegex(entry['title'], r'\\[nrt"]|`|\ufffd')
+            title = re.sub(r'^\[[^]]+\]\s*', '', entry['title']).strip().casefold()
+            titles.append(title)
+        self.assertEqual(len(titles), len(set(titles)), 'Duplicate visible titles')
         paths = [build.ROOT / 'index.html', *build.TOPICS_DIR.glob('*.html'), *build.POSTS_DIR.glob('*.html')]
         for path in paths:
             parser = Links()

@@ -1,11 +1,10 @@
 ---
-title: "[Kubernetes] `--dry-run=client` 도대체 뭐 하는 옵션일까?"
+title: "[Kubernetes] --dry-run=client 도대체 뭐 하는 옵션일까?"
 source: "https://velog.io/@yorange50/Kubernetes-dry-runclient-도대체-뭐-하는-옵션일까"
 published: "2026-05-20T01:31:02.564Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.720135"
 ---
-
 쿠버네티스를 공부하다 보면 이런 명령어를 자주 보게 된다.
 
 ```bash

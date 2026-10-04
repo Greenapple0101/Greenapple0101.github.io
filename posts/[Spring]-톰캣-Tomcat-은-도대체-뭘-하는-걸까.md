@@ -5,8 +5,6 @@ published: "2026-05-11T11:00:24.463Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.764205"
 ---
-
-
 스프링 공부하다 보면 계속 이런 말을 듣는다.
 
 * 내장 톰캣
@@ -17,7 +15,7 @@ backup_date: "2026-05-29T14:52:52.764205"
 
 근데 처음엔 진짜 헷갈린다.
 
-```text id="ql8h7u"
+```text
 “그래서 톰캣이 서버야?”
 “스프링이 서버 아니야?”
 “내가 만든 API는 누가 실행하는 거지?”
@@ -31,7 +29,7 @@ backup_date: "2026-05-29T14:52:52.764205"
 
 ## 톰캣(Tomcat)
 
-```text id="l4w9ga"
+```text
 자바 웹 애플리케이션을 실행시켜주는 웹 서버(WAS)
 ```
 
@@ -43,7 +41,7 @@ backup_date: "2026-05-29T14:52:52.764205"
 
 우리가 만든 스프링 코드는:
 
-```java id="lr7d4g"
+```java
 @RestController
 public class BoardController {
 
@@ -58,7 +56,7 @@ public class BoardController {
 
 근데 이 코드는:
 
-```text id="v53bz9"
+```text
 “누가 실행해줘야”
 ```
 
@@ -72,7 +70,7 @@ public class BoardController {
 
 예를 들어 브라우저에서:
 
-```text id="u1xptu"
+```text
 http://localhost:8080/hello
 ```
 
@@ -89,7 +87,7 @@ http://localhost:8080/hello
 
 그 역할을 하는 게:
 
-```text id="phj9g2"
+```text
 톰캣
 ```
 
@@ -99,7 +97,7 @@ http://localhost:8080/hello
 
 # 흐름으로 보면 이해 쉽다
 
-```text id="m1r4af"
+```text
 브라우저 요청
         ↓
 톰캣이 요청 받음
@@ -119,7 +117,7 @@ http://localhost:8080/hello
 
 사실 스프링 코드는:
 
-```text id="5af46g"
+```text
 그냥 일반 자바 코드
 ```
 
@@ -127,7 +125,7 @@ http://localhost:8080/hello
 
 즉:
 
-```java id="9j4b9h"
+```java
 public class Test {
 }
 ```
@@ -153,7 +151,7 @@ HTTP 요청을 받으려면:
 
 ## WAS
 
-```text id="mylq52"
+```text
 Web Application Server
 ```
 
@@ -189,7 +187,7 @@ Web Application Server
 
 예를 들어:
 
-```text id="l4c05d"
+```text
 회원가입
 로그인
 DB 조회
@@ -200,7 +198,7 @@ DB 조회
 
 그래서:
 
-```text id="ltw2ta"
+```text
 자바 코드 실행 가능한 서버
 ```
 
@@ -214,7 +212,7 @@ DB 조회
 
 예전에는:
 
-```text id="0m2g6u"
+```text
 1. 톰캣 설치
 2. war 파일 생성
 3. 톰캣 webapps 폴더에 넣기
@@ -225,7 +223,7 @@ DB 조회
 
 즉:
 
-```text id="33qu8l"
+```text
 스프링 앱과 톰캣이 분리
 ```
 
@@ -237,7 +235,7 @@ DB 조회
 
 스프링부트는:
 
-```text id="tfgr87"
+```text
 내장 톰캣(Embedded Tomcat)
 ```
 
@@ -245,7 +243,7 @@ DB 조회
 
 즉:
 
-```text id="pw8h1m"
+```text
 jar 안에 톰캣까지 포함
 ```
 
@@ -255,7 +253,7 @@ jar 안에 톰캣까지 포함
 
 # 그래서 지금은 이렇게 됨
 
-```bash id="1h1x0l"
+```bash
 java -jar app.jar
 ```
 
@@ -275,7 +273,7 @@ java -jar app.jar
 
 스프링 실행하면:
 
-```text id="e4ehyf"
+```text
 Tomcat started on port 8080
 ```
 
@@ -283,7 +281,7 @@ Tomcat started on port 8080
 
 이 의미는:
 
-```text id="61s9z5"
+```text
 “톰캣이 8080 포트 열고 HTTP 요청 받을 준비 완료”
 ```
 
@@ -295,7 +293,7 @@ Tomcat started on port 8080
 
 예:
 
-```text id="2t34wl"
+```text
 localhost:8080
 ```
 
@@ -308,7 +306,7 @@ localhost:8080
 
 즉 톰캣이:
 
-```text id="xupowf"
+```text
 8080 포트에서 대기
 ```
 
@@ -320,7 +318,7 @@ localhost:8080
 
 예를 들어:
 
-```java id="12bj2v"
+```java
 @GetMapping("/hello")
 public String hello() {
     return "hello";
@@ -329,7 +327,7 @@ public String hello() {
 
 브라우저 요청:
 
-```text id="2fl5pk"
+```text
 GET /hello
 ```
 
@@ -357,7 +355,7 @@ GET /hello
 
 톰캣이 요청을 받으면:
 
-```text id="9n3i6g"
+```text
 “이 URL 누구한테 보낼까?”
 ```
 
@@ -369,7 +367,7 @@ GET /hello
 
 ## 톰캣
 
-```text id="x5ffu7"
+```text
 건물 입구 경비원
 ```
 
@@ -381,7 +379,7 @@ GET /hello
 
 ## 스프링
 
-```text id="sz3mdg"
+```text
 건물 안 직원들
 ```
 
@@ -395,7 +393,7 @@ GET /hello
 
 Dockerfile:
 
-```dockerfile id="c7a7vx"
+```dockerfile
 FROM eclipse-temurin:21-jdk
 
 COPY app.jar app.jar
@@ -405,7 +403,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 실행하면 내부에서:
 
-```text id="kgmyo2"
+```text
 JVM 실행
 → Spring Boot 실행
 → 내장 톰캣 실행
@@ -420,13 +418,13 @@ JVM 실행
 
 예:
 
-```bash id="o2xj85"
+```bash
 docker run -p 8080:8080 app
 ```
 
 의미:
 
-```text id="0okf79"
+```text
 내 컴퓨터 8080
 ↓
 컨테이너 내부 톰캣 8080 연결
@@ -442,7 +440,7 @@ docker run -p 8080:8080 app
 
 구조 예시:
 
-```text id="5ibjjt"
+```text
 클라이언트
    ↓
 Nginx
@@ -471,7 +469,7 @@ Nginx가:
 
 ## 톰캣 역할
 
-```text id="k0fjlwm"
+```text
 HTTP 요청 받기
 포트 열기
 스프링 코드 실행 연결
@@ -482,7 +480,7 @@ HTTP 요청 받기
 
 # 핵심 구조
 
-```text id="kkl78f"
+```text
 브라우저
    ↓
 톰캣
@@ -500,7 +498,7 @@ DB
 
 ## 톰캣은
 
-```text id="7ocm7l"
+```text
 자바 웹 애플리케이션 실행 서버(WAS)
 ```
 
@@ -508,13 +506,13 @@ DB
 
 ## 스프링부트는
 
-```text id="sg4p6i"
+```text
 내장 톰캣을 포함
 ```
 
 해서:
 
-```bash id="q0rjzb"
+```bash
 java -jar
 ```
 
@@ -536,7 +534,7 @@ java -jar
 
 그 역할을 하는 핵심 서버가:
 
-```text id="mbrxyd"
+```text
 톰캣(Tomcat)
 ```
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유 | Greenapple0101</title>
-  <meta name="description" content="! https://velog.velcdn.com/images/yorange50/post/01404878-9a94-45ac-a55d-cd34602097bc/image.png ! https://velog.velcdn.com/images/yorange50/post/08bb43df-fdc7-…" />
+  <title>[DB] PostgreSQL에서 스키마가 hello랑 public 두 개 보이는 이유 | Greenapple0101</title>
+  <meta name="description" content="PostgreSQL을 Docker로 띄우고 DBeaver에서 확인하다 보면 이런 구조를 볼 수 있다. 처음 보면 헷갈린다. 왜 스키마가 두 개지? public은 뭐고 hello는 뭐지? 테이블은 어디에 만들어지는 거지? 결론부터 말하면 이상한 상황이 아니다. public은 Postgr…" />
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="../post.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
@@ -17,7 +17,7 @@
       <a href="../topics/web.html">웹 · 기타</a>
     </nav>
     <span class="tag" style="--tag-color: #64748b">DB</span>
-    <h1>[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유</h1>
+    <h1>[DB] PostgreSQL에서 스키마가 hello랑 public 두 개 보이는 이유</h1>
     <div class="post-meta">
       <time datetime="2026-05-13T04:38:37.173Z">2026.05.13</time>
       
@@ -291,7 +291,7 @@ Table은 구역 안에 있는 실제 데이터 저장소
 <p>따라서 <code>hello</code>와 <code>public</code>이 같이 보이는 건 문제가 아니라, 하나의 데이터베이스 안에 기본 스키마와 내가 만든 스키마가 함께 존재하는 정상적인 상태다.</p>
   </article>
 <nav class="post-nav" aria-label="글 이동">
-  <a class="post-nav-link prev" href="[DB]-터미널에서는-테이블이-보이는데-DBeaver에서는-`No-items`가-뜨는-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DB] 터미널에서는 테이블이 보이는데 DBeaver에서는 `No items`가 뜨는 이유</span></a>
+  <a class="post-nav-link prev" href="[DB]-터미널에서는-테이블이-보이는데-DBeaver에서는-`No-items`가-뜨는-이유.html"><span class="post-nav-label">이전 글</span><span class="post-nav-title">[DB] 터미널에서는 테이블이 보이는데 DBeaver에서는 No items가 뜨는 이유</span></a>
   <a class="post-nav-home" href="../index.html">홈</a>
   <a class="post-nav-link next" href="[Upstage]-apiapi-중복과-WebSocket-101-실패를-해결하며-프록시-경로를-정리한-이야기.html"><span class="post-nav-label">다음 글</span><span class="post-nav-title">[NGINX] /api/api 중복과 WebSocket 101 실패를 해결하며 프록시 경로를 정리한 이야기</span></a>
   </nav>

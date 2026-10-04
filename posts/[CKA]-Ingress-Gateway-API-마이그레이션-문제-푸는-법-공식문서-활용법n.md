@@ -1,14 +1,13 @@
 ---
-title: "[CKA] Ingress → Gateway API 마이그레이션 문제 푸는 법 + 공식문서 활용법\n"
+title: "[CKA] Ingress → Gateway API 마이그레이션 문제 푸는 법 + 공식문서 활용법"
 source: "https://velog.io/@yorange50/CKA-Ingress-Gateway-API-마이그레이션-문제-푸는-법-공식문서-활용법"
 published: "2026-05-20T07:24:19.658Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.717292"
 ---
-
 문제는 이거다.
 
-```text id="2rsyau"
+```text
 기존 Ingress web이 있다.
 이걸 Gateway API로 마이그레이션해라.
 
@@ -27,7 +26,7 @@ HTTPRoute 이름은 web-route
 
 근데 이 문제의 핵심은 YAML 암기가 아니다.
 
-```text id="u9nx8j"
+```text
 기존 Ingress를 읽고
 그 안에 있는 값을
 Gateway와 HTTPRoute로 옮기는 문제
@@ -41,7 +40,7 @@ Gateway와 HTTPRoute로 옮기는 문제
 
 문제에서 이미 알려준 값이 있다.
 
-```text id="dop5fy"
+```text
 GatewayClass name: nginx
 Gateway name: web-gateway
 Gateway hostname: gateway.web.k8s.local
@@ -51,7 +50,7 @@ HTTPRoute name: web-route
 
 그리고 기존 Ingress에서 뽑아와야 하는 값이 있다.
 
-```text id="sltz7z"
+```text
 TLS secret 이름
 기존 path
 기존 backend Service 이름
@@ -62,7 +61,7 @@ TLS secret 이름
 
 먼저 기존 Ingress를 확인해야 한다.
 
-```bash id="9yf1ba"
+```bash
 kubectl get ingress web -o yaml
 ```
 
@@ -74,7 +73,7 @@ kubectl get ingress web -o yaml
 
 Ingress YAML에서 봐야 할 건 크게 두 군데다.
 
-```yaml id="2b95cz"
+```yaml
 spec:
   tls:
   - hosts:
@@ -106,7 +105,7 @@ spec:
 
 즉 Ingress를 Gateway API로 바꿀 때는 이렇게 생각하면 된다.
 
-```text id="65hmo8"
+```text
 Ingress의 TLS/도메인 입구 부분
 → Gateway
 
@@ -124,7 +123,7 @@ Gateway API는 역할이 나뉜다.
 
 간단히 말하면:
 
-```text id="vnqsyi"
+```text
 GatewayClass
 → 어떤 Gateway Controller를 쓸지
 
@@ -137,7 +136,7 @@ HTTPRoute
 
 흐름은 이렇게 보면 된다.
 
-```text id="y55a5t"
+```text
 Client
   ↓
 GatewayClass nginx가 관리하는 Gateway
@@ -157,25 +156,25 @@ Pod
 
 공식문서 검색창에서 이렇게 찾으면 된다.
 
-```text id="xuhkqc"
+```text
 Gateway API
 ```
 
 또는
 
-```text id="ufx2ju"
+```text
 HTTPRoute
 ```
 
 또는
 
-```text id="if2afd"
+```text
 Gateway
 ```
 
 공식문서 경로는 보통 이쪽이다.
 
-```text id="5izklh"
+```text
 Documentation
   → Concepts
   → Services, Load Balancing, and Networking
@@ -184,7 +183,7 @@ Documentation
 
 들어간 뒤 페이지 안에서 `Ctrl + F`로 찾을 키워드는 이거다.
 
-```text id="bzgpvm"
+```text
 Gateway
 HTTPRoute
 listeners
@@ -198,7 +197,7 @@ Gateway API 공식문서에는 `GatewayClass`, `Gateway`, `HTTPRoute`의 관계�
 
 즉 문서에서 복사해야 하는 YAML은 보통 두 종류다.
 
-```text id="hmdvtu"
+```text
 kind: Gateway
 kind: HTTPRoute
 ```
@@ -209,7 +208,7 @@ kind: HTTPRoute
 
 문제 조건:
 
-```text id="c71ztc"
+```text
 Gateway 이름: web-gateway
 GatewayClass 이름: nginx
 hostname: gateway.web.k8s.local
@@ -219,7 +218,7 @@ HTTPS 443 listener 유지
 
 예시 YAML:
 
-```yaml id="axxi01"
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -242,13 +241,13 @@ spec:
 
 실제 시험에서는 반드시 기존 Ingress에서 확인한 값을 넣어야 한다.
 
-```bash id="uqpovx"
+```bash
 kubectl get ingress web -o yaml
 ```
 
 에서:
 
-```yaml id="brh1uz"
+```yaml
 spec:
   tls:
   - secretName: web-tls
@@ -262,7 +261,7 @@ spec:
 
 문제 조건:
 
-```text id="vyma0t"
+```text
 HTTPRoute 이름: web-route
 hostname: gateway.web.k8s.local
 기존 Ingress의 routing rule 유지
@@ -270,7 +269,7 @@ hostname: gateway.web.k8s.local
 
 예시 YAML:
 
-```yaml id="7z0z18"
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -292,7 +291,7 @@ spec:
 
 여기서 중요한 건 세 가지다.
 
-```text id="a9irqk"
+```text
 parentRefs.name
 → 어느 Gateway에 붙을지
 
@@ -317,7 +316,7 @@ backendRefs
 
 문제에서 `nginx`가 있다고 했지만, 그래도 확인 가능하다.
 
-```bash id="dh6kcn"
+```bash
 kubectl get gatewayclass
 ```
 
@@ -325,13 +324,13 @@ kubectl get gatewayclass
 
 ## 2단계. 기존 Ingress 확인
 
-```bash id="kxfe42"
+```bash
 kubectl get ingress web -o yaml
 ```
 
 여기서 확인할 것:
 
-```text id="ufd4cj"
+```text
 tls.secretName
 rules.host
 paths.path
@@ -344,11 +343,11 @@ backend.service.port.number
 
 ## 3단계. Gateway YAML 작성
 
-```bash id="cd27v4"
+```bash
 vi web-gateway.yaml
 ```
 
-```yaml id="wsbeml"
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -371,11 +370,11 @@ spec:
 
 ## 4단계. HTTPRoute YAML 작성
 
-```bash id="xoitn6"
+```bash
 vi web-route.yaml
 ```
 
-```yaml id="ucg8z6"
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -399,7 +398,7 @@ spec:
 
 ## 5단계. 적용
 
-```bash id="gcv3jo"
+```bash
 kubectl apply -f web-gateway.yaml
 kubectl apply -f web-route.yaml
 ```
@@ -410,14 +409,14 @@ kubectl apply -f web-route.yaml
 
 ## 6단계. 생성 확인
 
-```bash id="h5q2w0"
+```bash
 kubectl get gateway
 kubectl get httproute
 ```
 
 더 자세히:
 
-```bash id="qohs04"
+```bash
 kubectl describe gateway web-gateway
 kubectl describe httproute web-route
 ```
@@ -428,13 +427,13 @@ kubectl describe httproute web-route
 
 문제에서 준 명령어:
 
-```bash id="3o58l0"
+```bash
 curl https://gateway.web.k8s.local
 ```
 
 주의할 점은 문제에 적힌:
 
-```text id="4ctyhv"
+```text
 curl https: //gateway.web.k8s.local
 ```
 
@@ -442,7 +441,7 @@ curl https: //gateway.web.k8s.local
 
 실제는 붙여서 써야 한다.
 
-```bash id="iymvrr"
+```bash
 curl https://gateway.web.k8s.local
 ```
 
@@ -452,7 +451,7 @@ curl https://gateway.web.k8s.local
 
 테스트 성공 후 삭제한다.
 
-```bash id="azl54w"
+```bash
 kubectl delete ingress web
 ```
 
@@ -464,7 +463,7 @@ kubectl delete ingress web
 
 시험장에서 공식문서를 열면 이렇게 움직이면 된다.
 
-```text id="9o29x2"
+```text
 1. 검색창에 Gateway API 검색
 2. Gateway API 문서 진입
 3. Ctrl + F로 Gateway 검색
@@ -476,7 +475,7 @@ kubectl delete ingress web
 
 페이지 안에서 특히 찾을 키워드:
 
-```text id="den7cv"
+```text
 gatewayClassName
 listeners
 protocol
@@ -491,7 +490,7 @@ backendRefs
 
 그리고 터미널에서는 이걸 같이 쓴다.
 
-```bash id="xz3ewj"
+```bash
 kubectl explain gateway.spec
 kubectl explain gateway.spec.listeners
 kubectl explain httproute.spec
@@ -522,7 +521,7 @@ kubectl explain httproute.spec.rules
 
 Ingress에서는 한 파일 안에 이런 것들이 섞여 있었다.
 
-```text id="5zbisb"
+```text
 TLS 설정
 hostname
 path routing
@@ -531,7 +530,7 @@ backend service
 
 Gateway API는 이걸 나눈다.
 
-```text id="8yslec"
+```text
 Gateway
 → 입구 설정
 → listener
@@ -546,7 +545,7 @@ HTTPRoute
 
 그래서 문제를 풀 때도 이렇게 나눠 생각하면 된다.
 
-```text id="v8lmoa"
+```text
 HTTPS 443, TLS, hostname
 → Gateway에 작성
 
@@ -562,7 +561,7 @@ path, backend service, service port
 
 ## Gateway
 
-```yaml id="evk1m9"
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -583,7 +582,7 @@ spec:
 
 ## HTTPRoute
 
-```yaml id="wf3nvd"
+```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -605,7 +604,7 @@ spec:
 
 ## 적용 및 검증
 
-```bash id="pc59s0"
+```bash
 kubectl apply -f web-gateway.yaml
 kubectl apply -f web-route.yaml
 
@@ -625,7 +624,7 @@ kubectl delete ingress web
 
 핵심은 이 흐름이다.
 
-```text id="iyv0jr"
+```text
 기존 Ingress 확인
 → TLS secret 확인
 → backend Service 확인
@@ -637,7 +636,7 @@ kubectl delete ingress web
 
 그리고 문서 활용은 이렇게 하면 된다.
 
-```text id="admon7"
+```text
 Gateway API 문서에서 Gateway / HTTPRoute 예시 찾기
 → Ctrl + F로 certificateRefs, backendRefs 찾기
 → 기존 Ingress의 값을 옮겨 넣기
@@ -645,7 +644,7 @@ Gateway API 문서에서 Gateway / HTTPRoute 예시 찾기
 
 즉 이 문제의 본질은:
 
-```text id="wj38ev"
+```text
 Ingress YAML을 읽고
 Gateway API의 두 리소스 구조로 분리해서 다시 쓰는 것
 ```

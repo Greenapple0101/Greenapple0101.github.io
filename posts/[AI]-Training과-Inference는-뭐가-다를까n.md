@@ -1,11 +1,10 @@
 ---
-title: "[AI] Training과 Inference는 뭐가 다를까?\n"
+title: "[AI] Training과 Inference는 뭐가 다를까?"
 source: "https://velog.io/@yorange50/AI-Training과-Inference는-뭐가-다를까"
 published: "2026-05-07T06:22:08.429Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.772506"
 ---
-
 딥러닝을 공부하면 자주 나오는 말이 있다.
 
 ```text

@@ -5,18 +5,15 @@ published: "2026-05-11T14:43:02.845Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.762120"
 ---
-
-
-
 보안 공부를 하다 보면 꼭 등장하는 이름이 있다.
 
-```text id="w5z9rk"
+```text
 RSA
 ```
 
 그리고 보통 같이 나온다.
 
-```text id="pfjlwm"
+```text
 공개키 암호화
 비대칭키
 TLS
@@ -45,7 +42,7 @@ RSA는:
 
 여기서 중요한 건:
 
-```text id="yn7vh8"
+```text
 비대칭키
 ```
 
@@ -53,7 +50,7 @@ RSA는:
 
 즉:
 
-```text id="0tdmgh"
+```text
 암호화 키 ≠ 복호화 키
 ```
 
@@ -67,7 +64,7 @@ RSA는:
 
 예를 들어:
 
-```text id="t4ew2q"
+```text
 암호화 키 = abc123
 ```
 
@@ -75,7 +72,7 @@ RSA는:
 
 상대방에게:
 
-```text id="fyhn3w"
+```text
 "키는 abc123입니다"
 ```
 
@@ -85,7 +82,7 @@ RSA는:
 
 즉:
 
-```text id="vobzk8"
+```text
 키 전달 자체가 위험
 ```
 
@@ -93,7 +90,7 @@ RSA는:
 
 그래서 나온 아이디어가:
 
-```text id="z12gjy"
+```text
 암호화 키와 복호화 키를 분리하자
 ```
 
@@ -105,7 +102,7 @@ RSA는:
 
 RSA는 키가 2개다.
 
-```text id="s8f7io"
+```text
 1. 공개키(Public Key)
 2. 개인키(Private Key)
 ```
@@ -116,7 +113,7 @@ RSA는 키가 2개다.
 
 이건 말 그대로:
 
-```text id="m5a4qt"
+```text
 누구에게나 공개 가능
 ```
 
@@ -130,7 +127,7 @@ RSA는 키가 2개다.
 
 이건:
 
-```text id="1q4h1q"
+```text
 절대 혼자만 보관
 ```
 
@@ -148,7 +145,7 @@ RSA는 키가 2개다.
 
 ## 서버
 
-```text id="0vlsqg"
+```text
 공개키 → 공개
 개인키 → 혼자 보관
 ```
@@ -159,7 +156,7 @@ RSA는 키가 2개다.
 
 사용자는 서버 공개키를 받아서:
 
-```text id="iq5b5w"
+```text
 데이터 암호화
 ```
 
@@ -171,7 +168,7 @@ RSA는 키가 2개다.
 
 서버는 자기 개인키로만:
 
-```text id="s9h1vl"
+```text
 복호화 가능
 ```
 
@@ -183,7 +180,7 @@ RSA는 키가 2개다.
 
 즉 RSA는:
 
-```text id="80s7iv"
+```text
 공개키로 암호화
 ↓
 개인키로 복호화
@@ -197,7 +194,7 @@ RSA는 키가 2개다.
 
 핵심은:
 
-```text id="vjlwmk"
+```text
 공개키만으로는 복호화 불가능
 ```
 
@@ -205,7 +202,7 @@ RSA는 키가 2개다.
 
 즉 공개키를 전 세계에 뿌려도:
 
-```text id="yjlwmn"
+```text
 개인키 없이는 원문 복원 불가
 ```
 
@@ -217,7 +214,7 @@ RSA는 키가 2개다.
 
 인터넷에서 가장 큰 문제였던:
 
-```text id="1f17ra"
+```text
 안전한 키 교환
 ```
 
@@ -225,7 +222,7 @@ RSA는 키가 2개다.
 
 즉:
 
-```text id="2mn8v7"
+```text
 인터넷에서 처음 만난 상대와도
 안전하게 암호화 가능
 ```
@@ -238,7 +235,7 @@ RSA는 키가 2개다.
 
 문제는 있다.
 
-```text id="vzjpw1"
+```text
 엄청 느리다
 ```
 
@@ -246,7 +243,7 @@ RSA는 수학 계산이 매우 무겁다.
 
 그래서:
 
-```text id="z2g6ow"
+```text
 대량 데이터 암호화
 ```
 
@@ -264,7 +261,7 @@ RSA는 수학 계산이 매우 무겁다.
 
 RSA 사용.
 
-```text id="5f8u4v"
+```text
 안전하게 대칭키 전달
 ```
 
@@ -274,7 +271,7 @@ RSA 사용.
 
 그 이후:
 
-```text id="iwdh2m"
+```text
 대칭키로 빠르게 통신
 ```
 
@@ -282,7 +279,7 @@ RSA 사용.
 
 즉:
 
-```text id="smrll8"
+```text
 RSA = 키 교환
 대칭키 = 실제 데이터 암호화
 ```
@@ -295,7 +292,7 @@ RSA = 키 교환
 
 RSA는 암호화 말고:
 
-```text id="66m9ko"
+```text
 전자서명
 ```
 
@@ -321,7 +318,7 @@ RSA는 암호화 말고:
 
 ## 개인키로 서명
 
-```text id="kq8o0u"
+```text
 개인키로 서명 생성
 ```
 
@@ -329,7 +326,7 @@ RSA는 암호화 말고:
 
 ## 공개키로 검증
 
-```text id="a49qlf"
+```text
 공개키로 진짜인지 확인
 ```
 
@@ -337,7 +334,7 @@ RSA는 암호화 말고:
 
 즉:
 
-```text id="g7k9n5"
+```text
 개인키로 서명
 공개키로 검증
 ```
@@ -350,7 +347,7 @@ RSA는 암호화 말고:
 
 이걸 통해:
 
-```text id="k3q3hu"
+```text
 이 서버가 진짜 구글인지
 ```
 
@@ -366,7 +363,7 @@ SSH에서도 RSA 키를 많이 본다.
 
 예:
 
-```text id="ajmynj"
+```text
 id_rsa
 id_rsa.pub
 ```
@@ -375,7 +372,7 @@ id_rsa.pub
 
 ## 의미
 
-```text id="5u1t1d"
+```text
 id_rsa
 → 개인키
 
@@ -385,7 +382,7 @@ id_rsa.pub
 
 서버는 공개키를 저장하고:
 
-```text id="hktqqf"
+```text
 개인키 가진 사용자만 접속 허용
 ```
 
@@ -397,7 +394,7 @@ id_rsa.pub
 
 RSA 자체가 뚫린 건 아니지만:
 
-```text id="lt5q6d"
+```text
 키 길이가 짧으면 위험
 ```
 
@@ -405,7 +402,7 @@ RSA 자체가 뚫린 건 아니지만:
 
 그래서 현대에는:
 
-```text id="k5yn7j"
+```text
 2048bit 이상
 ```
 
@@ -417,7 +414,7 @@ RSA 자체가 뚫린 건 아니지만:
 
 최근에는 RSA 대신:
 
-```text id="krj2d1"
+```text
 ECC(Elliptic Curve Cryptography)
 ```
 
@@ -425,7 +422,7 @@ ECC(Elliptic Curve Cryptography)
 
 이유는:
 
-```text id="l5wh0s"
+```text
 더 짧은 키로
 비슷한 보안성 제공
 ```
@@ -446,7 +443,7 @@ ECC(Elliptic Curve Cryptography)
 
 ## 구조
 
-```text id="9g2i93"
+```text
 공개키
 개인키
 ```
@@ -455,7 +452,7 @@ ECC(Elliptic Curve Cryptography)
 
 ## 암호화
 
-```text id="x3lvja"
+```text
 공개키로 암호화
 개인키로 복호화
 ```
@@ -464,7 +461,7 @@ ECC(Elliptic Curve Cryptography)
 
 ## 전자서명
 
-```text id="mjqmrg"
+```text
 개인키로 서명
 공개키로 검증
 ```
@@ -485,7 +482,7 @@ ECC(Elliptic Curve Cryptography)
 
 ## 현실 사용
 
-```text id="4z09q8"
+```text
 RSA로 키 교환
 ↓
 대칭키로 실제 통신
@@ -495,7 +492,7 @@ RSA로 키 교환
 
 # 한 줄 핵심
 
-```text id="03y7kf"
+```text
 RSA는 공개키와 개인키를 분리해서,
 인터넷에서도 안전하게 암호화를 가능하게 만든 기술이다.
 ```

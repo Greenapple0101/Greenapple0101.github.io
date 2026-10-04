@@ -5,16 +5,15 @@ published: "2026-05-11T14:50:59.204Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.760234"
 ---
-
 분산 시스템을 공부하다 보면 꼭 나오는 단어가 있다.
 
-```text id="k1v9pj"
+```text
 Consistency
 ```
 
 그리고 같이 나온다.
 
-```text id="m7x3qe"
+```text
 Eventually Consistent
 Strong Consistency
 Replication
@@ -41,7 +40,7 @@ Consistency는:
 
 예를 들어:
 
-```text id="g5m2yt"
+```text
 사용자 이름 = kim
 ```
 
@@ -51,7 +50,7 @@ Consistency는:
 
 ## 서버 A
 
-```text id="a0n4cw"
+```text
 kim
 ```
 
@@ -59,7 +58,7 @@ kim
 
 ## 서버 B
 
-```text id="d7x8qp"
+```text
 park
 ```
 
@@ -69,7 +68,7 @@ park
 
 즉:
 
-```text id="n3v7lk"
+```text
 Consistency 깨짐
 ```
 
@@ -81,7 +80,7 @@ Consistency 깨짐
 
 서버가 하나면 쉽다.
 
-```text id="h8z2rp"
+```text
 App
 ↓
 DB
@@ -91,7 +90,7 @@ DB
 
 근데 서비스가 커지면:
 
-```text id="v5c0jn"
+```text
 Replica
 분산 DB
 캐시
@@ -102,7 +101,7 @@ Replica
 
 즉:
 
-```text id="m2t6dw"
+```text
 데이터 복사본이 여러 개
 ```
 
@@ -114,7 +113,7 @@ Replica
 
 예를 들어:
 
-```text id="u1e9zk"
+```text
 Primary DB
 ↓
 Replica DB
@@ -128,7 +127,7 @@ Replica DB
 
 Primary에서 수정한 데이터가:
 
-```text id="x6p1cv"
+```text
 즉시 Replica로 전달 안 될 수도 있음
 ```
 
@@ -140,7 +139,7 @@ Primary에서 수정한 데이터가:
 
 사용자가 닉네임 변경:
 
-```text id="q9r2ml"
+```text
 kim → park
 ```
 
@@ -148,7 +147,7 @@ kim → park
 
 ## Primary
 
-```text id="t5d7bx"
+```text
 park
 ```
 
@@ -158,7 +157,7 @@ park
 
 아직:
 
-```text id="j1n8qa"
+```text
 kim
 ```
 
@@ -166,7 +165,7 @@ kim
 
 즉:
 
-```text id="s0w4fz"
+```text
 서버마다 데이터 다름
 ```
 
@@ -180,7 +179,7 @@ kim
 
 즉시 완벽 동기화를 하려면:
 
-```text id="c3v6hm"
+```text
 모든 서버 확인
 네트워크 통신
 복제 완료 대기
@@ -190,7 +189,7 @@ kim
 
 즉:
 
-```text id="r8p2jt"
+```text
 속도가 느려짐
 ```
 
@@ -202,7 +201,7 @@ kim
 
 분산 시스템은 항상 고민한다.
 
-```text id="f4z7xk"
+```text
 정확성
 vs
 성능
@@ -220,7 +219,7 @@ Strong Consistency는:
 
 즉:
 
-```text id="n6t9qc"
+```text
 쓰기 직후
 어디서 읽어도 최신 데이터
 ```
@@ -235,7 +234,7 @@ Strong Consistency는:
 
 예:
 
-```text id="l0x2gv"
+```text
 방금 수정했는데
 조회하면 바로 보여야 함
 ```
@@ -250,7 +249,7 @@ Strong Consistency는:
 
 왜냐면:
 
-```text id="m8c1yp"
+```text
 모든 노드 동기화 완료까지 대기
 ```
 
@@ -278,7 +277,7 @@ Eventually Consistency는:
 
 # 11. 예시
 
-```text id="k4d8rn"
+```text
 지금 Replica:
 old data
 
@@ -288,7 +287,7 @@ new data
 
 즉:
 
-```text id="w9m3qe"
+```text
 잠깐 불일치 허용
 ```
 
@@ -302,7 +301,7 @@ new data
 
 분산 시스템에서는:
 
-```text id="a5j2xt"
+```text
 성능
 확장성
 가용성
@@ -312,7 +311,7 @@ new data
 
 그래서 많은 시스템이:
 
-```text id="p7y0lm"
+```text
 Eventually Consistent
 ```
 
@@ -324,7 +323,7 @@ Eventually Consistent
 
 AWS DynamoDB도 기본 조회는:
 
-```text id="u3q4wc"
+```text
 Eventually Consistent Read
 ```
 
@@ -332,13 +331,13 @@ Eventually Consistent Read
 
 즉:
 
-```text id="d1m9fp"
+```text
 조금 오래된 데이터 가능
 ```
 
 대신:
 
-```text id="m5v8jr"
+```text
 엄청난 성능과 확장성
 ```
 
@@ -350,7 +349,7 @@ Eventually Consistent Read
 
 DynamoDB는 옵션으로:
 
-```text id="n2r6yt"
+```text
 Strongly Consistent Read
 ```
 
@@ -358,7 +357,7 @@ Strongly Consistent Read
 
 하지만:
 
-```text id="x7w1kp"
+```text
 더 느리고 비용 증가 가능
 ```
 
@@ -370,7 +369,7 @@ Strongly Consistent Read
 
 핵심은:
 
-```text id="j0q5ev"
+```text
 네트워크는 완벽하지 않다
 ```
 
@@ -387,7 +386,7 @@ Strongly Consistent Read
 
 즉:
 
-```text id="b6p3zk"
+```text
 모든 서버를 항상 즉시 동일하게 유지
 ```
 
@@ -399,7 +398,7 @@ Strongly Consistent Read
 
 여기서 유명한 게:
 
-```text id="v9x8wn"
+```text
 CAP Theorem
 ```
 
@@ -411,7 +410,7 @@ CAP Theorem
 
 분산 시스템은 동시에:
 
-```text id="m3c6jp"
+```text
 Consistency
 Availability
 Partition Tolerance
@@ -447,7 +446,7 @@ Partition Tolerance
 
 현실 분산 시스템은:
 
-```text id="f1v9km"
+```text
 네트워크 장애는 반드시 발생
 ```
 
@@ -455,7 +454,7 @@ Partition Tolerance
 
 즉:
 
-```text id="w8r2qy"
+```text
 Partition Tolerance
 ```
 
@@ -463,7 +462,7 @@ Partition Tolerance
 
 그래서 결국:
 
-```text id="y0m4ze"
+```text
 Consistency
 vs
 Availability
@@ -479,7 +478,7 @@ Availability
 
 ## 은행 시스템
 
-```text id="g7p5xt"
+```text
 Strong Consistency 선호
 ```
 
@@ -489,7 +488,7 @@ Strong Consistency 선호
 
 ## SNS 좋아요 수
 
-```text id="v2q8kc"
+```text
 Eventually Consistency 허용 가능
 ```
 
@@ -572,7 +571,7 @@ Eventually Consistency 허용 가능
 
 ## 핵심 트레이드오프
 
-```text id="r5j1mx"
+```text
 정확성
 vs
 성능/확장성
@@ -582,7 +581,7 @@ vs
 
 # 한 줄 핵심
 
-```text id="h4z8vc"
+```text
 분산 시스템에서는
 모든 서버의 데이터를 항상 완벽히 동일하게 유지하는 것이 어렵기 때문에,
 Consistency와 성능 사이의 선택이 필요하다.

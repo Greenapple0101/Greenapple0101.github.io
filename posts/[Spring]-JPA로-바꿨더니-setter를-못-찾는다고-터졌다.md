@@ -5,14 +5,11 @@ published: "2026-05-06T03:54:36.430Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.776266"
 ---
-
-
-
 Docker로 PostgreSQL을 띄우고, 기존 board_api를 JPA 기반으로 바꾸는 중에 컴파일 에러가 발생했다.
 
 에러 메시지는 대략 이런 형태였다.
 
-```text id="zsgftv"
+```text
 cannot find symbol
 symbol:   method setId(java.lang.Long)
 location: variable board of type com.board.api.domain.Board
@@ -50,7 +47,7 @@ Docker에서 PostgreSQL 컨테이너를 띄운 직후였고, `pom.xml`에 JPA와
 
 기존 board_api는 DB 없이 동작하던 구조였다.
 
-```text id="vvx2hq"
+```text
 Controller
 → Service
 → List 또는 JSON 파일
@@ -60,7 +57,7 @@ Controller
 
 그러다가 구조를 다음처럼 바꾸기 시작했다.
 
-```text id="f6g20r"
+```text
 Controller
 → Service
 → Repository
@@ -69,7 +66,7 @@ Controller
 
 이를 위해 `Board` 클래스를 JPA 엔티티로 수정했다.
 
-```java id="w1cc34"
+```java
 @Entity
 public class Board {
 
@@ -99,7 +96,7 @@ public class Board {
 
 이전에는 이런 식으로 값을 바꾸고 있었다.
 
-```java id="ubdb1i"
+```java
 board.setTitle(request.getTitle());
 board.setContent(request.getContent());
 ```
@@ -107,7 +104,7 @@ board.setContent(request.getContent());
 하지만 JPA 엔티티로 바꾸면서 무분별한 setter 사용을 줄이고,
 의미 있는 변경 메서드를 사용하도록 방향을 바꿨다.
 
-```java id="9g0tvm"
+```java
 board.update(request.getTitle(), request.getContent());
 ```
 
@@ -120,7 +117,7 @@ board.update(request.getTitle(), request.getContent());
 
 즉 코드 상태가 이렇게 섞여 있었다.
 
-```text id="cx4kl0"
+```text
 Board.java
 → JPA 엔티티 방식
 → setter 없음
@@ -133,7 +130,7 @@ BoardService.java
 
 그래서 컴파일러 입장에서는 이런 상황이 된 것이다.
 
-```java id="efxhw4"
+```java
 board.setTitle(...);
 ```
 
@@ -141,13 +138,13 @@ board.setTitle(...);
 
 그래서 컴파일러가 이렇게 말한 것이다.
 
-```text id="ajq0fh"
+```text
 Board 타입에는 setTitle이라는 메서드가 없습니다.
 ```
 
 즉 핵심 원인은 이거다.
 
-```text id="jhpt1z"
+```text
 setter를 없앴는데 Service에서는 아직 setter를 호출하고 있었다.
 ```
 
@@ -157,7 +154,7 @@ setter를 없앴는데 Service에서는 아직 setter를 호출하고 있었다.
 
 에러 중에는 이런 것도 있었다.
 
-```text id="7zcqgj"
+```text
 cannot find symbol
 symbol: method setId(java.lang.Long)
 ```
@@ -166,7 +163,7 @@ symbol: method setId(java.lang.Long)
 
 예를 들어 이런 식이다.
 
-```java id="08e6jz"
+```java
 board.setId(nextId++);
 ```
 
@@ -175,7 +172,7 @@ DB가 없으니 애플리케이션이 직접 id를 관리해야 하기 때문이
 
 하지만 JPA + PostgreSQL 구조에서는 다르다.
 
-```java id="bwp4hm"
+```java
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long id;
@@ -185,7 +182,7 @@ private Long id;
 
 그래서 JPA 구조에서는 보통 이런 코드를 직접 작성하지 않는다.
 
-```java id="lztcem"
+```java
 board.setId(...)
 ```
 
@@ -198,7 +195,7 @@ DB에 저장될 때 자동으로 부여되는 값이다.
 
 에러에는 이런 것도 있었다.
 
-```text id="9c4y4v"
+```text
 cannot find symbol
 symbol: method setCreatedAt(java.lang.String)
 
@@ -210,7 +207,7 @@ symbol: method setUpdatedAt(java.lang.String)
 
 `BoardService`에서는 여전히 다음과 같은 코드를 호출하고 있었다.
 
-```java id="rx391b"
+```java
 board.setCreatedAt(...);
 board.setUpdatedAt(...);
 ```
@@ -224,7 +221,7 @@ board.setUpdatedAt(...);
 처음 JPA 연결 단계에서는 CRUD와 DB 연결이 먼저다.
 그래서 `createdAt`, `updatedAt`을 잠시 빼고 단순하게 가져갈 수 있다.
 
-```java id="mkn204"
+```java
 private String title;
 private String content;
 private String author;
@@ -236,14 +233,14 @@ private String author;
 
 나중에 시간 필드를 넣고 싶다면 `String`보다는 `LocalDateTime`을 사용하는 것이 자연스럽다.
 
-```java id="lhntqb"
+```java
 private LocalDateTime createdAt;
 private LocalDateTime updatedAt;
 ```
 
 그리고 JPA 생명주기 콜백을 사용할 수도 있다.
 
-```java id="j5mveq"
+```java
 @PrePersist
 public void prePersist() {
     this.createdAt = LocalDateTime.now();
@@ -265,7 +262,7 @@ public void preUpdate() {
 
 에러 중에는 이런 것도 있었다.
 
-```text id="3ryrbz"
+```text
 cannot find symbol
 symbol: method getAuthor()
 location: variable newBoard of type Board
@@ -278,7 +275,7 @@ location: variable newBoard of type Board
 
 ### 방법 1. author를 사용할 거면 Board에 추가
 
-```java id="0udmf1"
+```java
 private String author;
 
 public String getAuthor() {
@@ -288,7 +285,7 @@ public String getAuthor() {
 
 생성자와 update 메서드에도 포함한다.
 
-```java id="b95nly"
+```java
 public Board(String title, String content, String author) {
     this.title = title;
     this.content = content;
@@ -306,7 +303,7 @@ public void update(String title, String content, String author) {
 
 게시글에 작성자가 필요 없다면 `BoardService`에서 `getAuthor()` 호출을 제거하면 된다.
 
-```java id="i2kawk"
+```java
 Board newBoard = new Board(
         board.getTitle(),
         board.getContent()
@@ -321,7 +318,7 @@ Board newBoard = new Board(
 
 기존 Service는 이런 방식이었다.
 
-```java id="xey2co"
+```java
 board.setId(...);
 board.setCreatedAt(...);
 board.setUpdatedAt(...);
@@ -331,7 +328,7 @@ board.setContent(...);
 
 JPA 방식으로 바꾸면 이렇게 가야 한다.
 
-```java id="syl54s"
+```java
 Board newBoard = new Board(
         request.getTitle(),
         request.getContent(),
@@ -348,7 +345,7 @@ boardRepository.save(newBoard);
 
 기존 방식:
 
-```java id="1lfpl6"
+```java
 board.setTitle(request.getTitle());
 board.setContent(request.getContent());
 board.setUpdatedAt(...);
@@ -356,7 +353,7 @@ board.setUpdatedAt(...);
 
 수정 후:
 
-```java id="d4brza"
+```java
 board.update(
         request.getTitle(),
         request.getContent(),
@@ -371,7 +368,7 @@ board.update(
 
 ## 7. 수정한 Board 엔티티 예시
 
-```java id="b60m13"
+```java
 package com.board.api.domain;
 
 import jakarta.persistence.Entity;
@@ -429,7 +426,7 @@ public class Board {
 
 ## 8. 수정한 BoardService 예시
 
-```java id="qjzqka"
+```java
 package com.board.api.service;
 
 import com.board.api.domain.Board;
@@ -499,7 +496,7 @@ public class BoardService {
 
 Docker에서 PostgreSQL 컨테이너는 정상적으로 떠 있었다.
 
-```text id="q8swbl"
+```text
 board-postgres
 5432:5432
 running
@@ -509,7 +506,7 @@ running
 
 즉 문제 위치는 DB 연결이 아니라 Java 코드였다.
 
-```text id="j49crf"
+```text
 DB 연결 문제
 → 애플리케이션 실행 후 datasource 연결 단계에서 발생
 
@@ -519,7 +516,7 @@ DB 연결 문제
 
 에러 메시지에 `cannot find symbol`이 나오면 보통 다음을 먼저 봐야 한다.
 
-```text id="oxp4is"
+```text
 메서드 이름이 실제 클래스에 존재하는가?
 필드가 있는가?
 getter/setter가 있는가?
@@ -529,7 +526,7 @@ import가 맞는가?
 
 이번 경우에는 마지막 항목이었다.
 
-```text id="3emrsz"
+```text
 Board 엔티티 구조를 바꿨는데
 BoardService가 아직 예전 구조를 사용하고 있었다.
 ```
@@ -543,7 +540,7 @@ JPA로 넘어가면서 단순히 DB 연결 설정만 바꾸는 게 아니라,
 
 기존 방식은 이랬다.
 
-```text id="94dm6u"
+```text
 직접 id 부여
 setter로 값 변경
 List 또는 JSON 파일에 저장
@@ -551,7 +548,7 @@ List 또는 JSON 파일에 저장
 
 JPA 방식은 이렇게 바뀐다.
 
-```text id="3uqzg2"
+```text
 id는 DB가 자동 생성
 Repository가 CRUD 담당
 엔티티는 의미 있는 생성자와 변경 메서드로 상태 변경
@@ -561,20 +558,20 @@ Service는 Repository를 통해 DB에 저장
 그래서 setter를 없애기로 했다면,
 Service에서도 setter를 호출하면 안 된다.
 
-```java id="uq3kgf"
+```java
 board.setTitle(...)
 board.setContent(...)
 ```
 
 이런 코드는 다음처럼 바꿔야 한다.
 
-```java id="636ocf"
+```java
 board.update(title, content, author);
 ```
 
 이번 에러의 핵심은 이 한 줄로 정리할 수 있다.
 
-```text id="9g0ftx"
+```text
 엔티티는 JPA 방식으로 바꿨는데, Service는 아직 예전 setter 방식이라 컴파일이 실패했다.
 ```
 

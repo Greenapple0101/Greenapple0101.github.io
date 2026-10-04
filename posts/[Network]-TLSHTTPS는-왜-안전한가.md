@@ -5,12 +5,9 @@ published: "2026-05-11T14:44:24.620Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.761699"
 ---
-
-
-
 우리는 매일:
 
-```text id="l9i9vx"
+```text
 https://google.com
 https://github.com
 https://aws.amazon.com
@@ -20,7 +17,7 @@ https://aws.amazon.com
 
 근데 왜:
 
-```text id="9knjmv"
+```text
 HTTPS는 안전하다
 ```
 
@@ -42,7 +39,7 @@ HTTPS는 안전하다
 
 원래 웹은:
 
-```text id="9v66zf"
+```text
 HTTP
 ```
 
@@ -50,7 +47,7 @@ HTTP
 
 문제는:
 
-```text id="j1krqt"
+```text
 암호화가 없음
 ```
 
@@ -58,7 +55,7 @@ HTTP
 
 즉:
 
-```text id="ltcy3d"
+```text
 브라우저
 ↓
 인터넷
@@ -68,7 +65,7 @@ HTTP
 
 사이 데이터를 중간에서 보면:
 
-```text id="oq0mns"
+```text
 아이디
 비밀번호
 쿠키
@@ -82,7 +79,7 @@ HTTP
 
 HTTPS는:
 
-```text id="l62b3y"
+```text
 HTTP + TLS
 ```
 
@@ -90,7 +87,7 @@ HTTP + TLS
 
 즉:
 
-```text id="ykay5l"
+```text
 HTTP를 TLS로 보호한 것
 ```
 
@@ -102,7 +99,7 @@ HTTP를 TLS로 보호한 것
 
 TLS는:
 
-```text id="mq0v0n"
+```text
 Transport Layer Security
 ```
 
@@ -147,7 +144,7 @@ TLS는 크게 3가지를 해결한다.
 
 근데 여기서 문제가 생긴다.
 
-```text id="e2y0f7"
+```text
 암호화는 어떻게 시작할 건데?
 ```
 
@@ -161,7 +158,7 @@ TLS는 크게 3가지를 해결한다.
 
 하지만:
 
-```text id="lv9yb3"
+```text
 키를 안전하게 전달하기 어렵다
 ```
 
@@ -173,7 +170,7 @@ TLS는 크게 3가지를 해결한다.
 
 TLS는 처음 연결할 때:
 
-```text id="j7y0yc"
+```text
 공개키 암호화(RSA 등)
 ```
 
@@ -181,7 +178,7 @@ TLS는 처음 연결할 때:
 
 그리고:
 
-```text id="8w7xj6"
+```text
 대칭키를 안전하게 교환
 ```
 
@@ -193,7 +190,7 @@ TLS는 처음 연결할 때:
 
 대칭키는 빠르기 때문에:
 
-```text id="g2r0pw"
+```text
 실제 데이터 통신
 ```
 
@@ -201,7 +198,7 @@ TLS는 처음 연결할 때:
 
 즉 TLS는:
 
-```text id="0e8ldg"
+```text
 공개키 = 키 교환
 대칭키 = 실제 통신
 ```
@@ -220,7 +217,7 @@ TLS는 처음 연결할 때:
 
 사용자가:
 
-```text id="m2cz06"
+```text
 https://google.com
 ```
 
@@ -232,7 +229,7 @@ https://google.com
 
 서버는 브라우저에게:
 
-```text id="7g16a2"
+```text
 인증서(Certificate)
 ```
 
@@ -240,7 +237,7 @@ https://google.com
 
 여기 안에는:
 
-```text id="u8h1ot"
+```text
 서버 공개키
 도메인 정보
 인증기관 정보
@@ -254,7 +251,7 @@ https://google.com
 
 브라우저는:
 
-```text id="4h00v8"
+```text
 "이 인증서 진짜인가?"
 ```
 
@@ -266,7 +263,7 @@ https://google.com
 
 이때 등장하는 게:
 
-```text id="ls2y6t"
+```text
 CA
 ```
 
@@ -292,7 +289,7 @@ CA는:
 
 즉 브라우저는:
 
-```text id="b1s7v6"
+```text
 CA를 신뢰
 ↓
 CA가 서명한 인증서도 신뢰
@@ -306,7 +303,7 @@ CA가 서명한 인증서도 신뢰
 
 브라우저는:
 
-```text id="jlwmz4"
+```text
 세션용 대칭키
 ```
 
@@ -318,7 +315,7 @@ CA가 서명한 인증서도 신뢰
 
 브라우저는 서버 공개키로:
 
-```text id="ww1y2m"
+```text
 대칭키 암호화
 ```
 
@@ -330,7 +327,7 @@ CA가 서명한 인증서도 신뢰
 
 서버는 자기 개인키로:
 
-```text id="zyl2f4"
+```text
 대칭키 복호화
 ```
 
@@ -338,7 +335,7 @@ CA가 서명한 인증서도 신뢰
 
 이제:
 
-```text id="2x0n7x"
+```text
 브라우저와 서버만
 같은 대칭키 공유
 ```
@@ -351,7 +348,7 @@ CA가 서명한 인증서도 신뢰
 
 이후부터는:
 
-```text id="5bdjzq"
+```text
 대칭키 기반 암호화 통신
 ```
 
@@ -359,7 +356,7 @@ CA가 서명한 인증서도 신뢰
 
 즉:
 
-```text id="pkm3z0"
+```text
 로그인 정보
 쿠키
 API 요청
@@ -373,7 +370,7 @@ API 요청
 
 중간 공격자가 패킷을 봐도:
 
-```text id="6hdy6k"
+```text
 대칭키 없음
 ```
 
@@ -381,7 +378,7 @@ API 요청
 
 또 서버 개인키도 모르기 때문에:
 
-```text id="a1nq0z"
+```text
 대칭키 탈취 불가
 ```
 
@@ -393,13 +390,13 @@ API 요청
 
 TLS에서:
 
-```text id="s0cgvl"
+```text
 처음 보안 연결 만드는 과정
 ```
 
 을:
 
-```text id="k6xovq"
+```text
 TLS Handshake
 ```
 
@@ -407,7 +404,7 @@ TLS Handshake
 
 즉:
 
-```text id="r5xq6f"
+```text
 인증서 교환
 키 교환
 암호화 설정 협상
@@ -421,13 +418,13 @@ TLS Handshake
 
 브라우저 주소창의:
 
-```text id="e0lgdz"
+```text
 자물쇠 아이콘
 ```
 
 은:
 
-```text id="m3vrhy"
+```text
 TLS 연결 성공
 ```
 
@@ -435,7 +432,7 @@ TLS 연결 성공
 
 즉:
 
-```text id="jdh8qf"
+```text
 HTTPS 통신 중
 ```
 
@@ -472,7 +469,7 @@ HTTP라면 중간에서:
 
 예:
 
-```text id="s3o89q"
+```text
 사용자
 ↓ HTTPS
 ALB/Nginx
@@ -494,7 +491,7 @@ ALB/Nginx
 
 ## HTTPS
 
-```text id="xgrg3s"
+```text
 HTTP + TLS
 ```
 
@@ -502,7 +499,7 @@ HTTP + TLS
 
 ## TLS 역할
 
-```text id="qocljc"
+```text
 암호화
 무결성
 인증
@@ -542,7 +539,7 @@ HTTP + TLS
 
 # 한 줄 핵심
 
-```text id="e9vx84"
+```text
 HTTPS는 TLS를 이용해
 서버를 검증하고,
 안전하게 암호화 통신을 만드는 기술이다.

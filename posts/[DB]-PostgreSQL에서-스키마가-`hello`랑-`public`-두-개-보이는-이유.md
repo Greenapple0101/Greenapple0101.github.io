@@ -1,11 +1,10 @@
 ---
-title: "[DB] PostgreSQL에서 스키마가 `hello`랑 `public` 두 개 보이는 이유"
+title: "[DB] PostgreSQL에서 스키마가 hello랑 public 두 개 보이는 이유"
 source: "https://velog.io/@yorange50/DB-PostgreSQL에서-스키마가-hello랑-public-두-개-보이는-이유"
 published: "2026-05-13T04:38:37.173Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.749401"
 ---
-
 ![](https://velog.velcdn.com/images/yorange50/post/01404878-9a94-45ac-a55d-cd34602097bc/image.png)
 
 ![](https://velog.velcdn.com/images/yorange50/post/08bb43df-fdc7-4d2c-96c4-3215322576e8/image.png)

@@ -5,13 +5,11 @@ published: "2026-05-14T07:42:01.587Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.740838"
 ---
-
-
 # [DOCKER COMPOSE] DB가 먼저 떠야 하는 이유
 
 Docker Compose로 애플리케이션과 DB를 함께 실행할 때 자주 나오는 구조가 있다.
 
-```text id="z2dfny"
+```text
 Spring Boot App
 ↓
 PostgreSQL
@@ -19,7 +17,7 @@ PostgreSQL
 
 또는
 
-```text id="qbfho5"
+```text
 Node.js App
 ↓
 MySQL
@@ -37,7 +35,7 @@ MySQL
 
 애플리케이션은 실행 과정에서 여러 외부 자원에 의존한다.
 
-```text id="6uwenc"
+```text
 Database
 Redis
 Message Queue
@@ -49,7 +47,7 @@ External API
 
 Spring Boot 애플리케이션을 예로 들면 실행 시점에 datasource 설정을 읽고 DB 연결을 시도한다.
 
-```yaml id="ja5cc1"
+```yaml
 spring:
   datasource:
     url: jdbc:postgresql://postgres:5432/hellodb
@@ -73,7 +71,7 @@ Spring Boot는 내부적으로 이 JDBC 연결을 사용해서 DB에 접속한�
 
 DB가 아직 떠 있지 않으면 다음과 같은 문제가 생길 수 있다.
 
-```text id="x3fzgm"
+```text
 Connection refused
 Connection timeout
 Could not connect to database
@@ -82,7 +80,7 @@ Failed to initialize datasource
 
 즉, 애플리케이션 입장에서는 DB가 준비되지 않은 상태에서 문을 두드리는 셈이다.
 
-```text id="6jnbv8"
+```text
 App: DB야 연결할게
 DB: 아직 준비 안 됐는데?
 App: 연결 실패
@@ -94,7 +92,7 @@ App: 연결 실패
 
 Compose에서 app과 DB를 함께 실행한다고 해보자.
 
-```yaml id="78j8bh"
+```yaml
 services:
   app:
     build: .
@@ -111,7 +109,7 @@ services:
 
 하지만 문제는 PostgreSQL 컨테이너가 “실행됨” 상태가 되는 것과 PostgreSQL 서버가 “접속 가능함” 상태가 되는 것은 다르다는 점이다.
 
-```text id="is0zc7"
+```text
 컨테이너 실행됨
 ≠
 DB 접속 준비 완료
@@ -121,7 +119,7 @@ PostgreSQL 컨테이너가 시작됐다고 해서 바로 5432 포트에서 정�
 
 초기화 과정이 필요할 수 있다.
 
-```text id="r26vmz"
+```text
 데이터 디렉토리 초기화
 사용자 생성
 DB 생성
@@ -140,7 +138,7 @@ PostgreSQL 서버 기동
 
 왜냐하면 보통 DB를 먼저 켜둔 상태에서 애플리케이션을 나중에 실행하기 때문이다.
 
-```text id="1f99r3"
+```text
 1. PostgreSQL 이미 실행 중
 2. 개발자가 Spring Boot 실행
 3. DB 연결 성공
@@ -148,13 +146,13 @@ PostgreSQL 서버 기동
 
 하지만 Docker Compose에서는 여러 컨테이너를 동시에 올린다.
 
-```bash id="de6wf6"
+```bash
 docker compose up -d
 ```
 
 이때 app과 DB가 거의 동시에 시작되면서 타이밍 문제가 생긴다.
 
-```text id="r1sfj1"
+```text
 PostgreSQL 시작 중
 Spring Boot 시작
 Spring Boot가 DB 연결 시도
@@ -172,7 +170,7 @@ PostgreSQL 아직 준비 안 됨
 
 더 정확히는 다음 뜻이다.
 
-```text id="ve4st8"
+```text
 DB 컨테이너가 실행되고
 DB 서버가 초기화를 끝내고
 DB 접속을 받을 수 있는 상태가 된 뒤에
@@ -189,7 +187,7 @@ DB 접속을 받을 수 있는 상태가 된 뒤에
 
 그래서 DB가 준비되지 않은 상태에서 애플리케이션이 먼저 연결을 시도하면 실패할 수 있다.
 
-```text id="ajvw9v"
+```text
 애플리케이션 실행
 → datasource 초기화
 → JDBC 연결 시도
@@ -201,7 +199,7 @@ Docker Compose에서는 여러 컨테이너가 동시에 올라가기 때문에 
 
 핵심은 이것이다.
 
-```text id="9doyih"
+```text
 DB가 먼저 떠야 한다는 말은
 DB 컨테이너가 실행되는 것뿐 아니라
 DB가 실제로 접속 가능한 상태가 되는 것을 의미한다.
@@ -217,7 +215,7 @@ Docker Compose에서 여러 서비스를 함께 실행할 때 `depends_on`을 �
 
 예를 들어 Spring Boot App이 PostgreSQL에 의존한다면 이렇게 쓴다.
 
-```yaml id="1lk8zs"
+```yaml
 services:
   app:
     build: .
@@ -230,7 +228,7 @@ services:
 
 처음 보면 이 설정만으로 충분해 보인다.
 
-```text id="svyjqr"
+```text
 app은 postgres에 의존한다
 그러면 postgres가 완전히 뜬 뒤 app이 실행되겠지?
 ```
@@ -245,14 +243,14 @@ app은 postgres에 의존한다
 
 `depends_on`은 Compose에게 서비스 간 의존 관계를 알려준다.
 
-```yaml id="c7v5cn"
+```yaml
 depends_on:
   - postgres
 ```
 
 이 설정은 다음 의미에 가깝다.
 
-```text id="vb99zz"
+```text
 app을 실행하기 전에 postgres 컨테이너를 먼저 시작해라
 ```
 
@@ -266,13 +264,13 @@ app을 실행하기 전에 postgres 컨테이너를 먼저 시작해라
 
 Docker에서 컨테이너가 실행 중이라는 것은 프로세스가 시작되었다는 뜻에 가깝다.
 
-```text id="f1kpqc"
+```text
 컨테이너 상태: running
 ```
 
 하지만 PostgreSQL이 실제로 쿼리를 받을 준비가 됐는지는 별개의 문제다.
 
-```text id="3lvi40"
+```text
 컨테이너 running
 → PostgreSQL 프로세스 시작 중일 수 있음
 → DB 초기화 중일 수 있음
@@ -281,7 +279,7 @@ Docker에서 컨테이너가 실행 중이라는 것은 프로세스가 시작�
 
 즉, 다음 두 상태는 다르다.
 
-```text id="ab71oa"
+```text
 postgres 컨테이너가 실행됨
 ≠
 postgres DB가 접속 가능함
@@ -297,7 +295,7 @@ postgres DB가 접속 가능함
 
 PostgreSQL 컨테이너는 처음 실행될 때 여러 작업을 한다.
 
-```text id="i2wqi3"
+```text
 데이터 디렉토리 확인
 초기 DB 생성
 사용자 생성
@@ -316,7 +314,7 @@ PostgreSQL 컨테이너는 처음 실행될 때 여러 작업을 한다.
 
 결과적으로 이런 오류가 날 수 있다.
 
-```text id="yzrdby"
+```text
 Connection refused
 The connection attempt failed
 Database system is starting up
@@ -332,7 +330,7 @@ race condition은 여러 작업이 동시에 진행될 때, 실행 타이밍에 
 
 Docker Compose에서 app과 DB를 동시에 올릴 때도 비슷하다.
 
-```text id="xlu4o5"
+```text
 상황 A
 DB 준비 완료 → App 연결 시도 → 성공
 
@@ -344,7 +342,7 @@ App 연결 시도 → DB 아직 준비 중 → 실패
 
 이런 문제가 생기면 굉장히 헷갈린다.
 
-```text id="h5xnoq"
+```text
 어제는 됐는데 오늘은 안 됨
 내 컴퓨터에서는 되는데 다른 사람 컴퓨터에서는 안 됨
 재시작하면 됨
@@ -359,7 +357,7 @@ App 연결 시도 → DB 아직 준비 중 → 실패
 
 정리하면 `depends_on`의 한계는 다음과 같다.
 
-```text id="rj4c80"
+```text
 컨테이너 시작 순서는 제어함
 서비스 준비 완료는 보장하지 않음
 DB readiness 확인 안 함
@@ -379,7 +377,7 @@ DB readiness 확인 안 함
 
 `depends_on`은 의존 관계를 표현한다는 점에서 의미가 있다.
 
-```yaml id="2sdlmk"
+```yaml
 services:
   app:
     depends_on:
@@ -401,7 +399,7 @@ services:
 
 하지만 `depends_on`은 컨테이너 실행 순서만 어느 정도 제어할 뿐, 서비스가 완전히 준비되었는지는 확인하지 않는다.
 
-```text id="ixbtqz"
+```text
 depends_on
 → postgres 컨테이너를 먼저 시작
 
@@ -411,7 +409,7 @@ health check
 
 핵심은 이것이다.
 
-```text id="ks5s0p"
+```text
 컨테이너가 running이라고 해서
 서비스가 ready인 것은 아니다.
 ```
@@ -438,7 +436,7 @@ Health Check는 컨테이너 안의 서비스가 정상 상태인지 확인하�
 
 단순히 컨테이너가 실행 중인지 보는 것이 아니라, 실제 서비스가 사용할 준비가 되었는지를 확인한다.
 
-```text id="3sowrg"
+```text
 컨테이너 running
 → 프로세스가 실행 중
 
@@ -448,7 +446,7 @@ Health Check는 컨테이너 안의 서비스가 정상 상태인지 확인하�
 
 DB라면 다음을 확인해야 한다.
 
-```text id="iuid4k"
+```text
 PostgreSQL이 접속 가능한가?
 사용자 인증이 가능한가?
 DB가 쿼리를 받을 수 있는가?
@@ -464,7 +462,7 @@ PostgreSQL에서는 `pg_isready` 명령어를 사용할 수 있다.
 
 Compose에서는 이렇게 쓸 수 있다.
 
-```yaml id="7ic91m"
+```yaml
 services:
   postgres:
     image: postgres:16
@@ -481,7 +479,7 @@ services:
 
 이 설정은 다음 의미다.
 
-```text id="8r57i7"
+```text
 5초마다 pg_isready 실행
 3초 안에 응답 없으면 실패
 5번 실패하면 unhealthy로 판단
@@ -495,7 +493,7 @@ PostgreSQL이 준비되면 컨테이너 상태가 `healthy`가 된다.
 
 Compose에서는 health check 조건을 이용해 app이 DB의 healthy 상태를 기다리게 만들 수 있다.
 
-```yaml id="xxabdj"
+```yaml
 services:
   app:
     build: .
@@ -518,7 +516,7 @@ services:
 
 이렇게 하면 app은 postgres 컨테이너가 단순히 실행되는 것만 기다리는 것이 아니라, postgres가 `healthy` 상태가 되는 것을 기다린다.
 
-```text id="265jsv"
+```text
 postgres 컨테이너 시작
 ↓
 pg_isready로 준비 상태 확인
@@ -540,7 +538,7 @@ readiness는 서비스가 요청을 받을 준비가 되었는지를 뜻한다.
 
 DB readiness는 다음을 의미한다.
 
-```text id="1cv9ne"
+```text
 DB 프로세스가 떠 있음
 포트가 열려 있음
 접속 가능함
@@ -562,7 +560,7 @@ Health Check가 없으면 app 컨테이너가 계속 죽었다 살아나는 상�
 
 그런데 DB가 아직 준비되지 않았다.
 
-```text id="5h4m9d"
+```text
 app 시작
 DB 연결 실패
 app 종료
@@ -573,7 +571,7 @@ restart 정책에 의해 재시작
 
 이런 식으로 반복될 수 있다.
 
-```text id="l2c2kw"
+```text
 restart loop
 ```
 
@@ -591,7 +589,7 @@ restart loop는 로그를 지저분하게 만들고, 원인 파악을 어렵게 
 
 운영에서는 컨테이너가 언제든 새로 시작될 수 있다.
 
-```text id="uweqvm"
+```text
 배포
 서버 재부팅
 장애 복구
@@ -615,7 +613,7 @@ Health Check가 모든 문제를 해결하는 것은 아니다.
 
 그래서 애플리케이션 자체에도 재시도 로직이 필요하다.
 
-```text id="x01zos"
+```text
 DB 연결 재시도
 timeout 설정
 connection pool 설정
@@ -624,7 +622,7 @@ connection pool 설정
 
 즉, 안정적인 운영을 위해서는 다음이 함께 필요하다.
 
-```text id="u50us4"
+```text
 Compose healthcheck
 애플리케이션 retry
 적절한 restart policy
@@ -641,7 +639,7 @@ Health Check는 컨테이너가 단순히 실행 중인지가 아니라, 실제 
 
 PostgreSQL에서는 `pg_isready`를 사용할 수 있다.
 
-```yaml id="m8l0pb"
+```yaml
 healthcheck:
   test: ["CMD-SHELL", "pg_isready -U user -d hellodb"]
   interval: 5s
@@ -651,7 +649,7 @@ healthcheck:
 
 그리고 app은 DB가 healthy 상태가 된 뒤 실행되도록 구성할 수 있다.
 
-```yaml id="ncq3ru"
+```yaml
 depends_on:
   postgres:
     condition: service_healthy
@@ -659,7 +657,7 @@ depends_on:
 
 핵심은 이것이다.
 
-```text id="3cftxl"
+```text
 컨테이너 실행 상태보다 중요한 것은 서비스 준비 상태다.
 ```
 

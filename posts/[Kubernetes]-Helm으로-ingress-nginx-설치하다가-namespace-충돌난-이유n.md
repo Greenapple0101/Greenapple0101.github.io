@@ -1,11 +1,10 @@
 ---
-title: "[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유\n"
+title: "[KUBERNETES] Helm으로 ingress-nginx 설치하다가 namespace 충돌난 이유"
 source: "https://velog.io/@yorange50/KUBERNETES-Helm으로-ingress-nginx-설치하다가-namespace-충돌난-이유"
 published: "2026-05-13T05:13:53.560Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.747422"
 ---
-
 ![](https://velog.velcdn.com/images/yorange50/post/94669a90-5342-4d8f-af2f-2a7c43060275/image.png)
 
 쿠버네티스에서 `ingress-nginx`를 설치하다 보면 이런 에러를 만날 수 있다.

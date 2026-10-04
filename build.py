@@ -6,9 +6,11 @@ from __future__ import annotations
 import html
 import json
 import re
+import unicodedata
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from urllib.parse import quote
 
 import markdown
 
@@ -129,11 +131,25 @@ def parse_frontmatter(text: str) -> tuple[dict[str, str], str]:
         if not m:
             continue
         key = m.group(1)
-        value = m.group(2) or m.group(3) or (m.group(4) or "").strip()
+        if m.group(2) is not None:
+            # Exported frontmatter uses JSON-compatible quoted strings.
+            # Decode escapes without applying unicode_escape to Korean text.
+            value = json.loads('"' + m.group(2) + '"')
+        elif m.group(3) is not None:
+            value = m.group(3).replace("''", "'")
+        else:
+            value = (m.group(4) or "").strip()
+        if key == "title":
+            value = clean_title(value)
         meta[key] = value
 
     body = text[match.end() :]
     return meta, body
+
+
+def clean_title(value: str) -> str:
+    value = re.sub(r"`([^`]+)`", r"\1", value)
+    return " ".join(unicodedata.normalize("NFC", value).split())
 
 
 def slug_from_filename(path: Path) -> str:
@@ -148,6 +164,7 @@ def _slug_prefix(slug: str) -> str:
 
 
 def normalize_category(category: str) -> str:
+    category = unicodedata.normalize("NFC", category)
     key = re.sub(r"^\[|\]$", "", category.strip()).lower()
     if key in KUBERNETES_PREFIXES or "kubernetes" in key:
         return KUBERNETES_CATEGORY
@@ -263,8 +280,16 @@ def format_date(iso: str) -> str:
 
 def excerpt(body: str, limit: int = 120) -> str:
     text = re.sub(r"```[\s\S]*?```", " ", body)
+    text = re.sub(r"(?m)^\s*#{1,6}\s+.*$", " ", text)
+    text = re.sub(r"(?m)^\s*(?:[-*_]\s*){3,}$", " ", text)
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"(\*\*|__)(.+?)\1", r"\2", text, flags=re.DOTALL)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\\([`*_.!])", r"\1", text)
     text = re.sub(r"[#>*`\[\]()]", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", html.unescape(text)).strip()
     if len(text) <= limit:
         return text
     return text[: limit - 1].rstrip() + "…"
@@ -431,7 +456,7 @@ def post_nav_html(prev_entry: dict | None, next_entry: dict | None) -> str:
 
 
 def collect_entry(slug: str, meta: dict[str, str], body: str) -> dict:
-    title = meta.get("title", slug.replace("-", " "))
+    title = clean_title(meta.get("title", slug.replace("-", " ")))
     tags = meta.get("tags", "")
     category, topic = entry_classification(slug, meta)
     published = meta.get("published", "")
@@ -472,7 +497,7 @@ def build_post(
     prev_entry: dict | None = None,
     next_entry: dict | None = None,
 ) -> None:
-    title = meta.get("title", slug.replace("-", " "))
+    title = clean_title(meta.get("title", slug.replace("-", " ")))
     tags = meta.get("tags", "")
     category, _ = entry_classification(slug, meta)
     tag_color = category_color(category)
@@ -503,6 +528,43 @@ def build_post(
 
     out_path = POSTS_DIR / f"{slug}.html"
     out_path.write_text(page, encoding="utf-8")
+
+
+def validate_redirects(prepared: list[tuple[dict[str, str], str, str]]) -> dict[str, str]:
+    sources = {slug: meta for meta, _, slug in prepared}
+    if len(sources) != len(prepared):
+        raise ValueError("Multiple source files declare the same slug")
+    redirects = {slug: meta["redirect_to"] for slug, meta in sources.items() if meta.get("redirect_to")}
+    for slug, target in redirects.items():
+        if target not in sources or target in redirects or target == slug:
+            raise ValueError(f"Invalid redirect: {slug} -> {target}")
+    return redirects
+
+
+def build_redirect(slug: str, target: str, title: str) -> None:
+    href = html.escape(quote(target + ".html", safe=""), quote=True)
+    label = html.escape(title)
+    page = f'''<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="0; url={href}" />
+  <link rel="canonical" href="{href}" />
+  <title>{label} | Greenapple0101</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../post.css" />
+</head>
+<body class="post-page">
+  <main class="post-content">
+    <h1>정리된 글로 이동합니다</h1>
+    <p>같은 내용의 글을 하나로 정리했습니다.</p>
+    <p><a href="{href}">{label}</a></p>
+  </main>
+</body>
+</html>
+'''
+    (POSTS_DIR / f"{slug}.html").write_text(page, encoding="utf-8")
 
 
 def build_index(entries: list[dict]) -> None:
@@ -608,9 +670,12 @@ def main() -> None:
             raise ValueError(f"Invalid post slug: {slug!r}")
         prepared.append((meta, body, slug))
 
+    redirects = validate_redirects(prepared)
     entries: list[dict] = []
     slug_to_prepared: dict[str, tuple[dict[str, str], str]] = {}
     for meta, body, slug in prepared:
+        if slug in redirects:
+            continue
         entry = collect_entry(slug, meta, body)
         entries.append(entry)
         slug_to_prepared[slug] = (meta, body)
@@ -641,7 +706,10 @@ def main() -> None:
     print("Building index & topic folders...")
     build_index(entries)
     build_topic_pages(entries)
-    print(f"Done. {len(entries)} posts → {ROOT}")
+    titles = {entry["slug"]: entry["title"] for entry in entries}
+    for slug, target in redirects.items():
+        build_redirect(slug, target, titles[target])
+    print(f"Done. {len(entries)} posts, {len(redirects)} preserved redirects → {ROOT}")
 
 
 if __name__ == "__main__":

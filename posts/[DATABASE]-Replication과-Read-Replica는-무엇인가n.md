@@ -1,14 +1,13 @@
 ---
-title: "[DATABASE] Replication과 Read Replica는 무엇인가\n"
+title: "[DATABASE] Replication과 Read Replica는 무엇인가"
 source: "https://velog.io/@yorange50/DATABASE-Replication과-Read-Replica는-무엇인가"
 published: "2026-05-11T14:50:27.116Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.760617"
 ---
-
 서비스를 운영하다 보면 어느 순간 문제가 생긴다.
 
-```text id="ep8j2x"
+```text
 DB가 느리다
 ```
 
@@ -25,7 +24,7 @@ DB가 느리다
 
 이때 자주 등장하는 개념이 있다.
 
-```text id="9a5x3f"
+```text
 Replication
 Read Replica
 ```
@@ -38,7 +37,7 @@ Read Replica
 
 처음 서비스는 보통 이렇다.
 
-```text id="d5q8gm"
+```text
 Application
     ↓
 Database
@@ -48,7 +47,7 @@ Database
 
 근데 사용자가 많아지면:
 
-```text id="4e0m8m"
+```text
 SELECT 요청 폭증
 ```
 
@@ -69,7 +68,7 @@ SELECT 요청 폭증
 
 대부분 서비스는:
 
-```text id="y5m2ra"
+```text
 읽기(Read) >> 쓰기(Write)
 ```
 
@@ -77,7 +76,7 @@ SELECT 요청 폭증
 
 예를 들어 SNS라면:
 
-```text id="d1qz9e"
+```text
 글 1번 작성
 조회 10000번
 ```
@@ -86,7 +85,7 @@ SELECT 요청 폭증
 
 즉 DB는 보통:
 
-```text id="v8d5ln"
+```text
 읽기 부하
 ```
 
@@ -108,7 +107,7 @@ Replication은:
 
 보통 이런 형태다.
 
-```text id="z4g2cp"
+```text
 Primary DB
     ↓ 복제
 Replica DB
@@ -120,7 +119,7 @@ Replica DB
 
 Primary(Main) DB는:
 
-```text id="f2r5wj"
+```text
 쓰기 담당
 ```
 
@@ -128,7 +127,7 @@ Primary(Main) DB는:
 
 즉:
 
-```sql id="l4q3sy"
+```sql
 INSERT
 UPDATE
 DELETE
@@ -142,7 +141,7 @@ DELETE
 
 Replica는:
 
-```text id="8r9vqm"
+```text
 복제본 DB
 ```
 
@@ -152,7 +151,7 @@ Primary 데이터를 복사해둔다.
 
 보통:
 
-```text id="j7m8pe"
+```text
 읽기 전용(Read Only)
 ```
 
@@ -164,7 +163,7 @@ Primary 데이터를 복사해둔다.
 
 예를 들어:
 
-```sql id="kgc02p"
+```sql
 INSERT INTO users ...
 ```
 
@@ -178,7 +177,7 @@ INSERT INTO users ...
 
 즉:
 
-```text id="w3z1xl"
+```text
 Primary
 ↓
 복제
@@ -200,7 +199,7 @@ Read Replica는:
 
 즉:
 
-```text id="1m0djk"
+```text
 조회 트래픽 분산용
 ```
 
@@ -212,7 +211,7 @@ Read Replica는:
 
 예를 들어:
 
-```text id="l0g2xq"
+```text
 사용자 100만명
 ```
 
@@ -222,7 +221,7 @@ DB 하나가 버티기 어렵다.
 
 그래서:
 
-```text id="6n8jcm"
+```text
 읽기 요청을 여러 Replica로 분산
 ```
 
@@ -232,7 +231,7 @@ DB 하나가 버티기 어렵다.
 
 # 10. 구조 예시
 
-```text id="3e4vzt"
+```text
            App
          /  |  \
         /   |   \
@@ -243,7 +242,7 @@ DB 하나가 버티기 어렵다.
 
 ## 쓰기
 
-```text id="s5m2ny"
+```text
 Primary
 ```
 
@@ -253,7 +252,7 @@ Primary
 
 ## 읽기
 
-```text id="5u1vqp"
+```text
 Replica
 ```
 
@@ -265,7 +264,7 @@ Replica
 
 가장 큰 장점은:
 
-```text id="9h0vzn"
+```text
 읽기 성능 확장
 ```
 
@@ -273,7 +272,7 @@ Replica
 
 즉:
 
-```text id="y7n2ea"
+```text
 Scale Out
 ```
 
@@ -285,7 +284,7 @@ Scale Out
 
 Replica가 있으면:
 
-```text id="m6g9dt"
+```text
 Primary 장애
 ```
 
@@ -305,7 +304,7 @@ Replication은 공짜가 아니다.
 
 Primary 변경사항이:
 
-```text id="q8e1vm"
+```text
 즉시 Replica에 반영 안 될 수도 있음
 ```
 
@@ -313,7 +312,7 @@ Primary 변경사항이:
 
 즉:
 
-```text id="c1r4zy"
+```text
 복제 지연
 ```
 
@@ -325,13 +324,13 @@ Primary 변경사항이:
 
 사용자가 글 작성:
 
-```sql id="sk0vlu"
+```sql
 INSERT post
 ```
 
 직후 조회했는데:
 
-```text id="z2n1wd"
+```text
 Replica엔 아직 반영 안 됨
 ```
 
@@ -339,7 +338,7 @@ Replica엔 아직 반영 안 됨
 
 즉:
 
-```text id="l6d0po"
+```text
 쓴 직후 조회했는데 안 보임
 ```
 
@@ -351,7 +350,7 @@ Replica엔 아직 반영 안 됨
 
 Replication도 결국:
 
-```text id="d4x7cw"
+```text
 네트워크 전송
 로그 복사
 동기화 작업
@@ -367,7 +366,7 @@ Replication도 결국:
 
 이게 바로:
 
-```text id="a0m2jl"
+```text
 Consistency
 ```
 
@@ -387,7 +386,7 @@ Consistency
 
 Replica 구조는 보통:
 
-```text id="p9q7vg"
+```text
 Eventually Consistent
 ```
 
@@ -413,7 +412,7 @@ Eventually Consistent
 
 예:
 
-```text id="x8r5nj"
+```text
 내 프로필 수정 직후
 → Primary
 
@@ -427,7 +426,7 @@ Eventually Consistent
 
 Read Replica는:
 
-```text id="w5t2ce"
+```text
 DB Scale Out 전략
 ```
 
@@ -437,7 +436,7 @@ DB Scale Out 전략
 
 ## Scale Up
 
-```text id="b7y1ka"
+```text
 DB 서버 성능 증가
 ```
 
@@ -445,13 +444,13 @@ DB 서버 성능 증가
 
 ## Scale Out
 
-```text id="g3e9xt"
+```text
 DB 서버 수 증가
 ```
 
 Read Replica는 보통:
 
-```text id="r2n8wm"
+```text
 읽기 Scale Out
 ```
 
@@ -463,7 +462,7 @@ Read Replica는 보통:
 
 AWS RDS에서도:
 
-```text id="q5v0sl"
+```text
 Read Replica
 ```
 
@@ -471,7 +470,7 @@ Read Replica
 
 예:
 
-```text id="h8u7ce"
+```text
 RDS MySQL
 → Read Replica 추가
 ```
@@ -484,7 +483,7 @@ RDS MySQL
 
 DynamoDB는 구조 자체가:
 
-```text id="m9d6ra"
+```text
 분산 기반
 ```
 
@@ -492,7 +491,7 @@ DynamoDB는 구조 자체가:
 
 반면 관계형 DB는:
 
-```text id="f0v5xn"
+```text
 Replica 전략
 ```
 
@@ -556,7 +555,7 @@ DB 데이터를 다른 DB로 복제
 
 ## 장점
 
-```text id="w1n2av"
+```text
 읽기 성능 향상
 고가용성
 ```
@@ -565,7 +564,7 @@ DB 데이터를 다른 DB로 복제
 
 ## 단점
 
-```text id="d6z4qp"
+```text
 복제 지연
 정합성 문제
 ```
@@ -576,7 +575,7 @@ DB 데이터를 다른 DB로 복제
 
 ## 핵심 흐름
 
-```text id="f3k9uj"
+```text
 쓰기:
 Primary
 
@@ -588,7 +587,7 @@ Replica
 
 # 한 줄 핵심
 
-```text id="y2q7mc"
+```text
 Read Replica는
 읽기 요청을 분산해서,
 DB 트래픽을 버티기 위한 복제 전략이다.

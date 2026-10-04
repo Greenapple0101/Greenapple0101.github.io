@@ -5,19 +5,17 @@ published: "2026-05-11T14:28:27.117Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.763462"
 ---
-
 네트워크가 커지면 문제가 생긴다.
 
 예를 들어 라우터가 수십 대, 수백 대가 되면:“어디로 보내야 가장 빠르지?”
 “어느 경로가 죽었지?”
 “새로운 네트워크가 생겼네?”
-```
 
 이런 걸 사람이 일일이 설정하기 힘들어진다.
 
 그래서 등장한 게:
 
-```plaintext id="j65wry"
+```plaintext
 Dynamic Routing Protocol
 ```
 
@@ -41,7 +39,7 @@ Dynamic Routing Protocol
 
 라우팅 프로토콜은 크게 두 종류로 나뉜다.
 
-```plaintext id="54yqce"
+```plaintext
 IGP  → 내부 네트워크용
 EGP  → 외부 네트워크용
 ```
@@ -52,7 +50,7 @@ EGP  → 외부 네트워크용
 
 IGP는:
 
-```plaintext id="z9v6hk"
+```plaintext
 Interior Gateway Protocol
 ```
 
@@ -79,7 +77,7 @@ Interior Gateway Protocol
 
 EGP는:
 
-```plaintext id="xgmk9w"
+```plaintext
 Exterior Gateway Protocol
 ```
 
@@ -95,7 +93,7 @@ Exterior Gateway Protocol
 
 예:
 
-```plaintext id="8l4pjm"
+```plaintext
 KT ↔ SKT ↔ AWS ↔ Google
 ```
 
@@ -117,7 +115,7 @@ KT ↔ SKT ↔ AWS ↔ Google
 
 RIP는:
 
-```plaintext id="8w5sru"
+```plaintext
 Routing Information Protocol
 ```
 
@@ -137,7 +135,7 @@ RIP는:
 
 이걸:
 
-```plaintext id="w9ibx8"
+```plaintext
 Hop Count
 ```
 
@@ -145,7 +143,7 @@ Hop Count
 
 예:
 
-```plaintext id="0n0t8o"
+```plaintext
 A → B → C
 ```
 
@@ -157,7 +155,7 @@ A → B → C
 
 RIP는:
 
-```plaintext id="d1fgdc"
+```plaintext
 Distance Vector
 ```
 
@@ -165,13 +163,13 @@ Distance Vector
 
 뜻은:
 
-```plaintext id="pd87xk"
+```plaintext
 거리(Distance) + 방향(Vector)
 ```
 
 즉:
 
-```plaintext id="fkwzlx"
+```plaintext
 “어디까지 몇 칸이고 어느 방향이야”
 ```
 
@@ -200,7 +198,7 @@ Distance Vector
 
 OSPF는:
 
-```plaintext id="u2z5o0"
+```plaintext
 Open Shortest Path First
 ```
 
@@ -214,7 +212,7 @@ Open Shortest Path First
 
 OSPF는:
 
-```plaintext id="8pljtt"
+```plaintext
 Link State
 ```
 
@@ -222,7 +220,7 @@ Link State
 
 RIP와 다르게:
 
-```plaintext id="czefk0"
+```plaintext
 네트워크 전체 구조를 이해함
 ```
 
@@ -232,7 +230,7 @@ RIP와 다르게:
 
 각 라우터가:
 
-```plaintext id="74eb0o"
+```plaintext
 “나는 누구랑 연결되어 있어”
 ```
 
@@ -242,7 +240,7 @@ RIP와 다르게:
 
 그리고:
 
-```plaintext id="e6bxvq"
+```plaintext
 최단 경로 계산
 ```
 
@@ -250,7 +248,7 @@ RIP와 다르게:
 
 이때 사용하는 게:
 
-```plaintext id="klzvvy"
+```plaintext
 Dijkstra 알고리즘
 ```
 
@@ -286,7 +284,7 @@ Dijkstra 알고리즘
 
 BGP는:
 
-```plaintext id="t7b6u8"
+```plaintext
 Border Gateway Protocol
 ```
 
@@ -300,7 +298,7 @@ Border Gateway Protocol
 
 인터넷은:
 
-```plaintext id="c4is6o"
+```plaintext
 수많은 회사/통신사/클라우드
 ```
 
@@ -308,7 +306,7 @@ Border Gateway Protocol
 
 예:
 
-```plaintext id="6d8q4f"
+```plaintext
 AWS
 Google
 KT
@@ -320,7 +318,7 @@ Cloudflare
 
 이 조직들은 각각:
 
-```plaintext id="ot6vgk"
+```plaintext
 AS(Autonomous System)
 ```
 
@@ -338,7 +336,7 @@ BGP는:
 
 BGP는:
 
-```plaintext id="xk6i53"
+```plaintext
 Path Vector
 ```
 
@@ -346,7 +344,7 @@ Path Vector
 
 즉:
 
-```plaintext id="rq2p9s"
+```plaintext
 “어떤 경로를 거쳐왔는지”
 ```
 
@@ -354,7 +352,7 @@ Path Vector
 
 예:
 
-```plaintext id="gvjlwm"
+```plaintext
 KT → AWS → Google
 ```
 
@@ -378,7 +376,7 @@ KT → AWS → Google
 
 하지만:
 
-```plaintext id="s2gjm5"
+```plaintext
 인터넷 자체가 BGP 위에서 동작
 ```
 
@@ -398,7 +396,7 @@ KT → AWS → Google
 
 방식:
 
-```plaintext id="jlwm4n"
+```plaintext
 “목적지까지 몇 칸”
 ```
 
@@ -417,7 +415,7 @@ KT → AWS → Google
 
 방식:
 
-```plaintext id="gzh3s6"
+```plaintext
 네트워크 전체 지도 생성
 ```
 
@@ -436,7 +434,7 @@ KT → AWS → Google
 
 방식:
 
-```plaintext id="rdr4az"
+```plaintext
 어떤 AS를 거쳤는지 추적
 ```
 
@@ -453,7 +451,7 @@ KT → AWS → Google
 
 ## RIP
 
-```plaintext id="c2e3n0"
+```plaintext
 “몇 정거장 남았어?”
 ```
 
@@ -461,7 +459,7 @@ KT → AWS → Google
 
 ## OSPF
 
-```plaintext id="u2ahh8"
+```plaintext
 “전체 지도 보고 최단경로 계산”
 ```
 
@@ -469,7 +467,7 @@ KT → AWS → Google
 
 ## BGP
 
-```plaintext id="chpuxz"
+```plaintext
 “어느 나라들을 거쳐가는가?”
 ```
 
@@ -499,7 +497,7 @@ KT → AWS → Google
 
 # 19. 한줄 요약
 
-```plaintext id="vqpss7"
+```plaintext
 RIP  = 단순 거리 계산
 OSPF = 전체 지도 기반 최단경로
 BGP  = 인터넷 규모의 경로 관리

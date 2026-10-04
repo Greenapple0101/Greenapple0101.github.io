@@ -1,11 +1,10 @@
 ---
-title: "[DB] DBeaver로 PostgreSQL 접속하고 테이블 만들어보기\n"
+title: "[DB] DBeaver로 PostgreSQL 접속하고 테이블 만들어보기"
 source: "https://velog.io/@yorange50/DB-DBeaver로-PostgreSQL-접속하고-테이블-만들어보기"
 published: "2026-05-13T04:11:36.859Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.751326"
 ---
-
 ![](https://velog.velcdn.com/images/yorange50/post/add3e436-1ff5-49fd-95fb-1512a69da137/image.png)
 
 처음 데이터베이스를 공부할 때 제일 막히는 지점은 보통 SQL 문법이 아니다.

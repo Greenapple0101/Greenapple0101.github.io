@@ -5,7 +5,6 @@ published: "2026-05-11T14:45:04.235Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.761303"
 ---
-
 개발이나 DevOps를 하다 보면 정말 많이 보게 되는 명령어가 있다.
 
 ```bash
@@ -14,7 +13,7 @@ ssh ubuntu@10.0.0.5
 
 그리고 같이 등장하는 것들:
 
-```text id="5h8w6s"
+```text
 pem 키
 id_rsa
 authorized_keys
@@ -23,7 +22,7 @@ authorized_keys
 
 처음엔:
 
-```text id="yz8nzc"
+```text
 "그냥 원격 접속 아닌가?"
 ```
 
@@ -45,7 +44,7 @@ authorized_keys
 
 SSH는:
 
-```text id="l0vrk1"
+```text
 Secure Shell
 ```
 
@@ -63,7 +62,7 @@ Secure Shell
 
 예전에는:
 
-```text id="bxu73w"
+```text
 Telnet
 ```
 
@@ -71,7 +70,7 @@ Telnet
 
 근데 문제는:
 
-```text id="6poh8f"
+```text
 암호화가 없었다
 ```
 
@@ -81,7 +80,7 @@ Telnet
 
 그래서 등장한 게:
 
-```text id="l0v9q6"
+```text
 SSH
 ```
 
@@ -119,7 +118,7 @@ ssh user@server
 
 예를 들어:
 
-```text id="1htw2d"
+```text
 내 노트북
 ↓
 인터넷
@@ -131,7 +130,7 @@ ssh user@server
 
 SSH는:
 
-```text id="g5sz1y"
+```text
 암호화된 터미널 연결
 ```
 
@@ -139,7 +138,7 @@ SSH는:
 
 즉:
 
-```text id="86o4s8"
+```text
 내가 입력하는 명령어
 ```
 
@@ -151,7 +150,7 @@ SSH는:
 
 기본적으로:
 
-```text id="n7wxks"
+```text
 22번 포트
 ```
 
@@ -175,7 +174,7 @@ SSH는 크게 두 가지 인증 방식을 많이 쓴다.
 
 가장 단순한 방식.
 
-```text id="yrg9mq"
+```text
 아이디 + 비밀번호
 ```
 
@@ -205,7 +204,7 @@ SSH는 크게 두 가지 인증 방식을 많이 쓴다.
 
 ## 핵심
 
-```text id="gny79r"
+```text
 공개키 암호화 기반 인증
 ```
 
@@ -223,7 +222,7 @@ ssh-keygen
 
 그러면 보통:
 
-```text id="ax7u7f"
+```text
 ~/.ssh/id_rsa
 ~/.ssh/id_rsa.pub
 ```
@@ -236,7 +235,7 @@ ssh-keygen
 
 ## id_rsa
 
-```text id="j4tfgu"
+```text
 개인키(Private Key)
 ```
 
@@ -246,7 +245,7 @@ ssh-keygen
 
 ## id_rsa.pub
 
-```text id="4xrfcz"
+```text
 공개키(Public Key)
 ```
 
@@ -262,7 +261,7 @@ ssh-keygen
 
 서버에는:
 
-```text id="mjlwm4"
+```text
 ~/.ssh/authorized_keys
 ```
 
@@ -270,7 +269,7 @@ ssh-keygen
 
 여기에:
 
-```text id="mxmcb6"
+```text
 내 공개키
 ```
 
@@ -292,7 +291,7 @@ ssh ubuntu@server
 
 서버는:
 
-```text id="m92m4f"
+```text
 "그 공개키에 대응되는 개인키 진짜 가지고 있음?"
 ```
 
@@ -304,7 +303,7 @@ ssh ubuntu@server
 
 내 컴퓨터는:
 
-```text id="jzjlwm"
+```text
 개인키로 서명
 ```
 
@@ -316,7 +315,7 @@ ssh ubuntu@server
 
 서버는 저장된 공개키로:
 
-```text id="mev4x3"
+```text
 서명 검증
 ```
 
@@ -324,7 +323,7 @@ ssh ubuntu@server
 
 일치하면:
 
-```text id="h9twdm"
+```text
 접속 허용
 ```
 
@@ -336,7 +335,7 @@ ssh ubuntu@server
 
 즉 SSH는:
 
-```text id="ufjlwm"
+```text
 개인키 가진 사용자만
 접속 가능
 ```
@@ -349,7 +348,7 @@ ssh ubuntu@server
 
 핵심은:
 
-```text id="1a6i1v"
+```text
 개인키는 네 PC 밖으로 안 나감
 ```
 
@@ -357,7 +356,7 @@ ssh ubuntu@server
 
 즉 인터넷 중간에서 누가 봐도:
 
-```text id="kjlwmv"
+```text
 개인키 탈취 불가
 ```
 
@@ -369,7 +368,7 @@ ssh ubuntu@server
 
 AWS EC2 만들면:
 
-```text id="e3u1o5"
+```text
 my-key.pem
 ```
 
@@ -377,7 +376,7 @@ my-key.pem
 
 이건 사실:
 
-```text id="7jlwmx"
+```text
 개인키 파일
 ```
 
@@ -385,7 +384,7 @@ my-key.pem
 
 즉:
 
-```text id="b9m3uj"
+```text
 pem = SSH 개인키
 ```
 
@@ -397,7 +396,7 @@ pem = SSH 개인키
 
 서버는:
 
-```text id="hjlwmr"
+```text
 공개키만 저장
 ```
 
@@ -405,7 +404,7 @@ pem = SSH 개인키
 
 근데 개인키를 잃어버리면:
 
-```text id="djlwmc"
+```text
 "내가 진짜 사용자다"
 ```
 
@@ -419,7 +418,7 @@ pem = SSH 개인키
 
 리눅스 서버의:
 
-```text id="rjlwmq"
+```text
 ~/.ssh/authorized_keys
 ```
 
@@ -431,7 +430,7 @@ pem = SSH 개인키
 
 즉:
 
-```text id="djlwmf"
+```text
 여기 등록된 공개키의 개인키 가진 사람만
 접속 허용
 ```
@@ -444,7 +443,7 @@ pem = SSH 개인키
 
 클라이언트 쪽에는:
 
-```text id="vjlwmr"
+```text
 ~/.ssh/known_hosts
 ```
 
@@ -452,7 +451,7 @@ pem = SSH 개인키
 
 이건:
 
-```text id="6jlwmn"
+```text
 "예전에 접속했던 서버 목록"
 ```
 
@@ -472,7 +471,7 @@ Are you sure you want to continue connecting?
 
 이건:
 
-```text id="3jlwmv"
+```text
 서버 공개키 신뢰 여부
 ```
 
@@ -497,7 +496,7 @@ Are you sure you want to continue connecting?
 
 예:
 
-```text id="8jlwmc"
+```text
 EC2 접속
 리눅스 서버 관리
 Git 인증
@@ -517,7 +516,7 @@ Docker/K8s 노드 접근
 
 ## 기본 포트
 
-```text id="ljlwmq"
+```text
 22
 ```
 
@@ -525,7 +524,7 @@ Docker/K8s 노드 접근
 
 ## SSH Key
 
-```text id="jjlwmn"
+```text
 공개키 + 개인키
 ```
 
@@ -559,7 +558,7 @@ SSH 개인키 파일
 
 ## 핵심 구조
 
-```text id="7jlwmz"
+```text
 개인키로 인증
 ↓
 서버가 공개키로 검증
@@ -569,7 +568,7 @@ SSH 개인키 파일
 
 # 한 줄 핵심
 
-```text id="2jlwmx"
+```text
 SSH는 공개키 암호화를 이용해,
 인터넷에서도 안전하게 서버에 접속할 수 있게 만든 기술이다.
 ```

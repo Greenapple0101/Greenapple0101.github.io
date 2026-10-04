@@ -5,23 +5,20 @@ published: "2026-04-29T01:11:12.860Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.786562"
 ---
-
-
-
 Spring Boot로 게시판 API를 만들고 있다. 처음에는 가장 단순한 조회 기능부터 만들었다. 게시글 목록을 반환하는 `GET /boards` API다.
 ![](https://velog.velcdn.com/images/yorange50/post/5e19228d-bd95-4586-b768-fe991ad0b39e/image.png)
 
 
 현재 구조는 Controller와 Service로 나누어져 있다.
 
-```text id="i4rqzj"
+```text
 BoardController.java → 요청을 받는 곳
 BoardService.java    → 실제 로직을 처리하는 곳
 ```
 
 처음 작성한 Service 코드는 다음과 같았다.
 
-```java id="shq4vl"
+```java
 @Service
 public class BoardService {
     
@@ -37,7 +34,7 @@ public class BoardService {
 
 그리고 Controller에서는 Service를 호출해서 게시글 목록을 반환했다.
 
-```java id="jtw55f"
+```java
 @GetMapping("/boards")
 public List<String> getBoards(){
     return boardService.getBoards();
@@ -46,13 +43,13 @@ public List<String> getBoards(){
 
 Postman에서 다음 요청을 보내면 정상적으로 응답이 왔다.
 
-```http id="w1zvw7"
+```http
 GET http://localhost:8080/boards
 ```
 
 응답 결과
 
-```json id="1lstsl"
+```json
 [
   "게시글1",
   "게시글2",
@@ -68,7 +65,7 @@ GET http://localhost:8080/boards
 
 Postman에서 Method를 POST로 바꾸고 같은 주소로 요청을 보내면 다음과 같은 에러가 발생한다.
 
-```json id="6vwwf4"
+```json
 {
   "timestamp": "2026-04-29T00:38:57.413Z",
   "status": 405,
@@ -81,7 +78,7 @@ Postman에서 Method를 POST로 바꾸고 같은 주소로 요청을 보내면 �
 
 의미는 다음과 같다.
 
-```text id="v3j28d"
+```text
 /boards 주소는 존재한다.
 하지만 POST 방식으로 처리하는 메서드는 없다.
 ```
@@ -96,7 +93,7 @@ Postman에서 Method를 POST로 바꾸고 같은 주소로 요청을 보내면 �
 
 기존 코드는 이렇게 되어 있었다.
 
-```java id="bmaw4e"
+```java
 public List<String> getBoards(){
     return List.of("게시글1", "게시글2", "게시글3");
 }
@@ -106,7 +103,7 @@ public List<String> getBoards(){
 
 그래서 Service 안에 게시글 목록을 저장할 리스트를 필드로 만든다.
 
-```java id="zr92mg"
+```java
 package com.board.api.service;
 
 import org.springframework.stereotype.Service;
@@ -132,7 +129,7 @@ public class BoardService {
 
 여기서 중요한 부분은 다음 코드다.
 
-```java id="jz40hg"
+```java
 private final List<String> boards = new ArrayList<>(
     List.of("게시글1", "게시글2", "게시글3")
 );
@@ -150,7 +147,7 @@ GET 요청이 오면 이 리스트를 반환하고, POST 요청이 오면 이 �
 
 기존 GET 메서드 아래에 다음 코드를 추가한다.
 
-```java id="nmb261"
+```java
 @PostMapping("/boards")
 public String createBoard(@RequestBody Map<String, String> body){
     String title = body.get("title");
@@ -160,7 +157,7 @@ public String createBoard(@RequestBody Map<String, String> body){
 
 전체 Controller 코드는 다음과 같다.
 
-```java id="fq9oc1"
+```java
 package com.board.api.controller;
 
 import com.board.api.service.BoardService;
@@ -196,7 +193,7 @@ public class BoardController {
 
 Postman에서 POST 요청을 보낼 때 Body에 JSON 데이터를 넣는다.
 
-```json id="vl37jw"
+```json
 {
   "title": "테스트 글"
 }
@@ -206,7 +203,7 @@ Postman에서 POST 요청을 보낼 때 Body에 JSON 데이터를 넣는다.
 
 Spring에서 이 요청 본문을 Java 코드에서 사용할 수 있게 꺼내려면 `@RequestBody`를 사용한다.
 
-```java id="j2j4uv"
+```java
 @RequestBody Map<String, String> body
 ```
 
@@ -214,7 +211,7 @@ Spring에서 이 요청 본문을 Java 코드에서 사용할 수 있게 꺼내�
 
 그리고 다음 코드로 `title` 값을 꺼낼 수 있다.
 
-```java id="ok1wy2"
+```java
 String title = body.get("title");
 ```
 
@@ -224,25 +221,25 @@ String title = body.get("title");
 
 서버를 다시 실행한다.
 
-```bash id="wsv71o"
+```bash
 ./gradlew bootRun
 ```
 
 이제 Postman에서 POST 요청을 보낸다.
 
-```http id="68o1v8"
+```http
 POST http://localhost:8080/boards
 ```
 
 Body 설정은 다음과 같이 한다.
 
-```text id="jfa2vb"
+```text
 Body → raw → JSON
 ```
 
 Body 내용
 
-```json id="wic4s6"
+```json
 {
   "title": "테스트 글"
 }
@@ -250,19 +247,19 @@ Body 내용
 
 응답 결과
 
-```text id="7z428e"
+```text
 생성됨:테스트 글
 ```
 
 그 다음 다시 GET 요청을 보내본다.
 
-```http id="0attj7"
+```http
 GET http://localhost:8080/boards
 ```
 
 응답 결과
 
-```json id="e2p3we"
+```json
 [
   "게시글1",
   "게시글2",
@@ -282,26 +279,26 @@ POST로 보낸 데이터가 리스트에 추가된 것을 확인할 수 있다.
 
 처음에는 조회만 가능했다.
 
-```text id="z9hich"
+```text
 GET /boards → 게시글 목록 조회
 ```
 
 이제는 데이터를 추가할 수 있게 되었다.
 
-```text id="eoqlpb"
+```text
 POST /boards → 게시글 생성
 ```
 
 같은 `/boards` 주소를 사용하더라도 HTTP Method에 따라 다른 동작을 만들 수 있다.
 
-```text id="aaej8e"
+```text
 GET  /boards → 조회
 POST /boards → 생성
 ```
 
 그리고 중요한 구조도 하나 배웠다.
 
-```text id="ev3ruy"
+```text
 Controller → 요청을 받음
 Service    → 실제 로직을 처리함
 ```

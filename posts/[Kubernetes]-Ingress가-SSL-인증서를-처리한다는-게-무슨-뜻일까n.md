@@ -1,11 +1,11 @@
 ---
-title: "[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?\n"
+title: "[Kubernetes] Ingress가 SSL 인증서를 처리한다는 게 무슨 뜻일까?"
 source: "https://velog.io/@yorange50/Kubernetes-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까"
 published: "2026-05-29T00:12:25.157Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.701299"
+redirect_to: "[Kubernetes]-Ingress가-SSL-인증서를-처리한다는-게-무슨-뜻일까"
 ---
-
 쿠버네티스 Ingress를 공부하다 보면 이런 설명이 나온다.
 
 ```text

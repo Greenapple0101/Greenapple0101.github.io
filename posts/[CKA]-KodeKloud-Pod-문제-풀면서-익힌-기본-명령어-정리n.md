@@ -1,11 +1,10 @@
 ---
-title: "[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리\n"
+title: "[CKA] KodeKloud Pod 문제 풀면서 익힌 기본 명령어 정리"
 source: "https://velog.io/@yorange50/Kubernetes-KodeKloud-Pod-문제-풀면서-익힌-기본-명령어-정리"
 published: "2026-05-06T22:29:26.075Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.774527"
 ---
-
 KodeKloud에서 Kubernetes Pod 문제를 풀다 보면 처음에는 명령어 자체보다도 “문제에서 뭘 물어보는지”를 해석하는 게 더 헷갈린다. 특히 `kubectl get pods`, `READY`, `describe`, `delete` 같은 명령어는 초반 Pod 실습에서 거의 계속 나온다. 이번 글은 KodeKloud Pod 문제를 풀면서 실제로 자주 만난 명령어와 헷갈렸던 부분을 정리한 내용이다.
 
 ---

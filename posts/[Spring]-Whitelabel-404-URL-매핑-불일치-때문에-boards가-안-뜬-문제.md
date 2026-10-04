@@ -5,12 +5,11 @@ published: "2026-05-06T04:55:11.381Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.775708"
 ---
-
 Spring Boot로 `board_fe`를 만들고 Thymeleaf 템플릿까지 채웠는데, 브라우저에서 `/boards`에 접속하자 Whitelabel Error Page가 떴다.
 
 에러 화면은 이런 내용이었다.
 
-```text id="yien6n"
+```text
 Whitelabel Error Page
 This application has no explicit mapping for /error, so you are seeing this as a fallback.
 
@@ -26,7 +25,7 @@ There was an unexpected error (type=Not Found, status=404).
 
 프로젝트 구조는 다음과 같이 나뉘어 있었다.
 
-```text id="a42vdp"
+```text
 board_api
 → REST API 서버
 → JPA
@@ -42,7 +41,7 @@ board_fe
 
 `board_api`는 이미 정상적으로 실행되고 있었다.
 
-```text id="jsyzxl"
+```text
 http://localhost:8080/boards
 ```
 
@@ -50,7 +49,7 @@ http://localhost:8080/boards
 
 `board_fe`는 다음 주소로 화면을 보여주는 역할이었다.
 
-```text id="a9i3iz"
+```text
 http://localhost:8081/boards
 ```
 
@@ -62,7 +61,7 @@ http://localhost:8081/boards
 
 Spring Boot에서 404는 보통 다음 의미다.
 
-```text id="0fp0i8"
+```text
 서버는 떠 있다.
 하지만 해당 URL을 처리할 Controller 매핑이 없다.
 ```
@@ -72,19 +71,19 @@ Spring Boot에서 404는 보통 다음 의미다.
 
 예를 들어 브라우저에서 다음 주소로 요청했다고 하자.
 
-```text id="eeqbb9"
+```text
 GET /boards
 ```
 
 그러면 Spring은 Controller 안에서 `/boards`를 처리할 메서드를 찾는다.
 
-```java id="drxz41"
+```java
 @GetMapping("/boards")
 ```
 
 또는:
 
-```java id="ehos06"
+```java
 @RequestMapping("/boards")
 @GetMapping
 ```
@@ -99,19 +98,19 @@ GET /boards
 
 템플릿에서는 `/boards` 기준으로 링크를 작성했다.
 
-```html id="mxn1du"
+```html
 <a href="/boards/write">글쓰기</a>
 ```
 
 상세 페이지도 `/boards/{id}` 기준이었다.
 
-```html id="89ceoo"
+```html
 <a th:href="@{/boards/{id}(id=${board.id})}">상세보기</a>
 ```
 
 그런데 컨트롤러는 `/boards-page` 기준으로 등록되어 있었다.
 
-```java id="5y2dlu"
+```java
 @GetMapping("/boards-page")
 public String boardsPage(Model model) {
     return "boards/list";
@@ -120,7 +119,7 @@ public String boardsPage(Model model) {
 
 즉 실제 상태는 이랬다.
 
-```text id="sc68xc"
+```text
 템플릿 URL
 → /boards
 → /boards/write
@@ -135,7 +134,7 @@ public String boardsPage(Model model) {
 
 핵심 원인은 이거다.
 
-```text id="706x5u"
+```text
 HTML에서 사용하는 URL과 Controller에서 받는 URL이 서로 달랐다.
 ```
 
@@ -145,7 +144,7 @@ HTML에서 사용하는 URL과 Controller에서 받는 URL이 서로 달랐다.
 
 기존 컨트롤러가 이런 식이었다고 보자.
 
-```java id="67sbkj"
+```java
 @Controller
 public class BoardPageController {
 
@@ -163,14 +162,14 @@ public class BoardPageController {
 
 이 경우 실제로 가능한 주소는 다음과 같다.
 
-```text id="c2kqgo"
+```text
 /boards-page
 /boards-page/1
 ```
 
 하지만 템플릿은 이렇게 되어 있었다.
 
-```text id="h728wv"
+```text
 /boards
 /boards/1
 /boards/write
@@ -189,7 +188,7 @@ public class BoardPageController {
 나는 템플릿을 `/boards` 기준으로 만들었기 때문에,
 컨트롤러도 `/boards` 기준으로 수정했다.
 
-```java id="tv53ld"
+```java
 @Controller
 @RequestMapping("/boards")
 public class BoardPageController {
@@ -198,7 +197,7 @@ public class BoardPageController {
 
 이렇게 하면 이 컨트롤러 안의 모든 메서드는 `/boards` 아래에 묶인다.
 
-```java id="nhnspv"
+```java
 @GetMapping
 public String list() {
     return "boards/list";
@@ -207,11 +206,11 @@ public String list() {
 
 이 메서드는 다음 URL을 처리한다.
 
-```text id="y376xa"
+```text
 GET /boards
 ```
 
-```java id="nvzjss"
+```java
 @GetMapping("/write")
 public String writeForm() {
     return "boards/write";
@@ -220,7 +219,7 @@ public String writeForm() {
 
 이 메서드는 다음 URL을 처리한다.
 
-```text id="iyw3sl"
+```text
 GET /boards/write
 ```
 
@@ -230,7 +229,7 @@ GET /boards/write
 
 최종적으로 `board_fe`의 `BoardPageController`는 다음처럼 정리했다.
 
-```java id="2lahma"
+```java
 package com.board.fe.controller;
 
 import com.board.fe.client.BoardApiClient;
@@ -312,7 +311,7 @@ public class BoardPageController {
 
 다만 위 코드에서 생성자는 실제 코드에서는 이렇게 되어야 한다.
 
-```java id="wpl5r3"
+```java
 public BoardPageController(BoardApiClient boardApiClient) {
     this.boardApiClient = boardApiClient;
 }
@@ -326,7 +325,7 @@ public BoardPageController(BoardApiClient boardApiClient) {
 
 처음에는 상세 페이지를 이렇게 작성할 수도 있다.
 
-```java id="7zxwrq"
+```java
 @GetMapping("/{id}")
 public String detail(@PathVariable Long id, Model model) {
     return "boards/detail";
@@ -340,7 +339,7 @@ Spring이 `write`를 `{id}`로 해석하려고 시도할 수 있다.
 
 즉 이런 문제가 생길 수 있다.
 
-```text id="fdxjxh"
+```text
 /boards/write
 → writeForm()으로 가야 함
 
@@ -354,13 +353,13 @@ Spring이 `write`를 `{id}`로 해석하려고 시도할 수 있다.
 
 그래서 다음처럼 작성했다.
 
-```java id="2shlx6"
+```java
 @GetMapping("/{id:\\d+}")
 ```
 
 의미는 다음과 같다.
 
-```text id="v9p7pq"
+```text
 {id:\\d+}
 → id 자리에 숫자만 허용
 → /boards/1 가능
@@ -378,19 +377,19 @@ URL 매핑을 고친 뒤에도 템플릿 위치가 틀리면 또 다른 에러�
 
 컨트롤러에서 다음처럼 반환한다면:
 
-```java id="cdvjxu"
+```java
 return "boards/list";
 ```
 
 Spring Boot + Thymeleaf는 기본적으로 다음 위치에서 파일을 찾는다.
 
-```text id="olcpzu"
+```text
 src/main/resources/templates/boards/list.html
 ```
 
 따라서 템플릿은 반드시 다음 위치에 있어야 한다.
 
-```text id="v4yfz2"
+```text
 board_fe/src/main/resources/templates/boards/list.html
 board_fe/src/main/resources/templates/boards/detail.html
 board_fe/src/main/resources/templates/boards/write.html
@@ -399,7 +398,7 @@ board_fe/src/main/resources/templates/boards/edit.html
 
 반환값과 파일 위치의 관계는 다음과 같다.
 
-```text id="lsn2u7"
+```text
 return "boards/list"
 → templates/boards/list.html
 
@@ -423,25 +422,25 @@ return "boards/edit"
 
 목록에서 글쓰기 링크:
 
-```html id="bk7esd"
+```html
 <a href="/boards/write">글쓰기</a>
 ```
 
 상세보기 링크:
 
-```html id="jbi71p"
+```html
 <a th:href="@{/boards/{id}(id=${board.id})}">상세보기</a>
 ```
 
 상세 페이지에서 수정 링크:
 
-```html id="oxk7lj"
+```html
 <a th:href="@{/boards/{id}/edit(id=${board.id})}">수정</a>
 ```
 
 삭제 요청:
 
-```html id="lrmu14"
+```html
 <form th:action="@{/boards/{id}/delete(id=${board.id})}" method="post">
     <button type="submit">삭제</button>
 </form>
@@ -449,7 +448,7 @@ return "boards/edit"
 
 즉 컨트롤러와 템플릿이 같은 URL 체계를 사용해야 한다.
 
-```text id="pmrty5"
+```text
 Controller
 → /boards 기준
 
@@ -465,13 +464,13 @@ Template
 
 ### 404 Not Found
 
-```text id="lwylav"
+```text
 해당 URL을 처리할 Controller 매핑이 없음
 ```
 
 확인할 것:
 
-```text id="13wpe1"
+```text
 내가 접속한 주소
 @Controller 또는 @RestController의 @RequestMapping
 @GetMapping, @PostMapping 경로
@@ -480,13 +479,13 @@ Template
 
 ### TemplateInputException
 
-```text id="8eo3qh"
+```text
 Controller는 찾았지만 반환한 HTML 파일을 못 찾음
 ```
 
 확인할 것:
 
-```text id="7jg9xk"
+```text
 return "boards/list";
 templates/boards/list.html 파일 존재 여부
 파일명 오타
@@ -502,27 +501,27 @@ templates 폴더 위치
 
 먼저 `board_api`를 실행한다.
 
-```powershell id="nx2m14"
+```powershell
 cd C:\Users\oscbs\OneDrive\Desktop\board\board_api
 mvn spring-boot:run
 ```
 
 `board_api`는 8080에서 실행된다.
 
-```text id="c5vw0g"
+```text
 http://localhost:8080/boards
 ```
 
 그다음 `board_fe`를 실행한다.
 
-```powershell id="u1if9g"
+```powershell
 cd C:\Users\oscbs\OneDrive\Desktop\board\board_fe
 mvn spring-boot:run
 ```
 
 `board_fe`는 8081에서 실행된다.
 
-```text id="03rd78"
+```text
 http://localhost:8081/boards
 ```
 
@@ -534,7 +533,7 @@ http://localhost:8081/boards
 
 이번 문제의 핵심은 URL 매핑 불일치였다.
 
-```text id="ih7hep"
+```text
 템플릿은 /boards로 이동하려고 함
 컨트롤러는 /boards-page만 받고 있었음
 결과적으로 /boards 요청을 처리할 매핑이 없어 404 발생
@@ -542,7 +541,7 @@ http://localhost:8081/boards
 
 해결은 다음과 같이 했다.
 
-```text id="sy4nj7"
+```text
 1. BoardPageController의 기준 경로를 /boards로 수정
 2. list, detail, write, edit 경로를 /boards 기준으로 정리
 3. {id} 경로는 숫자만 받도록 /{id:\d+} 사용
@@ -552,12 +551,12 @@ http://localhost:8081/boards
 
 이번 트러블슈팅을 통해 다시 확인한 점은 이거다.
 
-```text id="bs1d7i"
+```text
 Spring MVC에서는 Controller의 매핑과 템플릿의 URL이 반드시 같은 약속을 바라봐야 한다.
 ```
 
 한 줄로 정리하면 다음과 같다.
 
-```text id="2iiswx"
+```text
 Whitelabel 404는 서버가 죽은 것이 아니라, 내가 요청한 URL을 받을 Controller 매핑이 없다는 신호였다.
 ```

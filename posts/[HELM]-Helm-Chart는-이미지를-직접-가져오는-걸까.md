@@ -5,10 +5,9 @@ published: "2026-05-17T12:01:03.260Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.730856"
 ---
-
 Helm을 처음 배우다 보면 이런 생각이 든다.
 
-```bash id="j8hz0p"
+```bash
 helm install ingress-nginx ingress-nginx/ingress-nginx
 ```
 
@@ -18,7 +17,7 @@ helm install ingress-nginx ingress-nginx/ingress-nginx
 
 그래서:
 
-```text id="5c3yff"
+```text
 Helm = 이미지 다운로드 도구
 ```
 
@@ -34,7 +33,7 @@ Helm은 이미지를 직접 다운로드하지 않는다.
 
 Helm의 역할은:
 
-```text id="u3n6x4"
+```text
 Kubernetes YAML 생성
 Kubernetes 리소스 설치
 설정값(values) 주입
@@ -46,7 +45,7 @@ Kubernetes 리소스 설치
 
 즉 역할이 나뉜다.
 
-```text id="k0uybi"
+```text
 Helm
 = YAML 생성 및 배포
 
@@ -63,13 +62,13 @@ containerd/docker
 
 예를 들어 이런 명령어를 실행했다고 하자.
 
-```bash id="m4uq4h"
+```bash
 helm install my-nginx bitnami/nginx
 ```
 
 그러면 내부적으로는 이런 일이 일어난다.
 
-```text id="5z4h6g"
+```text
 1. Helm이 Chart를 읽음
 2. values.yaml 값을 읽음
 3. Deployment YAML 생성
@@ -83,7 +82,7 @@ helm install my-nginx bitnami/nginx
 
 즉 Helm은 Kubernetes YAML을 만들어서 적용하는 역할이고:
 
-```text id="j0dn2o"
+```text
 실제 이미지 다운로드
 ```
 
@@ -95,7 +94,7 @@ helm install my-nginx bitnami/nginx
 
 Helm Chart 안에는 보통 이런 파일들이 있다.
 
-```text id="x6o6rw"
+```text
 Chart.yaml
 values.yaml
 templates/
@@ -103,7 +102,7 @@ templates/
 
 그중 실제 이미지 정보는 보통:
 
-```text id="t7u2l4"
+```text
 values.yaml
 templates/deployment.yaml
 ```
@@ -112,7 +111,7 @@ templates/deployment.yaml
 
 예를 들어 values.yaml:
 
-```yaml id="4gy4l1"
+```yaml
 image:
   repository: nginx
   tag: "1.27"
@@ -120,7 +119,7 @@ image:
 
 그리고 templates/deployment.yaml:
 
-```yaml id="q8xqeu"
+```yaml
 containers:
   - name: nginx
     image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -128,7 +127,7 @@ containers:
 
 Helm은 이 템플릿을 렌더링해서 최종 Kubernetes YAML을 만든다.
 
-```yaml id="mjf9pn"
+```yaml
 containers:
   - name: nginx
     image: nginx:1.27
@@ -136,7 +135,7 @@ containers:
 
 즉 Helm은:
 
-```text id="13t3c0"
+```text
 “이 Pod는 nginx:1.27 이미지를 써”
 ```
 
@@ -152,7 +151,7 @@ containers:
 
 예를 들어:
 
-```text id="6vjlwm"
+```text
 containerd
 Docker
 CRI-O
@@ -160,7 +159,7 @@ CRI-O
 
 같은 런타임이 Registry에 접속한다.
 
-```text id="wjlwm7"
+```text
 Docker Hub
 ECR
 GCR
@@ -172,7 +171,7 @@ Quay
 
 흐름은 이렇게 된다.
 
-```text id="rjlwm8"
+```text
 Helm
   ↓
 Deployment 생성
@@ -186,7 +185,7 @@ container runtime가 image pull
 
 즉 Helm은:
 
-```text id="2jlwm9"
+```text
 이미지를 “직접 다운로드”하는 게 아니라,
 Deployment에 image 정보를 적어주는 역할
 ```
@@ -201,13 +200,13 @@ Deployment에 image 정보를 적어주는 역할
 
 예를 들어:
 
-```bash id="l3wlma"
+```bash
 helm install my-app ./chart
 ```
 
 를 실행하면 곧바로:
 
-```bash id="g1wlmb"
+```bash
 kubectl get pods
 ```
 
@@ -215,7 +214,7 @@ kubectl get pods
 
 그러면 자연스럽게:
 
-```text id="x1wlmc"
+```text
 “Helm이 이미지를 받아왔구나”
 ```
 
@@ -223,7 +222,7 @@ kubectl get pods
 
 하지만 실제로는:
 
-```text id="z0wlmd"
+```text
 Helm → Deployment 생성
 Kubernetes → Pod 생성
 containerd/docker → 이미지 pull
@@ -241,7 +240,7 @@ containerd/docker → 이미지 pull
 
 이미지는 Registry에서 받아와야 하기 때문에:
 
-```text id="k9wlme"
+```text
 Docker Hub
 ECR
 GCR
@@ -252,7 +251,7 @@ Harbor
 
 예를 들어 인터넷이 안 되거나:
 
-```text id="w2wlmf"
+```text
 이미지 이름 틀림
 레지스트리 인증 실패
 네트워크 차단
@@ -260,14 +259,14 @@ Harbor
 
 같은 문제가 있으면 Pod 상태가 이렇게 된다.
 
-```text id="q8wlmg"
+```text
 ImagePullBackOff
 ErrImagePull
 ```
 
 즉:
 
-```text id="h5wlmh"
+```text
 Helm 설치 성공
 ≠ Pod 실행 성공
 ```
@@ -286,7 +285,7 @@ Helm은 Kubernetes 리소스를 잘 만들었더라도, 이미지 pull 실패는
 
 예:
 
-```yaml id="c3wlmi"
+```yaml
 image: ngnix:latest
 ```
 
@@ -298,7 +297,7 @@ image: ngnix:latest
 
 예를 들어 ECR이나 Harbor private registry는 인증이 필요할 수 있다.
 
-```text id="o4wlmj"
+```text
 imagePullSecret 필요
 ```
 
@@ -320,7 +319,7 @@ Docker Hub는 pull 제한이 걸릴 수 있다.
 
 트래픽이 많으면:
 
-```text id="e7wlmk"
+```text
 Too Many Requests
 ```
 
@@ -332,7 +331,7 @@ Too Many Requests
 
 Ingress NGINX Helm Chart를 예로 들어보자.
 
-```bash id="u0wlml"
+```bash
 helm install ingress-nginx ingress-nginx/ingress-nginx
 ```
 
@@ -340,7 +339,7 @@ helm install ingress-nginx ingress-nginx/ingress-nginx
 
 예:
 
-```text id="s1wlmm"
+```text
 controller 이미지
 admission webhook 이미지
 default backend 이미지
@@ -350,7 +349,7 @@ default backend 이미지
 
 그래서 설치 후:
 
-```bash id="j2wlmn"
+```bash
 kubectl get pods -n ingress-nginx
 ```
 
@@ -370,7 +369,7 @@ Helm의 강력한 장점 중 하나가 이미지 설정 변경이다.
 
 예를 들어 values.yaml:
 
-```yaml id="m3wlmo"
+```yaml
 image:
   repository: my-app
   tag: v2
@@ -378,7 +377,7 @@ image:
 
 이렇게 수정하고:
 
-```bash id="v4wlmp"
+```bash
 helm upgrade my-app ./chart
 ```
 
@@ -386,7 +385,7 @@ helm upgrade my-app ./chart
 
 즉 Helm은:
 
-```text id="x5wlmq"
+```text
 이미지 버전 관리
 환경별 이미지 설정
 registry 변경
@@ -400,7 +399,7 @@ registry 변경
 
 이 명령어를 쓰면:
 
-```bash id="f6wlmr"
+```bash
 helm template my-app ./chart
 ```
 
@@ -408,7 +407,7 @@ Helm이 실제로 어떤 YAML을 생성하는지 볼 수 있다.
 
 예를 들어 최종 결과에:
 
-```yaml id="d7wlms"
+```yaml
 image: nginx:1.27
 ```
 
@@ -416,7 +415,7 @@ image: nginx:1.27
 
 즉 Helm은 결국:
 
-```text id="b8wlmt"
+```text
 Kubernetes YAML 생성기
 ```
 
@@ -430,7 +429,7 @@ Kubernetes YAML 생성기
 
 Docker Compose에서는 이런 걸 많이 본다.
 
-```yaml id="a9wlmu"
+```yaml
 services:
   app:
     image: nginx
@@ -438,7 +437,7 @@ services:
 
 Compose도 비슷하게 동작한다.
 
-```text id="v0wlmv"
+```text
 docker compose up
 → Docker Engine이 image pull
 ```
@@ -447,7 +446,7 @@ docker compose up
 
 Helm도 비슷하다.
 
-```text id="u1wlmw"
+```text
 Helm
 → YAML 생성
 
@@ -461,13 +460,13 @@ Kubernetes/containerd
 
 면접에서:
 
-```text id="m2wlmx"
+```text
 “Helm Chart는 이미지를 직접 가져오나요?”
 ```
 
 라고 물어보면 이렇게 답할 수 있다.
 
-```text id="n3wlmy"
+```text
 Helm 자체가 이미지를 직접 다운로드하는 것은 아닙니다.
 
 Helm은 values.yaml과 templates를 조합해서 Deployment 같은 Kubernetes 리소스를 생성하고, 그 안에 image 정보를 포함시킵니다.
@@ -479,7 +478,7 @@ Helm은 values.yaml과 templates를 조합해서 Deployment 같은 Kubernetes �
 
 프로젝트 경험과 연결하면 이렇게도 말할 수 있다.
 
-```text id="p4wlmz"
+```text
 Ingress NGINX Controller를 Helm Chart로 설치하면서, Helm이 여러 Kubernetes 리소스를 자동 생성하는 과정을 경험했습니다.
 
 실제 컨테이너 이미지는 Helm이 직접 다운로드하는 것이 아니라, 생성된 Deployment를 기반으로 Kubernetes의 container runtime가 Docker Hub에서 pull해서 실행했습니다.
@@ -489,7 +488,7 @@ Ingress NGINX Controller를 Helm Chart로 설치하면서, Helm이 여러 Kubern
 
 # 핵심 정리
 
-```text id="q5wlna"
+```text
 Helm
 = Kubernetes YAML 생성 및 배포 도구
 
@@ -505,7 +504,7 @@ image 정보
 
 흐름은 이렇다.
 
-```text id="r6wlnb"
+```text
 Helm install
   ↓
 Deployment 생성
@@ -519,7 +518,7 @@ container runtime가 Registry에서 image pull
 
 한 줄로 정리하면:
 
-```text id="s7wlnc"
+```text
 Helm은 이미지를 직접 다운로드하는 게 아니라,
 Kubernetes가 어떤 이미지를 사용할지 정의한 YAML을 생성하고 배포하는 역할을 한다.
 ```

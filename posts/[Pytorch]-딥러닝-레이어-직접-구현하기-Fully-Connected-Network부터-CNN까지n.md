@@ -1,11 +1,10 @@
 ---
-title: "[PyTorch] 딥러닝 레이어 직접 구현하기: Fully Connected Network부터 CNN까지\n"
+title: "[PyTorch] 딥러닝 레이어 직접 구현하기: Fully Connected Network부터 CNN까지"
 source: "https://velog.io/@yorange50/PyTorch-딥러닝-레이어-직접-구현하기-Fully-Connected-Network부터-CNN까지"
 published: "2026-05-07T04:07:03.616Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.773384"
 ---
-
 이번에는 PyTorch를 이용해서 딥러닝 모델의 핵심 구성요소를 직접 구현해보았다.
 
 보통 PyTorch로 모델을 만들 때는 `torch.nn.Linear`, `torch.nn.ReLU`, `torch.nn.Conv2d`, `torch.optim.Adam` 같은 기능을 바로 사용한다.
@@ -13,7 +12,7 @@ backup_date: "2026-05-29T14:52:52.773384"
 
 이번 코드의 핵심은 단순히 모델을 “사용”하는 것이 아니라, 딥러닝 학습 과정의 내부 구조를 직접 확인하는 것이다.
 
-```text id="fcf2gx"
+```text
 입력 데이터
 → forward pass
 → loss 계산
@@ -30,7 +29,7 @@ backup_date: "2026-05-29T14:52:52.773384"
 
 이번 코드에서 가장 중요한 구조는 모든 레이어가 `forward`와 `backward`를 가진다는 점이다.
 
-```python id="jr7ijq"
+```python
 out, cache = Layer.forward(x, w, b)
 dx, dw, db = Layer.backward(dout, cache)
 ```
@@ -40,7 +39,7 @@ dx, dw, db = Layer.backward(dout, cache)
 
 즉 딥러닝 학습은 다음 흐름으로 진행된다.
 
-```text id="ywknfe"
+```text
 forward:
 입력 → 예측값 계산
 
@@ -62,7 +61,7 @@ gradient를 이용해 파라미터 수정
 
 코드에서 자주 등장하는 개념이 `cache`다.
 
-```python id="52p87v"
+```python
 cache = (x, w, b)
 ```
 
@@ -72,7 +71,7 @@ cache = (x, w, b)
 
 정리하면 다음과 같다.
 
-```text id="bxkr48"
+```text
 cache = backward 계산을 위해 forward 때 남겨두는 중간 기록
 ```
 
@@ -86,14 +85,14 @@ Fully Connected Network의 가장 기본이 되는 레이어는 Linear layer다.
 
 코드에서는 입력을 2차원으로 펼친 뒤 행렬곱을 수행한다.
 
-```python id="ir7jrf"
+```python
 x_reshaped = x.view(N, D)
 out = x_reshaped.mm(w) + b
 ```
 
 여기서 shape는 다음과 같다.
 
-```text id="tza18n"
+```text
 x: (N, D)
 w: (D, M)
 b: (M,)
@@ -102,7 +101,7 @@ out: (N, M)
 
 의미는 다음과 같다.
 
-```text id="7v7h6u"
+```text
 N = 데이터 개수
 D = 입력 차원
 M = 출력 차원
@@ -113,7 +112,7 @@ M = 출력 차원
 
 예를 들어 CIFAR-10 이미지는 보통 다음과 같은 형태다.
 
-```text id="k0tvaj"
+```text
 3 x 32 x 32 = 3072
 ```
 
@@ -121,7 +120,7 @@ M = 출력 차원
 
 Linear layer의 backward에서는 세 가지 gradient를 계산한다.
 
-```text id="a2h34x"
+```text
 dx: 입력 x에 대한 gradient
 dw: 가중치 w에 대한 gradient
 db: bias b에 대한 gradient
@@ -135,26 +134,26 @@ db: bias b에 대한 gradient
 
 ReLU는 딥러닝에서 가장 많이 쓰이는 활성화 함수 중 하나다.
 
-```text id="2u96mr"
+```text
 ReLU(x) = max(0, x)
 ```
 
 코드에서는 `torch.clamp`를 이용해 음수를 0으로 바꾼다.
 
-```python id="mzbfh3"
+```python
 out = torch.clamp(x, min=0)
 ```
 
 예를 들면 다음과 같다.
 
-```text id="7gatye"
+```text
 입력: [-3, 2, -1, 5]
 출력: [0, 2, 0, 5]
 ```
 
 backward에서는 forward 때 0보다 작았던 값에는 gradient를 흘리지 않는다.
 
-```python id="4h0lw3"
+```python
 dx = dout.clone()
 dx[x < 0] = 0
 ```
@@ -172,7 +171,7 @@ Linear layer만 여러 개 쌓으면 결국 하나의 큰 Linear layer와 비슷
 
 코드에서는 `Linear`와 `ReLU`를 따로 구현한 뒤, 둘을 묶은 `Linear_ReLU`도 구현했다.
 
-```python id="ycn2y9"
+```python
 a, fc_cache = Linear.forward(x, w, b)
 out, relu_cache = ReLU.forward(a)
 cache = (fc_cache, relu_cache)
@@ -180,13 +179,13 @@ cache = (fc_cache, relu_cache)
 
 이 구조는 다음을 의미한다.
 
-```text id="i2d2hs"
+```text
 Linear → ReLU
 ```
 
 backward는 반대로 진행된다.
 
-```text id="7lrj4w"
+```text
 ReLU backward → Linear backward
 ```
 
@@ -202,13 +201,13 @@ ReLU backward → Linear backward
 
 구조는 다음과 같다.
 
-```text id="c1z7fv"
+```text
 Linear → ReLU → Linear → Softmax
 ```
 
 코드에서는 `W1`, `b1`, `W2`, `b2` 네 개의 파라미터를 사용한다.
 
-```python id="kh5cw7"
+```python
 self.params['W1']
 self.params['b1']
 self.params['W2']
@@ -217,26 +216,26 @@ self.params['b2']
 
 첫 번째 layer는 입력을 hidden representation으로 바꾼다.
 
-```text id="2zxl4l"
+```text
 입력 X → hidden layer
 ```
 
 두 번째 layer는 hidden representation을 class score로 바꾼다.
 
-```text id="1lrbf2"
+```text
 hidden layer → class scores
 ```
 
 forward 흐름은 다음과 같다.
 
-```python id="42ylk5"
+```python
 out1, cache1 = Linear_ReLU.forward(X, W1, b1)
 scores, cache2 = Linear.forward(out1, W2, b2)
 ```
 
 정답 라벨 `y`가 없으면 test mode이므로 score만 반환한다.
 
-```python id="8s2zqs"
+```python
 if y is None:
     return scores
 ```
@@ -252,13 +251,13 @@ if y is None:
 
 TwoLayerNet에서는 loss에 다음 항을 더한다.
 
-```python id="0gpo26"
+```python
 loss += self.reg * (torch.sum(W1 * W1) + torch.sum(W2 * W2))
 ```
 
 그리고 gradient에도 regularization을 반영한다.
 
-```python id="xbm064"
+```python
 dW2 += 2 * self.reg * W2
 dW1 += 2 * self.reg * W1
 ```
@@ -268,7 +267,7 @@ dW1 += 2 * self.reg * W1
 
 정리하면 다음과 같다.
 
-```text id="68y8fh"
+```text
 loss에 regularization 추가
 gradient에도 regularization 추가
 ```
@@ -280,13 +279,13 @@ gradient에도 regularization 추가
 `TwoLayerNet`은 hidden layer가 하나인 고정된 구조다.
 반면 `FullyConnectedNet`은 원하는 만큼 hidden layer를 쌓을 수 있다.
 
-```python id="6syp4h"
+```python
 hidden_dims = [100, 100, 100]
 ```
 
 이면 구조는 다음과 같다.
 
-```text id="pbsme9"
+```text
 Linear → ReLU
 Linear → ReLU
 Linear → ReLU
@@ -295,13 +294,13 @@ Linear → Softmax
 
 코드에서는 layer 수를 다음처럼 계산한다.
 
-```python id="8nshd4"
+```python
 self.num_layers = 1 + len(hidden_dims)
 ```
 
 그리고 반복문으로 `W1`, `b1`, `W2`, `b2` 등을 만든다.
 
-```python id="jz77s9"
+```python
 layer_dims = [input_dim] + hidden_dims + [num_classes]
 
 for i in range(1, self.num_layers + 1):
@@ -320,13 +319,13 @@ for i in range(1, self.num_layers + 1):
 
 `FullyConnectedNet`에서는 dropout도 선택적으로 사용할 수 있다.
 
-```python id="wr6p5h"
+```python
 self.use_dropout = dropout != 0
 ```
 
 Dropout은 학습 중 일부 뉴런을 랜덤하게 꺼서 모델이 특정 뉴런에만 의존하지 않도록 만드는 기법이다.
 
-```text id="11c0g4"
+```text
 train mode:
 일부 뉴런을 랜덤하게 제거
 
@@ -336,7 +335,7 @@ test mode:
 
 코드에서는 dropout을 사용하는 경우 forward 중간에 dropout을 적용하고, backward 때도 dropout backward를 거친다.
 
-```python id="x40oa0"
+```python
 if self.use_dropout:
     out, dropout_cache = Dropout.forward(out, self.dropout_param)
 ```
@@ -353,13 +352,13 @@ Dropout에서 중요한 점은 train mode와 test mode의 동작이 다르다는
 
 가장 기본적인 방식은 SGD다.
 
-```python id="y2swsq"
+```python
 w = w - learning_rate * dw
 ```
 
 의미는 단순하다.
 
-```text id="m6zc8i"
+```text
 현재 가중치에서
 learning_rate × gradient 만큼 빼기
 ```
@@ -368,7 +367,7 @@ learning_rate × gradient 만큼 빼기
 
 Momentum은 여기에 이전 이동 방향을 반영한다.
 
-```python id="638klo"
+```python
 v = config['momentum'] * v - config['learning_rate'] * dw
 next_w = w + v
 ```
@@ -378,7 +377,7 @@ Momentum은 이전에 움직이던 방향까지 고려해서 더 부드럽게 �
 
 정리하면 다음과 같다.
 
-```text id="4s42g1"
+```text
 SGD:
 현재 gradient만 보고 이동
 
@@ -405,7 +404,7 @@ Fully Connected Network는 입력 이미지를 모두 펼쳐서 처리한다.
 
 Convolution layer는 필터가 이미지를 훑으면서 특징을 추출하는 레이어다.
 
-```text id="oi2wag"
+```text
 입력 이미지
 → 필터 적용
 → feature map 생성
@@ -413,14 +412,14 @@ Convolution layer는 필터가 이미지를 훑으면서 특징을 추출하는 
 
 코드에서는 convolution output 크기를 다음처럼 계산한다.
 
-```python id="981pv9"
+```python
 H_out = 1 + (H + 2 * pad - HH) // stride
 W_out = 1 + (W + 2 * pad - WW) // stride
 ```
 
 여기서 중요한 값은 세 가지다.
 
-```text id="t8m03c"
+```text
 filter size
 stride
 padding
@@ -432,7 +431,7 @@ padding
 
 실제 convolution은 다음처럼 window를 잘라서 필터와 곱한 뒤 더하는 방식으로 구현된다.
 
-```python id="ie4516"
+```python
 window = x_padded[n, :, h_start:h_end, w_start:w_end]
 out[n, f, i, j] = torch.sum(window * w[f]) + b[f]
 ```
@@ -445,7 +444,7 @@ out[n, f, i, j] = torch.sum(window * w[f]) + b[f]
 
 Convolution backward에서는 세 가지 gradient를 계산한다.
 
-```text id="s8x6j5"
+```text
 dx: 입력 이미지에 대한 gradient
 dw: 필터에 대한 gradient
 db: bias에 대한 gradient
@@ -453,14 +452,14 @@ db: bias에 대한 gradient
 
 코드에서는 forward 때와 같은 window를 기준으로 `dw`와 `dx`를 누적한다.
 
-```python id="3ofkzi"
+```python
 dw[f] += window * dout[n, f, i, j]
 dx_padded[n, :, h_start:h_end, w_start:w_end] += w[f] * dout[n, f, i, j]
 ```
 
 padding이 들어갔던 경우에는 마지막에 padding 부분을 제거해서 원래 입력 크기의 `dx`를 만든다.
 
-```python id="48l35f"
+```python
 dx = dx_padded[:, :, pad:-pad, pad:-pad]
 ```
 
@@ -474,7 +473,7 @@ Convolution backward는 수식 자체보다 “각 window가 gradient를 어떻�
 
 그래서 빠른 버전에서는 PyTorch의 내장 함수를 사용한다.
 
-```python id="fbpg2v"
+```python
 out = torch.nn.functional.conv2d(
     x, w, b,
     stride=conv_param['stride'],
@@ -484,7 +483,7 @@ out = torch.nn.functional.conv2d(
 
 backward는 `torch.autograd.grad`를 사용해서 계산한다.
 
-```python id="j9uz42"
+```python
 grads = torch.autograd.grad(
     outputs=out,
     inputs=(x, w, b),
@@ -502,7 +501,7 @@ Max Pooling은 feature map의 크기를 줄이면서 중요한 값만 남기는 
 
 예를 들어 2x2 영역에서 가장 큰 값만 선택한다.
 
-```text id="g0fwvi"
+```text
 [1, 3]
 [2, 4]
 
@@ -511,14 +510,14 @@ Max Pooling은 feature map의 크기를 줄이면서 중요한 값만 남기는 
 
 코드에서는 pooling window에서 최댓값을 찾는다.
 
-```python id="u4lbp5"
+```python
 window = x[n, c, h_start:h_end, w_start:w_end]
 out[n, c, i, j] = torch.max(window)
 ```
 
 backward에서는 최댓값이 있던 위치로만 gradient를 보낸다.
 
-```python id="a1yb2w"
+```python
 max_val = torch.max(window)
 mask = (window == max_val)
 dx[...] += mask.float() * dout[n, c, i, j]
@@ -526,7 +525,7 @@ dx[...] += mask.float() * dout[n, c, i, j]
 
 정리하면 다음과 같다.
 
-```text id="jh1jk3"
+```text
 forward:
 가장 큰 값만 선택
 
@@ -544,7 +543,7 @@ Batch Normalization은 layer의 출력을 정규화해서 학습을 안정화하
 
 흐름은 다음과 같다.
 
-```text id="r0u78m"
+```text
 1. batch 평균 계산
 2. 평균 빼기
 3. 분산 계산
@@ -554,7 +553,7 @@ Batch Normalization은 layer의 출력을 정규화해서 학습을 안정화하
 
 코드에서는 train mode일 때 현재 batch의 평균과 분산을 사용한다.
 
-```python id="fhguv6"
+```python
 sample_mean = torch.mean(x, dim=0)
 sample_var = torch.var(x, dim=0, unbiased=False)
 x_norm = x_centered * inv_std
@@ -563,14 +562,14 @@ out = gamma * x_norm + beta
 
 그리고 running mean과 running variance를 업데이트한다.
 
-```python id="m7dth8"
+```python
 running_mean = momentum * running_mean + (1 - momentum) * sample_mean
 running_var = momentum * running_var + (1 - momentum) * sample_var
 ```
 
 test mode에서는 현재 batch 통계를 쓰지 않고, 학습 중 저장해둔 running mean과 running variance를 사용한다. 
 
-```text id="51a5jw"
+```text
 train mode:
 현재 batch의 mean/var 사용
 
@@ -589,13 +588,13 @@ running_mean/running_var 사용
 
 그래서 Spatial BatchNorm에서는 데이터를 잠깐 변형한다.
 
-```python id="bq4m4i"
+```python
 x_transposed = x.permute(0, 2, 3, 1).reshape(-1, C)
 ```
 
 형태 변화는 다음과 같다.
 
-```text id="413byb"
+```text
 (N, C, H, W)
 → (N, H, W, C)
 → (N*H*W, C)
@@ -604,7 +603,7 @@ x_transposed = x.permute(0, 2, 3, 1).reshape(-1, C)
 이렇게 바꾸면 채널 `C`를 기준으로 BatchNorm을 적용할 수 있다.
 적용 후에는 다시 원래 형태로 되돌린다.
 
-```python id="nzj4iv"
+```python
 out = out_transposed.reshape(N, H, W, C).permute(0, 3, 1, 2)
 ```
 
@@ -618,19 +617,19 @@ CNN에서도 여러 레이어를 묶어서 사용한다.
 
 예를 들어 `Conv_ReLU`는 다음 구조다.
 
-```text id="y5c0d6"
+```text
 Conv → ReLU
 ```
 
 `Conv_ReLU_Pool`은 다음 구조다.
 
-```text id="5pj9bm"
+```text
 Conv → ReLU → Pool
 ```
 
 BatchNorm을 포함하면 다음과 같은 구조도 있다.
 
-```text id="awh24k"
+```text
 Conv → BatchNorm → ReLU
 Conv → BatchNorm → ReLU → Pool
 ```
@@ -647,13 +646,13 @@ Conv → BatchNorm → ReLU → Pool
 
 아키텍처는 다음과 같다.
 
-```text id="tal1t2"
+```text
 Conv → ReLU → 2x2 MaxPool → Linear → ReLU → Linear → Softmax
 ```
 
 코드에서는 세 종류의 파라미터를 사용한다.
 
-```text id="0t5xz2"
+```text
 W1, b1: convolution layer
 W2, b2: hidden linear layer
 W3, b3: output linear layer
@@ -661,7 +660,7 @@ W3, b3: output linear layer
 
 forward 흐름은 다음과 같다.
 
-```python id="o1z77u"
+```python
 out, cache1 = Conv_ReLU_Pool.forward(X, W1, b1, conv_param, pool_param)
 out_flat = out.reshape(out.shape[0], -1)
 out, cache2 = Linear_ReLU.forward(out_flat, W2, b2)
@@ -672,7 +671,7 @@ scores, cache3 = Linear.forward(out, W3, b3)
 
 흐름을 말로 풀면 이렇다.
 
-```text id="kx8nvn"
+```text
 이미지 입력
 → convolution으로 지역 특징 추출
 → pooling으로 크기 축소
@@ -690,7 +689,7 @@ weight가 너무 작으면 신호가 점점 사라지고, 너무 크면 값이 �
 
 코드에서는 Kaiming initialization을 구현했다.
 
-```python id="wuo9pp"
+```python
 gain = 2. if relu else 1.
 std = torch.sqrt(torch.tensor(gain / fan_in))
 weight = torch.randn(...) * std
@@ -698,7 +697,7 @@ weight = torch.randn(...) * std
 
 Linear layer일 때와 convolution layer일 때 fan-in 계산 방식이 다르다.
 
-```text id="h2zs4w"
+```text
 Linear:
 fan_in = Din
 
@@ -714,7 +713,7 @@ Kaiming initialization은 ReLU를 사용하는 깊은 네트워크에서 학습�
 
 `DeepConvNet`은 여러 개의 convolution layer를 쌓을 수 있는 일반화된 CNN이다.
 
-```python id="isq7sj"
+```python
 num_filters=[8, 64]
 max_pools=[0, 1]
 batchnorm=False
@@ -722,7 +721,7 @@ batchnorm=False
 
 각 설정의 의미는 다음과 같다.
 
-```text id="knwpvm"
+```text
 num_filters:
 각 convolution layer의 필터 개수
 
@@ -737,14 +736,14 @@ batch normalization을 사용할지 여부
 
 forward에서는 convolution layer들을 반복문으로 통과시킨다.
 
-```python id="r2pfei"
+```python
 for i in range(1, self.num_layers):
     ...
 ```
 
 각 layer마다 batchnorm 사용 여부와 pooling 적용 여부에 따라 다른 sandwich layer를 호출한다.
 
-```text id="2z5cvx"
+```text
 batchnorm X, pooling X:
 Conv → ReLU
 
@@ -760,7 +759,7 @@ Conv → BatchNorm → ReLU → Pool
 
 마지막에는 feature map을 펼쳐서 Linear layer에 넣고 class score를 계산한다.
 
-```python id="c0f9i8"
+```python
 out = out.reshape(out.shape[0], -1)
 out, cache_final = Linear.forward(out, W, b)
 scores = out
@@ -784,13 +783,13 @@ scores = out
 
 Fully Connected Network는 이미지를 벡터로 펼쳐서 처리한다.
 
-```text id="uz0h97"
+```text
 3 x 32 x 32 → 3072차원 벡터
 ```
 
 반면 CNN은 이미지의 채널, 높이, 너비 구조를 유지한 채 처리한다.
 
-```text id="zaz60m"
+```text
 (N, C, H, W) 형태 유지
 ```
 
@@ -827,7 +826,7 @@ Fully Connected Network는 이미지를 벡터로 펼쳐서 처리한다.
 
 첫 번째는 Fully Connected Network다.
 
-```text id="jth2cq"
+```text
 Linear
 → ReLU
 → Dropout
@@ -837,7 +836,7 @@ Linear
 
 두 번째는 Convolutional Network다.
 
-```text id="xfk0k2"
+```text
 Conv
 → ReLU
 → Pool
@@ -848,7 +847,7 @@ Conv
 
 결국 두 구조 모두 핵심은 같다.
 
-```text id="2sax0r"
+```text
 forward로 score 계산
 loss 계산
 backward로 gradient 계산
@@ -865,7 +864,7 @@ optimizer로 parameter update
 
 평소에는 PyTorch의 `nn.Linear`, `nn.Conv2d`, `nn.BatchNorm2d`, `torch.optim.Adam` 같은 기능을 가져다 쓰지만, 내부적으로는 결국 다음 과정이 반복된다.
 
-```text id="hl3hg0"
+```text
 입력 계산
 중간값 저장
 loss 계산

@@ -5,10 +5,9 @@ published: "2026-05-11T15:08:49.489Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.758855"
 ---
-
 서비스를 운영할 때 가장 무서운 상황 중 하나는:
 
-```text id="ry5m88"
+```text
 서비스가 멈추는 것
 ```
 
@@ -35,13 +34,13 @@ backup_date: "2026-05-29T14:52:52.758855"
 
 그래서 현대 시스템은 단순히:
 
-```text id="a5y0o7"
+```text
 “잘 동작하는 시스템”
 ```
 
 이 아니라:
 
-```text id="a53m8v"
+```text
 “죽지 않는 시스템”
 ```
 
@@ -49,7 +48,7 @@ backup_date: "2026-05-29T14:52:52.758855"
 
 이 개념이 바로:
 
-```text id="f5y7ja"
+```text
 High Availability (고가용성, HA)
 ```
 
@@ -61,7 +60,7 @@ High Availability (고가용성, HA)
 
 High Availability는 말 그대로:
 
-```text id="0pb77d"
+```text
 서비스를 최대한 오래,
 끊기지 않게 유지하는 것
 ```
@@ -98,7 +97,7 @@ High Availability는 말 그대로:
 
 즉 현실에서는:
 
-```text id="9m5p8n"
+```text
 “장애는 예외 상황이 아니라
 언젠가 반드시 발생하는 이벤트”
 ```
@@ -107,13 +106,13 @@ High Availability는 말 그대로:
 
 그래서 시스템은:
 
-```text id="2z8u7n"
+```text
 장애를 막는 것
 ```
 
 보다:
 
-```text id="f4p4b0"
+```text
 장애가 나도 버티는 것
 ```
 
@@ -125,7 +124,7 @@ High Availability는 말 그대로:
 
 Availability는 보통:
 
-```text id="m4x0fh"
+```text
 서비스가 정상적으로 사용 가능한 시간 비율
 ```
 
@@ -151,7 +150,7 @@ Availability는 보통:
 
 여기서 많이 들어보는:
 
-```text id="tn3jx0"
+```text
 Five Nines (99.999%)
 ```
 
@@ -163,7 +162,7 @@ Five Nines (99.999%)
 
 HA에서 가장 중요한 개념 중 하나는:
 
-```text id="o4d6k6"
+```text
 SPOF (Single Point Of Failure)
 ```
 
@@ -171,7 +170,7 @@ SPOF (Single Point Of Failure)
 
 즉:
 
-```text id="9ymb7z"
+```text
 하나만 죽어도 전체가 죽는 구조
 ```
 
@@ -179,7 +178,7 @@ SPOF (Single Point Of Failure)
 
 예:
 
-```text id="kmqf3v"
+```text
 [WEB] ── [DB]
 ```
 
@@ -189,7 +188,7 @@ SPOF (Single Point Of Failure)
 
 그래서 HA 시스템은:
 
-```text id="w0v8g9"
+```text
 “하나가 죽어도 계속 동작”
 ```
 
@@ -201,7 +200,7 @@ SPOF (Single Point Of Failure)
 
 HA 시스템의 핵심 전략은:
 
-```text id="q5y1ko"
+```text
 이중화
 ```
 
@@ -220,7 +219,7 @@ HA 시스템의 핵심 전략은:
 
 예시 구조:
 
-```text id="7wd2we"
+```text
         ┌─────────────┐
         │ LoadBalancer│
         └──────┬──────┘
@@ -240,7 +239,7 @@ HA 시스템의 핵심 전략은:
 
 이전 글에서 본:
 
-```text id="vw7hga"
+```text
 Failover
 ```
 
@@ -248,7 +247,7 @@ Failover
 
 예:
 
-```text id="f0ntpm"
+```text
 Primary 장애
 → Standby 승격
 → 서비스 지속
@@ -256,7 +255,7 @@ Primary 장애
 
 즉:
 
-```text id="9i6u1w"
+```text
 장애 발생 시 자동 복구
 ```
 
@@ -270,7 +269,7 @@ Primary 장애
 
 대표적인 예가:
 
-```text id="56xqai"
+```text
 Multi-AZ
 ```
 
@@ -286,7 +285,7 @@ AZ(Availability Zone)는:
 
 예:
 
-```text id="cwlzjv"
+```text
 서울 AZ-A
 서울 AZ-B
 ```
@@ -295,7 +294,7 @@ AZ(Availability Zone)는:
 
 즉 한 데이터센터가 죽어도:
 
-```text id="8lsz59"
+```text
 다른 AZ가 서비스 유지
 ```
 
@@ -319,7 +318,7 @@ AZ(Availability Zone)는:
 
 즉:
 
-```text id="sd8z4g"
+```text
 가용성이 높아질수록
 시스템은 복잡해진다
 ```
@@ -343,7 +342,7 @@ Kubernetes 역시 HA 철학 위에 만들어졌다.
 
 즉:
 
-```text id="x8w2g6"
+```text
 “장애는 발생한다”
 ```
 
@@ -355,7 +354,7 @@ Kubernetes 역시 HA 철학 위에 만들어졌다.
 
 High Availability는 단순히:
 
-```text id="v4d3n4"
+```text
 “서버 여러 개 띄우기”
 ```
 
@@ -374,13 +373,13 @@ High Availability는 단순히:
 
 현대 인프라의 핵심은:
 
-```text id="yy7k3y"
+```text
 장애를 완전히 막는 것
 ```
 
 이 아니라:
 
-```text id="fxu4k0"
+```text
 장애가 발생해도
 서비스를 계속 유지하는 것
 ```

@@ -5,12 +5,11 @@ published: "2026-05-04T00:58:03.559Z"
 tags: "Spring"
 backup_date: "2026-05-29T14:52:52.779539"
 ---
-
 Spring Boot로 게시판 API를 만들다 보면 처음에는 어노테이션이 낯설게 느껴진다. 클래스 위에 붙는 것도 있고, 메서드 위에 붙는 것도 있고, 심지어 변수처럼 보이는 곳 앞에도 붙는다.
 
 예를 들어 이런 코드가 있다.
 
-```java id="mk0pwi"
+```java
 @GetMapping("/{id}")
 public Board getBoard(@PathVariable Long id){
     return boardService.getBoard(id);
@@ -33,13 +32,13 @@ public Board getBoard(@PathVariable Long id){
 
 예를 들어 다음 코드를 보자.
 
-```java id="og05u5"
+```java
 @GetMapping("/{id}")
 ```
 
 이 코드는 Spring에게 이렇게 알려준다.
 
-```text id="arrp9t"
+```text
 이 메서드는 GET 요청을 처리한다.
 그리고 URL은 /{id} 형태다.
 ```
@@ -54,13 +53,13 @@ public Board getBoard(@PathVariable Long id){
 
 보통 게시글 목록은 다음과 같이 요청한다.
 
-```text id="uyoxlo"
+```text
 GET /boards
 ```
 
 게시글 하나를 조회할 때는 id를 붙여서 요청한다.
 
-```text id="b60t4m"
+```text
 GET /boards/1
 GET /boards/2
 GET /boards/3
@@ -68,7 +67,7 @@ GET /boards/3
 
 이때 컨트롤러에 공통 주소가 `/boards`로 잡혀 있다면, 메서드에서는 그 뒤에 붙는 id 부분만 받으면 된다.
 
-```java id="ws1mlm"
+```java
 @GetMapping("/{id}")
 public Board getBoard(@PathVariable Long id){
     return boardService.getBoard(id);
@@ -77,7 +76,7 @@ public Board getBoard(@PathVariable Long id){
 
 여기서
 
-```java id="84oogv"
+```java
 @GetMapping("/{id}")
 ```
 
@@ -85,13 +84,13 @@ public Board getBoard(@PathVariable Long id){
 
 예를 들어 요청이 이렇게 들어오면,
 
-```text id="sww1eg"
+```text
 GET /boards/3
 ```
 
 Spring은 URL을 이렇게 해석한다.
 
-```text id="tbixg0"
+```text
 /boards/{id}
         ↓
         3
@@ -107,26 +106,26 @@ Spring은 URL을 이렇게 해석한다.
 
 이때 사용하는 것이 `@PathVariable`이다.
 
-```java id="lod7yp"
+```java
 @PathVariable Long id
 ```
 
 이 코드는 Spring에게 이렇게 알려준다.
 
-```text id="tbg0si"
+```text
 URL 경로에 있는 id 값을
 Long 타입 변수 id에 넣어라.
 ```
 
 즉, 다음 요청이 들어오면,
 
-```text id="77qzkp"
+```text
 GET /boards/3
 ```
 
 Spring은 내부적으로 이런 식으로 처리한다.
 
-```text id="0q53uv"
+```text
 {id} = 3
 Long id = 3L
 boardService.getBoard(3L)
@@ -134,7 +133,7 @@ boardService.getBoard(3L)
 
 그래서 전체 코드는 이렇게 해석할 수 있다.
 
-```java id="n79f89"
+```java
 @GetMapping("/{id}")
 public Board getBoard(@PathVariable Long id){
     return boardService.getBoard(id);
@@ -143,7 +142,7 @@ public Board getBoard(@PathVariable Long id){
 
 의미:
 
-```text id="30mh7z"
+```text
 GET /boards/3 요청이 들어오면
 URL의 3을 id 변수에 넣고
 boardService.getBoard(id)를 실행한다.
@@ -155,7 +154,7 @@ boardService.getBoard(id)를 실행한다.
 
 처음에는 이렇게 생각할 수 있다.
 
-```java id="5l2r73"
+```java
 @GetMapping("/{id}")
 public Board getBoard(Long id){
     return boardService.getBoard(id);
@@ -168,7 +167,7 @@ public Board getBoard(Long id){
 
 HTTP 요청에는 값을 보낼 수 있는 위치가 여러 개 있다.
 
-```text id="zy9b72"
+```text
 URL 경로
 쿼리 파라미터
 요청 본문
@@ -178,19 +177,19 @@ URL 경로
 
 예를 들어 `id`라는 값이 URL 경로에 있을 수도 있고,
 
-```text id="vn6bdc"
+```text
 /boards/3
 ```
 
 쿼리 파라미터에 있을 수도 있다.
 
-```text id="upnnvn"
+```text
 /boards?id=3
 ```
 
 JSON 요청 본문 안에 있을 수도 있다.
 
-```json id="sbuf3r"
+```json
 {
   "id": 3
 }
@@ -198,13 +197,13 @@ JSON 요청 본문 안에 있을 수도 있다.
 
 그래서 Spring에게 명확하게 알려줘야 한다.
 
-```java id="4swqv0"
+```java
 @PathVariable Long id
 ```
 
 이 말은:
 
-```text id="iqhxgd"
+```text
 이 id는 URL 경로에서 꺼내라.
 ```
 
@@ -216,7 +215,7 @@ JSON 요청 본문 안에 있을 수도 있다.
 
 보통은 URL에 적은 이름과 파라미터 이름을 같게 쓴다.
 
-```java id="mb8f2u"
+```java
 @GetMapping("/{id}")
 public Board getBoard(@PathVariable Long id){
     return boardService.getBoard(id);
@@ -225,7 +224,7 @@ public Board getBoard(@PathVariable Long id){
 
 여기서는 둘 다 `id`다.
 
-```text id="i1x2w8"
+```text
 URL 변수 이름: {id}
 자바 파라미터 이름: id
 ```
@@ -234,7 +233,7 @@ URL 변수 이름: {id}
 
 만약 이름을 다르게 쓰고 싶다면 이렇게 명시할 수 있다.
 
-```java id="gvj5aj"
+```java
 @GetMapping("/{id}")
 public Board getBoard(@PathVariable("id") Long boardId){
     return boardService.getBoard(boardId);
@@ -243,7 +242,7 @@ public Board getBoard(@PathVariable("id") Long boardId){
 
 여기서는 URL에서는 `{id}`라고 받고, 자바 코드에서는 `boardId`라는 이름으로 사용한다.
 
-```text id="pwz0po"
+```text
 GET /boards/3
 {id} = 3
 Long boardId = 3L
@@ -263,7 +262,7 @@ Spring Controller에서는 요청 데이터를 꺼내기 위해 여러 어노테
 
 `@PathVariable`은 URL 경로에서 값을 꺼낸다.
 
-```java id="y4e2cr"
+```java
 @GetMapping("/boards/{id}")
 public Board getBoard(@PathVariable Long id){
     return boardService.getBoard(id);
@@ -272,19 +271,19 @@ public Board getBoard(@PathVariable Long id){
 
 요청:
 
-```text id="nt4zfm"
+```text
 GET /boards/1
 ```
 
 의미:
 
-```text id="cwtfa6"
+```text
 URL 경로의 1을 id에 넣는다.
 ```
 
 보통 특정 게시글, 특정 회원, 특정 상품처럼 **하나의 자원을 id로 조회할 때** 많이 사용한다.
 
-```text id="8o848k"
+```text
 /boards/1
 /users/10
 /products/7
@@ -296,7 +295,7 @@ URL 경로의 1을 id에 넣는다.
 
 `@RequestParam`은 쿼리 파라미터에서 값을 꺼낸다.
 
-```java id="y4n1pd"
+```java
 @GetMapping("/boards")
 public List<Board> searchBoards(@RequestParam String author){
     return boardService.searchByAuthor(author);
@@ -305,19 +304,19 @@ public List<Board> searchBoards(@RequestParam String author){
 
 요청:
 
-```text id="su718n"
+```text
 GET /boards?author=kim
 ```
 
 의미:
 
-```text id="8ho33r"
+```text
 author=kim 값을 String author 변수에 넣는다.
 ```
 
 보통 검색, 필터링, 정렬, 페이지 번호처럼 선택 조건을 보낼 때 사용한다.
 
-```text id="st8z7u"
+```text
 /boards?author=kim
 /boards?page=1
 /boards?keyword=spring
@@ -330,7 +329,7 @@ author=kim 값을 String author 변수에 넣는다.
 
 `@RequestBody`는 요청 본문에 담긴 JSON 데이터를 객체로 바꿔준다.
 
-```java id="miu4jy"
+```java
 @PostMapping("/boards")
 public Board createBoard(@RequestBody Board board){
     return boardService.createBoard(board);
@@ -339,7 +338,7 @@ public Board createBoard(@RequestBody Board board){
 
 요청 본문:
 
-```json id="enri96"
+```json
 {
   "title": "제목",
   "content": "내용",
@@ -349,7 +348,7 @@ public Board createBoard(@RequestBody Board board){
 
 의미:
 
-```text id="40pdvb"
+```text
 JSON 데이터를 Board 객체로 변환해서 board 변수에 넣는다.
 ```
 
@@ -359,7 +358,7 @@ JSON 데이터를 Board 객체로 변환해서 board 변수에 넣는다.
 
 ## 셋의 차이 정리
 
-```text id="6ba1l6"
+```text
 @PathVariable
 URL 경로에서 값을 꺼낸다.
 예: /boards/1
@@ -375,20 +374,20 @@ URL 뒤의 쿼리 문자열에서 값을 꺼낸다.
 
 게시판 API에 적용하면 이렇게 볼 수 있다.
 
-```java id="pf4mcz"
+```java
 @GetMapping("/boards/{id}")
 public Board getBoard(@PathVariable Long id)
 ```
 
 특정 게시글 조회
 
-```java id="dx3ktj"
+```java
 @GetMapping("/boards?author=kim")
 ```
 
 작성자 기준 검색
 
-```java id="qy7qye"
+```java
 @PostMapping("/boards")
 public Board createBoard(@RequestBody Board board)
 ```
@@ -401,7 +400,7 @@ public Board createBoard(@RequestBody Board board)
 
 게시글 상세 조회 API를 다시 보면 다음과 같다.
 
-```java id="dd9jad"
+```java
 @GetMapping("/{id}")
 public Board getBoard(@PathVariable Long id){
     return boardService.getBoard(id);
@@ -412,7 +411,7 @@ public Board getBoard(@PathVariable Long id){
 
 HTTP 요청이 들어오면 Spring이 다음 순서로 처리한다.
 
-```text id="oy5ryk"
+```text
 1. 사용자가 GET /boards/3 요청을 보낸다.
 
 2. Spring이 /boards/{id}와 매칭되는 메서드를 찾는다.
@@ -438,13 +437,13 @@ HTTP 요청이 들어오면 Spring이 다음 순서로 처리한다.
 
 하지만 정확히 보면 `@PathVariable`은 변수 앞에 붙은 것이 아니라, **메서드 파라미터에 붙은 어노테이션**이다.
 
-```java id="e0j2rx"
+```java
 public Board getBoard(@PathVariable Long id)
 ```
 
 이 코드는 Spring에게 이렇게 말한다.
 
-```text id="s0mvay"
+```text
 URL 경로에 있는 id 값을
 Long 타입 id 파라미터에 넣어줘.
 ```
@@ -453,7 +452,7 @@ Long 타입 id 파라미터에 넣어줘.
 
 한 줄로 정리하면 다음과 같다.
 
-```text id="w51hhb"
+```text
 @GetMapping("/{id}") = /boards/3 같은 요청을 받는 문
 @PathVariable Long id = 그 3을 꺼내서 id 변수에 넣는 통로
 ```

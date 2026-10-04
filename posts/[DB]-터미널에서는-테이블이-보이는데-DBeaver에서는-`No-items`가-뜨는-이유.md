@@ -1,29 +1,28 @@
 ---
-title: "[DB] 터미널에서는 테이블이 보이는데 DBeaver에서는 `No items`가 뜨는 이유"
+title: "[DB] 터미널에서는 테이블이 보이는데 DBeaver에서는 No items가 뜨는 이유"
 source: "https://velog.io/@yorange50/DB-터미널에서는-테이블이-보이는데-DBeaver에서는-No-items가-뜨는-이유"
 published: "2026-05-13T04:35:35.037Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.750649"
 ---
-
 ![](https://velog.velcdn.com/images/yorange50/post/e66b1eb5-0740-430d-8719-e6509f57e637/image.png)
 
 
 Docker로 PostgreSQL을 띄우고 터미널에서 `psql`로 접속했을 때는 테이블이 잘 보였다.
 
-```bash id="khvy4s"
+```bash
 docker exec -it hello-postgres psql -U hellouser -d hellodb
 ```
 
 그리고 SQL을 실행하면 데이터도 정상적으로 조회됐다.
 
-```sql id="utuxv9"
+```sql
 SELECT * FROM users;
 ```
 
 결과도 잘 나왔다.
 
-```text id="z94o9p"
+```text
  id | name
 ----+------
   1 | kim
@@ -42,20 +41,20 @@ SELECT * FROM users;
 
 터미널에서 실행한 명령어를 보면 답이 나온다.
 
-```bash id="oiiyji"
+```bash
 docker exec -it hello-postgres psql -U hellouser -d hellodb
 ```
 
 여기서 중요한 부분은 두 개다.
 
-```bash id="buj6ow"
+```bash
 -U hellouser
 -d hellodb
 ```
 
 `-U`는 PostgreSQL 사용자 이름이다.
 
-```text id="9678v5"
+```text
 -U hellouser
 ```
 
@@ -63,7 +62,7 @@ docker exec -it hello-postgres psql -U hellouser -d hellodb
 
 `-d`는 접속할 데이터베이스 이름이다.
 
-```text id="5qfkr6"
+```text
 -d hellodb
 ```
 
@@ -71,7 +70,7 @@ docker exec -it hello-postgres psql -U hellouser -d hellodb
 
 정리하면 터미널에서는 다음 상태였다.
 
-```text id="jd27rl"
+```text
 사용자: hellouser
 데이터베이스: hellodb
 ```
@@ -84,7 +83,7 @@ docker exec -it hello-postgres psql -U hellouser -d hellodb
 
 DBeaver 화면을 보면 왼쪽 트리에 이런 구조가 보였다.
 
-```text id="8gvf5c"
+```text
 Databases
 └── postgres
     └── Schemas
@@ -96,7 +95,7 @@ Databases
 
 DBeaver 상단에도 이런 식으로 표시되어 있었다.
 
-```text id="7lh3qt"
+```text
 public@postgres
 ```
 
@@ -116,7 +115,7 @@ PostgreSQL 서버 하나 안에는 여러 데이터베이스가 있을 수 있�
 
 예를 들면 이런 구조다.
 
-```text id="o7kije"
+```text
 PostgreSQL 서버
 ├── postgres DB
 │   └── public schema
@@ -133,13 +132,13 @@ PostgreSQL 서버
 
 터미널에서는 `hellodb`를 선택했다.
 
-```bash id="w7sq5f"
+```bash
 -d hellodb
 ```
 
 DBeaver에서는 `postgres`를 보고 있었다.
 
-```text id="q3atsy"
+```text
 Databases > postgres
 ```
 
@@ -151,13 +150,13 @@ Databases > postgres
 
 두 화면은 같은 PostgreSQL 서버를 바라보고 있었다.
 
-```text id="gkq9nu"
+```text
 localhost:5432
 ```
 
 하지만 접속한 데이터베이스가 달랐다.
 
-```text id="30ccyr"
+```text
 터미널: localhost:5432 / hellodb
 DBeaver: localhost:5432 / postgres
 ```
@@ -170,7 +169,7 @@ DBeaver: localhost:5432 / postgres
 
 비유하면 같은 건물에 들어갔지만 서로 다른 방을 보고 있는 상황이다.
 
-```text id="l6ynsh"
+```text
 PostgreSQL 서버 = 건물
 Database = 방
 Table = 방 안에 있는 물건
@@ -190,19 +189,19 @@ DBeaver는 `postgres`라는 방을 보고 있었다.
 
 왼쪽 Database Navigator에서 PostgreSQL 연결을 우클릭한다.
 
-```text id="x174mk"
+```text
 postgres localhost:5432
 ```
 
 그리고 아래 메뉴로 들어간다.
 
-```text id="6pp5fg"
+```text
 Edit Connection
 ```
 
 접속 정보를 다음처럼 맞춘다.
 
-```text id="xgvsoy"
+```text
 Host: localhost
 Port: 5432
 Database: hellodb
@@ -214,13 +213,13 @@ Password: docker-compose.yml에 적은 비밀번호
 
 기존에는 아마 이렇게 되어 있었을 가능성이 크다.
 
-```text id="x295e5"
+```text
 Database: postgres
 ```
 
 이걸 다음처럼 바꿔야 한다.
 
-```text id="mxxpx3"
+```text
 Database: hellodb
 ```
 
@@ -234,7 +233,7 @@ Database: hellodb
 
 연결을 `hellodb`로 바꾸면 DBeaver에서는 다음 구조를 봐야 한다.
 
-```text id="qk3u75"
+```text
 Databases
 └── hellodb
     └── Schemas
@@ -245,7 +244,7 @@ Databases
 
 만약 바로 보이지 않으면 `Tables`를 우클릭해서 `Refresh`를 누르면 된다.
 
-```text id="sggizv"
+```text
 public
 └── Tables
     └── Refresh
@@ -261,37 +260,37 @@ DBeaver는 화면 정보를 캐싱하고 있을 수 있어서, SQL로 테이블�
 
 DBeaver나 `psql`에서 아래 SQL을 실행한다.
 
-```sql id="l3rd69"
+```sql
 SELECT current_database();
 ```
 
 결과가 이렇게 나오면 `postgres` DB를 보고 있는 것이다.
 
-```text id="cog7s6"
+```text
 postgres
 ```
 
 결과가 이렇게 나와야 이번 실습 데이터와 맞다.
 
-```text id="0fnqzi"
+```text
 hellodb
 ```
 
 현재 사용자도 확인할 수 있다.
 
-```sql id="mnu0ke"
+```sql
 SELECT current_user;
 ```
 
 결과가 다음처럼 나오면 `hellouser`로 접속 중인 것이다.
 
-```text id="ce6bf3"
+```text
 hellouser
 ```
 
 즉, 확인용 SQL은 이렇게 두 개만 기억해도 좋다.
 
-```sql id="c7lh4s"
+```sql
 SELECT current_database();
 SELECT current_user;
 ```
@@ -302,7 +301,7 @@ SELECT current_user;
 
 Docker Compose에서 PostgreSQL을 띄울 때 보통 이런 환경변수를 설정한다.
 
-```yaml id="dxz03s"
+```yaml
 services:
   postgres:
     image: postgres:16
@@ -317,7 +316,7 @@ services:
 
 이 설정의 의미는 다음과 같다.
 
-```text id="6knq5x"
+```text
 POSTGRES_USER=hellouser
 → 기본 사용자 생성
 
@@ -330,7 +329,7 @@ POSTGRES_DB=hellodb
 
 그러면 DBeaver 연결 정보도 이 값과 맞춰야 한다.
 
-```text id="lwhenu"
+```text
 Host: localhost
 Port: 5432
 Database: hellodb
@@ -340,7 +339,7 @@ Password: hellopass
 
 터미널에서도 동일하게 접속해야 한다.
 
-```bash id="0fd9j5"
+```bash
 docker exec -it hello-postgres psql -U hellouser -d hellodb
 ```
 
@@ -356,7 +355,7 @@ PostgreSQL을 처음 보면 `postgres`라는 데이터베이스가 기본으로 
 
 반면 `hellodb`는 내가 Docker Compose에서 만든 애플리케이션용 데이터베이스다.
 
-```yaml id="79io3d"
+```yaml
 POSTGRES_DB: hellodb
 ```
 
@@ -364,7 +363,7 @@ Spring Boot 앱이나 실습용 테이블은 보통 이 `hellodb`에 만든다.
 
 그래서 테이블을 만들 때도, DBeaver로 볼 때도, Spring Boot에서 연결할 때도 같은 DB 이름을 사용해야 한다.
 
-```text id="68on1x"
+```text
 터미널 psql: hellodb
 DBeaver: hellodb
 Spring Boot application.properties: hellodb
@@ -380,7 +379,7 @@ Spring Boot application.properties: hellodb
 
 예를 들어 `application.properties`라면 다음처럼 설정한다.
 
-```properties id="xm3tl6"
+```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/hellodb
 spring.datasource.username=hellouser
 spring.datasource.password=hellopass
@@ -389,7 +388,7 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 
 여기서 중요한 부분은 URL의 마지막이다.
 
-```properties id="cm2pxr"
+```properties
 jdbc:postgresql://localhost:5432/hellodb
 ```
 
@@ -397,7 +396,7 @@ jdbc:postgresql://localhost:5432/hellodb
 
 만약 여기를 실수로 이렇게 쓰면
 
-```properties id="cv6mh7"
+```properties
 jdbc:postgresql://localhost:5432/postgres
 ```
 
@@ -413,13 +412,13 @@ Spring Boot는 `hellodb`가 아니라 `postgres` DB를 보게 된다.
 
 터미널에서는 다음 명령어로 접속했다.
 
-```bash id="ju3kfi"
+```bash
 docker exec -it hello-postgres psql -U hellouser -d hellodb
 ```
 
 그래서 터미널은 `hellodb`를 보고 있었다.
 
-```text id="23z1wo"
+```text
 hellodb
 └── public
     └── users
@@ -427,7 +426,7 @@ hellodb
 
 DBeaver에서는 왼쪽 트리에서 `postgres` DB를 보고 있었다.
 
-```text id="ias9hv"
+```text
 postgres
 └── public
     └── Tables
@@ -438,7 +437,7 @@ postgres
 
 정확한 구조는 이렇다.
 
-```text id="ok760o"
+```text
 PostgreSQL 서버 localhost:5432
 ├── postgres DB
 │   └── public schema
@@ -459,34 +458,34 @@ DBeaver에서 `No items`가 뜬다고 해서 데이터가 사라진 것은 아�
 
 터미널에서 아래처럼 접속했다면
 
-```bash id="l9j6if"
+```bash
 psql -U hellouser -d hellodb
 ```
 
 DBeaver도 반드시 같은 데이터베이스를 봐야 한다.
 
-```text id="t0kkbs"
+```text
 Database: hellodb
 Username: hellouser
 ```
 
 헷갈릴 때는 이 SQL을 실행한다.
 
-```sql id="toc70u"
+```sql
 SELECT current_database();
 SELECT current_user;
 ```
 
 그리고 결과를 확인한다.
 
-```text id="zz0cc8"
+```text
 current_database = hellodb
 current_user = hellouser
 ```
 
 결국 핵심은 이거다.
 
-```text id="ljkzn1"
+```text
 PostgreSQL 서버는 하나여도,
 그 안의 데이터베이스는 여러 개일 수 있다.
 

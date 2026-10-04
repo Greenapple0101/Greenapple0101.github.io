@@ -5,8 +5,6 @@ published: "2026-04-30T01:12:22.811Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.782264"
 ---
-
-
 Spring 프로젝트를 하다 보면 이런 말을 듣게 된다.
 
 > “Service에는 껍데기만 두고, 실제 비즈니스 로직은 Impl에서 구현합니다.”
@@ -20,7 +18,7 @@ Spring 프로젝트를 하다 보면 이런 말을 듣게 된다.
 
 게시판 API를 처음 만들 때는 보통 이렇게 작성한다.
 
-```java id="26fnmd"
+```java
 @Service
 public class BoardService {
 
@@ -42,7 +40,7 @@ public class BoardService {
 
 레이어드 아키텍처에서는 보통 Service를 두 부분으로 나눈다.
 
-```text id="lv4fx4"
+```text
 BoardService      → 기능을 정의하는 껍데기
 BoardServiceImpl  → 실제 로직을 구현하는 클래스
 ```
@@ -54,7 +52,7 @@ BoardServiceImpl  → 실제 로직을 구현하는 클래스
 
 ## 3. BoardService는 인터페이스로 만든다
 
-```java id="ky8c90"
+```java
 public interface BoardService {
 
     List<String> getBoards();
@@ -75,7 +73,7 @@ public interface BoardService {
 
 ## 4. BoardServiceImpl에서 실제 로직을 구현한다
 
-```java id="7w7g0x"
+```java
 @Service
 public class BoardServiceImpl implements BoardService {
 
@@ -93,7 +91,7 @@ public class BoardServiceImpl implements BoardService {
 
 여기서 중요한 키워드는 `implements`다.
 
-```java id="02mmv5"
+```java
 public class BoardServiceImpl implements BoardService
 ```
 
@@ -109,7 +107,7 @@ public class BoardServiceImpl implements BoardService
 
 `BoardService`는 메뉴판이다.
 
-```text id="j0a5d4"
+```text
 - 게시글 목록 조회
 - 게시글 생성
 - 게시글 수정
@@ -125,7 +123,7 @@ public class BoardServiceImpl implements BoardService
 
 즉,
 
-```text id="3l8ke4"
+```text
 Service = 메뉴판
 Impl = 실제 요리하는 주방
 ```
@@ -136,7 +134,7 @@ Impl = 실제 요리하는 주방
 
 Controller에서는 이렇게 쓴다.
 
-```java id="g39zy7"
+```java
 @RestController
 @RequiredArgsConstructor
 public class BoardController {
@@ -148,7 +146,7 @@ public class BoardController {
 
 여기서 Controller는 `BoardServiceImpl`을 직접 쓰지 않는다.
 
-```java id="tnz1i7"
+```java
 private final BoardService boardService;
 ```
 
@@ -167,7 +165,7 @@ Spring이 알아서 `BoardServiceImpl`을 찾아서 연결해준다.
 
 또는 테스트용 서비스와 실제 운영용 서비스를 나눌 수도 있다.
 
-```text id="csig5s"
+```text
 BoardServiceImpl        → 실제 서비스 로직
 FakeBoardServiceImpl    → 테스트용 로직
 DbBoardServiceImpl      → DB 연결 로직
@@ -185,7 +183,7 @@ DbBoardServiceImpl      → DB 연결 로직
 
 하지만 팀 프로젝트나 실무에서는 구조를 명확히 하기 위해
 
-```text id="0qd2l8"
+```text
 Controller
 Service(interface)
 ServiceImpl

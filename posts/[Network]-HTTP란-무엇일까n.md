@@ -1,11 +1,11 @@
 ---
-title: "[Network] HTTP란 무엇일까?\n"
+title: "[Network] HTTP란 무엇일까?"
 source: "https://velog.io/@yorange50/Network-HTTP란-무엇일까"
 published: "2026-05-27T18:06:04.998Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.709699"
+redirect_to: "[Network]-HTTP란-무엇일까"
 ---
-
 웹을 공부하다 보면 `HTTP`라는 말을 정말 자주 본다.
 
 ```text

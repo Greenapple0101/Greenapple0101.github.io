@@ -5,16 +5,15 @@ published: "2026-05-11T14:49:17.924Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.760968"
 ---
-
 DB를 공부하다 보면 꼭 듣는 말이 있다.
 
-```sql id="y5ezpz"
+```sql
 인덱스 걸어라
 ```
 
 그리고 보통 같이 나온다.
 
-```text id="m0jv9q"
+```text
 조회 성능
 Full Scan
 B-Tree
@@ -23,7 +22,7 @@ B-Tree
 
 근데 처음엔 의문이 든다.
 
-```text id="r0hn4g"
+```text
 "그냥 찾으면 되는 거 아닌가?"
 ```
 
@@ -49,7 +48,7 @@ B-Tree
 
 책에서:
 
-```text id="3d4r4x"
+```text
 "쿠버네티스"
 ```
 
@@ -63,7 +62,7 @@ B-Tree
 
 맨 뒤 목차에서:
 
-```text id="3hyq9v"
+```text
 쿠버네티스 → 312페이지
 ```
 
@@ -77,7 +76,7 @@ DB 인덱스도 거의 같은 개념이다.
 
 예를 들어:
 
-```sql id="g9lm6v"
+```sql
 SELECT * FROM users
 WHERE name = 'kim';
 ```
@@ -90,7 +89,7 @@ WHERE name = 'kim';
 
 인덱스가 없으면 DB는 보통:
 
-```text id="q3l9f2"
+```text
 한 줄씩 전부 확인
 ```
 
@@ -98,7 +97,7 @@ WHERE name = 'kim';
 
 즉:
 
-```text id="4jlwm5"
+```text
 kim인가?
 아닌가?
 kim인가?
@@ -109,7 +108,7 @@ kim인가?
 
 이걸:
 
-```text id="3jlwm6"
+```text
 Full Table Scan
 ```
 
@@ -123,7 +122,7 @@ Full Table Scan
 
 근데:
 
-```text id="0jlwm7"
+```text
 100만 건
 1000만 건
 1억 건
@@ -135,7 +134,7 @@ Full Table Scan
 
 즉 시간복잡도 느낌으로 보면:
 
-```text id="mjlwm8"
+```text
 O(n)
 ```
 
@@ -147,7 +146,7 @@ O(n)
 
 예를 들어:
 
-```sql id="efp4nm"
+```sql
 CREATE INDEX idx_users_name
 ON users(name);
 ```
@@ -156,7 +155,7 @@ ON users(name);
 
 그러면 DB는:
 
-```text id="njlwm9"
+```text
 name 기준 정렬된 자료구조
 ```
 
@@ -168,7 +167,7 @@ name 기준 정렬된 자료구조
 
 이제 DB는:
 
-```text id="ojlwm0"
+```text
 처음부터 끝까지 탐색
 ```
 
@@ -176,7 +175,7 @@ name 기준 정렬된 자료구조
 
 대신:
 
-```text id="pjlwm1"
+```text
 정렬된 구조에서 빠르게 탐색
 ```
 
@@ -188,7 +187,7 @@ name 기준 정렬된 자료구조
 
 대부분 관계형 DB(MySQL/PostgreSQL)는:
 
-```text id="qjlwm2"
+```text
 B-Tree
 ```
 
@@ -200,7 +199,7 @@ B-Tree
 
 대충 이런 느낌이다.
 
-```text id="rjlwm3"
+```text
           [M]
         /     \
      [D]      [T]
@@ -210,7 +209,7 @@ B-Tree
 
 즉:
 
-```text id="sjlwm4"
+```text
 정렬된 트리 구조
 ```
 
@@ -222,7 +221,7 @@ B-Tree
 
 예를 들어:
 
-```text id="tjlwm5"
+```text
 kim
 ```
 
@@ -230,7 +229,7 @@ kim
 
 그러면:
 
-```text id="ujlwm6"
+```text
 절반
 → 절반
 → 절반
@@ -240,7 +239,7 @@ kim
 
 즉 시간복잡도 느낌으로 보면:
 
-```text id="vjlwm7"
+```text
 O(log n)
 ```
 
@@ -252,7 +251,7 @@ O(log n)
 
 예를 들어:
 
-```text id="wjlwm8"
+```text
 1억 건 테이블
 ```
 
@@ -262,7 +261,7 @@ O(log n)
 
 ## 인덱스 없음
 
-```text id="xjlwm9"
+```text
 1억 건 전부 탐색 가능성
 ```
 
@@ -270,7 +269,7 @@ O(log n)
 
 ## 인덱스 있음
 
-```text id="yjlwm0"
+```text
 트리 탐색 몇 번
 ```
 
@@ -284,7 +283,7 @@ O(log n)
 
 근데 여기서 중요한 게 있다.
 
-```text id="zjlwm1"
+```text
 인덱스 많다고 무조건 좋은 건 아님
 ```
 
@@ -296,7 +295,7 @@ O(log n)
 
 인덱스는:
 
-```text id="0klwm2"
+```text
 별도 자료구조
 ```
 
@@ -310,7 +309,7 @@ O(log n)
 
 예를 들어:
 
-```sql id="m4g4lj"
+```sql
 INSERT INTO users ...
 ```
 
@@ -328,7 +327,7 @@ INSERT INTO users ...
 
 즉:
 
-```text id="1klwm3"
+```text
 쓰기 비용 증가
 ```
 
@@ -340,7 +339,7 @@ INSERT INTO users ...
 
 데이터 변경 시:
 
-```text id="2klwm4"
+```text
 인덱스 재정렬
 인덱스 수정
 ```
@@ -349,7 +348,7 @@ INSERT INTO users ...
 
 그래서:
 
-```text id="3klwm5"
+```text
 읽기 빠름
 대신 쓰기 느려짐
 ```
@@ -366,7 +365,7 @@ INSERT INTO users ...
 
 ## WHERE 자주 쓰는 컬럼
 
-```sql id="3f9d1r"
+```sql
 WHERE email = ?
 ```
 
@@ -374,7 +373,7 @@ WHERE email = ?
 
 ## JOIN 컬럼
 
-```sql id="52ydar"
+```sql
 user_id
 ```
 
@@ -382,7 +381,7 @@ user_id
 
 ## ORDER BY 자주 쓰는 컬럼
 
-```sql id="6jlwm7"
+```sql
 created_at
 ```
 
@@ -392,7 +391,7 @@ created_at
 
 예:
 
-```text id="7jlwm8"
+```text
 성별(M/F)
 ```
 
@@ -400,7 +399,7 @@ created_at
 
 DB 입장에서는:
 
-```text id="8jlwm9"
+```text
 거의 절반이 M
 ```
 
@@ -408,7 +407,7 @@ DB 입장에서는:
 
 이런 걸:
 
-```text id="9jlwm0"
+```text
 카디널리티(Cardinality)
 ```
 
@@ -420,7 +419,7 @@ DB 입장에서는:
 
 예:
 
-```sql id="n6b0me"
+```sql
 id BIGINT PRIMARY KEY
 ```
 
@@ -434,7 +433,7 @@ id BIGINT PRIMARY KEY
 
 AWS DynamoDB에서도:
 
-```text id="aklwm1"
+```text
 GSI(Global Secondary Index)
 ```
 
@@ -442,7 +441,7 @@ GSI(Global Secondary Index)
 
 즉:
 
-```text id="bklwm2"
+```text
 NoSQL도 결국 빠른 조회를 위해
 인덱스 필요
 ```
@@ -489,7 +488,7 @@ NoSQL도 결국 빠른 조회를 위해
 
 ## 인덱스 없으면
 
-```text id="cklwm3"
+```text
 Full Table Scan
 ```
 
@@ -497,7 +496,7 @@ Full Table Scan
 
 ## 인덱스 있으면
 
-```text id="dklwm4"
+```text
 정렬된 구조 탐색
 ```
 
@@ -505,7 +504,7 @@ Full Table Scan
 
 ## 대표 구조
 
-```text id="eklwm5"
+```text
 B-Tree
 ```
 
@@ -519,7 +518,7 @@ B-Tree
 
 ## 단점
 
-```text id="fklwm6"
+```text
 INSERT
 UPDATE
 DELETE
@@ -531,7 +530,7 @@ DELETE
 
 ## 핵심 트레이드오프
 
-```text id="gklwm7"
+```text
 읽기 성능
 vs
 쓰기 성능
@@ -541,7 +540,7 @@ vs
 
 # 한 줄 핵심
 
-```text id="hklwm8"
+```text
 인덱스는 데이터를 처음부터 끝까지 찾지 않고,
 목차처럼 빠르게 탐색하기 위한 구조다.
 ```

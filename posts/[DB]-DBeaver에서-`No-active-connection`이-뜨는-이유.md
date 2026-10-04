@@ -1,11 +1,10 @@
 ---
-title: "[DB] DBeaver에서 `No active connection`이 뜨는 이유"
+title: "[DB] DBeaver에서 No active connection이 뜨는 이유"
 source: "https://velog.io/@yorange50/DB-DBeaver에서-No-active-connection이-뜨는-이유"
 published: "2026-05-13T04:25:32.852Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.751029"
 ---
-
 ![](https://velog.velcdn.com/images/yorange50/post/36fb77a2-32f1-4acc-8b56-e8242c6656d2/image.png)
 
 

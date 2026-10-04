@@ -5,17 +5,16 @@ published: "2026-05-07T01:51:53.724Z"
 tags: ""
 backup_date: "2026-05-29T14:52:52.774251"
 ---
-
 Kubernetes를 공부하다 보면 ReplicaSet 문제에서 자주 만나는 상황이 있다.
 
-```text id="vwjz4q"
+```text
 ReplicaSet은 존재하는데,
 Pod 이미지가 잘못되었다.
 ```
 
 예를 들면 이런 문제다.
 
-```text id="n7itk2"
+```text
 Fix the original replica set new-replica-set to use the correct image with name as busybox.
 
 Either delete and recreate the ReplicaSet or update the existing ReplicaSet and then delete all PODs, so new ones with the correct image will be created.
@@ -23,7 +22,7 @@ Either delete and recreate the ReplicaSet or update the existing ReplicaSet and 
 
 처음 보면 헷갈린다.
 
-```text id="3d26pf"
+```text
 ReplicaSet만 수정하면 끝 아닌가?
 왜 Pod까지 삭제하라는 거지?
 ```
@@ -36,13 +35,13 @@ ReplicaSet만 수정하면 끝 아닌가?
 
 ReplicaSet은 쉽게 말하면 다음 역할을 한다.
 
-```text id="jlwmqf"
+```text
 "Pod 개수를 원하는 만큼 유지해주는 관리자"
 ```
 
 예를 들어 replicas가 4라면:
 
-```yaml id="gxnlva"
+```yaml
 spec:
   replicas: 4
 ```
@@ -51,7 +50,7 @@ ReplicaSet은 항상 Pod가 4개 유지되도록 감시한다.
 
 현재 구조를 단순하게 보면 이렇다.
 
-```text id="m5op7g"
+```text
 ReplicaSet
  ├── Pod
  ├── Pod
@@ -67,14 +66,14 @@ Pod 하나가 죽으면 ReplicaSet이 새 Pod를 자동으로 만든다.
 
 Pod만 직접 만들면 문제가 있다.
 
-```text id="vyjlwm"
+```text
 Pod가 죽으면 끝이다.
 자동 복구가 없다.
 ```
 
 예를 들어:
 
-```bash id="wstml2"
+```bash
 kubectl delete pod nginx
 ```
 
@@ -82,7 +81,7 @@ kubectl delete pod nginx
 
 하지만 ReplicaSet이 관리 중이면 다르다.
 
-```text id="4m4ec6"
+```text
 Pod 삭제
 → ReplicaSet 감지
 → 새 Pod 자동 생성
@@ -96,19 +95,19 @@ Pod 삭제
 
 ReplicaSet 목록 확인:
 
-```bash id="k1fuhh"
+```bash
 kubectl get rs
 ```
 
 또는:
 
-```bash id="ofrm3n"
+```bash
 kubectl get replicasets
 ```
 
 출력 예시:
 
-```bash id="2wz5mn"
+```bash
 NAME              DESIRED   CURRENT   READY   AGE
 new-replica-set   4         4         0       10m
 ```
@@ -126,13 +125,13 @@ new-replica-set   4         4         0       10m
 
 # ReplicaSet이 만든 Pod 확인하기
 
-```bash id="0qjwbe"
+```bash
 kubectl get pods
 ```
 
 예시:
 
-```bash id="fru1bw"
+```bash
 NAME                        READY   STATUS             AGE
 new-replica-set-m7ctj       0/1     ImagePullBackOff  2m
 new-replica-set-qrk9x       0/1     ImagePullBackOff  2m
@@ -142,7 +141,7 @@ new-replica-set-9wlx9       0/1     ImagePullBackOff  2m
 
 여기서 이름을 보면:
 
-```text id="9xg9k6"
+```text
 new-replica-set-xxxxx
 ```
 
@@ -156,20 +155,20 @@ new-replica-set-xxxxx
 
 ReplicaSet 문제에서 자주 보이는 상태:
 
-```text id="mjlwmx"
+```text
 ImagePullBackOff
 ErrImagePull
 ```
 
 이 뜻은:
 
-```text id="umyycy"
+```text
 컨테이너 이미지를 가져오지 못했다.
 ```
 
 예를 들어 이미지 이름을 잘못 적으면:
 
-```yaml id="6stbo9"
+```yaml
 image: nginxx
 ```
 
@@ -177,7 +176,7 @@ Kubernetes는 Docker Hub에서 `nginxx` 이미지를 찾으려 한다.
 
 하지만 존재하지 않으므로 실패한다.
 
-```text id="e8j0ft"
+```text
 ErrImagePull
 → 이미지 다운로드 실패
 
@@ -191,13 +190,13 @@ ImagePullBackOff
 
 ReplicaSet 정보 확인:
 
-```bash id="g9u4mf"
+```bash
 kubectl describe rs new-replica-set
 ```
 
 또는:
 
-```bash id="l4e3ml"
+```bash
 kubectl describe replicaset new-replica-set
 ```
 
@@ -220,7 +219,7 @@ ReplicaSet은 이 템플릿을 기반으로 새 Pod를 만든다.
 
 ReplicaSet YAML 기본 구조:
 
-```yaml id="x6h8eh"
+```yaml
 apiVersion: apps/v1
 kind: ReplicaSet
 
@@ -247,7 +246,7 @@ spec:
 
 핵심은:
 
-```yaml id="3owp71"
+```yaml
 template:
 ```
 
@@ -257,7 +256,7 @@ ReplicaSet은 이 template을 복사해서 Pod를 만든다.
 
 즉:
 
-```text id="hvr3l1"
+```text
 ReplicaSet = Pod 공장
 template = Pod 설계도
 ```
@@ -270,7 +269,7 @@ template = Pod 설계도
 
 예를 들어 ReplicaSet을 이렇게 수정했다고 하자.
 
-```yaml id="zhq7cs"
+```yaml
 image: busybox
 ```
 
@@ -280,7 +279,7 @@ image: busybox
 
 ReplicaSet은:
 
-```text id="m4nml0"
+```text
 "Pod 개수 유지"
 ```
 
@@ -288,13 +287,13 @@ ReplicaSet은:
 
 하지만:
 
-```text id="glt3w0"
+```text
 기존 Pod 내용을 업데이트하는 역할은 아니다.
 ```
 
 즉 ReplicaSet은:
 
-```text id="wfgpsq"
+```text
 현재 Pod가 살아 있는지만 본다.
 ```
 
@@ -302,7 +301,7 @@ ReplicaSet은:
 
 그래서 흐름이 이렇게 된다.
 
-```text id="f3l77n"
+```text
 ReplicaSet 수정
 → 기존 Pod는 그대로
 → 기존 Pod 삭제
@@ -316,19 +315,19 @@ ReplicaSet 수정
 
 ReplicaSet 직접 수정:
 
-```bash id="zk3f75"
+```bash
 kubectl edit rs new-replica-set
 ```
 
 또는:
 
-```bash id="gkzqnm"
+```bash
 k edit rs new-replica-set
 ```
 
 편집기가 열리면:
 
-```yaml id="y2i35d"
+```yaml
 containers:
 - image: 잘못된이미지
 ```
@@ -337,13 +336,13 @@ containers:
 
 예를 들어:
 
-```yaml id="0jk4pb"
+```yaml
 image: nginxx
 ```
 
 이렇게 되어 있다면:
 
-```yaml id="3l2w5v"
+```yaml
 image: busybox
 ```
 
@@ -351,7 +350,7 @@ image: busybox
 
 최종 형태:
 
-```yaml id="6gdx0v"
+```yaml
 containers:
 - name: busybox
   image: busybox
@@ -363,7 +362,7 @@ containers:
 
 수정 후 저장:
 
-```text id="0clc7x"
+```text
 Esc
 :wq
 Enter
@@ -386,13 +385,13 @@ ReplicaSet 수정 후 기존 Pod를 삭제해야 한다.
 
 현재 Pod 확인:
 
-```bash id="j6ym0l"
+```bash
 kubectl get pods
 ```
 
 예시:
 
-```bash id="6vuxzw"
+```bash
 new-replica-set-m7ctj
 new-replica-set-qrk9x
 new-replica-set-jnnf7
@@ -401,19 +400,19 @@ new-replica-set-9wlx9
 
 삭제:
 
-```bash id="vhvh2z"
+```bash
 kubectl delete pod new-replica-set-m7ctj
 ```
 
 또는 여러 개:
 
-```bash id="e1kqkh"
+```bash
 kubectl delete pod new-replica-set-m7ctj new-replica-set-qrk9x
 ```
 
 전체 삭제:
 
-```bash id="1lr5ka"
+```bash
 kubectl delete pod --all
 ```
 
@@ -425,19 +424,19 @@ kubectl delete pod --all
 
 삭제 직후:
 
-```bash id="z6e1n6"
+```bash
 kubectl get pods
 ```
 
 잠깐 후:
 
-```text id="mjlwmw"
+```text
 새로운 이름의 Pod 생성
 ```
 
 예시:
 
-```bash id="1v1kz8"
+```bash
 NAME                        READY   STATUS
 new-replica-set-abc12       1/1     Running
 new-replica-set-def34       1/1     Running
@@ -451,19 +450,19 @@ ReplicaSet이 자동으로 새 Pod를 만든 것이다.
 
 새 Pod가 정말 busybox 이미지인지 확인:
 
-```bash id="9vppj6"
+```bash
 kubectl describe pod <pod-name>
 ```
 
 또는:
 
-```bash id="h6t66u"
+```bash
 kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].image}'
 ```
 
 출력:
 
-```bash id="fjlwmw"
+```bash
 busybox
 ```
 
@@ -475,31 +474,31 @@ busybox
 
 문제에서는 이런 방법도 허용한다.
 
-```text id="0otew2"
+```text
 ReplicaSet 삭제 후 다시 생성
 ```
 
 기존 ReplicaSet 삭제:
 
-```bash id="jlwmz0"
+```bash
 kubectl delete rs new-replica-set
 ```
 
 파일 수정:
 
-```bash id="ndjdzj"
+```bash
 vi /root/new-replica-set.yaml
 ```
 
 image 수정:
 
-```yaml id="uk3p8t"
+```yaml
 image: busybox
 ```
 
 저장 후:
 
-```bash id="i84m7o"
+```bash
 kubectl create -f /root/new-replica-set.yaml
 ```
 
@@ -513,7 +512,7 @@ ReplicaSet이 관리 중인 Pod는 보통 같이 삭제된다.
 
 구조적으로 보면:
 
-```text id="5h6b91"
+```text
 ReplicaSet
  └── Pod
 ```
@@ -522,7 +521,7 @@ Pod는 ReplicaSet 소유로 등록된다.
 
 그래서 ReplicaSet 삭제 시:
 
-```text id="bzwkz8"
+```text
 ReplicaSet 삭제
 → 관리하던 Pod도 삭제
 ```
@@ -551,7 +550,7 @@ Deployment는 ReplicaSet을 관리한다.
 
 ReplicaSet만 쓰면:
 
-```text id="h1h9ym"
+```text
 이미지 수정
 → 기존 Pod 삭제 필요
 ```
@@ -560,7 +559,7 @@ ReplicaSet만 쓰면:
 
 Deployment는 Rolling Update 기능이 있어서:
 
-```text id="jlwmwn"
+```text
 새 Pod 생성
 → 기존 Pod 순차 교체
 → 무중단 업데이트
@@ -576,7 +575,7 @@ Deployment는 Rolling Update 기능이 있어서:
 
 ## ReplicaSet 목록 보기
 
-```bash id="8rpnv5"
+```bash
 kubectl get rs
 ```
 
@@ -584,7 +583,7 @@ kubectl get rs
 
 ## ReplicaSet 자세히 보기
 
-```bash id="1t0c13"
+```bash
 kubectl describe rs new-replica-set
 ```
 
@@ -592,7 +591,7 @@ kubectl describe rs new-replica-set
 
 ## ReplicaSet YAML 보기
 
-```bash id="7z3lv4"
+```bash
 kubectl get rs new-replica-set -o yaml
 ```
 
@@ -600,7 +599,7 @@ kubectl get rs new-replica-set -o yaml
 
 ## ReplicaSet 수정
 
-```bash id="yjlwm2"
+```bash
 kubectl edit rs new-replica-set
 ```
 
@@ -608,7 +607,7 @@ kubectl edit rs new-replica-set
 
 ## ReplicaSet 삭제
 
-```bash id="6vjlwm"
+```bash
 kubectl delete rs new-replica-set
 ```
 
@@ -616,7 +615,7 @@ kubectl delete rs new-replica-set
 
 ## Pod 목록 확인
 
-```bash id="cjlwm3"
+```bash
 kubectl get pods
 ```
 
@@ -624,7 +623,7 @@ kubectl get pods
 
 ## Pod 삭제
 
-```bash id="jlwmw4"
+```bash
 kubectl delete pod <pod-name>
 ```
 
@@ -632,13 +631,13 @@ kubectl delete pod <pod-name>
 
 ## Pod 이미지 확인
 
-```bash id="njlwm5"
+```bash
 kubectl describe pod <pod-name>
 ```
 
 또는:
 
-```bash id="mjlwm6"
+```bash
 kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].image}'
 ```
 
@@ -650,7 +649,7 @@ kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].image}'
 
 ## 1. ReplicaSet 수정
 
-```bash id="qjlwm7"
+```bash
 kubectl edit rs new-replica-set
 ```
 
@@ -658,7 +657,7 @@ kubectl edit rs new-replica-set
 
 ## 2. image 수정
 
-```yaml id="zjlwm8"
+```yaml
 image: busybox
 ```
 
@@ -666,7 +665,7 @@ image: busybox
 
 ## 3. 기존 Pod 확인
 
-```bash id="xjlwm9"
+```bash
 kubectl get pods
 ```
 
@@ -674,7 +673,7 @@ kubectl get pods
 
 ## 4. 기존 Pod 삭제
 
-```bash id="yjlwm0"
+```bash
 kubectl delete pod <pod-name>
 ```
 
@@ -682,7 +681,7 @@ kubectl delete pod <pod-name>
 
 ## 5. ReplicaSet이 새 Pod 생성
 
-```text id="ajlwm1"
+```text
 새 Pod 자동 생성
 ```
 
@@ -690,13 +689,13 @@ kubectl delete pod <pod-name>
 
 ## 6. 새 Pod 이미지 확인
 
-```bash id="bjlwm2"
+```bash
 kubectl describe pod <pod-name>
 ```
 
 또는:
 
-```bash id="cjlwm3"
+```bash
 kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].image}'
 ```
 
@@ -704,15 +703,15 @@ kubectl get pod <pod-name> -o jsonpath='{.spec.containers[*].image}'
 
 # 핵심 개념 한 줄 정리
 
-```text id="djlwm4"
+```text
 ReplicaSet은 Pod 개수를 유지한다.
 ```
 
-```text id="ejlwm5"
+```text
 ReplicaSet 수정만으로 기존 Pod는 바뀌지 않는다.
 ```
 
-```text id="fjlwm6"
+```text
 기존 Pod를 삭제해야 새 이미지가 적용된 Pod가 다시 생성된다.
 ```
 
@@ -722,19 +721,19 @@ ReplicaSet 수정만으로 기존 Pod는 바뀌지 않는다.
 
 ReplicaSet 문제를 처음 풀 때 가장 헷갈리는 부분은 이거다.
 
-```text id="gjlwm7"
+```text
 왜 ReplicaSet 수정했는데 Pod가 안 바뀌지?
 ```
 
 이유는 ReplicaSet 역할이:
 
-```text id="hjlwm8"
+```text
 "Pod 개수 유지"
 ```
 
 이지,
 
-```text id="ijjlwm9"
+```text
 "Pod 업데이트"
 ```
 
@@ -742,7 +741,7 @@ ReplicaSet 문제를 처음 풀 때 가장 헷갈리는 부분은 이거다.
 
 그래서 실제 흐름은 항상 다음과 같다.
 
-```text id="jjlwm0"
+```text
 ReplicaSet 수정
 → 기존 Pod 삭제
 → ReplicaSet이 새 Pod 생성
