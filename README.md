@@ -54,11 +54,11 @@ category: "Spring"
 - `index.html` / `posts.json` — 폴더 목록·글 메타데이터
 - `style.css` / `post.css` — 스타일
 - `tests/` — 분류, 렌더링, 원본 보존, 내부 링크 검증
-- `spring2/index.html` — VS Code 기반 Spring REST API + JavaScript 게시판 가이드
+- `spring2/index.html` — VS Code·GitLab 기반 /post CRUD API 구현 및 매일 commit·push 가이드
 - `spring2/guide.md` / `spring2/build_guide.py` — 가이드 원문과 생성기 (`build.py`에서 함께 실행)
-- `spring2/images/` — 2026-10-27 Spring Initializr 공통 설정 캡처 3장과 실제 REST 게시판 실행 캡처 1장
+- `spring2/images/` — 2026-10-27 Spring Initializr 설정 캡처 3장과 실제 CRUD 수정·삭제 실행 캡처 2장
 
 Spring2는 기존 270편의 아카이브와 별도로 관리하는 실습 가이드 폴더입니다.
 홈 화면에 직접 연결되며, 블로그를 다시 빌드해도 폴더 링크가 유지됩니다.
 
-Spring2 실습 코드는 `spring2/board-rest-example.zip`으로 내려받을 수 있습니다.
+Spring2 완성 실습 코드는 `spring2/board-rest-example.zip`으로 내려받을 수 있습니다. GET /post, GET /post/{id}, POST /post, PUT /post/{id}, DELETE /post/{id}와 JavaScript 화면, 요청 예제, 테스트, 작업 일지 양식을 포함합니다. 과제 소스는 각자 GitLab 저장소에 push하며, 이 저장소는 가이드를 게시합니다.
