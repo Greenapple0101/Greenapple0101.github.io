@@ -1,5 +1,55 @@
 [
   {
+    "slug": "oauth-oidc-keycloak-01-foundations",
+    "title": "[OAuth·OIDC·Keycloak 1] 인증·인가와 OAuth의 역할, Grant 이해하기",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "OAuth, OIDC, Keycloak, 인증, 인가, Grant",
+    "date": "2026.10.27",
+    "excerpt": "OAuth와 OIDC를 공부할 때 먼저 연결해야 할 것은 로그인 버튼부터 API 응답까지의 흐름이다. 이 시리즈는 가상의 브라우저 앱 FinAccess, 인증 제공자 Keycloak, 보호된 API를 제공하는 Sp…",
+    "tag_color": "#dc2626"
+  },
+  {
+    "slug": "oauth-oidc-keycloak-02-code-pkce",
+    "title": "[OAuth·OIDC·Keycloak 2] Authorization Code와 PKCE로 로그인 흐름 따라가기",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "OAuth, OIDC, Keycloak, Authorization Code, PKCE, state, nonce",
+    "date": "2026.10.27",
+    "excerpt": "Authorization Code 흐름의 중심은 사용자 인증 → Code 수신 → 토큰 교환 → API 호출이다. 이를 이해하려면 Code를 받는 주체와 토큰으로 교환하는 주체를 같은 구조 안에서 따라가야 한다.…",
+    "tag_color": "#dc2626"
+  },
+  {
+    "slug": "oauth-oidc-keycloak-03-tokens-jwt",
+    "title": "[OAuth·OIDC·Keycloak 3] 토큰의 용도와 JWT·Claim·Scope·Role 구분하기",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "OAuth, OIDC, Keycloak, Access Token, ID Token, Refresh Token, JWT, Claim, Scope, Role",
+    "date": "2026.10.27",
+    "excerpt": "로그인을 마치고 받은 값이 모두 같은 목적으로 쓰이는 것은 아니다. Authorization Code는 토큰 교환에, Access Token은 API 접근에, ID Token은 인증 결과 확인에 사용한다. JWT는…",
+    "tag_color": "#dc2626"
+  },
+  {
+    "slug": "oauth-oidc-keycloak-04-resource-server",
+    "title": "[OAuth·OIDC·Keycloak 4] Spring API의 JWT 검증과 JWKS·Discovery 이해하기",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "OAuth, OIDC, Keycloak, Spring Security, Resource Server, JWT, JWKS, Discovery, 인가",
+    "date": "2026.10.27",
+    "excerpt": "API가 Access Token을 받았을 때 해야 할 일은 Payload를 읽는 것에서 끝나지 않는다. 신뢰하는 발급자의 토큰인지 검증하고, 요청한 작업에 필요한 권한이 있는지 판단해야 한다. JWKS와 OIDC…",
+    "tag_color": "#dc2626"
+  },
+  {
+    "slug": "oauth-oidc-keycloak-05-sso-practice",
+    "title": "[OAuth·OIDC·Keycloak 5] 세션 쿠키와 SSO를 구분하고 실습으로 연결하기",
+    "category": "SECURITY",
+    "topic": "web",
+    "tags": "OAuth, OIDC, Keycloak, SSO, Spring, 세션",
+    "date": "2026.10.27",
+    "excerpt": "브라우저 앱이 Access Token으로 API를 호출한다면, SSO는 어디에서 유지되는 걸까? 이 질문은 앱의 로그인 상태와 인증 제공자의 로그인 상태를 나누어 보면 이해하기 쉽다. 이 시리즈는 학습용 브라우저…",
+    "tag_color": "#dc2626"
+  },
+  {
     "slug": "[Upstage]-Upstage-API-기반-RAG-경험과-AI-DevOps-핵심-키워드-정리",
     "title": "[Upstage] Upstage API 기반 RAG 경험과 AI DevOps 핵심 키워드 정리",
     "category": "Upstage",

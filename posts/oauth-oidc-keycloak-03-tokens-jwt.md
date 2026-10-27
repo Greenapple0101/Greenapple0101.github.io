@@ -1,0 +1,138 @@
+---
+title: "[OAuth·OIDC·Keycloak 3] 토큰의 용도와 JWT·Claim·Scope·Role 구분하기"
+topic: "web"
+category: "SECURITY"
+published: "2026-10-27"
+tags: "OAuth, OIDC, Keycloak, Access Token, ID Token, Refresh Token, JWT, Claim, Scope, Role"
+---
+
+로그인을 마치고 받은 값이 모두 같은 목적으로 쓰이는 것은 아니다. Authorization Code는 토큰 교환에, Access Token은 API 접근에, ID Token은 인증 결과 확인에 사용한다. JWT는 이 과정에서 사용하는 정보를 담는 형식이다.
+
+이 글은 학습용 브라우저 앱 **FinAccess**, 인증 제공자 **Keycloak**, 보호된 **Spring Boot API**를 예로 든다. FinAccess가 직접 토큰을 받아 API에 Bearer 방식으로 제출하는 구조이며, 실제 서비스의 구현 결과를 설명하는 것은 아니다.
+
+## 1. Code와 세 가지 Token의 사용처
+
+먼저 모양보다 **목적과 수신자**를 구분해야 한다.
+
+| 항목 | 목적 | 제출하거나 확인하는 곳 |
+|---|---|---|
+| Authorization Code | 짧은 수명의 일회용 코드를 토큰으로 교환 | Keycloak의 Token Endpoint |
+| Access Token | 보호된 자원에 접근 | Spring Boot 같은 Resource Server |
+| ID Token | 클라이언트가 사용자 인증 결과를 확인 | FinAccess |
+| Refresh Token | 새 Access Token을 요청 | Keycloak의 Token Endpoint |
+
+Code는 API 호출용 토큰이 아니다. Refresh Token도 일반 업무 API에 제출하지 않는다. 같은 로그인 과정에서 얻었다는 이유로 서로 바꿔 사용할 수 없다. [OAuth 2.0 — RFC 6749](https://www.rfc-editor.org/rfc/rfc6749.html)
+
+```text
+Code          → Keycloak → 토큰 발급
+Access Token  → 업무 API → 보호된 데이터
+ID Token      → 앱에서 인증 결과 확인
+Refresh Token → Keycloak → 토큰 갱신
+```
+
+## 2. Access Token과 ID Token은 용도가 다르다
+
+Access Token은 **API에 접근할 수 있는 자격**을 나타낸다. FinAccess는 다음과 같이 API에 제출한다.
+
+```http
+GET /api/users/me
+Authorization: Bearer 실제_Access_Token
+```
+
+ID Token은 **이 클라이언트에서 이루어진 인증의 결과**를 전달한다. OIDC에서는 이를 JWT로 정의하며, 클라이언트가 발급자·수신 대상·만료 등 규칙에 맞게 검증한다. 요청에 `nonce`를 보냈다면 그 값도 확인한다. [OIDC Core — ID Token](https://openid.net/specs/openid-connect-core-1_0.html#IDToken)
+
+두 토큰에 사용자 식별자가 모두 들어 있을 수 있다. 둘 다 점으로 나뉜 문자열일 수도 있다. 그러나 **사용자 정보가 보인다는 사실은 용도를 결정하지 않는다.** ID Token을 업무 API의 Access Token 대신 제출하는 구조로 이해하면 안 된다.
+
+## 3. Refresh Token은 갱신에 사용한다
+
+```text
+Access Token 갱신 필요
+    ↓
+FinAccess가 Refresh Token을 Keycloak에 제출
+    ↓
+Keycloak이 유효성과 정책을 확인
+    ↓
+새 Access Token 발급
+```
+
+Refresh Token이 발급되었고 여전히 유효하다면, 매번 사용자에게 비밀번호 입력을 요구하지 않고 Access Token을 갱신할 수 있다. 발급 여부와 유효 기간은 서버 정책 등에 달려 있다. 영구 로그인 보증서는 아니다. 갱신 응답에 새 Refresh Token이 포함되면 클라이언트는 이전 값을 대체한다. [RFC 6749 §6](https://www.rfc-editor.org/rfc/rfc6749.html#section-6)
+
+Public Client에 발급하는 Refresh Token에는 재사용 공격에 대비한 보호도 필요하다. RFC 9700은 송신자 제한 방식 또는 Refresh Token 회전을 요구한다. 이는 토큰을 받았다는 사실과 별도로 검토할 보안 정책이다. [RFC 9700 §2.2.2](https://www.rfc-editor.org/rfc/rfc9700.html#section-2.2.2)
+
+## 4. JWT는 정보를 담는 형식이다
+
+OAuth는 권한을 얻고 사용하는 절차를 다룬다. JWT는 Claim을 담아 전달하는 형식이다. Access Token이 반드시 JWT여야 하는 것은 아니다.
+
+학습 중 흔히 보는 **서명된 JWT의 Compact 표현**은 세 부분이다.
+
+```text
+Header.Payload.Signature
+```
+
+| 부분 | 내용 |
+|---|---|
+| Header | 알고리즘, 키 식별자 등 처리 정보 |
+| Payload | 사용자·발급자·만료 시각 같은 Claim |
+| Signature | 무결성과 서명 검증에 사용하는 값 |
+
+Payload는 Base64url로 표현되어 있으며 일반적으로 디코딩해서 읽을 수 있다. **서명은 암호화와 다르다.** 서명된 JWT라는 이유만으로 내용이 비밀이 되지는 않는다.
+
+JWT는 JWS 또는 JWE 구조를 사용할 수 있다. 암호화된 JWE Compact 표현은 다섯 부분이므로, 모든 JWT가 언제나 세 부분이라고 일반화하지 않는다. [JWT — RFC 7519](https://www.rfc-editor.org/rfc/rfc7519.html)
+
+## 5. Claim은 개별 정보 항목이다
+
+| Claim | 읽는 방법 |
+|---|---|
+| `iss` | 누가 발급했는가 |
+| `sub` | 어떤 주체를 나타내는가 |
+| `aud` | 누구를 대상으로 발급했는가 |
+| `exp` | 언제 만료되는가 |
+| `nbf` | 언제부터 받아들일 수 있는가 |
+| `iat` | 언제 발급됐는가 |
+| `nonce` | 어떤 인증 요청과 연결되는가 — OIDC에서 사용 |
+
+특히 **`sub`는 주체, `aud`는 수신 대상**이다. `aud`를 사용자 ID로 읽으면 안 된다. 사용자 식별자를 저장하거나 비교할 때는 발급자 `iss`의 범위도 함께 고려한다. [RFC 7519 §4.1](https://www.rfc-editor.org/rfc/rfc7519.html#section-4.1)
+
+FinAccess용 ID Token의 Audience에는 해당 Client ID가 들어간다. Access Token은 호출할 API가 받아들이도록 발급된 대상과 권한을 갖춰야 한다. 같은 발급자가 서명했더라도 모든 서비스가 모든 토큰을 받아들여서는 안 된다.
+
+## 6. Scope·Role·Claim은 서로 연결되지만 같은 말은 아니다
+
+| 개념 | 의미 | 예시 |
+|---|---|---|
+| Scope | 요청하거나 허용받는 접근·정보 범위 | `openid`, `profile`, `email`, API의 읽기 범위 |
+| Role | 사용자나 서비스에 부여한 역할 | `USER`, `ADMIN` |
+| Claim | 토큰이나 응답의 개별 정보 항목 | `sub`, `email`, 역할을 담은 항목 |
+
+`scope=openid profile email`은 OIDC 인증과 해당 범주의 사용자 정보를 요청한다. 요청한 정보가 항상 모두 허용되거나, 반드시 ID Token 안에 전부 포함되는 것은 아니다. UserInfo 응답 등으로 제공될 수도 있다. [OIDC Core — Scope로 Claim 요청하기](https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims)
+
+Keycloak에서는 Realm Role과 Client Role 등을 구성하고, Protocol Mapper와 역할 범위 설정을 통해 토큰에 반영할 수 있다. 다음은 역할이 권한 판단까지 연결되는 과정을 단순화한 것이다. [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/index.html)
+
+```text
+사용자에게 역할 부여
+    ↓
+발급할 토큰의 Claim에 필요한 역할 반영
+    ↓
+API가 토큰 검증 후 Claim을 권한으로 해석
+    ↓
+요청한 기능의 인가 규칙과 비교
+```
+
+`ADMIN`이라는 문자열이 토큰에 있다는 사실만으로 관리자 기능이 자동으로 열리지 않는다. API의 Claim 해석과 인가 규칙까지 연결되어야 한다. 반대로 역할은 부여했는데 토큰에 반영되지 않았다면, Mapper와 역할 범위 설정부터 살펴볼 수 있다.
+
+## 7. 읽기·검증·인가를 구분한다
+
+```text
+디코딩 → 무엇이 적혀 있는지 읽기
+검증   → 신뢰할 수 있는 토큰인지 확인하기
+인가   → 이 요청의 작업을 허용할지 판단하기
+```
+
+화면에서 Payload를 읽어 보는 것은 첫 단계다. 서명과 Claim을 검증하고, 유효한 토큰이 나타내는 권한을 업무 규칙과 비교하는 과정이 뒤따른다. 이 책임을 Spring API가 어떻게 수행하는지는 다음 글에서 연결한다.
+
+## 시리즈 이어 읽기
+
+1. [인증·인가와 OAuth의 역할, Grant 이해하기](oauth-oidc-keycloak-01-foundations.html)
+2. [Authorization Code와 PKCE로 로그인 흐름 따라가기](oauth-oidc-keycloak-02-code-pkce.html)
+3. [토큰의 용도와 JWT·Claim·Scope·Role 구분하기](oauth-oidc-keycloak-03-tokens-jwt.html)
+4. [Spring API의 JWT 검증과 JWKS·Discovery 이해하기](oauth-oidc-keycloak-04-resource-server.html)
+5. [세션 쿠키·SSO와 Keycloak 실습 체크리스트](oauth-oidc-keycloak-05-sso-practice.html)
