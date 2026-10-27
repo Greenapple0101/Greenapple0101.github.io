@@ -4,7 +4,7 @@
 
 **이번 글의 도착점:** 프로젝트를 내려받아 실행하고, 브라우저에서 “게시판 프로젝트 준비 완료” 화면을 확인합니다. CRUD 기능과 회원 인증은 다음 구현 단계입니다.
 
-- 준비물: **JDK 21**, IntelliJ IDEA 또는 Spring Tools(Eclipse/STS), 인터넷 연결.
+- 준비물: **JDK 21**, **Visual Studio Code(VS Code)**, 인터넷 연결.
 - 터미널에서 `java -version`과 `javac -version`을 실행해 JDK를 확인합니다. 이 가이드는 둘 다 21로 맞추는 구성을 권장합니다.
 - Maven은 ZIP에 포함된 **Maven Wrapper**로 실행하므로 별도로 설치하지 않아도 됩니다. 첫 실행에는 다운로드 시간이 필요합니다.
 - `spring2`는 이 블로그의 **폴더 이름**입니다. Spring Boot 2를 뜻하지 않습니다.
@@ -25,7 +25,7 @@
 | Package name | `com.example.board` | 자바 소스의 기본 패키지입니다. Artifact 입력 후 확인합니다. |
 | Packaging | **Jar** | 내장 서버를 포함해 단독으로 실행합니다. |
 | Configuration | **Properties** | 이 글의 `application.properties` 예제와 맞춥니다. |
-| Java | **21** | 프로젝트에서 사용할 Java 버전입니다. IDE의 JDK도 맞춥니다. |
+| Java | **21** | 프로젝트에서 사용할 Java 버전입니다. VS Code의 프로젝트 JDK도 맞춥니다. |
 
 <figure><a href="images/01-project-settings.png" target="_blank" rel="noopener"><img src="images/01-project-settings.png" alt="Spring Initializr에서 Maven, Java, Spring Boot 4.1.2, board, Jar, Properties, Java 21을 선택한 화면" width="1086" height="817"></a><figcaption>캡처 1 · 기본 설정. 이미지를 누르면 원본 크기로 볼 수 있습니다.</figcaption></figure>
 
@@ -73,23 +73,46 @@ spring-boot-h2console
 
 `spring-boot-h2console`은 이 버전에서 H2 Database를 선택할 때 함께 생성됩니다. 테스트용 의존성도 추가되므로 `pom.xml`의 dependency 개수가 화면에서 고른 6개보다 많아도 정상입니다. `0.0.1-SNAPSHOT`은 **내 게시판 프로젝트 버전**으로, 위에서 피한 Spring Boot의 SNAPSHOT 버전과 구분합니다.
 
-## 05. IDE에서 프로젝트 열기 {#ide}
+## 05. VS Code에서 프로젝트 열기 {#ide}
 
-### IntelliJ IDEA
+### ① Java·Spring 확장 설치
 
-1. 시작 화면의 **Open**에서 `pom.xml`이 있는 폴더를 엽니다.
-2. Maven 프로젝트 인식 및 의존성 다운로드가 끝날 때까지 기다립니다.
-3. Project SDK와 Maven이 사용하는 JDK를 **21**로 맞춥니다. SDK가 없으면 JDK 21 설치 경로를 지정합니다.
-4. `src/main/java/com/example/board/BoardApplication.java`를 열어 `main` 메서드가 있는지 확인합니다.
+VS Code를 실행하고 왼쪽 **Extensions(확장)** 아이콘 또는 Windows의 `Ctrl + Shift + X`를 눌러 다음 두 확장 묶음을 검색해 설치합니다.
 
-### Spring Tools / Eclipse (STS)
+| 확장 이름 | 용도 |
+| --- | --- |
+| **Extension Pack for Java** | Java 코드 자동 완성, Maven 프로젝트 인식, 실행·디버깅·테스트 도구를 제공합니다. |
+| **Spring Boot Extension Pack** | Spring 설정 지원과 Spring Boot Dashboard를 제공합니다. |
 
-1. **File → Import → Maven → Existing Maven Projects**를 선택합니다.
-2. Root Directory에 `pom.xml`이 있는 폴더를 지정하고 프로젝트를 가져옵니다.
-3. Installed JREs와 프로젝트의 Java 설정을 **JDK 21**로 맞춥니다.
-4. `BoardApplication`을 **Run As → Spring Boot App** 또는 **Java Application**으로 실행할 수 있습니다.
+[VS Code 공식 Spring Boot 가이드](https://code.visualstudio.com/docs/java/java-spring-boot)에서 두 확장 묶음을 확인할 수 있습니다. 이 글에서는 앞서 Spring Initializr 웹사이트에서 받은 ZIP을 사용합니다.
 
-IDE 버전에 따라 메뉴 이름은 조금 다를 수 있습니다. 핵심은 **Maven 프로젝트로 가져오기 + JDK 21 지정**입니다. 아래 터미널 실행 방법으로도 같은 프로젝트를 실행할 수 있습니다.
+### ② 압축 해제한 board 폴더 열기
+
+1. **File → Open Folder…(파일 → 폴더 열기)**에서 `pom.xml`이 들어 있는 폴더를 선택합니다.
+2. 왼쪽 Explorer(탐색기)에 `pom.xml`, `mvnw.cmd`, `src`가 함께 보이는지 확인합니다. `src`만 열면 프로젝트 루트로 다시 엽니다.
+3. Java 확장이 Maven 프로젝트를 가져오고 의존성을 내려받을 때까지 기다립니다. Java Projects 뷰에서 프로젝트를 확인할 수 있습니다.
+4. `src/main/java/com/example/board/BoardApplication.java`를 열어 `main` 메서드를 확인합니다.
+
+### ③ 프로젝트 JDK와 터미널 Java 확인
+
+1. `Ctrl + Shift + P`로 명령 팔레트를 열고 **Java: Configure Java Runtime**을 실행합니다.
+2. 프로젝트의 Java 런타임 정보를 확인하고 **JDK 21** 설치 경로를 등록합니다. JDK가 없다면 **Java: Install New JDK**에서 21을 선택해 설치할 수 있습니다.
+3. Maven 프로젝트의 Java 버전은 `pom.xml`의 `<java.version>21</java.version>`로 유지합니다. 런타임 설정의 기본값만 바꿔서는 Maven의 빌드 버전이 바뀌지 않습니다.
+4. **Terminal → New Terminal(터미널 → 새 터미널)**에서 PowerShell을 열고 아래 명령을 실행합니다.
+
+```powershell
+java -version
+javac -version
+.\mvnw.cmd -v
+```
+
+세 출력에서 **Java 21** 사용 여부를 확인합니다. `mvnw.cmd -v`는 실제 Maven이 사용하는 Java 경로도 보여 줍니다. 다른 버전이 나온다면 Windows의 `JAVA_HOME`을 설치한 JDK 21 폴더로, `Path`의 Java 경로를 해당 JDK의 `bin`으로 맞춘 뒤 **VS Code를 완전히 종료하고 다시 열어** 확인합니다. 확장의 Java 런타임 선택과 터미널의 `JAVA_HOME`은 따로 확인해야 합니다.
+
+VS Code의 Java 상태가 **Lightweight**이면 상태 표시줄에서 **Standard** 모드로 전환하고 프로젝트 로딩을 완료합니다. 실행·디버깅에는 의존성을 해석하는 Standard 모드가 필요합니다. [프로젝트 가져오기와 JDK 설정 공식 안내](https://code.visualstudio.com/docs/java/java-project)
+
+### ④ 파일 위치 확인
+
+VS Code 탐색기에서 아래 구조를 확인합니다. 다음 단계부터 이 탐색기에서 설정과 예제 파일을 추가하면 됩니다.
 
 ```text
 board/                         ← pom.xml이 있는 폴더
@@ -108,7 +131,7 @@ board/                         ← pom.xml이 있는 폴더
 
 ## 06. 로컬 실습용 DB 설정하기 {#database}
 
-`src/main/resources/application.properties`를 열고 아래 내용을 저장합니다. 이 단계는 **Initializr에서 받은 뒤 IDE에서 직접 추가하는 설정**입니다.
+VS Code 탐색기에서 `src/main/resources/application.properties`를 열고 아래 내용을 저장합니다. 이 단계는 **Initializr에서 받은 뒤 VS Code에서 직접 추가하는 설정**입니다.
 
 ```properties
 spring.application.name=board
@@ -181,9 +204,9 @@ public class HomeController {
 
 컨트롤러의 `return "index"`는 `templates/index.html`을 가리킵니다. 블로그의 `spring2/index.html`과는 **서로 다른 파일**입니다.
 
-### ③ 터미널에서 실행
+### ③ VS Code 통합 터미널에서 실행
 
-`pom.xml`이 있는 폴더에서 실행합니다. IDE에서 이미 실행 중이면 먼저 종료하세요.
+파일을 저장한 뒤 **Terminal → New Terminal(터미널 → 새 터미널)**을 엽니다. 터미널의 현재 위치가 `pom.xml`이 있는 폴더인지 확인합니다. VS Code의 Run/Debug나 다른 터미널에서 이미 실행 중이면 먼저 종료하세요.
 
 **Windows PowerShell**
 
@@ -206,6 +229,8 @@ chmod +x mvnw
 
 **성공 기준:** “게시판 프로젝트 준비 완료”와 “Spring MVC와 Thymeleaf가 정상 연결되었습니다.”가 표시됩니다. 터미널에서 `Ctrl + C`를 누르면 서버가 종료됩니다.
 
+**VS Code의 실행 버튼을 사용하려면:** 터미널에서 실행한 서버를 먼저 종료하고 `BoardApplication.java`의 `main` 메서드 위 **Run** 또는 **Debug**를 클릭합니다. **F5**로 디버깅을 시작하거나 **Spring Boot Dashboard**에서 `board` 프로젝트를 시작·중지할 수도 있습니다. 중단점은 코드 왼쪽 여백에 표시하고 Debug로 실행합니다. 디버깅 종료는 상단 Stop 버튼 또는 `Shift + F5`를 사용합니다. [VS Code Java 실행·디버깅 공식 안내](https://code.visualstudio.com/docs/java/java-debugging)
+
 ### ④ H2 콘솔 접속 확인
 
 애플리케이션이 실행 중일 때 [http://localhost:8080/h2-console](http://localhost:8080/h2-console)에 접속합니다.
@@ -223,10 +248,12 @@ chmod +x mvnw
 
 | 증상 | 확인할 내용 |
 | --- | --- |
-| `release version 21 not supported` | 빌드에 사용되는 JDK가 오래된 경우입니다. `mvnw -v`와 IDE Maven JDK, `JAVA_HOME`을 확인합니다. |
+| `release version 21 not supported` | VS Code 터미널의 `.\mvnw.cmd -v`에서 Java 버전을 확인합니다. `JAVA_HOME`과 프로젝트의 JDK 21 설정을 맞춥니다. |
 | `JAVA_HOME` 관련 오류 | JDK가 설치되어 있는지, `JAVA_HOME`이 `bin`이 아닌 JDK 폴더를 가리키는지 확인하고 터미널을 다시 엽니다. |
 | 8080 포트가 이미 사용 중 | 기존 실행을 종료하거나 `server.port=8081`로 변경한 뒤 `localhost:8081`에 접속합니다. |
 | 첫 실행에 오래 걸림 / 의존성 다운로드 실패 | 인터넷·프록시 설정과 Maven 다운로드 오류를 확인합니다. 프로젝트를 다시 만들기 전에 원인 메시지를 읽습니다. |
+| VS Code에 Run/Debug가 보이지 않음 | Extension Pack for Java 설치, `pom.xml`이 있는 폴더 열기, 프로젝트 로딩 완료, Java Standard 모드 여부를 확인합니다. |
+| Java 프로젝트가 인식되지 않음 | 명령 팔레트에서 `Java: Import Java projects in workspace`를 실행합니다. 의존성 인식 문제가 계속되면 `Java: Clean Java Language Server Workspace`로 Java 작업 영역을 다시 로드합니다. |
 | 첫 화면에서 404 | `HomeController`가 `com.example.board` 아래 있는지, `@Controller`와 `@GetMapping("/")`가 있는지 확인합니다. |
 | 템플릿을 찾을 수 없음 | 파일이 `static`이 아니라 `templates/index.html`에 있는지, Thymeleaf가 추가됐는지 확인합니다. |
 | H2 콘솔 404 | 설정 저장 후 재시작하고 `spring-boot-h2console` 의존성 및 콘솔 경로를 확인합니다. |
@@ -239,7 +266,8 @@ chmod +x mvnw
 - [ ] Maven / Java / 정식 Spring Boot / Jar / Properties / Java 21 선택
 - [ ] Group `com.example`, Artifact `board`, Package `com.example.board` 확인
 - [ ] 의존성 6개 추가 및 `board.zip` 다운로드
-- [ ] IDE에서 Maven 프로젝트 열기와 JDK 설정 확인
+- [ ] VS Code에 Extension Pack for Java와 Spring Boot Extension Pack 설치
+- [ ] VS Code에서 board 폴더 열기 및 프로젝트 JDK·터미널 Java 21 확인
 - [ ] 로컬 H2 설정과 첫 화면 예제 추가
 - [ ] 테스트 통과, 첫 화면 표시, H2 연결 확인
 
@@ -250,5 +278,8 @@ chmod +x mvnw
 - [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/) — MVC와 Thymeleaf 연결
 - [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/) — JPA와 H2
 - [Validating Form Input](https://spring.io/guides/gs/validating-form-input/) — 입력 검증
+- [Spring Boot in VS Code](https://code.visualstudio.com/docs/java/java-spring-boot) — Java·Spring 확장 설치와 Dashboard
+- [Managing Java Projects in VS Code](https://code.visualstudio.com/docs/java/java-project) — 폴더 열기, Maven 인식, JDK 설정
+- [Running and debugging Java](https://code.visualstudio.com/docs/java/java-debugging) — Run/Debug와 F5 실행
 
 화면 캡처 및 설정 확인: **2026-10-27 (한국 시간)**. 캡처는 Spring Initializr의 실제 화면이며, 사이트 개편이나 버전 업데이트에 따라 표시가 달라질 수 있습니다.
