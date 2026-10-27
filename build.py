@@ -6,6 +6,7 @@ from __future__ import annotations
 import html
 import json
 import re
+import runpy
 import unicodedata
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -347,10 +348,11 @@ INDEX_HTML = """<!DOCTYPE html>
     <p class="small-title">Greenapple0101</p>
     <h1>Dev Blog Archive</h1>
     <p class="description">
-      학습 기록 {count}편 — 주제 폴더를 선택해 글을 찾아보세요.
+      학습 기록 {count}편 + 실습 가이드 1편 — 주제 폴더를 선택해 글을 찾아보세요.
     </p>
     <div class="stats">
       <span class="stat"><strong>{count}</strong> posts</span>
+      <span class="stat"><strong>1</strong> guide</span>
       <span class="stat"><strong>{folder_count}</strong> folders</span>
     </div>
   </header>
@@ -584,9 +586,18 @@ def build_index(entries: list[dict]) -> None:
             )
         )
 
+    folders.insert(4, '''      <a class="folder-card" href="spring2/index.html" style="--folder-color: #15803d">
+        <div class="folder-card-top">
+          <span class="folder-badge">실습 가이드 1편</span>
+        </div>
+        <h2>Spring2</h2>
+        <p>게시판 만들기 준비 · Spring Initializr 설정부터 실행 확인까지, 실제 화면 캡처로 따라하기</p>
+      </a>
+''')
+
     index = INDEX_HTML.format(
         count=len(entries),
-        folder_count=len(TOPIC_FOLDERS),
+        folder_count=len(TOPIC_FOLDERS) + 1,
         folders="\n".join(folders),
     )
     (ROOT / "index.html").write_text(index, encoding="utf-8")
@@ -704,6 +715,7 @@ def main() -> None:
         )
 
     print("Building index & topic folders...")
+    runpy.run_path(str(ROOT / "spring2" / "build_guide.py"))
     build_index(entries)
     build_topic_pages(entries)
     titles = {entry["slug"]: entry["title"] for entry in entries}
