@@ -43,12 +43,6 @@ TOPIC_FOLDERS: list[dict[str, str]] = [
         "color": "#db2777",
     },
     {
-        "id": "upstage",
-        "title": "업스테이지",
-        "description": "업스테이지 사업·제품, Solar API 활용, Document AI와 기술면접 준비",
-        "color": "#0d9488",
-    },
-    {
         "id": "spring",
         "title": "Spring",
         "description": "Spring Boot, JPA, API, 배포 실습 등",

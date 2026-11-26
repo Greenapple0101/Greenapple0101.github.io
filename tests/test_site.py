@@ -30,9 +30,10 @@ class BlogTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build.collect_entry('example', {'topic': 'typo'}, '본문')
 
-    def test_generic_rag_is_ai_and_upstage_stays_upstage(self):
+    def test_generic_rag_is_ai_and_retired_topic_requires_reclassification(self):
         self.assertEqual(build.topic_for_entry('RAG/MLOps', '[RAG]-품질-평가'), 'ai')
-        self.assertEqual(build.topic_for_entry('Upstage', '[Upstage]-Solar'), 'upstage')
+        with self.assertRaises(ValueError):
+            build.collect_entry('[Upstage]-Solar', {'topic': 'upstage'}, '본문')
 
     def test_frontmatter_decodes_quoted_titles_without_corrupting_korean(self):
         raw = '쿠버네티스 "ReplicaSet"과 `kubectl`\n'
@@ -98,14 +99,12 @@ class BlogTests(unittest.TestCase):
                 self.assertNotIn('\ufffd', article)
                 self.assertNotRegex(article, r'<p>(?:title|categories|tags):')
 
-    def test_information_extract_heading_is_outside_code(self):
-        path = next(build.POSTS_DIR.glob('*Information-Extract*.html'))
-        text = path.read_text(encoding='utf-8')
-        self.assertIn('<h1>Information Extract API란?</h1>', text)
-        code = re.findall(r'<pre><code[^>]*>(.*?)</code></pre>', text, re.S)
-        self.assertTrue(code)
-        self.assertNotIn('Information Extract API란?', code[0])
-        self.assertNotIn('이 문서들에는 업무에 필요한 정보', code[0])
+    def test_retired_topic_is_not_published(self):
+        self.assertNotIn('upstage', build.TOPIC_BY_ID)
+        self.assertFalse((build.TOPICS_DIR / 'upstage.html').exists())
+        entries = json.loads((build.ROOT / 'posts.json').read_text(encoding='utf-8'))
+        self.assertFalse(any(entry['topic'] == 'upstage' for entry in entries))
+        self.assertNotIn('topics/upstage.html', (build.ROOT / 'index.html').read_text(encoding='utf-8'))
 
     def test_archive_and_internal_navigation_are_complete(self):
         entries = json.loads((build.ROOT / 'posts.json').read_text(encoding='utf-8'))

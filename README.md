@@ -30,8 +30,7 @@ category: "Spring"
 ---
 ```
 
-`topic`은 `docker-k8s`, `ai`, `upstage`, `spring`, `algorithm`, `web` 중 하나입니다.
-업스테이지 폴더에는 사업·제품·Solar API 활용과 회사 기술면접 글을 넣고,
+`topic`은 `docker-k8s`, `ai`, `spring`, `algorithm`, `web` 중 하나입니다.
 일반 RAG·OCR 개념은 AI, 배포 자동화는 Docker & Kubernetes 등으로 분류합니다.
 분류가 없으면 기존 태그·파일명 규칙을 사용합니다.
 기존 주소의 Unicode 표현을 고정해야 하는 글은 `slug`를 명시할 수 있습니다.
@@ -58,7 +57,7 @@ category: "Spring"
 - `spring2/guide.md` / `spring2/build_guide.py` — 가이드 원문과 생성기 (`build.py`에서 함께 실행)
 - `spring2/images/` — 2026-10-27 Spring Initializr 설정 캡처 3장과 실제 CRUD 수정·삭제 실행 캡처 2장
 
-Spring2는 기존 270편의 아카이브와 별도로 관리하는 실습 가이드 폴더입니다.
+Spring2는 블로그 아카이브와 별도로 관리하는 실습 가이드 폴더입니다.
 홈 화면에 직접 연결되며, 블로그를 다시 빌드해도 폴더 링크가 유지됩니다.
 
 Spring2 완성 실습 코드는 `spring2/board-rest-example.zip`으로 내려받을 수 있습니다. GET /post, GET /post/{id}, POST /post, PUT /post/{id}, DELETE /post/{id}와 JavaScript 화면, 요청 예제, 테스트, 작업 일지 양식을 포함합니다. 과제 소스는 각자 GitLab 저장소에 push하며, 이 저장소는 가이드를 게시합니다.
